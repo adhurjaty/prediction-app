@@ -1,0 +1,28 @@
+@startuml Use Cases
+
+title Use Cases
+
+left to right direction
+
+actor User as user
+
+package UI {
+    usecase Registration as register
+    usecase "Create group" as create_group
+}
+
+package "API Backend" as api {
+    usecase "Create user" as api_reg
+    usecase "Create group" as api_create_group
+}
+
+package Database as db {
+    usecase User as db_user
+    usecase Group as db_group
+}
+
+user --> register 
+register --> api_reg 
+api_reg --> db_user : insert
+
+@enduml
