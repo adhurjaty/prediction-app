@@ -13,3 +13,8 @@ How do we want to do communication? We can use Github issues for specific softwa
 ![Registration](./diagram_out/Diagrams/UserStories/Registration%20Sequence.png)
 ![Create group](./diagram_out/Diagrams/UserStories/Create%20Group.png)
 ![Add 3rd party proposition](./diagram_out/Diagrams/UserStories/Add%203rd%20Party%20Proposition.png)
+
+## Links
+
+[Solidity tutorial](https://docs.soliditylang.org/en/v0.8.2/introduction-to-smart-contracts.html) and [by example](https://docs.soliditylang.org/en/v0.8.2/solidity-by-example.html)
+
