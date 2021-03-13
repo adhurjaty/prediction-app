@@ -76,3 +76,6 @@ Likely going with a PWA
 ## Next steps
 
 - Generate some wireframes
+- Dan had asked about videos/resources Tony had watched:
+  - [Solidity Tutorial from freeCodeCamp](https://www.youtube.com/watch?v=ipwxYa-F1uY&ab_channel=freeCodeCamp.org)
+	- [TechCrunch interview with Vitalik Buterin](https://www.youtube.com/watch?v=WSN5BaCzsbo&ab_channel=TechCrunch)
