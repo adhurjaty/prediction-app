@@ -14,6 +14,5 @@ api -> oauth : Register user
 oauth -> api : Return user info
 api -> db : Insert user
 api -> ui : Show success/error page
-ui -> user
 
 @enduml

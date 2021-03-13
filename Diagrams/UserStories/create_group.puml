@@ -1,0 +1,24 @@
+@startuml Create Group
+
+title Create Group
+
+actor User as user
+participant UI as ui
+participant "API Backend" as api
+database Database as db
+participant Email as email
+participant "Push Notification" as pn
+
+user -> ui : Click create group
+ui -> api : Create group endpoint
+api -> db : Insert group
+ui -> ui : Show friend \nselection page 
+ui -> api : Search users endpoint
+api -> ui : Return friend(s)
+user -> ui : Confirm friend request
+ui -> api : Add user to group endpoint
+api -> email : Email person (if not user)
+api -> pn : Notify user (if user)
+api -> db : Update group with\ntentative members
+
+@enduml

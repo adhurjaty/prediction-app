@@ -1,0 +1,25 @@
+@startuml Add 3rd Party Proposition
+
+title Add 3rd Party Proposition
+
+actor User as user
+participant UI as ui
+participant "API Backend" as api
+database Database as db
+participant Augur as augur
+
+user -> ui : Click 'Add Proposition'
+ui -> ui : Select proposition screen
+user -> ui : Search proposition
+ui -> api : Search proposition endpoint
+ui -> augur : Query propositions
+augur -> api : Response
+api -> ui : Propositions
+user -> ui : Select proposition
+ui -> ui : Proposition screen?
+user -> ui : Configuration?
+ui -> api : Add proposition endpoiont
+api -> db : Update group\nwith proposition
+api -> ui : Return success/failure
+
+@enduml
