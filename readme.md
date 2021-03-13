@@ -18,6 +18,17 @@ How do we want to do communication? We can use Github issues for specific softwa
 ![3rd party proposition resolved](./diagram_out/Diagrams/UserStories/3rd%20Party%20Proposition%20Resolved.png)
 ![Custom proposition resolved](./diagram_out/Diagrams/UserStories/Resolve%20Custom%20Proposition.png)
 
+## Screens
+
+- Registration
+- Login
+- Home
+- Profile
+- Group
+- Search proposition
+- Create proposition
+- View proposition
+
 ## Links
 
 - [Solidity tutorial](https://docs.soliditylang.org/en/v0.8.2/introduction-to-smart-contracts.html) and [by example](https://docs.soliditylang.org/en/v0.8.2/solidity-by-example.html)
