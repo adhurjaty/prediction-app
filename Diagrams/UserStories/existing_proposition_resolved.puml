@@ -1,0 +1,18 @@
+@startuml 3rd Party Proposition Resolved
+
+title 3rd Party Proposition Resolved
+
+participant Augur as augur
+participant "API Backend" as api
+database Database as db
+participant Notification as notify
+participant Blockchain as bc
+actor User as user
+
+bc -> user : Execute contract
+augur -> api : Webhook?
+api -> db : Update group proposition
+api -> notify : Trigger notification
+notify -> user : Notify
+
+@enduml

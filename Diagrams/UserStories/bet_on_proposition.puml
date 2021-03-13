@@ -1,0 +1,17 @@
+@startuml Bet on Proposition
+
+title Bet on Proposition
+
+actor User as user
+participant UI as ui
+participant "API Backend" as api
+participant Blockchain as bc
+
+user -> ui : Click Proposition
+ui -> ui : Proposition screen
+user -> ui : Bet (in some way)
+ui -> api : Record bet
+api -> bc : Send bet (don't\nreally know)
+api -> ui : Return success/failure
+
+@enduml

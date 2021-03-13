@@ -1,0 +1,20 @@
+@startuml Resolve Custom Proposition 
+
+title Resolve Custom Proposition 
+
+actor User as user
+participant UI as ui
+participant "API Backend" as api
+database Database as db
+participant Notification as notify
+participant Blockchain as bc
+
+user -> ui : Vote to resolve\n(somehow)
+ui -> api : Resolve endpoint
+api -> bc : Resolve
+bc -> user : Execute contract
+api -> db : Update group\nproposition
+api -> notify : Trigger notification
+notify -> user : Notify
+
+@enduml
