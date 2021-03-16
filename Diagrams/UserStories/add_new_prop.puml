@@ -2,20 +2,30 @@
 
 title Add Custom Proposition
 
-actor User as user
+actor Creator as creator
+actor GroupMembers as member
 participant UI as ui
 participant "API Backend" as api
 database Database as db
 participant Blockchain as bc
 
-user -> ui : Click 'Add Proposition'
+creator -> ui : Click 'Add Proposition'
 ui -> ui : Select proposition screen
-user -> ui : Click 'Custom Proposition'
+creator -> ui : Click 'Custom Proposition'
 ui -> ui : Custom Proposition screen
-user -> ui : Configure proposition
-ui -> api : Add custom\nproposition endpoiont
-api -> bc : Create smart contract
-api -> db : Update group\nwith proposition
-api -> ui : Return success/failure
+creator -> ui : Configure proposition
+ui -> ui: Select Ether or prestige points
+ui -> api: Get list of groups
+api -> db: Get list of groups \nwith creator as member
+db -> api: Return groups
+api -> ui: Return list of groups
+ui -> ui: Select from list of groups
+ui -> bc: Deploy contract - Proposition(my_ether_address)
+bc -> ui: Return success/fail
+ui -> bc: Add group members to contract - Proposition.addMember(address)
+bc -> ui: Return success/fail
+ui -> api: Notify backend about new \nproposition with group_id
+api -> db: Record contract address \nand group_id
+api -> member: Push notification to group members \nabout new proposition
 
 @enduml
