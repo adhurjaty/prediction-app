@@ -29,6 +29,14 @@ async function main() {
   await proposition.deployed();
 
   console.log("Proposition deployed to:", proposition.address);
+
+  console.log("Wager pool before bet:", await proposition.wager_pool());
+  console.log("My current wager:", await proposition.getMyWager());
+
+  await proposition.addBet(1000);
+
+  console.log("Wager pool after bet:", await proposition.wager_pool());
+  console.log("My new wager:", await proposition.getMyWager());
 }
 
 // We recommend this pattern to be able to use async/await everywhere

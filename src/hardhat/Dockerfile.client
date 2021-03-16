@@ -12,7 +12,7 @@ RUN mkdir scripts && mkdir contracts && mkdir tests
 ADD hardhat.config.js .
 ADD scripts scripts/.
 ADD contracts contracts/.
-ADD tests tests/.
+ADD test test/.
 
 RUN npx hardhat compile
 
