@@ -33,7 +33,11 @@ contract Proposition {
     }
 
     function addBet(uint256 wager) public isMember {
-         member_wagers[msg.sender] += wager;
-         wager_pool += wager;
+        member_wagers[msg.sender] += wager;
+        wager_pool += wager;
+    }
+
+    function getMyWager() public view isMember returns (uint256) {
+        return member_wagers[msg.sender];
     }
 }
