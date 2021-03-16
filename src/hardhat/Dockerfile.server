@@ -1,0 +1,25 @@
+FROM node:latest
+
+WORKDIR /usr/app
+RUN npm init --yes
+
+# JavaScript hardhat deployment
+# For TypeScript, see: https://hardhat.org/guides/typescript.html
+RUN npm install --save-dev hardhat @nomiclabs/hardhat-ethers @nomiclabs/hardhat-waffle ethereum-waffle chai mocha
+
+RUN mkdir scripts && mkdir contracts && mkdir tests
+
+ADD hardhat.config.js .
+ADD scripts scripts/.
+ADD contracts contracts/.
+ADD tests tests/.
+
+RUN npx hardhat compile
+
+RUN npx hardhat test
+
+# Hardhat JSON-RPC server
+EXPOSE 8545/tcp
+
+ENTRYPOINT ["npx"]
+CMD ["hardhat","node"]
