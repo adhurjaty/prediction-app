@@ -29,6 +29,8 @@ How do we want to do communication? We can use Github issues for specific softwa
 - Create proposition
 - View proposition
 
+### [Figma Prototype](https://www.figma.com/file/l9ut96y0hhfi9cqbxNSx94/Untitled?node-id=4%3A55)
+
 ## Links
 
 - [Solidity tutorial](https://docs.soliditylang.org/en/v0.8.2/introduction-to-smart-contracts.html) and [by example](https://docs.soliditylang.org/en/v0.8.2/solidity-by-example.html)
