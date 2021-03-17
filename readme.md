@@ -28,6 +28,7 @@ How do we want to do communication? We can use Github issues for specific softwa
 - Search proposition
 - Create proposition
 - View proposition
+- Resolve proposition
 
 ### [Figma Prototype](https://www.figma.com/file/l9ut96y0hhfi9cqbxNSx94/Untitled?node-id=4%3A55)
 
