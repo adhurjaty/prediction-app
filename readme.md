@@ -47,3 +47,4 @@ If you want to edit the Figma diagram, open your own instance of Figma and impor
 - [Blockchain basics](https://www.youtube.com/watch?v=bBC-nXj3Ng4&ab_channel=3Blue1Brown)
   - This is the best explanation of how the Bitcoin blockchain works. I've sent this video to so many people
 - [Decent Ethereum VM explanation](https://www.youtube.com/watch?v=BsDq2mzC5tk&ab_channel=TommyCooksey)
+- [Walkthrough simple prediction market app](https://www.youtube.com/watch?v=jgpyeu5nABI&ab_channel=EatTheBlocks)
