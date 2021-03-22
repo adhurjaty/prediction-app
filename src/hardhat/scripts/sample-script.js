@@ -23,20 +23,20 @@ async function main() {
   // await hre.run('compile');
 
   // We get the contract to deploy
-  const Proposition = await hre.ethers.getContractFactory("Proposition");
-  const proposition = await Proposition.deploy();
+  const Proposition = await hre.ethers.getContractFactory("EqualAnteProposition");
+  const proposition = await Proposition.deploy("Sample EAProp", 222, 888);
 
   await proposition.deployed();
 
   console.log("Proposition deployed to:", proposition.address);
 
-  console.log("Wager pool before bet:", await proposition.wager_pool());
-  console.log("My current wager:", await proposition.getMyWager());
+  console.log("Wager pool before bet:", await proposition.pool());
+  console.log("My current wager:", await proposition.getMyBet());
 
-  await proposition.addBet(1000);
+  await proposition.wager();
 
-  console.log("Wager pool after bet:", await proposition.wager_pool());
-  console.log("My new wager:", await proposition.getMyWager());
+  console.log("Wager pool after bet:", await proposition.pool());
+  console.log("My new wager:", await proposition.getMyBet());
 }
 
 // We recommend this pattern to be able to use async/await everywhere

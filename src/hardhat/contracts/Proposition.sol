@@ -81,8 +81,14 @@ contract Proposition is MembersOnly {
         title = _title;
         resolution_time = _resolution_time;
         bet_closing_time = _bet_closing_time;
-
     }
+
+    // constructor(uint _resolution_time, uint _bet_closing_time) {
+    //     members[msg.sender] = true;
+    //     title = "Not set";
+    //     resolution_time = _resolution_time;
+    //     bet_closing_time = _bet_closing_time;
+    // }
 
     /**
      * @dev Adds a bet to the pool
@@ -104,6 +110,7 @@ contract Proposition is MembersOnly {
 contract EqualAnteProposition is Proposition {
 
     constructor(string memory _title, uint _resolution_time, uint _bet_closing_time) Proposition(_title,_resolution_time,_bet_closing_time) { }
+    // constructor(uint _resolution_time, uint _bet_closing_time) Proposition("Test",_resolution_time,_bet_closing_time) { }
 
     /**
      * @dev Adds a bet to the pool
