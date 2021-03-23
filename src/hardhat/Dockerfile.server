@@ -7,6 +7,10 @@ RUN npm init --yes
 # For TypeScript, see: https://hardhat.org/guides/typescript.html
 RUN npm install --save-dev hardhat @nomiclabs/hardhat-ethers @nomiclabs/hardhat-waffle @nomiclabs/hardhat-web3 ethereum-waffle chai mocha
 
+# For Waffle-only testing
+# RUN npm install -g typescript
+# RUN npm install --save-dev ts-node @types/chai @types/mocha
+
 RUN mkdir scripts && mkdir contracts && mkdir tests
 
 ADD hardhat.config.js .
@@ -16,10 +20,10 @@ ADD test test/.
 
 RUN npx hardhat compile
 
-# RUN npx hardhat test
+RUN npx hardhat test
 
 # Hardhat JSON-RPC server
 EXPOSE 8545/tcp
 
 ENTRYPOINT ["npx"]
-CMD ["hardhat","node"]
+CMD ["hardhat","node","--verbose"]
