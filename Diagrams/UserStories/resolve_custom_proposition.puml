@@ -9,10 +9,10 @@ database Database as db
 participant Notification as notify
 participant Blockchain as bc
 
-user -> ui : Vote to resolve\n(somehow)
-ui -> api : Resolve endpoint
-api -> bc : Resolve
-bc -> user : Execute contract
+user -> ui : Vote resolution (yes/no)
+ui -> bc : Record vote
+bc -> bc : Raise resolved event
+bc -> ui : 
 api -> db : Update group\nproposition
 api -> notify : Trigger notification
 notify -> user : Notify

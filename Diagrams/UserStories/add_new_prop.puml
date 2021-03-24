@@ -14,18 +14,14 @@ ui -> ui : Select proposition screen
 creator -> ui : Click 'Custom Proposition'
 ui -> ui : Custom Proposition screen
 creator -> ui : Configure proposition
-ui -> ui: Select Ether or prestige points
-ui -> api: Get list of groups
-api -> db: Get list of groups \nwith creator as member
-db -> api: Return groups
-api -> ui: Return list of groups
-ui -> ui: Select from list of groups
-ui -> bc: Deploy contract - Proposition(my_ether_address)
-bc -> ui: Return success/fail
-ui -> bc: Add group members to contract - Proposition.addMember(address)
-bc -> ui: Return success/fail
-ui -> api: Notify backend about new \nproposition with group_id
-api -> db: Record contract address \nand group_id
+ui -> bc: Instantiate contract - Proposition(my_ether_address)
+bc -> ui : Send event created
+ui -> api : Record proposition created
+api -> db : Insert proposition for group 
+ui -> api : Get members
+api -> ui: Return members of group
+ui -> bc: Initator adds all members to proposition - Proposition.addMember(address)
+ui -> api : Send success
 api -> member: Push notification to group members \nabout new proposition
 
 @enduml

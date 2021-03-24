@@ -10,13 +10,13 @@ participant Email as email
 participant "Push Notification" as pn
 
 user -> ui : Click create group
-ui -> api : Create group endpoint
+ui -> api : Create group
 api -> db : Insert group
 ui -> ui : Show friend \nselection page 
-ui -> api : Search users endpoint
+ui -> api : Search users
 api -> ui : Return friend(s)
 user -> ui : Confirm friend request
-ui -> api : Add user to group endpoint
+ui -> api : Add desired member\nto group
 api -> email : Email person (if not user)
 api -> pn : Notify user (if user)
 api -> db : Update group with\ntentative members

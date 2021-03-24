@@ -9,9 +9,7 @@ participant Blockchain as bc
 
 user -> ui : Click Proposition
 ui -> ui : Proposition screen
-user -> ui : Bet (in some way)
-ui -> api : Record bet
-api -> bc : Send bet (don't\nreally know)
-api -> ui : Return success/failure
+user -> ui : Bet yes/no (only\nantes for now)
+ui -> bc : Call wager method
 
 @enduml
