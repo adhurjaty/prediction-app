@@ -1,0 +1,25 @@
+@startuml View Scoreboard
+
+title View Scoreboard
+
+actor User as user
+participant UI as ui
+participant "API Backend" as api
+database Database as db
+participant Blockchain as bc
+
+user -> ui : View groups
+ui -> api : Get groups
+api -> db : Select groups
+db -> api : Groups
+api -> ui : Groups
+user -> ui : Click group
+ui -> ui : Group page
+ui -> api : Get scoreboard
+api -> db : Select resolved propositions\njoin group members
+db -> api : Propositions and members
+api -> bc : Get results per proposition and member
+bc -> api : Return results
+api -> ui : Scoreboard
+
+@enduml
