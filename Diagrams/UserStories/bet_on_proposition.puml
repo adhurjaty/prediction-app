@@ -5,8 +5,8 @@ title Proposition Wager
 actor User as user
 participant UI as ui
 participant "API Backend" as api
-participant Blockchain as bc
 database Database as db
+participant Blockchain as bc
 
 user -> ui : Click Proposition
 ui -> ui : Proposition screen
