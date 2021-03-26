@@ -14,6 +14,8 @@ ui -> api : Create group
 api -> db : Insert group
 ui -> ui : Show friend \nselection page 
 ui -> api : Search users
+api -> db : Select users
+db -> api : Return users
 api -> ui : Return friend(s)
 user -> ui : Confirm friend request
 ui -> api : Add desired member\nto group

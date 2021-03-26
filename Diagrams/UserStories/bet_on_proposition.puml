@@ -1,15 +1,24 @@
 @startuml Bet on Proposition
 
-title Bet on Proposition
+title Proposition Wager
 
 actor User as user
 participant UI as ui
 participant "API Backend" as api
 participant Blockchain as bc
+database Database as db
 
 user -> ui : Click Proposition
 ui -> ui : Proposition screen
-user -> ui : Bet yes/no (only\nantes for now)
+ui -> api : Get proposition
+api -> db : Select proposition
+db -> api : Proposition
+api -> ui : Proposition
+ui -> bc : Get wager 
+bc -> ui : Return hasWagered
+user -> ui : Wager yes/no (only\nantes for now)
 ui -> bc : Call wager method
+bc -> ui : Return success
+ui -> ui : Update display
 
 @enduml
