@@ -1,0 +1,49 @@
+@startuml database
+
+title Database
+
+entity User {
+    * ID
+    ---
+    * DisplayName
+    * Email
+    * BlockchainAddress
+    * OauthToken(s)
+}
+
+entity Group {
+    * ID
+    ---
+    * Name
+}
+
+entity UserGroupBridge {
+    * UserId
+    * GroupId
+}
+
+entity Propostition {
+    * ID
+    ---
+    * GroupId
+    * Title
+    * Description
+    * IsResolved
+}
+
+entity Vote {
+    * ID
+    ---
+    * UserId
+    * PropostitionId
+    * HasVoted
+    * Vote
+}
+
+User -- UserGroupBridge
+Group -- UserGroupBridge
+Propostition -- Group
+Vote -- User
+Vote -- Propostition
+
+@enduml

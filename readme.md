@@ -18,6 +18,10 @@ How do we want to do communication? We can use Github issues for specific softwa
 ![3rd party proposition resolved](./diagram_out/Diagrams/UserStories/3rd%20Party%20Proposition%20Resolved.png)
 ![Custom proposition resolved](./diagram_out/Diagrams/UserStories/Resolve%20Custom%20Proposition.png)
 
+### Database
+
+![Database](./diagram_out/Diagrams/Database/database.png)
+
 ## Screens
 
 - Registration
