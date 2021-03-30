@@ -21,7 +21,7 @@ bc -> members : Send funds
 bc -> user : Send funds
 bc -> ui : Return isResolved
 ui -> api : Record isResolved
-api -> db : Update proposition 
+api -> db : Update proposition\nwith results 
 api -> members : Trigger notification
 
 @enduml
