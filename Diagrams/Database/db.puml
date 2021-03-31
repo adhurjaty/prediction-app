@@ -40,6 +40,12 @@ entity Vote {
     * Vote
 }
 
+entity PropositionResult {
+    * PropositionId
+    * UserId
+    * Result (yes/no)
+}
+
 User -- UserGroupBridge
 Group -- UserGroupBridge
 Propostition -- Group
