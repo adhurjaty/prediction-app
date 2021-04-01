@@ -1,0 +1,23 @@
+@startuml View Scoreboard
+
+title View Scoreboard
+
+actor User as user
+participant UI as ui
+participant "API Backend" as api
+database Database as db
+
+user -> ui : View groups
+ui -> api : Get groups
+api -> db : Select groups
+db -> api : Groups
+api -> ui : Groups
+user -> ui : Click group
+ui -> ui : Group page
+ui -> api : Get scoreboard
+api -> db : Select resolved propositions\njoin group members
+db -> api : Propositions and members
+api -> ui : Propositions and\nmembers object
+ui -> ui : Display scoreboard
+
+@enduml

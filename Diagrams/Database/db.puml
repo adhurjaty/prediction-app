@@ -22,7 +22,7 @@ entity UserGroupBridge {
     * GroupId
 }
 
-entity Propostition {
+entity Proposition {
     * ID
     ---
     * GroupId
@@ -48,8 +48,10 @@ entity PropositionResult {
 
 User -- UserGroupBridge
 Group -- UserGroupBridge
-Propostition -- Group
+Proposition -- Group
 Vote -- User
-Vote -- Propostition
+Vote -- Proposition
+Proposition -- PropositionResult
+PropositionResult -- User
 
 @enduml
