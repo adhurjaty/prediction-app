@@ -19,8 +19,8 @@ ui -> bc : Record vote
 bc -> bc : Raise resolved event
 bc -> members : Send funds
 bc -> user : Send funds
-bc -> ui : Return isResolved
-ui -> api : Record isResolved
+bc -> bc : Call Resolved contract
+bc -> api : Proposition resolved
 api -> db : Update proposition\nwith results 
 api -> members : Trigger notification
 

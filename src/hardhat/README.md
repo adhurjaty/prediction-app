@@ -30,6 +30,7 @@ Open a shell on the Hardhat server
 
 Explore!
 
+
 ```bash
 root@268831bf861d:/usr/app# npx hardhat test
 
