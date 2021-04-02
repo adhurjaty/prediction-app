@@ -12,6 +12,10 @@
   - Dan & Anil
 - Research the testnet and deploy propositions
   - Tony
+    - https://ethereum.stackexchange.com/questions/12129/why-cant-i-deploy-a-dapp-on-the-testnet
+    - Summary of testnet downsides:
+      - No incentives for the miners to keep the network running
+      - Sometimes the network gets 'polluted' and the whole thing gets reset
 - Better Figma mockups
   - Dan
 
