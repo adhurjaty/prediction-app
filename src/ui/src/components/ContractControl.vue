@@ -45,6 +45,7 @@ export default class ContractControl extends Vue {
     title: string = "";
 
     deploy() {
+        debugger;
         console.log("deploy");
     }
 
