@@ -2,6 +2,9 @@
     <div class="container">
         <h1>Contract Controls</h1>
         <div>
+            <button @click="deploy">Deploy Contract</button>
+        </div>
+        <div>
             <button @click="addMember">Add Member</button>
             <input v-model="memberInput" />
         </div>
@@ -40,6 +43,10 @@ export default class ContractControl extends Vue {
     bet: number = -1;
     pool: number = -1;
     title: string = "";
+
+    deploy() {
+        console.log("deploy");
+    }
 
     addMember() {
         this.memberInput = "";
