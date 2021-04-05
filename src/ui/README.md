@@ -5,6 +5,11 @@
 yarn install
 ```
 
+If you've changed the contract, copy the generated abi (json file) to the `abi` directory and run:
+```
+npx typechain --target=ethers-v5 "./abi/*.json"
+```
+
 ### Compiles and hot-reloads for development
 ```
 yarn serve
