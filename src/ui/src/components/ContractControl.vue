@@ -32,10 +32,10 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import { ethers } from 'ethers';
-import { Proposition } from '../types/ethers-contracts/Proposition';
-import { Proposition__factory } from '../types/ethers-contracts/factories/Proposition__factory';
+import { EqualAnteProposition } from '../types/ethers-contracts/EqualAnteProposition';
+import { EqualAnteProposition__factory } from '../types/ethers-contracts/factories/EqualAnteProposition__factory';
 
-const DEFAULT_CONTRACT = "0x1E260ea8D1721de8667fc9EEa021e0503f5D7000";
+const DEFAULT_CONTRACT = "0xceD8a9754944f3043a508852A9F4Ba4E50884a1F";
 
 declare global {
     interface Window {
@@ -56,15 +56,16 @@ export default class ContractControl extends Vue {
     bet: number | null = null;
     pool: number | null = null;
     title: string = "";
-    proposition: Proposition | null = null;
+    proposition: EqualAnteProposition | null = null;
 
     async deploy() {
         await window.ethereum.enable()
         const provider = new ethers.providers.Web3Provider(window.ethereum)
         const signer = provider.getSigner();
 
-        const factory = new Proposition__factory(signer);
-        this.proposition = await factory.deploy();
+        const factory = new EqualAnteProposition__factory(signer);
+        this.proposition = await factory.deploy("Prop", 
+            new Date(2022, 10, 10).getTime(), new Date(2022, 10, 10).getTime());
     }
 
     async addMember() : Promise<void> {
@@ -76,7 +77,7 @@ export default class ContractControl extends Vue {
             this.proposition = await this.createExistingContract();
         }
 
-        const result = await this.proposition['addBet(uint256)'](1);
+        const result = await this.proposition['wager()']();
         console.log(result);
     }
 
@@ -85,7 +86,7 @@ export default class ContractControl extends Vue {
             this.proposition = await this.createExistingContract();
         }
 
-        const result = await this.proposition['getMyWager()']();
+        const result = await this.proposition['getMyBet()']()
         const ethString = ethers.utils.formatEther(result);
         this.bet = parseFloat(ethString);
     }
@@ -95,7 +96,7 @@ export default class ContractControl extends Vue {
             this.proposition = await this.createExistingContract();
         }
 
-        const result = await this.proposition['wager_pool()']();
+        const result = await this.proposition['pool()']();
         const ethString = ethers.utils.formatEther(result);
         this.pool = parseFloat(ethString);
     }
@@ -108,11 +109,11 @@ export default class ContractControl extends Vue {
         console.log("here");
     }
 
-    private async createExistingContract() : Promise<Proposition> {
+    private async createExistingContract() : Promise<EqualAnteProposition> {
         await window.ethereum.enable();
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
-        return Proposition__factory.connect(DEFAULT_CONTRACT, signer);
+        return EqualAnteProposition__factory.connect(DEFAULT_CONTRACT, signer);
     }
 }
 
