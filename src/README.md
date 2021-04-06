@@ -51,6 +51,7 @@ To start up the local blockchain net, available on `localhost:8545`, run:
 ```bash
 docker run -p 8545:8545/tcp --name bragserver -it braggingrights/hardhat-server:latest
 ```
+
 If you've done this previously, you might run into a container name conflict. If so, run `docker rm bragserver` to get rid of the old container. 
 
 Otherwise, if everything worked correctly, you should see something like this:
@@ -150,7 +151,69 @@ root@f380d27ab980:/usr/app# npx hardhat accounts
 
 ## Testnet deployment and testing (on Ropsten)
 
+### Building
+
+`dockerfiles/build_docker.sh`
+
+
 ### Testing
+
+Running the container that has the compiled solidity:
+
+`docker rm bragapp; docker run --name bragapp -it braggingrights/webapp:latest .`
+
+Get a shell to the container:
+
+`docker exec -it bragapp /bin/bash`
+
+In the shell:
+
+`node scripts/deploy-to-testnet.js`
+
+Output:
+
+```bash
+root@bragapp# node scripts/deploy-to-testnet.js
+Wallet {
+  _isSigner: true,
+  _signingKey: [Function (anonymous)],
+  _mnemonic: [Function (anonymous)],
+  address: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  provider: AlchemyProvider {
+    _isProvider: true,
+    _events: [],
+    _emitted: { block: -2 },
+    formatter: Formatter { formats: [Object] },
+    anyNetwork: false,
+    _network: {
+      name: 'ropsten',
+      chainId: 3,
+      ensAddress: '0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e',
+      _defaultProvider: [Function]
+    },
+    _maxInternalBlockNumber: -1024,
+    _lastBlockNumber: -2,
+    _pollingInterval: 4000,
+    _fastQueryDate: 0,
+    connection: {
+      allowGzip: true,
+      url: 'https://eth-ropsten.alchemyapi.io/v2/_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC',
+      throttleCallback: [Function: throttleCallback]
+    },
+    _nextId: 42,
+    apiKey: '_gg7wSSi0KMBsdKnGVfHDueq6xMB9EkC'
+  }
+}
+Account balance: 0.99726994
+Proposition address: 0xF62eEc897fa5ef36a957702AA4a45B58fE8Fe312
+Account balance: 0.99726994
+Proposition title: Sample EAProp
+Proposition pool: BigNumber { _hex: '0x00', _isBigNumber: true }
+```
+
+View the deployed proposition on Ropsten via the Etherscan tool, replacing the address below with the proposition address output in the script above: 
+
+ropsten.etherscan.io/address/0xF62eEc897fa5ef36a957702AA4a45B58fE8Fe312
 
 ---
 

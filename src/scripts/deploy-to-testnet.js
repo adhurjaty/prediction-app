@@ -19,13 +19,23 @@ async function getWalletFromKey(provider, privkey = "0xac0974bec39a17e36ba4a6b4d
 }
 
 async function deployEqualAnteProposition(wallet) {
-    // Load contract ABI/interface from compiled solidity
-    let rawdata = fs.readFileSync("build/EqualAnteProposition.json");
-    let eapjson = JSON.parse(rawdata);
+    // Load contract ABI/interface from compiled solidity (`solc`)
+    // {
+    //   "contracts":
+    //   {
+    //     "Proposition.sol:EqualAnteProposition":
+    //     {
+    //       "abi": [],
+    //       "bin": ""
+    //     }
+    //   }
+    // }
+    let rawdata = fs.readFileSync("build/contracts/combined.json");
+    let eapjson = JSON.parse(rawdata)["contracts"]["Proposition.sol:EqualAnteProposition"];
 
     const date = Date.now();
 
-    const Proposition = new ethers.ContractFactory(eapjson["abi"], eapjson["bytecode"], wallet);
+    const Proposition = new ethers.ContractFactory(eapjson["abi"], eapjson["bin"], wallet);
 
     // Deploy the proposition
     const proposition = await Proposition.deploy("Sample EAProp", date+360, date+720);
