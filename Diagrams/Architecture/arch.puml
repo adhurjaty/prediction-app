@@ -1,0 +1,74 @@
+@startuml architecture
+
+title Architecture Diagram
+
+card users #line.dotted {
+    actor user
+    card "user tests" as usertests #line.dashed
+}
+
+card webserver #line.dotted {
+    card "webapp (vue.js)" as webapp #AliceBlue {
+        card api {
+            card "deploy-to-testnet" as deploy_testnet
+            card "deploy-to-mainnet" as deploy_mainnet
+        }
+        card "smart contracts" as contracts
+        card "ethers.js" as ethers #LightGray
+        card "api tests" as apitests #line.dashed
+    }
+}
+
+database "postgres" as database #AliceBlue {
+    ' package table_groups
+    ' package table_users
+    ' package table_propositions
+}
+
+card "blockchain networks" as bc #line.dotted {
+
+    card "production" {
+        card "mainnet (Ethereum)" as mainnet #LightGray
+        card "testnet (ropsten)" as ropsten #LightGray
+    }
+
+    card "test" {
+        card "testnet (ropsten)" as testnet #LightGray
+    }
+
+    card "local" {
+        card hardhat #AliceBlue
+    }
+
+}
+
+' Users to Backend arrows
+user <-right--> webapp
+usertests <-right--> webapp
+
+' Backend to Network arrows
+api <----> mainnet : "" Real money ""
+api <----> ropsten : "" Prestige points ""
+api <----> testnet 
+api <----> hardhat
+
+api <-down-> database
+api <-down-> ethers
+api <-down-> apitests
+' api <-> database
+' api <-> ethers
+' api <-> apitests
+
+deploy_testnet <-down-> contracts
+deploy_mainnet <-down-> contracts
+
+' Alignment arrows
+user -[hidden]down- usertests
+' production -[hidden]up- local
+' mainnet -[hidden]down- testnet
+
+' Alignment arrows
+users -[hidden]right- webserver
+webserver -[hidden]right- bc
+
+@enduml

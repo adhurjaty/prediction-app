@@ -43,7 +43,7 @@ describe("Proposition", function() {
     console.log("Proposition deployed to:", proposition.address);
     console.log("Title:", await proposition.title());
     console.log("Wager:", await proposition.getMyBet());
-    console.log(proposition.functions);
+    // console.log(proposition.functions);
   });
 
   it("Should allow a member to place a bet", async function() {
@@ -99,7 +99,7 @@ describe("EqualAnteProposition", function() {
 
     console.log("Title:", await proposition.title());
     console.log("Wager:", await proposition.getMyBet());
-    console.log(proposition.functions);
+    // console.log(proposition.functions);
   });
 
   it("Should allow a member to place a bet", async function() {

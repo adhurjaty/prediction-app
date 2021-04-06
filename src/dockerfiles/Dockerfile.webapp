@@ -1,0 +1,19 @@
+FROM node:latest
+
+WORKDIR /opt/braggingrights
+RUN npm init --yes
+
+RUN npm install --save-dev ethers chai mocha
+
+RUN mkdir scripts \
+    && mkdir contracts \
+    && mkdir tests
+
+ADD ../scripts scripts/.
+ADD ../contracts contracts/.
+ADD ../tests tests/.
+
+# TODO: replace this with whatever command starts the vue webserver
+CMD tail -f /dev/null
+# ENTRYPOINT ["vue"]
+# CMD ["vue","command","line","args"]

@@ -33,7 +33,7 @@ async function main() {
   console.log("Wager pool before bet:", await proposition.pool());
   console.log("My current wager:", await proposition.getMyBet());
 
-  await proposition.wager();
+  await proposition['wager()']();
 
   console.log("Wager pool after bet:", await proposition.pool());
   console.log("My new wager:", await proposition.getMyBet());
