@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+
+  blockchain:
+    image: braggingrights/hardhat-server:latest
+    build:
+      dockerfile: dockerfiles/Dockerfile.hardhat.server
+      context: .
+    ports:
+      - 8545:8545
+
+  db:
+    image: braggingrights/postgres
+    build:
+      dockerfile: dockerfiles/Dockerfile.db
+      context: .
+    environment:
+      POSTGRES_PASSWORD: igotbraggingrights
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080

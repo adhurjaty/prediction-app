@@ -1,8 +1,0 @@
-version: "3.9"
-services:
-  hardhat-server:
-    build:
-      dockerfile: Dockerfile.server
-  hardhat-client:
-    build:
-      dockerfile: Dockerfile.client
