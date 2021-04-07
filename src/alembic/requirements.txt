@@ -1,0 +1,11 @@
+alembic==1.5.8
+greenlet==1.0.0
+importlib-metadata==3.10.0
+Mako==1.1.4
+MarkupSafe==1.1.1
+python-dateutil==2.8.1
+python-editor==1.0.4
+six==1.15.0
+SQLAlchemy==1.4.6
+typing-extensions==3.7.4.3
+zipp==3.4.1
