@@ -25,17 +25,26 @@ This architecture supports the following deployment/testing configurations:
 
 ## Local development and testing
 
-For development, we use an entirely local blockchain network that's created on demand using the hardhat framework. 
+For development, we'll use a docker compose cluster with the following containers:
+
+* **braggingrights/hardhat-server**: an entirely local blockchain network that's created on demand using the hardhat framework
+  * hardhat on tcp/8545
+* **braggingrights/postgres**
+  * postgres on tcp/default
+  * credentials: postgres/igotbraggingrights
+* **adminer**
+  * db ![admin UI](http://localhost:8080) on tcp/8080
+
 
 ### Building
 
 With docker installed, run:
 
 ```bash
-dockerfiles/build_docker.sh
+docker-compose build
 ```
 
-This should have built the container `braggingrights/hardhat-server`, which we can verify with the `docker images` command.
+This should have built the containers above, which we can verify with the `docker images` command.
 
 ```
 REPOSITORY                      TAG       IMAGE ID       CREATED         SIZE
@@ -44,7 +53,13 @@ braggingrights/hardhat-server   latest    83463a246dea   11 hours ago    1.4GB
 ...
 ```
 
-### Running
+### Running with docker compose
+
+```bash
+docker-compose up 
+```
+
+### Running just the blockchain
 
 To start up the local blockchain net, available on `localhost:8545`, run:
 
