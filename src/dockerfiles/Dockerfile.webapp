@@ -3,15 +3,28 @@ FROM node:latest
 WORKDIR /opt/braggingrights
 RUN npm init --yes
 
-RUN npm install --save-dev ethers chai mocha
+RUN npm install --save-dev ethers chai mocha 
+
+# installing solc globally provides the `solcjs` CLI tool
+# Bug: solcjs --standard-json flag is broken (issue #460)
+# RUN npm install -g solc
+
+RUN apt-get update \
+    && apt-get install -y software-properties-common \
+    && add-apt-repository -y ppa:ethereum/ethereum \
+    && apt-get update && apt-get install -y --allow-unauthenticated solc
 
 RUN mkdir scripts \
     && mkdir contracts \
-    && mkdir tests
+    && mkdir tests \
+    && mkdir -p build/contracts
 
 ADD ../scripts scripts/.
 ADD ../contracts contracts/.
 ADD ../tests tests/.
+
+# This compiles the contract into a single json file: build/contracts/combined.json
+RUN sh contracts/build_contracts.sh
 
 # TODO: replace this with whatever command starts the vue webserver
 CMD tail -f /dev/null
