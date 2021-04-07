@@ -2,56 +2,57 @@
 
 title Database
 
-entity User {
-    * ID
+entity users {
+    * id
     ---
-    * DisplayName
-    * Email
-    * BlockchainAddress
-    * OauthToken(s)
+    * display_name
+    * email
+    * prestige_address
+    * mainnet_address
+    * oauth_token(s)
 }
 
-entity Group {
-    * ID
+entity groups {
+    * id
     ---
-    * Name
+    * name
 }
 
-entity UserGroupBridge {
-    * UserId
-    * GroupId
+entity user_group_bridge {
+    * user_id
+    * group_id
 }
 
-entity Proposition {
-    * ID
+entity proposition {
+    * id
     ---
-    * GroupId
-    * Title
-    * Description
-    * IsResolved
+    * group_id
+    * title
+    * description
+    * is_resolved
 }
 
-entity Vote {
-    * ID
+entity vote {
+    * id
     ---
-    * UserId
-    * PropostitionId
-    * HasVoted
-    * Vote
+    * user_id
+    * proposition_id
+    * has_voted
+    * vote
 }
 
-entity PropositionResult {
-    * PropositionId
-    * UserId
-    * Result (yes/no)
+entity proposition_result {
+    * proposition_id
+    * user_id
+    * result (yes/no)
 }
 
-User -- UserGroupBridge
-Group -- UserGroupBridge
-Proposition -- Group
-Vote -- User
-Vote -- Proposition
-Proposition -- PropositionResult
-PropositionResult -- User
+users -- user_group_bridge
+groups -- user_group_bridge
+proposition -- groups
+vote -- users
+vote -- proposition
+proposition -- proposition_result
+proposition_result -- users
 
 @enduml
