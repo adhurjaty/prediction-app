@@ -12,11 +12,12 @@ services:
 
   db:
     image: braggingrights/postgres
-    build:
-      dockerfile: dockerfiles/Dockerfile.db
-      context: .
+    volumes:
+      - ./alembic/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       POSTGRES_PASSWORD: igotbraggingrights
+    ports:
+      - 5432:5432
 
   adminer:
     image: adminer

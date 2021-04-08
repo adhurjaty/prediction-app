@@ -9,6 +9,7 @@ entity users {
     * email
     * prestige_address
     * mainnet_address
+    * prestige_privatekey
     * oauth_token(s)
 }
 

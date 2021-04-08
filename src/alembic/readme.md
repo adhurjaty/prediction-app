@@ -74,4 +74,10 @@ def downgrade():
     op.drop_table('account')
 ```
 
+To update the database schema:
+
+```
+alembic upgrade head
+```
+
 For more information, here's the [alembic tutorial](https://alembic.sqlalchemy.org/en/latest/tutorial.html)
