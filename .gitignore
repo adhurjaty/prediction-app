@@ -3,3 +3,6 @@ build/
 package-lock.json
 *.pyc
 .DS_Store
+bin/
+obj/
+appsettings.Development.json
