@@ -33,7 +33,7 @@ For development, we'll use a docker compose cluster with the following container
   * postgres on tcp/default
   * credentials: postgres/igotbraggingrights
 * **adminer**
-  * db ![admin UI](http://localhost:8080) on tcp/8080
+  * db [admin UI](http://localhost:8080) on tcp/8080: select postgres and use the credentials above
 
 
 ### Building
