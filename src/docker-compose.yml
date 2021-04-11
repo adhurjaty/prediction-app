@@ -1,0 +1,34 @@
+version: "3.9"
+
+services:
+
+  blockchain:
+    image: braggingrights/hardhat-server:latest
+    build:
+      dockerfile: dockerfiles/Dockerfile.hardhat.server
+      context: .
+    ports:
+      - 8545:8545
+
+  db:
+    image: braggingrights/postgres
+    build:
+      dockerfile: dockerfiles/Dockerfile.db
+      context: .
+    environment:
+      POSTGRES_PASSWORD: igotbraggingrights
+    ports:
+      - 5432:5432
+
+  alembic:
+    image: braggingrights/alembic
+    build:
+      dockerfile: dockerfiles/Dockerfile.alembic
+      context: .
+    depends_on:
+      - "db"
+
+  adminer:
+    image: adminer
+    ports:
+      - 8080:8080
