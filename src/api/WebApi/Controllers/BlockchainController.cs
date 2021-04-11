@@ -13,17 +13,21 @@ namespace WebApi.Controllers
     public class BlockchainController : ControllerBase
     {
         private readonly ILogger<BlockchainController> _logger;
+        private readonly BlockchainSettings _settings;
 
-        public BlockchainController(ILogger<BlockchainController> logger)
+        public BlockchainController(ILogger<BlockchainController> logger,
+            BlockchainSettings settings)
         {
             _logger = logger;
+            _settings = settings;
         }
 
         [HttpGet]
         public async Task<Balance> Get()
         {
-            var web3 = new Web3("http://localhost:7545");
-            var wei = await web3.Eth.GetBalance.SendRequestAsync("0xbD2FbFeA4971DA2BF59957D48260ae9Cd8066Bc6");
+            var web3 = new Web3(_settings.Url);
+            var wei = await web3.Eth.GetBalance.SendRequestAsync(
+                _settings.UserAddress);
             
             return new Balance()
             {
