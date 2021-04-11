@@ -14,14 +14,11 @@ ui -> ui : Select proposition screen
 creator -> ui : Click 'Custom Proposition'
 ui -> ui : Custom Proposition screen
 creator -> ui : Configure proposition
-ui -> bc: Instantiate contract - Proposition(my_ether_address)
-bc -> ui : Return proposition id
-ui -> api : Record proposition created
+ui -> api: Create proposition
+api -> bc: Instantiate contract - Proposition(my_ether_address)
+bc -> api : Return proposition id
 api -> db : Insert proposition for group 
-ui -> api : Get members
-api -> ui: Return members of group
-ui -> bc: Initator adds all members to proposition - Proposition.addMember(address)
-ui -> api : Send success
+api -> bc: Add all members to proposition - Proposition.addMember(address)
 api -> db : Update proposition
 api -> member: Push notification to group members \nabout new proposition
 
