@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using MediatR;
 
 namespace WebApi
 {
@@ -28,6 +29,8 @@ namespace WebApi
             services.AddScoped<BlockchainSettings>(x =>
                 Configuration.GetSection("BlockchainSettings")
                 .Get<BlockchainSettings>());
+
+            services.AddMediatR(typeof(Startup));
 
             services.AddControllers();
         }

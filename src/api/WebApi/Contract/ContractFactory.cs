@@ -31,7 +31,7 @@ namespace WebApi
             var contracts = src["contracts"] as JObject;
 
             _contractDict = contracts.Properties().ToDictionary(
-                x => x.Name,
+                x => x.Name.Split(':').Last(),
                 x => CreateContractInfo(x.Value as JObject)
             );
         }
