@@ -13,26 +13,24 @@ namespace WebApi.Controllers
     public class BlockchainController : ControllerBase
     {
         private readonly ILogger<BlockchainController> _logger;
-        private readonly BlockchainSettings _settings;
+        private readonly IWeb3 _blockchain;
+        private readonly ContractFactory _factory;
 
         public BlockchainController(ILogger<BlockchainController> logger,
-            BlockchainSettings settings)
+            IWeb3 blockchain, ContractFactory factory)
         {
             _logger = logger;
-            _settings = settings;
+            _blockchain = blockchain;
+            _factory = factory;
         }
 
         [HttpGet]
-        public async Task<Balance> Get()
+        public async Task<string> Get()
         {
-            var web3 = new Web3(_settings.Url);
-            var wei = await web3.Eth.GetBalance.SendRequestAsync(
-                _settings.UserAddress);
+            var contractInfo = _factory.GetContractInfo("EqualAnteProposition");
+            var resp = await _blockchain.Deploy(contractInfo);
             
-            return new Balance()
-            {
-                Ether = Web3.Convert.FromWei(wei.Value)
-            };
+            return resp;
         }
     }
 

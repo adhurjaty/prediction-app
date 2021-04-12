@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MediatR;
+using System.IO;
 
 namespace WebApi
 {
@@ -26,9 +27,18 @@ namespace WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddScoped<BlockchainSettings>(x =>
+            services.AddSingleton<BlockchainSettings>(x =>
                 Configuration.GetSection("BlockchainSettings")
                 .Get<BlockchainSettings>());
+
+            services.AddSingleton<IWeb3, Web3Wrapper>();
+            services.AddSingleton<ContractFactory>(x => 
+            {
+                string json = File.ReadAllText("./Contract/combined.json");
+                return new ContractFactory(
+                    x.GetService<BlockchainSettings>(),
+                    json);
+            });
 
             services.AddMediatR(typeof(Startup));
 
