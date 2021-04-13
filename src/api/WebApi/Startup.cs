@@ -40,6 +40,17 @@ namespace WebApi
                     json);
             });
 
+            services.AddSingleton<EqualAntePropositionDeploy>(x =>
+            {
+                var factory = x.GetService<ContractFactory>();
+                var contractInfo = factory.GetContractInfo("EqualAnteProposition");
+                EqualAntePropositionDeploy.ByteCode = contractInfo.Bin;
+                return new EqualAntePropositionDeploy()
+                {
+                    Title = "Test Contract"
+                };
+            });
+
             services.AddMediatR(typeof(Startup));
 
             services.AddControllers();
