@@ -1,7 +1,7 @@
 # Bragging Rights
 
 
-![Architecture Diagram](../diagram_out/Diagrams/Architecture/architecture.png)
+![Architecture Diagram](../docs/Diagrams/out/Architecture/architecture.png)
 
 ```plantuml
 @startuml architecture_legend
