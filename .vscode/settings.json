@@ -1,8 +1,8 @@
 {
     "cSpell.enabled": false,
 
-    "plantuml.diagramsRoot": "Diagrams",
-    "plantuml.exportOutDir": "diagram_out/Diagrams",
+    "plantuml.diagramsRoot": "docs/Diagrams/src",
+    "plantuml.exportOutDir": "docs/Diagrams/out",
     "plantuml.exportSubFolder": false,
     "plantuml.exportFormat": "png"
 }
