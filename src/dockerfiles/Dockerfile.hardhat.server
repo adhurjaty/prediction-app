@@ -22,10 +22,10 @@ RUN mkdir scripts \
     && mkdir contracts \
     && mkdir tests
 
-ADD ../configs/hardhat.config.js .
-ADD ../scripts scripts/.
-ADD ../contracts contracts/.
-ADD ../tests test/.
+ADD ./configs/hardhat.config.js .
+ADD ./scripts scripts/.
+ADD ./contracts contracts/.
+ADD ./tests test/.
 
 RUN npx hardhat compile
 

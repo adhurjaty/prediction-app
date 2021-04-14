@@ -9,3 +9,17 @@
 
 - How should we handle the different wallets ETH vs. Prestige?
   - Local storage
+
+
+## Tasks for this week
+
+- Dan
+  - Building some screens in Vue
+  - Setting up Sass
+- Tony
+  - Dockerizing Vue application
+  - Figure out best testnet
+- Anil
+  - Support Dan on Vue
+  - Oauth for API
+  - Add commisioner role in Proposition contract
