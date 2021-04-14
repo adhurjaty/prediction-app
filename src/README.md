@@ -30,10 +30,13 @@ For development, we'll use a docker compose cluster with the following container
 * **braggingrights/hardhat-server**: an entirely local blockchain network that's created on demand using the hardhat framework
   * hardhat on tcp/8545
 * **braggingrights/postgres**
-  * postgres on tcp/default
+  * postgres on tcp/5432
   * credentials: postgres/igotbraggingrights
+* **braggingrights/webapp**
+  * vue on tcp/8080
+  * api on tcp/TBD
 * **adminer**
-  * db [admin UI](http://localhost:8080) on tcp/8080: select postgres and use the credentials above
+  * db [admin UI](http://localhost:8001) on tcp/8001: select postgres and use the credentials above
 
 
 ### Building
