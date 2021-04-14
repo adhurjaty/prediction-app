@@ -2,27 +2,34 @@
 
 title Architecture Diagram
 
-card users #line.dotted {
-    actor user
+card "user local" as users #line.dotted {
+    actor "user" as _user
     card "user tests" as usertests #line.dashed
+    card browser {
+        card "braggingrights.js" as user
+        card wallets
+    }
 }
 
 card webserver #line.dotted {
     card "webapp (vue.js)" as webapp #AliceBlue {
-        card api {
-            card "deploy-to-testnet" as deploy_testnet
-            card "deploy-to-mainnet" as deploy_mainnet
-        }
         card "smart contracts" as contracts
         card "ethers.js" as ethers #LightGray
         card "api tests" as apitests #line.dashed
     }
+
+    card "api (C#)" as api #AliceBlue {
+        card "deploy-to-testnet" as deploy_testnet
+        card "deploy-to-mainnet" as deploy_mainnet
+    }
 }
 
-database "postgres" as database #AliceBlue {
-    ' package table_groups
-    ' package table_users
-    ' package table_propositions
+card "database" as _database #line.dotted {
+    database "postgres" as database #AliceBlue {
+        ' package table_groups
+        ' package table_users
+        ' package table_propositions
+    }
 }
 
 card "blockchain networks" as bc #line.dotted {
@@ -43,8 +50,9 @@ card "blockchain networks" as bc #line.dotted {
 }
 
 ' Users to Backend arrows
+_user <-right--> browser
 user <-right--> webapp
-usertests <-right--> webapp
+usertests <-right--> browser
 
 ' Backend to Network arrows
 api <----> mainnet : "" Real money ""
