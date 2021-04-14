@@ -39,7 +39,7 @@ How do we want to do communication? We can use Github issues for specific softwa
 
 If you want to edit the Figma diagram, open your own instance of Figma and import the PredictApp.fig file, make edits, save over it and commit.
 
-![figma screenshot](.docs/Diagrams/src/UI/figma.png)
+![figma screenshot](./docs/Diagrams/src/UI/figma.png)
 
 ## Links
 
