@@ -25,4 +25,10 @@ task("accounts", "Prints the list of accounts", async () => {
 module.exports = {
   // solidity: "0.8.2",
   solidity: "0.7.4",
+  // needed to get metamask to interact with this blockchain
+  networks: {
+    hardhat: {
+        chainId: 1337
+    }
+  }
 };
