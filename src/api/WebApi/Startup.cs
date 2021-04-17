@@ -12,6 +12,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MediatR;
 using System.IO;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 
 namespace WebApi
 {
@@ -30,6 +33,9 @@ namespace WebApi
             services.AddSingleton<BlockchainSettings>(x =>
                 Configuration.GetSection("BlockchainSettings")
                 .Get<BlockchainSettings>());
+
+            var googleSettings = Configuration.GetSection("GoogleConfig")
+                .Get<AuthConfig>();
 
             services.AddSingleton<IWeb3, Web3Wrapper>();
             services.AddSingleton<ContractFactory>(x => 
@@ -51,7 +57,29 @@ namespace WebApi
                 };
             });
 
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(jwt => jwt.UseGoogle(googleSettings.ClientId));
+
             services.AddMediatR(typeof(Startup));
+
+            // services.AddAuthentication(options =>
+            // {
+            //     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+            //     options.DefaultAuthenticateScheme = OpenIdConnectDefaults.AuthenticationScheme;
+            // }).AddCookie(options =>
+            // {
+            //     options.LoginPath = 
+            // })
+
+            services.AddCors(options => {
+                var corsPolicyBuilder = new CorsPolicyBuilder()
+                    .AllowAnyMethod()
+                    .AllowAnyOrigin()
+                    .AllowAnyHeader();
+
+                var corsPolicy = corsPolicyBuilder.Build();
+                options.AddPolicy("allow-localhost", corsPolicy);
+            });
 
             services.AddControllers();
         }
@@ -64,16 +92,30 @@ namespace WebApi
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseAuthentication();
+            app.Use(async (context, next) =>
+            {
+                if(!context.User.Identity?.IsAuthenticated ?? false)
+                {
+                    context.Response.StatusCode = 401;
+                    await context.Response.WriteAsync("Not Authenticated");
+                }
+                else
+                {
+                    await next();
+                }
+            });
+
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
-            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+
+            app.UseCors("allow-localhost");
         }
     }
 }
