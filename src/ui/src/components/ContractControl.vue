@@ -119,22 +119,25 @@ export default class ContractControl extends Vue {
 
 </script>
 
-<style scoped>
-h1 {
-    align-self: center;
-}
+<style lang="scss">
+
 .container {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-}
 
-div {
-    padding: 10px;
-}
+    h1 {
+        @include applyPadding;
+        align-self: center;
+    }
 
-span {
-    padding-left: 15px;
+    div {
+        padding: 10px;
+    }
+
+    span {
+        padding-left: 15px;
+    }
 }
 
 </style>
