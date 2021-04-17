@@ -11,7 +11,7 @@ services:
       - 8545:8545
 
   db:
-    image: braggingrights/postgres
+    image: braggingrights/postgres:latest
     build:
       dockerfile: dockerfiles/Dockerfile.db
       context: .
@@ -21,7 +21,7 @@ services:
       - 5432:5432
 
   alembic:
-    image: braggingrights/alembic
+    image: braggingrights/alembic:latest
     build:
       dockerfile: dockerfiles/Dockerfile.alembic
       context: .
@@ -31,4 +31,13 @@ services:
   adminer:
     image: adminer
     ports:
-      - 8080:8080
+      - 8001:8080
+
+  webapp:
+    image: braggingrights/webapp:latest
+    build: 
+      dockerfile: dockerfiles/Dockerfile.webapp
+      context: .
+    ports:
+      - 8080:8080 # ui
+    #   - 5001:5001 # api
