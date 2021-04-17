@@ -1,0 +1,34 @@
+@mixin respondTo($breakpoint) { 
+    @if map-has-key($breakpoints, $breakpoint) {
+        @media (min-width: #{map-get($breakpoints, $breakpoint)}) {
+            @content;
+        }
+    }
+    
+    @else {
+        @warn "Breakpoint does not exist for `#{$breakpoint}`. "
+            + "check `$breakpoints` map in variables.scss.";
+    }
+}
+
+@mixin applyPadding($sides: null) {
+    @each $bp in mobile tablet desktop {
+        @include respondTo($bp) {
+            @if $sides {
+                @each $side in $sides {
+                    @if index(top right bottom left, $side) {
+                        padding-#{$side}: #{map-get($responsive-padding, $bp)}
+                    }
+                    @else {
+                        @error 'Invalid $side provided. Expected top, right, bottom, or left. Not: #{$side}.';
+                    }
+                }
+            }
+            @else {
+                @if map-has-key($responsive-padding, $bp) {
+                    padding: #{map-get($responsive-padding, $bp)}
+                }
+            }
+        }
+    }
+}

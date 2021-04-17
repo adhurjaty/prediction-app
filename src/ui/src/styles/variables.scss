@@ -1,0 +1,13 @@
+$breakpoints: (
+    mobile: 0px,
+    tablet: 699px,
+    desktop: 1110px
+);
+
+$padding: 5px;
+
+$responsive-padding: (
+    mobile: $padding,
+    tablet: $padding*2,
+    desktop: $padding*3
+);
