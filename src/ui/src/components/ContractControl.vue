@@ -119,7 +119,7 @@ export default class ContractControl extends Vue {
 
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 
 .container {
     display: flex;
