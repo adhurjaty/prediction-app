@@ -10,7 +10,7 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 
-export default class LoginControl extends Vue {
+export default class Login extends Vue {
     
 }
 

@@ -50,7 +50,7 @@ declare global {
 })
 
 
-export default class ContractControl extends Vue {
+export default class Contract extends Vue {
     memberInput: string = "";
     wager: number | null = null;
     bet: number | null = null;

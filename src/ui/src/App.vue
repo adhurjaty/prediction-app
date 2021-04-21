@@ -1,22 +1,12 @@
 <template>
   <div id="nav">
     <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
+    <router-link to="/about">About</router-link> |
+    <router-link to="/login">Login</router-link> |
+    <router-link to="/contract">Contract</router-link>
     <router-view />
   </div>
 </template>
-
-<script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import ContractControl from './components/ContractControl.vue';
-
-@Options({
-  components: {
-    ContractControl,
-  },
-})
-export default class App extends Vue {}
-</script>
 
 <style lang="scss">
 #app {
