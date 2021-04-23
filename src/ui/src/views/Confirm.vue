@@ -6,9 +6,12 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
+import axios from 'axios';
 
-debugger;
-
-export default class Confirm extends Vue {}
+export default class Confirm extends Vue {
+    async auth() {
+        
+    }
+}
 
 </script>
