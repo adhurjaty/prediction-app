@@ -37,6 +37,8 @@ namespace WebApi
             var googleSettings = Configuration.GetSection("GoogleConfig")
                 .Get<AuthConfig>();
 
+            services.AddSingleton<AuthConfig>(x => googleSettings);
+
             services.AddSingleton<IWeb3, Web3Wrapper>();
             services.AddSingleton<ContractFactory>(x => 
             {
