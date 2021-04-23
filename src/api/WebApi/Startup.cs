@@ -59,6 +59,8 @@ namespace WebApi
                 };
             });
 
+            services.AddSingleton<IGoogle, GoogleInterface>();
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(jwt => jwt.UseGoogle(googleSettings.ClientId));
 
@@ -94,21 +96,21 @@ namespace WebApi
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseAuthentication();
-            app.Use(async (context, next) =>
-            {
-                if(!context.User.Identity?.IsAuthenticated ?? false)
-                {
-                    context.Response.StatusCode = 401;
-                    await context.Response.WriteAsync("Not Authenticated");
-                }
-                else
-                {
-                    await next();
-                }
-            });
+            // app.UseAuthentication();
+            // app.Use(async (context, next) =>
+            // {
+            //     if(!context.User.Identity?.IsAuthenticated ?? false)
+            //     {
+            //         context.Response.StatusCode = 401;
+            //         await context.Response.WriteAsync("Not Authenticated");
+            //     }
+            //     else
+            //     {
+            //         await next();
+            //     }
+            // });
 
-            app.UseHttpsRedirection();
+            // app.UseHttpsRedirection();
 
             app.UseRouting();
 

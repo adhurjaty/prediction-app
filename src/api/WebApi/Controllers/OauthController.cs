@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -10,16 +11,19 @@ namespace WebApi
     {
         private readonly ILogger<OauthController> _logger;
         private readonly AuthConfig _authConfig;
+        private readonly IGoogle _google;
 
         public OauthController(ILogger<OauthController> logger,
-            AuthConfig authConfig)
+            AuthConfig authConfig,
+            IGoogle google)
         {
             _logger = logger;
             _authConfig = authConfig;
+            _google = google;
         }
 
         [HttpPost]
-        public string CodeLogin(OauthConfirmRequest request)
+        public async Task<GoogleOauthResponse> CodeLogin(OauthConfirmRequest request)
         {
             var oauthRequest = new GoogleCodeRequest()
             {
@@ -30,7 +34,7 @@ namespace WebApi
                 RedirectUrl = _authConfig.RedirectUrl
             };
 
-            return oauthRequest.ToJson();
+            return await _google.Confirm(oauthRequest);
         }
     }
 
@@ -38,21 +42,5 @@ namespace WebApi
     {
         public string Code { get; set; }
         public string Verifier { get; set; }
-    }
-
-    public class GoogleCodeRequest
-    {
-        [JsonProperty("client_id")]
-        public string ClientId { get; set; }
-        [JsonProperty("client_secret")]
-        public string ClientSecret { get; set; }
-        [JsonProperty("code")]
-        public string Code { get; set; }
-        [JsonProperty("code_verifier")]
-        public string CodeVerifier { get; set; }
-        [JsonProperty("grant_type")]
-        public string GrantType { get; set; } = "authorization_code";
-        [JsonProperty("redirect_url")]
-        public string RedirectUrl { get; set; }
     }
 }
