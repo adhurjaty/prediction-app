@@ -24,7 +24,7 @@ class GoogleOauth {
     }
 }
 
-class GoogleLogin {
+export default class GoogleLogin {
     public verifier: string = ''
 
     codeUrl(): string {
@@ -42,6 +42,3 @@ class GoogleLogin {
         return googleLogin.toUrl(google_base_url).href;
     }
 }
-
-const googleLoginInstance = new GoogleLogin();
-export default googleLoginInstance;

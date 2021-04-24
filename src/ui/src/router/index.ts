@@ -1,5 +1,8 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import GoogleLogin from '../auth/googleAuth'
 import Home from '../views/Home.vue'
+
+const googleLogin = new GoogleLogin();
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -18,7 +21,11 @@ const routes: Array<RouteRecordRaw> = [
   {
       path: '/login',
       name: 'Login',
-      component: () => import('../views/Login.vue')
+      component: () => import('../views/Login.vue'),
+      props: {
+          default: googleLogin,
+          googleLogin: googleLogin 
+        }
   },
   {
       path: '/contract',
@@ -28,8 +35,9 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/confirm',
     name: 'Confirm',
-    component: () => import('../views/Confirm.vue')
-  }
+    component: () => import('../views/Confirm.vue'),
+    props: { googleLogin: googleLogin }
+}
 ]
 
 const router = createRouter({

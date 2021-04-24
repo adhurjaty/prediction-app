@@ -9,11 +9,20 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import googleLoginInstance from '../auth/googleAuth'
+import GoogleLogin from '../auth/googleAuth'
+
+@Options({
+    props: {
+        googleLogin : GoogleLogin
+    }
+})
 
 export default class Login extends Vue {
+    googleLogin! : GoogleLogin;
+
     login() {
-        window.location.href = googleLoginInstance.codeUrl();
+        debugger;
+        window.location.href = this.googleLogin.codeUrl();
     }
 }
 
