@@ -4,7 +4,6 @@ WORKDIR /opt/braggingrights
 RUN npm init --yes
 
 # JavaScript hardhat deployment
-# For TypeScript, see: https://hardhat.org/guides/typescript.html
 RUN npm install --save-dev \
                 hardhat \
                 @nomiclabs/hardhat-ethers \
@@ -14,22 +13,30 @@ RUN npm install --save-dev \
                 chai \
                 mocha
 
-# For Waffle-only testing
-# RUN npm install -g typescript
-# RUN npm install --save-dev ts-node @types/chai @types/mocha
+# For typescript hardhat support
+RUN npm install --save-dev \
+                ts-node typescript @types/node \
+                @types/chai @types/mocha
 
 RUN mkdir scripts \
     && mkdir contracts \
     && mkdir tests
 
-ADD ./configs/hardhat.config.js .
-ADD ./scripts scripts/.
+ADD ./configs/hardhat.config.ts .
 ADD ./contracts contracts/.
-ADD ./tests test/.
-
 RUN npx hardhat compile
 
-RUN npx hardhat test
+ARG DISABLE_TEST_FAILURES=0
+
+ADD ./scripts scripts/.
+ADD ./tests test/.
+RUN npx hardhat test; \
+    if [ ${DISABLE_TEST_FAILURES} -eq 1 ]; then \
+        echo ">>> Test Failures DISABLED <<<"; \
+        exit 0; \
+    else \
+        exit $?; \
+    fi
 
 # Hardhat JSON-RPC server
 EXPOSE 8545/tcp

@@ -64,7 +64,7 @@ docker-compose up
 To start up the local blockchain net, available on `localhost:8545`, run:
 
 ```bash
-docker run -p 8545:8545/tcp --name bragserver -it braggingrights/hardhat-server:latest
+docker run --rm -p 8545:8545/tcp --name bragserver -it braggingrights/hardhat-server:latest
 ```
 
 If you've done this previously, you might run into a container name conflict. If so, run `docker rm bragserver` to get rid of the old container. 
@@ -96,6 +96,14 @@ docker run -p 8545:8545/tcp --name bragserver -it -v $(pwd):/opt/src braggingrig
 ```
 
 ### Testing
+
+```bash
+docker build \
+             --progress plain `# This will show output from each step in the build, including mocha tests` \
+             --build-arg DISABLE_TEST_FAILURES=1 `# Setting this to 1 allows the image to be built, even if the tests fail` \
+             -f Dockerfile.hardhat.server -t braggingrights/hardhat-server:test ..
+```
+
 
 To run tests with hardhat:
 
