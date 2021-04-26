@@ -24,10 +24,10 @@ contract MembersOnly {
 
     /**
      * @dev Adds a member to the contract
-     * @param newMember Address of new member
+     * @param _new_member Address of new member
      */
-    function addMember(address newMember) public isMember {
-        members[newMember] = true;
+    function addMember(address _new_member) virtual public isMember {
+        members[_new_member] = true;
     }
 
     /**
@@ -40,10 +40,41 @@ contract MembersOnly {
     }
 }
 
+/**
+ * @title TODO: documentation
+ * @author Bragging Rights
+ */
+contract Commissioner is MembersOnly {
+    address commissioner;
+
+    /** 
+     * @dev 
+     */
+    modifier isCommissioner() {
+        require(msg.sender == commissioner, "Caller is not the commissioner");
+        _;
+    }
+
+    /**
+     */
+    function setCommissioner(address _new_commissioner) public isCommissioner {
+        commissioner = _new_commissioner;
+    }
+
+    /**
+     * @dev Adds a member to the contract; should not be able to add themselves
+     * @param _new_member Address of new member
+     */
+    function addMember(address _new_member) override public isCommissioner {
+        members[_new_member] = true;
+    }
+}
+
 /** 
  * @title Base proposition contract
+ * @author Bragging Rights
  */
-contract Proposition is MembersOnly {
+contract Proposition is Commissioner {
 
     /* Bets per member */
     mapping (address => uint256) bets;
@@ -68,7 +99,7 @@ contract Proposition is MembersOnly {
      * @param _bet_closing_time Time when the proposition will be closed to new bets (s since epoch)
      */
     constructor(string memory _title, uint _resolution_time, uint _bet_closing_time) {
-        members[msg.sender] = true;
+        commissioner = msg.sender;
         title = _title;
         resolution_time = _resolution_time;
         bet_closing_time = _bet_closing_time;
@@ -76,11 +107,11 @@ contract Proposition is MembersOnly {
 
     /**
      * @dev Adds a bet to the pool
-     * @param amount Amount to be wagered
+     * @param _amount Amount to be wagered
      */
-    function wager(uint256 amount) virtual public isMember {
-        bets[msg.sender] += amount;
-        pool += amount;
+    function wager(uint256 _amount) virtual public isMember {
+        bets[msg.sender] += _amount;
+        pool += _amount;
     }
 
     /**
@@ -91,17 +122,20 @@ contract Proposition is MembersOnly {
     }
 }
 
-/** @title Proposition type where each bettor has an equal share */
+/** 
+ * @title Proposition type where each bettor has an equal share
+ * @author Bragging Rights
+ */
 contract EqualAnteProposition is Proposition {
 
     constructor(string memory _title, uint _resolution_time, uint _bet_closing_time) Proposition(_title,_resolution_time,_bet_closing_time) { }
 
     /**
      * @dev Adds a bet to the pool if the amount to be wagered is exactly 1
-     * @param amount Amount to be wagered
+     * @param _amount Amount to be wagered
      */
-    function wager(uint256 amount) override public isMember {
-        require(amount == 1, "Cannot wager more than 1 in an equal ante proposition");
+    function wager(uint256 _amount) override public isMember {
+        require(_amount == 1, "Cannot wager more than 1 in an equal ante proposition");
         wager();
     }
 
