@@ -5,8 +5,7 @@ class GoogleOauth {
     public redirect_uri: string = '';
     public response_type: string = '';
     public scope: string = '';
-    public code_challenge: string = '';
-    public code_challenge_method: string = '';
+    public state: string = '';
 
     constructor(init?: Partial<GoogleOauth>) {
         Object.assign(this, init);
@@ -18,24 +17,23 @@ class GoogleOauth {
         url.searchParams.append('redirect_uri', this.redirect_uri);
         url.searchParams.append('response_type', this.response_type);
         url.searchParams.append('scope', this.scope);
-        url.searchParams.append('code_challenge', this.code_challenge);
-        url.searchParams.append('code_challenge_method', this.code_challenge_method);
+        url.searchParams.append('state', this.state);
         return url;
     }
 }
 
 export default class GoogleLogin {
-    public verifier: string = ''
+    createVerifier() : string {
+        return randomString(32);
+    }
 
-    codeUrl(): string {
-        this.verifier = base64URLEncode(randomString(32));
+    codeUrl(verifier : string) : string {
         const googleLogin = new GoogleOauth({
-            client_id: '1008084278102-ablredbu3p4u6ipdm3uv7asj760n6uju.apps.googleusercontent.com',
+            client_id: '466916983544-t7m40b8hn047m9v5hcbgr9q2vt6hsavm.apps.googleusercontent.com',
             redirect_uri: `http://localhost:8080/confirm`,
             response_type: 'code',
-            scope: 'profile',
-            code_challenge: this.verifier,
-            code_challenge_method: 'S256'
+            scope: 'openid&email',
+            state: verifier
         });
 
         const google_base_url = 'https://accounts.google.com/o/oauth2/v2/auth';

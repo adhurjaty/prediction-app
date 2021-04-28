@@ -76,12 +76,12 @@ namespace WebApi
             // })
 
             services.AddCors(options => {
-                var corsPolicyBuilder = new CorsPolicyBuilder()
+                var corsPolicy = new CorsPolicyBuilder()
                     .AllowAnyMethod()
                     .AllowAnyOrigin()
-                    .AllowAnyHeader();
+                    .AllowAnyHeader()
+                    .Build();
 
-                var corsPolicy = corsPolicyBuilder.Build();
                 options.AddPolicy("allow-localhost", corsPolicy);
             });
 
@@ -112,14 +112,14 @@ namespace WebApi
 
             // app.UseHttpsRedirection();
 
+            app.UseCors("allow-localhost");
+
             app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
-
-            app.UseCors("allow-localhost");
         }
     }
 }

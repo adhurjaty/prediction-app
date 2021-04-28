@@ -20,9 +20,9 @@ export class OauthConfirmResponse {
 }
 
 export async function authConfirm(request : OauthConfirmRequest) {
-    const resp = await axios.post(`${BASE_URL}/confirm`, request);
+    const resp = await axios.post(`${BASE_URL}/oauth/codelogin`, request);
     debugger;
     return new OauthConfirmResponse({
-        accessToken: resp.data.AccessToken
+        accessToken: resp.data.accessToken
     });
 }

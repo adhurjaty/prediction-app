@@ -9,20 +9,16 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
+import { VERIFIER_KEY } from '../util/constants';
 import GoogleLogin from '../auth/googleAuth'
 
-@Options({
-    props: {
-        googleLogin : GoogleLogin
-    }
-})
-
 export default class Login extends Vue {
-    googleLogin! : GoogleLogin;
-
     login() {
-        debugger;
-        window.location.href = this.googleLogin.codeUrl();
+        const googleLogin = new GoogleLogin();
+        const verifier = googleLogin.createVerifier();
+
+        window.localStorage.setItem(VERIFIER_KEY, verifier);
+        window.location.href = googleLogin.codeUrl(verifier);
     }
 }
 
