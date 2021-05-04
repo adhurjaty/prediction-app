@@ -57,8 +57,6 @@ namespace WebApi
         public string GrantType { get; set; } = "authorization_code";
         [JsonProperty("redirect_uri")]
         public string RedirectUrl { get; set; }
-        [JsonProperty("access_type")]
-        public string AccessType { get; set; } = "offline";
     }
 }
 

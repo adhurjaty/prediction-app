@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -23,7 +24,7 @@ namespace WebApi
         }
 
         [HttpPost]
-        public async Task<GoogleOauthResponse> CodeLogin(OauthConfirmRequest request)
+        public async Task<string> CodeLogin(OauthConfirmRequest request)
         {
             var oauthRequest = new GoogleCodeRequest()
             {
@@ -33,7 +34,13 @@ namespace WebApi
                 RedirectUrl = _authConfig.RedirectUrl
             };
 
-            return await _google.Confirm(oauthRequest);
+            var response = await _google.Confirm(oauthRequest);
+            var jwt = response.IdToken;
+
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(jwt);
+
+            return jwt;
         }
     }
 
