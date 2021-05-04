@@ -17,7 +17,7 @@ class GoogleOauth {
         url.searchParams.append('redirect_uri', this.redirect_uri);
         url.searchParams.append('response_type', this.response_type);
         url.searchParams.append('scope', this.scope);
-        url.searchParams.append('state', this.state);
+        url.searchParams.append('state', `security_token=${this.state}`);
         return url;
     }
 }
@@ -32,7 +32,7 @@ export default class GoogleLogin {
             client_id: '466916983544-t7m40b8hn047m9v5hcbgr9q2vt6hsavm.apps.googleusercontent.com',
             redirect_uri: `http://localhost:8080/confirm`,
             response_type: 'code',
-            scope: 'openid&email',
+            scope: 'openid email',
             state: verifier
         });
 

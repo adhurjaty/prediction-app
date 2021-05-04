@@ -50,12 +50,12 @@ namespace WebApi
         public string ClientSecret { get; set; }
         [JsonProperty("code")]
         public string Code { get; set; }
-        [JsonProperty("code_verifier")]
-        public string CodeVerifier { get; set; }
         [JsonProperty("grant_type")]
         public string GrantType { get; set; } = "authorization_code";
-        [JsonProperty("redirect_url")]
+        [JsonProperty("redirect_uri")]
         public string RedirectUrl { get; set; }
+        [JsonProperty("access_type")]
+        public string AccessType { get; set; } = "offline";
     }
 }
 

@@ -30,7 +30,6 @@ namespace WebApi
                 ClientId = _authConfig.ClientId,
                 ClientSecret = _authConfig.ClientSecret,
                 Code = request.Code,
-                CodeVerifier = request.Verifier,
                 RedirectUrl = _authConfig.RedirectUrl
             };
 
