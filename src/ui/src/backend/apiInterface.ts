@@ -19,10 +19,14 @@ export class OauthConfirmResponse {
     }
 }
 
-export async function authConfirm(request : OauthConfirmRequest) {
+export async function authConfirm(request : OauthConfirmRequest): Promise<OauthConfirmResponse> {
     const resp = await axios.post(`${BASE_URL}/oauth/codelogin`, request);
-    debugger;
     return new OauthConfirmResponse({
         accessToken: resp.data.accessToken
     });
+}
+
+export async function getSecret(): Promise<string> {
+    const resp = await axios.get(`${BASE_URL}/oauth/secret`);
+    return resp.data as string;
 }

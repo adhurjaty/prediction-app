@@ -5,6 +5,7 @@ class GoogleOauth {
     public redirect_uri: string = '';
     public response_type: string = '';
     public scope: string = '';
+    public access_type: string = '';
     public state: string = '';
 
     constructor(init?: Partial<GoogleOauth>) {
@@ -18,6 +19,7 @@ class GoogleOauth {
         url.searchParams.append('response_type', this.response_type);
         url.searchParams.append('scope', this.scope);
         url.searchParams.append('state', `security_token=${this.state}`);
+        url.searchParams.append('access_type', this.access_type);
         return url;
     }
 }
@@ -33,6 +35,7 @@ export default class GoogleLogin {
             redirect_uri: `http://localhost:8080/confirm`,
             response_type: 'code',
             scope: 'openid email',
+            access_type: 'offline',
             state: verifier
         });
 

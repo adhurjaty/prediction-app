@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import GoogleLogin from '../auth/googleAuth'
 import Home from '../views/Home.vue'
 
 const routes: Array<RouteRecordRaw> = [
@@ -30,7 +29,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/confirm',
     name: 'Confirm',
     component: () => import('../views/Confirm.vue')
-}
+  },
+  {
+      path: '/secret',
+      name: 'Secret',
+      component: () => import('../views/Secret.vue')
+  }
 ]
 
 const router = createRouter({

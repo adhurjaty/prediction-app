@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -41,6 +42,13 @@ namespace WebApi
             var token = handler.ReadJwtToken(jwt);
 
             return jwt;
+        }
+
+        [HttpGet]
+        [Authorize]
+        public string Secret()
+        {
+            return "shhh, it's a secret";
         }
     }
 

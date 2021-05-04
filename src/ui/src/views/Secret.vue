@@ -1,24 +1,21 @@
 <template>
     <div class="container">
-        <h1>Login</h1>
+        <h1>Secret</h1>
         <div>
-            <button @click="login">Login</button>
+            <div>{{ message }}</div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { VERIFIER_KEY } from '../util/constants';
-import GoogleLogin from '../auth/googleAuth'
+import { getSecret } from '../backend/apiInterface';
 
 export default class Secret extends Vue {
-    login() {
-        const googleLogin = new GoogleLogin();
-        const verifier = googleLogin.createVerifier();
+    message: string = "loading..."
 
-        window.localStorage.setItem(VERIFIER_KEY, verifier);
-        window.location.href = googleLogin.codeUrl(verifier);
+    async mounted(): Promise<void> {
+        this.message = await getSecret();
     }
 }
 
