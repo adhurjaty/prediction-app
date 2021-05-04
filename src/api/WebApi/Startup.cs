@@ -48,6 +48,8 @@ namespace WebApi
                     json);
             });
 
+            services.AddSingleton<IHttp, HttpWrapper>();
+
             services.AddSingleton<EqualAntePropositionDeploy>(x =>
             {
                 var factory = x.GetService<ContractFactory>();

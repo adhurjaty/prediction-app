@@ -13,16 +13,19 @@ namespace WebApi
 
     public class GoogleInterface : IGoogle
     {
+        private readonly IHttp _client;
+
+        public GoogleInterface(IHttp client)
+        {
+            _client = client;
+        }
+
         public async Task<GoogleOauthResponse> Confirm(GoogleCodeRequest request)
         {
-            var client = new HttpClient();
-
-            string json = request.ToJson();
-            var payload = new StringContent(json, UnicodeEncoding.UTF8, 
-                "application/json");
-
-            var response = await client.PostAsync("https://oauth2.googleapis.com/token", payload);
-            return (await response.Content.ReadAsStringAsync()).FromJson<GoogleOauthResponse>();
+            var response = await _client.PostAsync("https://oauth2.googleapis.com/token", 
+                request);
+            return (await response.Content.ReadAsStringAsync())
+                .FromJson<GoogleOauthResponse>();
         }
     }
 
@@ -31,7 +34,7 @@ namespace WebApi
         [JsonProperty("access_token")]
         public string AccessToken { get; set; }
         [JsonProperty("expires_in")]
-        public TimeSpan ExpiresIn { get; set; }
+        public int ExpiresIn { get; set; }
         [JsonProperty("id_token")]
         public string IdToken { get; set; }
         [JsonProperty("refresh_token")]
