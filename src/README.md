@@ -97,6 +97,10 @@ docker run -p 8545:8545/tcp --name bragserver -it -v $(pwd):/opt/src braggingrig
 
 ### Testing
 
+Testing via hardhat is part of the docker build process for the hardhat-server. In the event where tests are expected to fail (e.g. during iterative dev or taking a TDD approach), setting the build-arg `DISABLE_TEST_FAILURES=1` either via a manual build or in `docker-compose.yml` will allow the image to be built, even if the tests fail.
+
+Docker build command: 
+
 ```bash
 docker build \
          `# This will show output from each step in the build, including mocha tests` \
@@ -106,6 +110,10 @@ docker build \
          -f Dockerfile.hardhat.server -t braggingrights/hardhat-server:test ..
 ```
 
+```yaml
+args:
+  DISABLE_TEST_FAILURES=1
+```
 
 To run tests with hardhat:
 

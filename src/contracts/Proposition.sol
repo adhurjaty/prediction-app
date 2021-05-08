@@ -3,78 +3,14 @@ pragma solidity >=0.7.0; // <0.8.0;
 
 // TODO: Terminology struggles (bet, wager, pool)
 
-/**
- * @title Helper contract that provides ability to track membership and restrict actions
- */
-contract MembersOnly {
-    mapping (address => bool) members;
-
-    /**
-     * @dev Restricts modified functions to members-only
-     */
-    modifier isMember() {
-        // If the first argument of 'require' evaluates to 'false', execution terminates and all
-        // changes to the state and to Ether balances are reverted.
-        // This used to consume all gas in old EVM versions, but not anymore.
-        // It is often a good idea to use 'require' to check if functions are called correctly.
-        // As a second argument, you can also provide an explanation about what went wrong.
-        require(members[msg.sender], "Caller is not a member"); 
-        _;
-    }
-
-    /**
-     * @dev Adds a member to the contract
-     * @param _new_member Address of new member
-     */
-    function addMember(address _new_member) virtual public isMember {
-        members[_new_member] = true;
-    }
-
-    /**
-     * @dev Checks account membership to the contract
-     * @param account Address of the account to be checked
-     * @return membership 
-     */
-    function checkMembership(address account) public view returns (bool) {
-        return members[account];
-    }
-}
-
-/**
- * @title TODO: documentation
- * @author Bragging Rights
- */
-contract Commissioner is MembersOnly {
-    address commissioner;
-
-    /** 
-     * @dev 
-     */
-    modifier isCommissioner() {
-        require(msg.sender == commissioner, "Caller is not the commissioner");
-        _;
-    }
-
-    /**
-     */
-    function setCommissioner(address _new_commissioner) public isCommissioner {
-        commissioner = _new_commissioner;
-    }
-
-    /**
-     * @dev Adds a member to the contract; should not be able to add themselves
-     * @param _new_member Address of new member
-     */
-    function addMember(address _new_member) override public isCommissioner {
-        members[_new_member] = true;
-    }
-}
+import './MembersOnly.sol';
+import "./Resolution.sol";
 
 /** 
  * @title Base proposition contract
  * @author Bragging Rights
  */
-contract Proposition is Commissioner {
+contract Proposition is managed, resolvable {
 
     /* Bets per member */
     mapping (address => uint256) bets;
@@ -85,12 +21,9 @@ contract Proposition is Commissioner {
     /** Description of the proposition, e.g. "What will the price of ETH be?" */
     string public title;
 
-    /** Time when the proposition will be resolved (s since epoch) */
+    /** Time when the proposition will be closed to new bets (s since epoch) */
     uint public bet_closing_time;
 
-    /** Time when the proposition will be closed to new bets (s since epoch) */
-    uint public resolution_time;
-    
     
     /**
      * @dev Set contract deployer as a member
