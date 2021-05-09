@@ -8,7 +8,7 @@
 import { Options, Vue } from 'vue-class-component';
 import { useRoute } from "vue-router";
 import { authConfirm, OauthConfirmRequest } from '../backend/apiInterface';
-import { VERIFIER_KEY } from '../util/constants';
+import { TOKEN_KEY, VERIFIER_KEY } from '../util/constants';
 
 export default class Confirm extends Vue {
     message: string = 'Confirming...'
@@ -25,7 +25,9 @@ export default class Confirm extends Vue {
         let response = await authConfirm(new OauthConfirmRequest({
             code: code,
             verifier: verifier
-        }))
+        }));
+
+        window.localStorage.setItem(TOKEN_KEY, response.idToken);
     }
 
     private async auth() {

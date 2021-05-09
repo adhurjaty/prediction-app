@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Threading.Tasks;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -38,8 +39,7 @@ namespace WebApi
             var response = await _google.Confirm(oauthRequest);
             var jwt = response.IdToken;
 
-            var handler = new JwtSecurityTokenHandler();
-            var token = handler.ReadJwtToken(jwt);
+            var payload = await GoogleJsonWebSignature.ValidateAsync(jwt);
 
             return jwt;
         }

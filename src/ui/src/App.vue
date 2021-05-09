@@ -3,7 +3,7 @@
     <router-link to="/">Home</router-link> |
     <router-link to="/about">About</router-link> |
     <router-link to="/login">Login</router-link> |
-    <router-link to="/contract">Contract</router-link>
+    <router-link to="/contract">Contract</router-link> |
     <router-link to="/secret">Secret</router-link>
     <router-view />
   </div>

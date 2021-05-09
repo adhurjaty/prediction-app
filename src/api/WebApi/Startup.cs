@@ -65,36 +65,8 @@ namespace WebApi
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(jwt => jwt.UseGoogle(googleSettings.ClientId));
-            // services.AddAuthentication(x =>
-            // {
-            //     x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            //     x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            // })
-            // .AddJwtBearer(x =>
-            // {
-            //     x.RequireHttpsMetadata = false;
-            //     x.SaveToken = true;
-            //     // x.TokenValidationParameters = new TokenValidationParameters
-            //     // {
-            //     //     ValidateIssuerSigningKey = true,
-            //     //     IssuerSigningKey = new SymmetricSecurityKey(key),
-            //     //     ValidateIssuer = false,
-            //     //     ValidateAudience = false,
-            //     //     // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
-            //     //     ClockSkew = TimeSpan.Zero
-            //     // };
-            // });
 
             services.AddMediatR(typeof(Startup));
-
-            // services.AddAuthentication(options =>
-            // {
-            //     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            //     options.DefaultAuthenticateScheme = OpenIdConnectDefaults.AuthenticationScheme;
-            // }).AddCookie(options =>
-            // {
-            //     options.LoginPath = 
-            // })
 
             services.AddCors(options => {
                 var corsPolicy = new CorsPolicyBuilder()
