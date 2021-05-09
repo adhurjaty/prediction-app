@@ -15,6 +15,8 @@ using System.IO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Cors.Infrastructure;
+using System.Data;
+using Npgsql;
 
 namespace WebApi
 {
@@ -36,6 +38,7 @@ namespace WebApi
 
             var googleSettings = Configuration.GetSection("GoogleConfig")
                 .Get<AuthConfig>();
+            var dbConfig = Configuration.GetSection("DbConfig").Get<DbConfig>();
 
             services.AddSingleton<AuthConfig>(x => googleSettings);
 
@@ -62,6 +65,13 @@ namespace WebApi
             });
 
             services.AddSingleton<IGoogle, GoogleInterface>();
+
+            services.AddScoped<IDbConnection>(x => 
+            {
+                var conn = new NpgsqlConnection(dbConfig.ConnectionString());
+                conn.Open();
+                return conn;
+            });
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(jwt => jwt.UseGoogle(googleSettings.ClientId));
