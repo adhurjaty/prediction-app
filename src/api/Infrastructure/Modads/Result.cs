@@ -44,7 +44,18 @@ namespace Infrastructure
 		}
 	}
 
-    public class Result<T> : Result<T, string> {}
+    public class Result<T> : Result<T, string> 
+    {
+        public static new Result<T> Succeeded(T success)
+        {
+            return Result<T, string>.Succeeded(success) as Result<T>;
+        }
+
+        public static new Result<T> Failed(string failure)
+		{
+			return Result<T, string>.Failed(failure) as Result<T>;
+		}
+    }
 
     public static class ResultExtensions
     {

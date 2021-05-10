@@ -1,4 +1,4 @@
-namespace WebApi
+namespace Infrastructure
 {
     public class DbConfig
     {

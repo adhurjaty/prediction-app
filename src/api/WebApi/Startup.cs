@@ -17,6 +17,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using System.Data;
 using Npgsql;
+using Infrastructure;
 
 namespace WebApi
 {
