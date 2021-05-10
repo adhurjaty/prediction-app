@@ -6,7 +6,7 @@ pragma solidity >=0.7.0; // <0.8.0;
  */
 contract membersOnly {
     mapping (address => bool) members;
-    int num_members;
+    int numMembers;
 
     /**
      * @dev Restricts modified functions to members-only
@@ -27,7 +27,7 @@ contract membersOnly {
      */
     function addMember(address _new_member) virtual public isMember {
         members[_new_member] = true;
-        num_members += 1;
+        numMembers += 1;
     }
 
     /**
@@ -67,6 +67,6 @@ contract managed is membersOnly {
      */
     function addMember(address _new_member) override public isCommissioner {
         members[_new_member] = true;
-        num_members += 1;
+        numMembers += 1;
     }
 }

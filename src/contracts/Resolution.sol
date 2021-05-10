@@ -13,13 +13,15 @@ contract resolvable {
     uint public resolution_time;
 
     /**  */
-    bool public is_resolved;
-
-    /**  */
     function setResolution(address _resolution) private {
         resolution = Resolution(_resolution);
     }
     
+    /**  */
+    function isResolved() view public returns(bool) {
+        return resolution.isResolved();
+    }
+
     // function vote(bool result) public {
     //     resolution.vote(result);
     // }
@@ -27,12 +29,13 @@ contract resolvable {
 
 /* TODO: documentation */
 contract Resolution is managed {
-    Proposition proposition;
-    bool is_resolved;
+    Proposition public proposition;
+    bool public isResolved;
 
     constructor(address _proposition) {
+        commissioner = msg.sender;
         setProposition(_proposition);
-        is_resolved = false;
+        isResolved = false;
     }
 
     function setProposition(address _proposition) private {
@@ -58,17 +61,18 @@ contract ResolutionByVote is Resolution {
         bytes32 result;
     }
 
-    mapping (address => MemberVote) member_votes;
-    mapping (bytes32 => uint) vote_tally;
+    mapping (address => MemberVote) memberVotes;
+    mapping (bytes32 => uint) voteTally;
+    uint votesCast;
 
     event VoteRecorded(address sender, string result, bytes32 result_hash);
 
     constructor(address _proposition) Resolution(_proposition) {
-        // TODO: initialize member_votes and vote_tally
+        // TODO: initialize memberVotes and voteTally
     }
 
     modifier votingOpen() {
-        require(is_resolved == false, "Proposition has been resolved already");
+        require(isResolved == false, "Proposition has been resolved already");
         _;
     }
 
@@ -77,21 +81,27 @@ contract ResolutionByVote is Resolution {
 
         bytes32 hashed_result = getResultHash(_result);
 
-        if (member_votes[msg.sender].resolve == false) {
+        // Record the member's vote
+        if (memberVotes[msg.sender].resolve == false) {
             // This is the first time sender has voted
-            member_votes[msg.sender].resolve = true;
-            member_votes[msg.sender].result = hashed_result;
-            vote_tally[hashed_result] += 1;
+            memberVotes[msg.sender].resolve = true;
+            memberVotes[msg.sender].result = hashed_result;
+            voteTally[hashed_result] += 1;
         }
         else {
-            bytes32 old_result = member_votes[msg.sender].result;
+            bytes32 old_result = memberVotes[msg.sender].result;
             if (hashed_result != old_result) {
                 // The sender is changing their vote
-                vote_tally[old_result] -= 1;
-                vote_tally[hashed_result] += 1;
-                member_votes[msg.sender].result = hashed_result;
+                voteTally[old_result] -= 1;
+                voteTally[hashed_result] += 1;
+                memberVotes[msg.sender].result = hashed_result;
             }
         }
+
+        // See if a majority of votes have been cast
+        // TODO: is there a potential race condition here if two people are voting simultaneously?
+        // if ()
+
     }
 
     function getResultHash(string memory _result) pure private returns(bytes32) {
