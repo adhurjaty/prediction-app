@@ -1,11 +1,40 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import Home from '../views/Home.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
     name: 'Home',
-    component: Home
+    component: import('../views/Home.vue'),
+  },
+  {
+    path: '/groups',
+    name: 'Groups',
+    component: import('../views/GroupsList.vue'),
+  },
+  {
+    path: '/friends',
+    name: 'Friends',
+    component: () => import('../views/FriendsList.vue'),
+  },
+  {
+    path: '/bets',
+    name: 'Bets',
+    component: () => import('../views/BetsList.vue'),
+  },
+  {
+    path: '/account',
+    name: 'Account',
+    component: () => import('../views/Account.vue'),
+  },
+  {
+    path: '/groups/create',
+    name: 'Create Group',
+    component: () => import('../views/CreateGroup.vue'),
+  },
+  {
+    path: '/groups/group',
+    name: 'Group',
+    component: () => import('../views/Group.vue'),
   },
   {
     path: '/about',
