@@ -1,4 +1,4 @@
-// code from https://github.com/habaneroofdoom/AltNetRop
+// code adapted from https://github.com/habaneroofdoom/AltNetRop
 
 using System;
 using System.Threading.Tasks;
@@ -7,15 +7,10 @@ using System.Collections.Generic;
 
 namespace Infrastructure
 {
-    public class Result<TSuccess, TFailure>
+    public class Result<TSuccess, TFailure> : Result
 	{
-		public bool IsSuccess => IsSuccessful;
-
-	    public bool IsFailure => !IsSuccessful;
-
 	    public TSuccess Success { get; private set; }
 		public TFailure Failure { get; private set; }
-		private bool IsSuccessful { get; set; }
 
 		protected Result()
 		{
@@ -55,6 +50,23 @@ namespace Infrastructure
 		{
 			return Result<T, string>.Failed(failure) as Result<T>;
 		}
+    }
+
+    public class Result 
+    {
+        public bool IsSuccess => IsSuccessful;
+	    public bool IsFailure => !IsSuccessful;
+		protected bool IsSuccessful { get; set; }
+
+        public static Result<T> Succeeded<T>(T success)
+        {
+            return Result<T>.Succeeded(success);
+        }
+
+        public static Result<T> Failed<T>(string failure)
+        {
+            return Result<T>.Failed(failure);
+        }
     }
 
     public static class ResultExtensions
