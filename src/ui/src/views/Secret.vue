@@ -30,7 +30,7 @@ export default class Secret extends Vue {
     align-items: flex-start;
 
     h1 {
-        @include applyPadding;
+        padding: 15px;
         align-self: center;
     }
 

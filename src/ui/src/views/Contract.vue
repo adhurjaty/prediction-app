@@ -3,7 +3,7 @@
         <h1>Contract Controls</h1>
         <div>
             <button @click="deploy">Deploy Contract</button>
-            <span>{{ proposition?.address || "" }}</span>
+            <span>{{ proposition.address || "" }}</span>
         </div>
         <div>
             <button @click="addMember">Add Member</button>
@@ -127,7 +127,7 @@ export default class Contract extends Vue {
     align-items: flex-start;
 
     h1 {
-        @include applyPadding;
+        padding: 15px;
         align-self: center;
     }
 
