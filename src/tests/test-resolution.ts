@@ -4,8 +4,9 @@ import { expect } from "chai";
 import { Address } from "node:cluster";
 
 describe("Resolution by vote", function () {
-    let commissioner: Signer, member1: Signer, member2: Signer, nonmember1: Signer;
-    let member1_address: string, member2_address: string, nonmember1_address: string; 
+    let commissioner: Signer;
+    let member1: Signer, member2: Signer, member3: Signer, nonmember1: Signer;
+    let member1_address: string, member2_address: string, member3_address: string, nonmember1_address: string; 
     let propositionFactory: ContractFactory, resolutionFactory: ContractFactory;
     let proposition: Contract, resolution: Contract;
     let title: string;
@@ -13,10 +14,11 @@ describe("Resolution by vote", function () {
     before(async function () {
         propositionFactory = await ethers.getContractFactory("EqualAnteProposition");
         resolutionFactory = await ethers.getContractFactory("ResolutionByVote"); 
-        [commissioner, member1, member2, nonmember1] = await ethers.getSigners();
+        [commissioner, member1, member2, member3, nonmember1] = await ethers.getSigners();
 
         member1_address = await member1.getAddress();
         member2_address = await member2.getAddress();
+        member3_address = await member3.getAddress();
         nonmember1_address = await nonmember1.getAddress();
     });
 
@@ -29,8 +31,10 @@ describe("Resolution by vote", function () {
 
         await proposition.connect(commissioner).addMember(member1_address);
         await proposition.connect(commissioner).addMember(member2_address);
+        await proposition.connect(commissioner).addMember(member3_address);
         await resolution.connect(commissioner).addMember(member1_address);
         await resolution.connect(commissioner).addMember(member2_address);
+        await resolution.connect(commissioner).addMember(member3_address);
     });
     
     it("Should allow a group member to vote on resolving a proposition", async function () { 

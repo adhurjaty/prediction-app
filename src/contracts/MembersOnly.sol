@@ -6,7 +6,7 @@ pragma solidity >=0.7.0; // <0.8.0;
  */
 contract membersOnly {
     mapping (address => bool) members;
-    int numMembers;
+    uint numMembers;
 
     /**
      * @dev Restricts modified functions to members-only
