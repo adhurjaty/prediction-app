@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Nethereum.Web3;
 
-namespace WebApi.Controllers
+namespace WebApi
 {
     [ApiController]
     [Route("[controller]")]

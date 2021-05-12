@@ -1,0 +1,19 @@
+@mixin button() {
+    background: #3ab154;
+    padding: 10px 20px;
+    border-radius: 25px;
+    border: none;
+    font-size: 22px;
+    color: white;
+}
+
+@mixin back() {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #3AB154;
+    height: 45px;
+    display: grid;
+    place-content: center;
+    padding: 0px 10px;
+}

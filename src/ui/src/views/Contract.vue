@@ -3,7 +3,7 @@
         <h1>Contract Controls</h1>
         <div>
             <button @click="deploy">Deploy Contract</button>
-            <span>{{ proposition?.address || "" }}</span>
+            <span>{{ proposition.address || "" }}</span>
         </div>
         <div>
             <button @click="addMember">Add Member</button>
@@ -50,7 +50,7 @@ declare global {
 })
 
 
-export default class ContractControl extends Vue {
+export default class Contract extends Vue {
     memberInput: string = "";
     wager: number | null = null;
     bet: number | null = null;
@@ -119,22 +119,25 @@ export default class ContractControl extends Vue {
 
 </script>
 
-<style scoped>
-h1 {
-    align-self: center;
-}
+<style lang="scss" scoped>
+
 .container {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-}
 
-div {
-    padding: 10px;
-}
+    h1 {
+        padding: 15px;
+        align-self: center;
+    }
 
-span {
-    padding-left: 15px;
+    div {
+        padding: 10px;
+    }
+
+    span {
+        padding-left: 15px;
+    }
 }
 
 </style>

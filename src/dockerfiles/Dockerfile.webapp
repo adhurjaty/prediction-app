@@ -17,16 +17,28 @@ RUN apt-get update \
 RUN mkdir scripts \
     && mkdir contracts \
     && mkdir tests \
-    && mkdir -p build/contracts
+    && mkdir -p build/contracts \
+    && mkdir ui
 
-ADD ../scripts scripts/.
-ADD ../contracts contracts/.
-ADD ../tests tests/.
+ADD ./scripts scripts/.
+ADD ./contracts contracts/.
+ADD ./tests tests/.
+ADD ./ui ui/.
+
+# Install Vue
+RUN (cd ui && exec yarn install)
 
 # This compiles the contract into a single json file: build/contracts/combined.json
 RUN sh contracts/build_contracts.sh
 
-# TODO: replace this with whatever command starts the vue webserver
-CMD tail -f /dev/null
-# ENTRYPOINT ["vue"]
-# CMD ["vue","command","line","args"]
+# TODO:
+# Move compiled contracts to right place for vue and the webapi
+# RUN mv build/contracts/compiled.json <TARGET_DIR> \
+#     && npx typechain --target=ethers-v5 "./abi/*.json"
+
+WORKDIR /opt/braggingrights/ui
+RUN yarn build
+
+# TODO: replace this with a script that runs both the production vue server and webapi
+ENTRYPOINT ["yarn"]
+CMD ["serve"]

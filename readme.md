@@ -35,11 +35,11 @@ How do we want to do communication? We can use Github issues for specific softwa
 - View proposition
 - Resolve proposition
 
-### [Figma Prototype](https://www.figma.com/file/l9ut96y0hhfi9cqbxNSx94/Untitled?node-id=4%3A55)
+### [Figma Prototype](https://www.figma.com/file/dT8jDjIrj4orLPvB9qpWzq/PredictApp?node-id=0%3A1)
 
 If you want to edit the Figma diagram, open your own instance of Figma and import the PredictApp.fig file, make edits, save over it and commit.
 
-![figma screenshot](./Diagrams/UI/figma.png)
+![figma screenshot](./docs/Diagrams/src/UI/figma.png)
 
 ## Links
 
