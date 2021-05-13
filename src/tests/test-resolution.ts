@@ -29,6 +29,9 @@ describe("Resolution by vote", function () {
         proposition = await propositionFactory.deploy(title, date+360, date+720);
         resolution = await resolutionFactory.deploy(proposition.address);
 
+        await resolution.connect(commissioner).addResultOption('yes');
+        await resolution.connect(commissioner).addResultOption('no');
+
         await proposition.connect(commissioner).addMember(member1_address);
         await proposition.connect(commissioner).addMember(member2_address);
         await proposition.connect(commissioner).addMember(member3_address);
@@ -38,13 +41,13 @@ describe("Resolution by vote", function () {
     });
     
     it("Should allow a group member to vote on resolving a proposition", async function () { 
-        await expect(resolution.connect(member1).vote('yes'))
+        await expect(resolution.connect(member1).voteResolved('yes'))
             .to.emit(resolution, 'VoteRecorded')
             .withArgs(member1_address, 'yes', ethers.utils.keccak256(ethers.utils.toUtf8Bytes('yes')));
     });
 
     it("Should disallow a non-member from vote on resolving a proposition", async function () { 
-        await expect(resolution.connect(nonmember1).vote('yes')).to.be.reverted;
+        await expect(resolution.connect(nonmember1).voteResolved('yes')).to.be.reverted;
     });
 
     it("Should allow group members to resolve a proposition through vote", async function () { expect.fail("Test not implemented"); });

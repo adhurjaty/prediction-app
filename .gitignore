@@ -6,3 +6,4 @@ package-lock.json
 bin/
 obj/
 appsettings.Development.json
+.idea/
