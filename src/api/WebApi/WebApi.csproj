@@ -14,6 +14,7 @@
     <PackageReference Include="Nethereum.Web3" Version="3.8.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="Npgsql" Version="5.0.4" />
+    <PackageReference Include="ServiceStack.OrmLite" Version="5.11.0" />
   </ItemGroup>
 
   <ItemGroup>
