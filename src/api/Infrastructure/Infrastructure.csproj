@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="MediatR" Version="9.0.0" />
     <PackageReference Include="ServiceStack.OrmLite" Version="5.11.0" />
   </ItemGroup>
 
