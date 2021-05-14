@@ -78,6 +78,8 @@ namespace WebApi
                 .AddJwtBearer(jwt => jwt.UseGoogle(googleSettings.ClientId));
 
             services.AddMediatR(typeof(Startup));
+            services.AddSingleton<IMediatorResult>(x => 
+                new MediatorRailway(x.GetService<IMediator>()));
 
             services.AddCors(options => {
                 var corsPolicy = new CorsPolicyBuilder()
