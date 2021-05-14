@@ -1,0 +1,71 @@
+@startuml resolution_flow
+
+title Resolution Flow for Managed Propositions
+
+actor "Group Member" as member
+participant "Commissioner/backend" as commissioner
+participant "SC Event Watcher" as watcher
+participant "Proposition (SC)" as proposition
+participant "Resolution (SC)" as resolution
+database Database as db
+
+group Resolution automatically ends by datetime
+    commissioner --> commissioner : Datetime triggers resolution
+    commissioner --> db : Get proposition resolution address
+    commissioner --> resolution : Some sort of resolution check
+    commissioner --> proposition : Set proposition state to resolving
+    commissioner --> member : Push notification to get votes from members
+end
+
+group Resolution ends by group vote
+    member --> resolution : Member initiates resolution vote with result 
+    resolution --> watcher : Emit event - resolution vote recorded
+    watcher --> db : Update database with vote and vote result
+    resolution --> resolution : Check if majority vote reached
+
+    group If majority vote reached [Majority not reached]
+        resolution --> watcher : Emit event - resolution vote majority not reached
+        resolution --> resolution : Start timer on resolution votes, if not started
+        watcher --> db : Update database
+        watcher --> member : Push notification on resolution vote recorded
+    else Majority agree resolved
+        resolution --> resolution : Set is_resolved = true 
+        resolution --> proposition : Set is_resolved = true
+        resolution --> watcher : Emit event - resolution vote majority agree resolved with result
+        watcher --> db : Update database
+        resolution --> member : Handle payouts
+    else Majority agree not resolved (TBD)
+        resolution --> watcher : Emit event - resolution vote majority agree NOT resolved
+        resolution --> resolution : 
+        watcher --> member : Push notification on resolution vote recorded
+    end
+
+end
+
+group Resolution automatically ends by external event trigger
+    commissioner --> resolution : TBD
+end
+
+' --> "Commissioner initiates resolution of proposition"
+
+' (*) --> if "How does resolution end?" then
+'     -->[Automatically by date] "Resolution Contract checks datetime"
+' else
+'     -->[Automatically by event] "Resolution ends by event"
+' endif
+' "RC initiates vote [emits event]" --> "BR backend sees vote initiation for proposition"
+
+' "Commissioner initiates resolution of proposition" --> (*)
+
+' start
+' if (Resolved automatically by date?) then (yes)
+'     :Commissioner initiates resolution of proposition;
+' elseif (Resolved automatically by external event?) then (yes)
+'     :TBD/not supported yet;
+' elseif (Resolved by group vote?) then (yes)
+'     :Group member initiates resolution of proposition;
+' endif
+
+' stop
+
+@enduml

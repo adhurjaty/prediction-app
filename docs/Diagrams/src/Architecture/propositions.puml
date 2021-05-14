@@ -1,0 +1,37 @@
+@startuml Propositions and Resolutions
+
+title Propositions and Resolutions
+
+card Proposition [
+    Proposition
+    ====
+    Currency: Prestige, USD, ETH
+    ----
+    WagerType: Equal ante, shares
+    ----
+    ResultType: yes/no, scalar, categorical, range
+]
+
+card Resolution [
+    Resolution
+    ====
+    Trigger: by event, by datetime
+    ----
+    Resolve: by vote, by oracle
+]
+
+card ResolutionByVote [
+    ResolutionByVote
+    ====
+    No. of votes needed: unanimous, majority 
+    ----
+    Penalty for not resolving
+]
+card ResolutionByOracle
+
+Proposition *-- Resolution : has a
+Resolution ^-- ResolutionByOracle : is a
+Resolution ^-- ResolutionByVote : is a
+
+
+@enduml

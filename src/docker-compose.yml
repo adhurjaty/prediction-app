@@ -7,6 +7,8 @@ services:
     build:
       dockerfile: dockerfiles/Dockerfile.hardhat.server
       context: .
+      args:
+        - DISABLE_TEST_FAILURES=0
     ports:
       - 8545:8545
 
