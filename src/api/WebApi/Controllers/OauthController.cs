@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Threading.Tasks;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
@@ -46,9 +47,14 @@ namespace WebApi
 
         [HttpGet]
         [Authorize]
-        public string Secret()
+        public IActionResult Secret()
         {
-            return "shhh, it's a secret";
+            var user = User;
+            var email = User.Claims.FirstOrDefault(claim => claim.Type == "email");
+            if(email is null)
+                return Unauthorized();
+
+            return Ok(email.Value);
         }
     }
 
