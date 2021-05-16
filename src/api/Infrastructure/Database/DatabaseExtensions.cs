@@ -34,5 +34,13 @@ namespace Infrastructure
             var result = await db.SelectAsync(expr, token);
             return Result<List<T>>.Succeeded(result);
         }
+
+        public static async Task<Result<T>> InsertResult<T>(this IDbConnection db, 
+            T model, CancellationToken token = default) where T : DbModel
+        {
+            model.Id = Guid.NewGuid().ToString();
+            await db.InsertAsync(model, token: token);
+            return Result.Succeeded(model);
+        }
     }
 }
