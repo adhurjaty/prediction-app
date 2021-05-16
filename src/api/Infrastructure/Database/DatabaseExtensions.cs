@@ -38,7 +38,7 @@ namespace Infrastructure
         public static async Task<Result<T>> InsertResult<T>(this IDbConnection db, 
             T model, CancellationToken token = default) where T : DbModel
         {
-            model.Id = Guid.NewGuid().ToString();
+            model.Id = Guid.NewGuid();
             await db.InsertAsync(model, token: token);
             return Result.Succeeded(model);
         }
