@@ -43,7 +43,6 @@ namespace WebApi.Test
                     Email = "foo@bar.baz"
                 }, config: config => config.Excluding(m => m.Id));
         }
-
     }
 
     internal class UtilTestFixture : BragDbFixture
