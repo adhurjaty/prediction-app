@@ -2,9 +2,9 @@ using Xunit;
 using FluentAssertions;
 using System.Threading.Tasks;
 using Infrastructure;
-using ServiceStack.OrmLite;
 using System.Collections.Generic;
 using System.Linq;
+using ServiceStack.OrmLite;
 
 namespace WebApi.Test
 {
@@ -22,33 +22,35 @@ namespace WebApi.Test
         [Fact]
         public async Task BasicDatabaseTests()
         {
-            var fx = new UtilTestFixture()
+            using var fx = new UtilTestFixture()
                 .WithUser(new AppUser()
                 {
                     DisplayName = "Foo Bar",
                     MainnetAddress = "address",
                     PrestigeAddress = "prestige",
-                    PrestigePrivateKey = "key"
+                    PrestigePrivateKey = "key",
+                    Email = "foo@bar.baz"
                 });
 
-            var user = (await fx.GetUsers()).First();
+            var user = (await fx.GetUsers()).First(x => x.Email == "foo@bar.baz");
 
             user.Should().BeEquivalentTo(new AppUser()
                 {
                     DisplayName = "Foo Bar",
                     MainnetAddress = "address",
                     PrestigeAddress = "prestige",
-                    PrestigePrivateKey = "key"
+                    PrestigePrivateKey = "key",
+                    Email = "foo@bar.baz"
                 }, config: config => config.Excluding(m => m.Id));
         }
 
     }
 
-    internal class UtilTestFixture : DatabaseFixture
+    internal class UtilTestFixture : BragDbFixture
     {
         public UtilTestFixture WithUser(AppUser user)
         {
-            _db.Insert(user);
+            DbUser(user);
             return this;
         }
 

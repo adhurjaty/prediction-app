@@ -17,7 +17,7 @@ namespace Infrastructure
             _db.Open();
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _db.Close();
         }
