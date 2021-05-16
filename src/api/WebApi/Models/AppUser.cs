@@ -1,4 +1,5 @@
 using Infrastructure;
+using ServiceStack.DataAnnotations;
 
 namespace WebApi
 {
@@ -9,6 +10,7 @@ namespace WebApi
         public string Email { get; set; }
         public string PrestigeAddress { get; set; }
         public string MainnetAddress { get; set; }
+        [Alias("prestige_privatekey")]
         public string PrestigePrivateKey { get; set; }
     }
 }

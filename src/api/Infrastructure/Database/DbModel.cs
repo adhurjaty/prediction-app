@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Infrastructure
@@ -5,6 +6,6 @@ namespace Infrastructure
     public abstract class DbModel
     {
         [Column("id")]
-        public string Id { get; set; }
+        public Guid Id { get; set; }
     }
 }
