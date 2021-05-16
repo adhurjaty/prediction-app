@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace WebApi
         public async Task<Result<IEnumerable<GroupsByUserQuery>>> Handle(
             GroupsByUserQuery query)
         {
-            _db.
+            throw new NotImplementedException();
         }
     }
 }

@@ -2,6 +2,7 @@ using Infrastructure;
 
 namespace WebApi
 {
+    [Alias("users")]
     public class AppUser : DbModel
     {
         public string DisplayName { get; set; }

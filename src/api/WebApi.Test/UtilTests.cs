@@ -1,5 +1,10 @@
 using Xunit;
 using FluentAssertions;
+using System.Threading.Tasks;
+using Infrastructure;
+using ServiceStack.OrmLite;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace WebApi.Test
 {
@@ -14,5 +19,42 @@ namespace WebApi.Test
             parsed.AccessToken.Should().Be("ya29.a0AfH6SMAUKV_oXOwy_XYWl1hqwKUfoHnyZZD-ZWOVUNxHucR1p75Ayq0g5MDT5zSjbGw6Iuan6wrKeuhV4ZgF0iG2hVEZ1-Hs7rs2mFT9Vgs_X8wsDaSn_tIciz_NV8BCAFv2zknkvYru18yLjPfgpK26rtgM");
         }
 
+        [Fact]
+        public async Task BasicDatabaseTests()
+        {
+            var fx = new UtilTestFixture()
+                .WithUser(new AppUser()
+                {
+                    DisplayName = "Foo Bar",
+                    MainnetAddress = "address",
+                    PrestigeAddress = "prestige",
+                    PrestigePrivateKey = "key"
+                });
+
+            var user = (await fx.GetUsers()).First();
+
+            user.Should().BeEquivalentTo(new AppUser()
+                {
+                    DisplayName = "Foo Bar",
+                    MainnetAddress = "address",
+                    PrestigeAddress = "prestige",
+                    PrestigePrivateKey = "key"
+                }, config: config => config.Excluding(m => m.Id));
+        }
+
+    }
+
+    internal class UtilTestFixture : DatabaseFixture
+    {
+        public UtilTestFixture WithUser(AppUser user)
+        {
+            _db.Insert(user);
+            return this;
+        }
+
+        public async Task<List<AppUser>> GetUsers()
+        {
+            return await _db.SelectAsync<AppUser>();
+        }
     }
 }
