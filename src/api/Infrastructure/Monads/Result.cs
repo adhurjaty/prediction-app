@@ -4,6 +4,7 @@ using System;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Infrastructure
 {
@@ -221,6 +222,78 @@ namespace Infrastructure
             }
 
             return x;
+        }
+
+        public static Result<TSuccessNew> Map<TSuccess, TSuccessNew>(
+            this Result<TSuccess> x,
+            Func<TSuccess, TSuccessNew> f)
+        {
+            return x.IsSuccess
+                ? Result<TSuccessNew>.Succeeded(f(x.Success))
+                : Result<TSuccessNew>.Failed(x.Failure);
+        }
+
+        public static async Task<Result<TSuccessNew>> Map<TSuccess, TSuccessNew>(
+            this Result<TSuccess> x,
+            Func<TSuccess, Task<TSuccessNew>> f)
+        {
+            return x.IsSuccess
+                ? Result<TSuccessNew>.Succeeded(await f(x.Success))
+                : Result<TSuccessNew>.Failed(x.Failure);
+        }
+
+        // Bind: functional bind
+        // Monadize it!
+        public static Result<TSuccessNew> Bind<TSuccess, TSuccessNew>(
+            this Result<TSuccess> x,
+            Func<TSuccess, Result<TSuccessNew>> f)
+        {
+            return x.IsSuccess
+                ? f(x.Success)
+                : Result<TSuccessNew>.Failed(x.Failure);
+        }
+
+        public static async Task<Result<TSuccessNew>> Bind<TSuccess, TSuccessNew>(
+            this Result<TSuccess> x,
+            Func<TSuccess, Task<Result<TSuccessNew>>> f)
+        {
+            return x.IsSuccess
+                ? await f(x.Success)
+                : Result<TSuccessNew>.Failed(x.Failure);
+        }
+
+        public static Result<TSuccess> Tee<TSuccess>(this Result<TSuccess> x, Action<TSuccess> f)
+        {
+            if (x.IsSuccess)
+            {
+                f(x.Success);
+            }
+
+            return x;
+        } 
+
+        public static async Task<Result<TSuccess>> Tee<TSuccess>(
+            this Result<TSuccess> x, Func<TSuccess, Task> f)
+        {
+            if (x.IsSuccess)
+            {
+                await f(x.Success);
+            }
+
+            return x;
+        }
+
+        public static Result<T> FirstResult<T>(this IEnumerable<T> lst,
+            Func<T, bool> expr)
+        {
+            try
+            {
+                return Result.Succeeded(lst.First(expr));
+            }
+            catch(InvalidOperationException)
+            {
+                return Result.Failed<T>("Element not found");
+            }
         }
     }
 }
