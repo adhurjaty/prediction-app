@@ -6,10 +6,10 @@ namespace Infrastructure
 {
     public interface IMediatorResult
     {
-        Task<Result<TResult>> Send<TQuery, TResult>(TQuery query,
+        Task<Result<TResult>> Send<TQuery, TResult>(AbstractQuery<TQuery, TResult> query,
             CancellationToken token = default);
 
-        Task<Result> Send<TCommand>(IRequest<TCommand> cmd, 
+        Task<Result> Send<TCommand>(AbstractCommand<TCommand> cmd, 
             CancellationToken token = default);
     }
 
@@ -22,16 +22,16 @@ namespace Infrastructure
             _mediator = mediator;
         }
 
-        public async Task<Result<TResult>> Send<TQuery, TResult>(TQuery query, 
-            CancellationToken token = default)
+        public async Task<Result<TResult>> Send<TQuery, TResult>(
+            AbstractQuery<TQuery, TResult> query, CancellationToken token = default)
         {
             return await _mediator.Send(query, token) as Result<TResult>;
         }
 
-        public async Task<Result> Send<TCommand>(IRequest<TCommand> cmd, 
+        public async Task<Result> Send<TCommand>(AbstractCommand<TCommand> cmd, 
             CancellationToken token = default)
         {
-            return await _mediator.Send(cmd, token) as Result;
+            return await _mediator.Send(cmd as IRequest<TCommand>, token) as Result;
         }
     }
 }

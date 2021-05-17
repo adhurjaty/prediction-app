@@ -7,12 +7,12 @@ using ServiceStack.OrmLite;
 
 namespace WebApi
 {
-    public class GroupsByUserQuery
+    public class GroupsByUserQuery : AbstractQuery<GroupsByUserQuery, List<Group>>
     {
         public string UserId { get; set; }
     }
 
-    public class GroupsByUserQueryHandler : IQueryHandler<GroupsByUserQuery, IEnumerable<GroupsByUserQuery>>
+    public class GroupsByUserQueryHandler : IQueryHandler<GroupsByUserQuery, List<Group>>
     {
         private readonly IDbConnection _db;
 
@@ -21,10 +21,14 @@ namespace WebApi
             _db = db;
         }
 
-        public async Task<Result<IEnumerable<GroupsByUserQuery>>> Handle(
+        public async Task<Result<List<Group>>> Handle(
             GroupsByUserQuery query)
         {
-            throw new NotImplementedException();
+            var sqlQuery = _db.From<Group>()
+                .Join<AppUser, UserGroup>((user, userGroup) => user.Id == userGroup.UserId)
+                .Where<AppUser>(user => user.Id.ToString() == query.UserId);
+            
+            return await _db.SelectResult(sqlQuery);
         }
     }
 }

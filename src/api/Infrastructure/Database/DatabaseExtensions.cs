@@ -35,6 +35,13 @@ namespace Infrastructure
             return Result<List<T>>.Succeeded(result);
         }
 
+        public static async Task<Result<List<T>>> SelectResult<T>(this IDbConnection db,
+            SqlExpression<T> expr, CancellationToken token = default)
+        {
+            var result = await db.SelectAsync(expr, token);
+            return Result<List<T>>.Succeeded(result);
+        }
+
         public static async Task<Result<T>> InsertResult<T>(this IDbConnection db, 
             T model, CancellationToken token = default) where T : DbModel
         {
