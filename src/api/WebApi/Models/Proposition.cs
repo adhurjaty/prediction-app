@@ -1,7 +1,9 @@
 using Infrastructure;
+using ServiceStack.DataAnnotations;
 
 namespace WebApi
 {
+    [Alias("propositions")]
     public class Proposition : DbModel
     {
         public string GroupId { get; set; }
