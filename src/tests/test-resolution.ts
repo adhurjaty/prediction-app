@@ -50,8 +50,40 @@ describe("Resolution by vote", function () {
         await expect(resolution.connect(nonmember1).voteResolved('yes')).to.be.reverted;
     });
 
-    it("Should allow group members to resolve a proposition through vote", async function () { expect.fail("Test not implemented"); });
-    it("Should disallow non-group members to interact with a resolution", async function () { expect.fail("Test not implemented"); });
+    describe("Unanimous agreement on resolution result", function () {
+
+        it("Should allow group members to resolve a proposition through vote", async function () { 
+            await expect(resolution.connect(member1).voteResolved('yes'))
+                .to.emit(resolution, 'VoteRecorded')
+                .withArgs(member1_address, 'yes', ethers.utils.keccak256(ethers.utils.toUtf8Bytes('yes')));
+            await expect(resolution.connect(member2).voteResolved('yes'))
+                .to.emit(resolution, 'VoteRecorded')
+                .withArgs(member2_address, 'yes', ethers.utils.keccak256(ethers.utils.toUtf8Bytes('yes')));
+
+            await expect(resolution.connect(member3).voteResolved('yes'))
+                .to.emit(resolution, 'ResolutionResultReached')
+                .withArgs(ethers.utils.keccak256(ethers.utils.toUtf8Bytes('yes')));
+
+        });
+
+        it("Should require a unanimous result resolution", async function () { 
+            await expect(resolution.connect(member1).voteResolved('yes'))
+                .to.emit(resolution, 'VoteRecorded')
+                .withArgs(member1_address, 'yes', ethers.utils.keccak256(ethers.utils.toUtf8Bytes('yes')));
+            await expect(resolution.connect(member2).voteResolved('yes'))
+                .to.emit(resolution, 'VoteRecorded')
+                .withArgs(member2_address, 'yes', ethers.utils.keccak256(ethers.utils.toUtf8Bytes('yes')));
+
+            // Dissenting vote
+            await expect(resolution.connect(member3).voteResolved('no'))
+                .to.emit(resolution, 'ResolutionResultNotReached')
+                .withArgs("Unanimous agreement on result needed");
+
+        });
+
+    });
+
+
     it("Should disallow a non-participant in the bet to vote on resolving", async function () { expect.fail("Test not implemented"); });
     it("Should time out a resolution vote after a set period of time", async function () { expect.fail("Test not implemented"); });
     it("Should distribute proposition winnings equally among winners of the proposition", async function () { expect.fail("Test not implemented"); });
