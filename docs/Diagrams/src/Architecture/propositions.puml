@@ -25,6 +25,8 @@ card ResolutionByVote [
     ====
     No. of votes needed: unanimous, majority 
     ----
+    Agreement on result: unanimous, majority
+    ----
     Penalty for not resolving
 ]
 card ResolutionByOracle

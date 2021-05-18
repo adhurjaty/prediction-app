@@ -76,17 +76,20 @@ contract ResolutionByVote is Resolution {
 
     enum MajorityType { SIMPLE_MAJORITY, UNANIMITY }
 
-    MajorityType majorityType;
-    MajorityType constant defaultMajorityType = MajorityType.SIMPLE_MAJORITY;
+    MajorityType constant defaultMajorityType = MajorityType.UNANIMITY;
+    MajorityType voteMajorityType;
+    MajorityType resultMajorityType;
 
     event VoteRecorded(address sender, string result, bytes32 result_hash); // 5c816d06f8f1bd89fdffe48bd51f5a428eb7bc948f30d5996d2075a715d686dc
     event VoteCount(uint256 votesCast, uint256 numMembers); // 13cbe618ace9cb5c298a4d2858b8cc4ed33766a32ad48e009363cee124b48191
     event ResultCount(bytes32 result_hash, uint256 count); // e850e319647c0d97db7d1a892d0beb081b444c94801a7952b8026f19a1243df9
-    event ResolutionResultReached(string result, bytes32 result_hash); // 287c63dc86a1c54968b1c8dde0e1f2960f18558ddb28c8956d86452fdd0d3691
+    event ResolutionResultReached(bytes32 result_hash); // 287c63dc86a1c54968b1c8dde0e1f2960f18558ddb28c8956d86452fdd0d3691
+    event ResolutionResultNotReached(string reason);
 
     constructor(address _proposition) Resolution(_proposition) {
         // TODO: initialize memberVotes, voteTally, votesCast, but this costs gas
-        majorityType = defaultMajorityType;
+        voteMajorityType = defaultMajorityType;
+        resultMajorityType = MajorityType.UNANIMITY;
     }
 
     // constructor(address _proposition, MajorityType _type) Resolution(_proposition) {
@@ -149,14 +152,18 @@ contract ResolutionByVote is Resolution {
 
         // See if a majority has been reached
         // TODO: is there a potential race condition here if two people are voting simultaneously?
-        if (majorityType == MajorityType.SIMPLE_MAJORITY) {
+        if (voteMajorityType == MajorityType.SIMPLE_MAJORITY) {
             if (votesCast >= numMembers/2.0) {
                 if (votesCastToResolve >= numMembers/2.0) {
                     isResolved = true;
+                    tabulateResult();
                 }
             }
-        } else if (majorityType == MajorityType.UNANIMITY) {
-            // do some stuff
+        } else if (voteMajorityType == MajorityType.UNANIMITY) {
+            if (votesCast == numMembers) {
+                isResolved = true;
+                tabulateResult();
+            }
         } else {
             // this should not happen
         }
@@ -165,9 +172,26 @@ contract ResolutionByVote is Resolution {
     }
 
     function tabulateResult() private returns (bytes32) {
-        uint i;
-        for(i=0; i<resultOptions.length; i += 1) {
-            emit ResultCount(resultOptions[i], voteTally[resultOptions[i]].count);
+
+        if (resultMajorityType == MajorityType.UNANIMITY) {
+            uint i;
+            bool resultReached = false;
+
+            for(i=0; i<resultOptions.length; i += 1) {
+                bytes32 _result = resultOptions[i];
+                uint16 _voteTally = voteTally[resultOptions[i]].count;
+                emit ResultCount(_result, _voteTally);
+                if (_voteTally == numMembers) {
+                    emit ResolutionResultReached(_result);
+                    resultReached = true;
+                    break;
+                }
+            }
+
+            if (!resultReached) {
+                emit ResolutionResultNotReached("Unanimous agreement on result needed");
+                return 0;
+            }
         }
         
         return 0;
