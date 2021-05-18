@@ -3,14 +3,15 @@ import { Signer, ContractFactory, Contract } from "ethers";
 import { expect } from "chai";
 
 describe("Proposition", function () {
-    let commissioner: Signer, member1: Signer, member2: Signer, nonmember1: Signer;
+    let commissioner: Signer, newcommissioner: Signer;
+    let member1: Signer, member2: Signer, nonmember1: Signer;
     let propositionFactory: ContractFactory;
     let proposition: Contract;
     let title: string;
 
     before(async function () {
         propositionFactory = await ethers.getContractFactory("Proposition");
-        [commissioner, member1, member2, nonmember1] = await ethers.getSigners();
+        [commissioner, member1, member2, nonmember1, newcommissioner] = await ethers.getSigners();
 
         const date = Date.now();
         title = "Test Proposition" + date;
@@ -54,10 +55,25 @@ describe("Proposition", function () {
             await expect(proposition.connect(commissioner).wager(1000)).to.be.reverted;
         });
 
-        it("Should prevent a member from setting a commissioner", async function () { expect.fail("Test not implemented"); });
-        it("Should prevent a non-member from setting a commissioner", async function () { expect.fail("Test not implemented"); });
-        it("Should allow a commissioner to set a commissioner", async function () { expect.fail("Test not implemented") });
-        it("Should prevent a member from being set as commissioner", async function () { expect.fail("Test not implemented"); });
+        it("Should prevent a member from setting a commissioner", async function () { 
+            const member1_address = await member1.getAddress();
+            await expect(proposition.connect(member1).setCommissioner(member1_address)).to.be.reverted;
+        });
+
+        it("Should prevent a non-member from setting a commissioner", async function () { 
+            const nonmember1_address = await nonmember1.getAddress();
+            await expect(proposition.connect(nonmember1).setCommissioner(nonmember1_address)).to.be.reverted;
+        });
+
+        it("Should prevent a member from being set as commissioner", async function () { 
+            expect.fail("Test not implemented"); 
+        });
+
+        it("Should allow a commissioner to set a commissioner", async function () { 
+            const newcommissioner_address = await newcommissioner.getAddress();
+            await expect(proposition.connect(newcommissioner).setCommissioner(newcommissioner_address)).to.be.reverted;
+        });
+
         // it("Should ...", async function () { expect.fail("Test not implemented"); });
     });
     
