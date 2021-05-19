@@ -41,6 +41,30 @@ If you want to edit the Figma diagram, open your own instance of Figma and impor
 
 ![figma screenshot](./docs/Diagrams/src/UI/figma.png)
 
+## Domain Definitions
+
+### Global Domain
+
+- **Proposition**: Item up for making a wager on. A proposition **resolves** to yes or no (for now) **outcome** upon some resolution condition
+- **Vote**: User's prediction of the **outcome** of a proposition (yes or no for now)
+- **Resolution**: The point when the proposition has a yes/no outcome
+- **Resolution Event**: The real world event that should trigger a resolution of the proposition
+- **Outcome**: The status of the resolved proposition
+- **Event Outcome**: The real world status of the resolution event
+
+### Database
+
+- **User**: user of the application. Is able to log in and interact with the application
+- **Group**: Group of users that share propositions and statistics. Propositions are all scoped to groups
+
+### Smart Contract
+
+- **Member**: Same as user in the database domain
+- **Commissioner**: The API backend service that manages smart contracts
+- **Proposition**: The smart contract for the proposition in the global domain sense
+- **Resolver**: The smart contract that handles resolution conditions for the proposition smart contract
+- **Resolution Vote**: A vote that reflects the event outcome (should trigger a proposition resolution under some condition)
+
 ## Links
 
 - [Solidity tutorial](https://docs.soliditylang.org/en/v0.8.2/introduction-to-smart-contracts.html) and [by example](https://docs.soliditylang.org/en/v0.8.2/solidity-by-example.html)
