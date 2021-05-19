@@ -13,9 +13,10 @@ namespace WebApi.Test
         private List<Vote> _votes = new List<Vote>();
         private List<UserGroup> _userGroups = new List<UserGroup>();
 
+
         public BragDbFixture()
         {
-            TruncateTables();
+
         }
 
         protected AppUser DbUser(AppUser user)
@@ -43,25 +44,22 @@ namespace WebApi.Test
         {
             if(model.Id == default)
                 model.Id = Guid.NewGuid();
+
             _db.Insert(model);
         }
 
-        protected void TruncateTables()
+        private void DeleteDanglingModels()
         {
-            _db.DeleteAll<UserGroup>();
-            _db.DeleteAll<Vote>();
-            _db.DeleteAll<Proposition>();
-            _db.DeleteAll<Group>();
-            _db.DeleteAll<AppUser>();
+
         }
 
         public override void Dispose()
         {
-            _db.DeleteAll(_users);
-            _db.DeleteAll(_groups);
-            _db.DeleteAll(_propositions);
-            _db.DeleteAll(_votes);
-            _db.DeleteAll(_userGroups);
+            _db.DeleteAll<AppUser>();
+            _db.DeleteAll<Group>();
+            _db.DeleteAll<UserGroup>();
+            _db.DeleteAll<Proposition>();
+            _db.DeleteAll<Vote>();
 
             base.Dispose();
         }
