@@ -147,8 +147,8 @@ namespace WebApi.Test
         {
             using var fx = new GroupsByUserTestFixture()
                 .WithUser(user)
-                .WithBridge(bridge)
-                .WithGroups(groups);
+                .WithGroups(groups)
+                .WithBridge(bridge);
 
 
             var handler = fx.GetHandler();
