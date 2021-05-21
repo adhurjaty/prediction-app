@@ -55,11 +55,11 @@ namespace WebApi.Test
 
         public override void Dispose()
         {
-            _db.DeleteAll<AppUser>();
-            _db.DeleteAll<Group>();
-            _db.DeleteAll<UserGroup>();
-            _db.DeleteAll<Proposition>();
             _db.DeleteAll<Vote>();
+            _db.DeleteAll<Proposition>();
+            _db.DeleteAll<UserGroup>();
+            _db.DeleteAll<Group>();
+            _db.DeleteAll<AppUser>();
 
             base.Dispose();
         }
