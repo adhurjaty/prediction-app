@@ -1,5 +1,6 @@
 import { TOKEN_KEY } from '@/util/constants';
 import axios from 'axios';
+import { Group } from './apiModels';
 
 const BASE_URL = 'http://localhost:5000';
 
@@ -28,13 +29,23 @@ export async function authConfirm(request : OauthConfirmRequest): Promise<OauthC
 }
 
 export async function getSecret(): Promise<string> {
+    return await authGet(`${BASE_URL}/oauth/secret`);
+}
+
+export async function getGroups(): Promise<Array<Group>> {
+    const response = await authGet(`${BASE_URL}/groups`);
+    debugger;
+    return (JSON.parse(response) as Group[]);
+}
+
+async function authGet(url: string): Promise<string> {
     const token = window.localStorage.getItem(TOKEN_KEY);
 
     try {
         if(!token)
             throw new Error();
 
-        const resp = await axios.get(`${BASE_URL}/oauth/secret`, {
+        const resp = await axios.get(url, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

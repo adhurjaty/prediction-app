@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace WebApi
 {
     [ApiController]
-    [Route("[controller]/[action]")]
     public class GroupsController : BragControllerBase
     {
         private readonly IMediatorResult _mediator;
@@ -24,11 +23,13 @@ namespace WebApi
         [Route("Groups")]
         public async Task<ActionResult<List<Group>>> GetGroups()
         {
-            var user = GetUser();
-            return ToResponse(await _mediator.Send(new GroupsByUserQuery()
-            {
-                UserId = user.Id.ToString()
-            }));
+            var result = await (await GetUser())
+                .Bind(user => _mediator.Send(new GroupsByUserQuery()
+                {
+                    UserId = user.Id.ToString()
+                }));
+                
+            return ToResponse(result);
         }
     }
 }

@@ -16,6 +16,7 @@ export default class Confirm extends Vue {
     async mounted(): Promise<void> {
         const code = useRoute().query.code as string;
         const verifier = window.localStorage.getItem(VERIFIER_KEY);
+        debugger;
 
         if(!verifier) {
             this.message = 'ERROR, could not get verifier from local storage';
