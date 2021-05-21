@@ -28,6 +28,12 @@ namespace Infrastructure
                 : Result<T>.Failed("No matching result");
         }
 
+        public static async Task<Result<T>> SingleResultById<T>(this IDbConnection db,
+            string idValue, CancellationToken token = default)
+        {
+            return await db.SingleResultById<T>(Guid.Parse(idValue), token);
+        }
+
         public static async Task<Result<List<T>>> SelectResult<T>(this IDbConnection db,
             Expression<Func<T, bool>> expr, CancellationToken token = default)
         {

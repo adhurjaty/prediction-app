@@ -26,8 +26,7 @@ namespace WebApi
         {
             var sqlQuery = _db.From<Group>()
                 .Join<Group, UserGroup>((group, userGroup) => group.Id == userGroup.GroupId)
-                .Join<UserGroup, AppUser>((userGroup, user) => user.Id == userGroup.UserId)
-                .Where<AppUser>(user => user.Id.ToString() == query.UserId);
+                .Where<UserGroup>(userGroup => userGroup.UserId.ToString() == query.UserId);
             
             var result = await _db.SelectResult(sqlQuery);
             return result;
