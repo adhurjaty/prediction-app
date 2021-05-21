@@ -28,8 +28,7 @@ namespace WebApi
                 .Join<Group, UserGroup>((group, userGroup) => group.Id == userGroup.GroupId)
                 .Where<UserGroup>(userGroup => userGroup.UserId.ToString() == query.UserId);
             
-            var result = await _db.SelectResult(sqlQuery);
-            return result;
+            return await _db.SelectResult(sqlQuery);
         }
     }
 }

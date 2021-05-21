@@ -26,18 +26,25 @@
 
 <script lang="ts">
 import { Vue } from 'vue-class-component';
+import { getGroups } from '../backend/apiInterface';
+import { Group } from '../backend/apiModels';
 
-interface Group {
-    id: number
-    title: string
-    accuracy: number
-    betsMade: number
-    betsAvailable: number
-    color: string
-}
+// interface Group {
+//     id: number
+//     title: string
+//     accuracy: number
+//     betsMade: number
+//     betsAvailable: number
+//     color: string
+// }
+
 export default class GroupPage extends Vue {
-    //groups: Array<Group> = [];
-    groups: Array<Group> = [{id:1,title:'Sooth Sayans',accuracy:92,betsMade:2,betsAvailable:3,color:'#B644BE'},{id:2,title:'Big Flexors',accuracy:0,betsMade:1,betsAvailable:2,color:'#EB0101'}];
+    groups: Group[] = [];
+
+    async mounted(): Promise<void> {
+        debugger;
+        this.groups = await getGroups();
+    }
 }
 </script>
 
