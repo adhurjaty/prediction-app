@@ -25,10 +25,12 @@ namespace WebApi
             GroupsByUserQuery query)
         {
             var sqlQuery = _db.From<Group>()
-                .Join<AppUser, UserGroup>((user, userGroup) => user.Id == userGroup.UserId)
+                .Join<Group, UserGroup>((group, userGroup) => group.Id == userGroup.GroupId)
+                .Join<UserGroup, AppUser>((userGroup, user) => user.Id == userGroup.UserId)
                 .Where<AppUser>(user => user.Id.ToString() == query.UserId);
             
-            return await _db.SelectResult(sqlQuery);
+            var result = await _db.SelectResult(sqlQuery);
+            return result;
         }
     }
 }

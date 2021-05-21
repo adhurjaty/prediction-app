@@ -10,8 +10,8 @@ namespace Infrastructure
 {
     public class Result<TSuccess, TFailure> : Result
 	{
-	    public TSuccess Success { get; private set; }
-		public TFailure Failure { get; private set; }
+	    public TSuccess Success { get; protected set; }
+		public TFailure Failure { get; protected set; }
 
 		protected Result()
 		{
@@ -43,13 +43,25 @@ namespace Infrastructure
     public class Result<T> : Result<T, string> 
     {
         public static new Result<T> Succeeded(T success)
-        {
-            return Result<T, string>.Succeeded(success) as Result<T>;
-        }
-
-        public static new Result<T> Failed(string failure)
 		{
-			return Result<T, string>.Failed(failure) as Result<T>;
+			if (success == null) throw new ArgumentNullException(nameof(success));
+			
+			return new Result<T>
+			{
+				IsSuccessful = true,
+				Success = success
+			};
+		}
+
+		public static new Result<T> Failed(string failure)
+		{
+			if (failure == null) throw new ArgumentNullException(nameof(failure));
+			
+			return new Result<T>
+			{
+				IsSuccessful = false,
+				Failure = failure
+			};
 		}
     }
 

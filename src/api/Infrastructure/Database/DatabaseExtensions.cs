@@ -14,16 +14,16 @@ namespace Infrastructure
             Expression<Func<T, bool>> expr, CancellationToken token = default)
         {
             var result = await db.SingleAsync(expr, token);
-            return result is null 
+            return result != null 
                 ? Result<T>.Succeeded(result)
                 : Result<T>.Failed("No matching result");
         }
 
         public static async Task<Result<T>> SingleResultById<T>(this IDbConnection db,
-            object idValue, CancellationToken token = default)
+            Guid idValue, CancellationToken token = default)
         {
             var result = await db.SingleByIdAsync<T>(idValue, token);
-            return result is null 
+            return result != null 
                 ? Result<T>.Succeeded(result)
                 : Result<T>.Failed("No matching result");
         }
@@ -32,14 +32,14 @@ namespace Infrastructure
             Expression<Func<T, bool>> expr, CancellationToken token = default)
         {
             var result = await db.SelectAsync(expr, token);
-            return Result<List<T>>.Succeeded(result);
+            return Result<List<T>>.Succeeded(result ?? new List<T>());
         }
 
         public static async Task<Result<List<T>>> SelectResult<T>(this IDbConnection db,
             SqlExpression<T> expr, CancellationToken token = default)
         {
             var result = await db.SelectAsync(expr, token);
-            return Result<List<T>>.Succeeded(result);
+            return Result<List<T>>.Succeeded(result ?? new List<T>());
         }
 
         public static async Task<Result<T>> InsertResult<T>(this IDbConnection db, 
