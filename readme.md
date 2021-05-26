@@ -46,11 +46,12 @@ If you want to edit the Figma diagram, open your own instance of Figma and impor
 ### Global Domain
 
 - **Proposition**: Item up for making a wager on. A proposition **resolves** to yes or no (for now) **outcome** upon some resolution condition
-- **Vote**: User's prediction of the **outcome** of a proposition (yes or no for now)
+- **Bet**: A User's **wagered** amount on a predicted Outcome
 - **Resolution**: The point when the proposition has a yes/no outcome
 - **Resolution Event**: The real world event that should trigger a resolution of the proposition
 - **Outcome**: The status of the resolved proposition
 - **Event Outcome**: The real world status of the resolution event
+- **Wager**: The amount of ether or prestige points in a bet
 
 ### Database
 
