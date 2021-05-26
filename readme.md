@@ -59,8 +59,8 @@ If you want to edit the Figma diagram, open your own instance of Figma and impor
 
 ### Smart Contract
 
-- **Member**: Same as user in the database domain
-- **Commissioner**: The API backend service that manages smart contracts
+- **Member**:  A User with membership in the Group that is participating in a given Proposition. A Member may participate in that Proposition through wagers and, depending on the Resolver, may vote to resolve the Proposition. A member is a user in the database sense
+- **Commissioner**: The administrator for a given Proposition, typically handled by the API backend service. A Commissioner creates Propositions, adds/removes Members, and sets the Resolver. The Commissioner may not bet in the Proposition or vote on its resolution.
 - **Proposition**: The smart contract for the proposition in the global domain sense
 - **Resolver**: The smart contract that handles resolution conditions for the proposition smart contract
 - **Resolution Vote**: A vote that reflects the event outcome (should trigger a proposition resolution under some condition)
