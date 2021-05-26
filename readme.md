@@ -49,8 +49,8 @@ If you want to edit the Figma diagram, open your own instance of Figma and impor
 - **Bet**: A User's **wagered** amount on a predicted Outcome
 - **Resolution**: The point when the proposition has a yes/no outcome
 - **Resolution Event**: The real world event that should trigger a resolution of the proposition
-- **Outcome**: The status of the resolved proposition
-- **Event Outcome**: The real world status of the resolution event
+- **App Outcome**: The status of the resolved proposition
+- **True Outcome**: The real world status of the resolution event
 - **Wager**: The amount of ether or prestige points in a bet
 
 ### Database
