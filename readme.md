@@ -46,11 +46,12 @@ If you want to edit the Figma diagram, open your own instance of Figma and impor
 ### Global Domain
 
 - **Proposition**: Item up for making a wager on. A proposition **resolves** to yes or no (for now) **outcome** upon some resolution condition
-- **Bet**: A User's **wagered** amount on a predicted Outcome
 - **Resolution**: The point when the proposition has a yes/no outcome
 - **Resolution Event**: The real world event that should trigger a resolution of the proposition
 - **App Outcome**: The status of the resolved proposition
 - **True Outcome**: The real world status of the resolution event
+- **Prediction**: A user's prediction of the app outcome
+- **Bet**: A User's **wagered** amount on a predicted Outcome
 - **Wager**: The amount of ether or prestige points in a bet
 
 ### Database
@@ -65,6 +66,7 @@ If you want to edit the Figma diagram, open your own instance of Figma and impor
 - **Proposition**: The smart contract for the proposition in the global domain sense
 - **Resolver**: The smart contract that handles resolution conditions for the proposition smart contract
 - **Resolution Vote**: A vote that reflects the event outcome (should trigger a proposition resolution under some condition)
+- **Defection?**: A vote that a true outcome has not occurred
 
 ## Links
 
