@@ -46,6 +46,33 @@ If you want to edit the Figma diagram, open your own instance of Figma and impor
 
 ![figma screenshot](./docs/Diagrams/src/UI/figma.png)
 
+## Domain Definitions
+
+### Global Domain
+
+- **Proposition**: Item up for making a wager on. A proposition **resolves** to yes or no (for now) **outcome** upon some resolution condition
+- **Resolution**: The point when the proposition has a yes/no outcome
+- **Resolution Event**: The real world event that should trigger a resolution of the proposition
+- **App Outcome**: The status of the resolved proposition
+- **True Outcome**: The real world status of the resolution event
+- **Prediction**: A user's prediction of the app outcome
+- **Bet**: A User's **wagered** amount on a predicted Outcome
+- **Wager**: The amount of ether or prestige points in a bet
+
+### Database
+
+- **User**: user of the application. Is able to log in and interact with the application
+- **Group**: Group of users that share propositions and statistics. Propositions are all scoped to groups
+
+### Smart Contract
+
+- **Member**:  A User with membership in the Group that is participating in a given Proposition. A Member may participate in that Proposition through wagers and, depending on the Resolver, may vote to resolve the Proposition. A member is a user in the database sense
+- **Commissioner**: The administrator for a given Proposition, typically handled by the API backend service. A Commissioner creates Propositions, adds/removes Members, and sets the Resolver. The Commissioner may not bet in the Proposition or vote on its resolution.
+- **Proposition**: The smart contract for the proposition in the global domain sense
+- **Resolver**: The smart contract that handles resolution conditions for the proposition smart contract
+- **Resolution Vote**: A vote that reflects the event outcome (should trigger a proposition resolution under some condition)
+- **Defection?**: A vote that a true outcome has not occurred
+
 ## Links
 
 - [Solidity tutorial](https://docs.soliditylang.org/en/v0.8.2/introduction-to-smart-contracts.html) and [by example](https://docs.soliditylang.org/en/v0.8.2/solidity-by-example.html)
