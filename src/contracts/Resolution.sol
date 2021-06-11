@@ -12,8 +12,13 @@ contract resolvable {
     /** Time when the proposition will be resolved (s since epoch) */
     uint public resolution_time;
 
-    /**  */
-    function setResolution(address _resolution) private {
+    modifier isResolver() {
+        require(msg.sender == address(resolution), "Caller is not the resolver");
+        _;
+    }
+
+    /** TODO: this should be protected by isCommissioner... */
+    function setResolution(address _resolution) public {
         resolution = Resolution(_resolution);
     }
     
@@ -21,10 +26,6 @@ contract resolvable {
     function isResolved() view public returns(bool) {
         return resolution.isResolved();
     }
-
-    // function vote(bool result) public {
-    //     resolution.vote(result);
-    // }
 }
 
 /* TODO: documentation */
@@ -81,7 +82,7 @@ contract ResolutionByVote is Resolution {
     MajorityType resultMajorityType;
 
     event VoteRecorded(address sender, string result, bytes32 result_hash); // 5c816d06f8f1bd89fdffe48bd51f5a428eb7bc948f30d5996d2075a715d686dc
-    event VoteCount(uint256 votesCast, uint256 numMembers); // 13cbe618ace9cb5c298a4d2858b8cc4ed33766a32ad48e009363cee124b48191
+    event VoteCount(uint256 votesCast, uint256 numBettors); // 13cbe618ace9cb5c298a4d2858b8cc4ed33766a32ad48e009363cee124b48191
     event ResultCount(bytes32 result_hash, uint256 count); // e850e319647c0d97db7d1a892d0beb081b444c94801a7952b8026f19a1243df9
     event ResolutionResultReached(bytes32 result_hash); // 287c63dc86a1c54968b1c8dde0e1f2960f18558ddb28c8956d86452fdd0d3691
     event ResolutionResultNotReached(string reason);
@@ -98,7 +99,12 @@ contract ResolutionByVote is Resolution {
     // }
 
     modifier votingOpen() {
-        require(isResolved == false, "Proposition has been resolved already");
+        require(isResolved == false, "Bet has been resolved already");
+        _;
+    }
+
+    modifier isBettor(address bettor) {
+        require(proposition.getWager(bettor) > 0, "Caller is not a bettor in the bet");
         _;
     }
 
@@ -112,7 +118,7 @@ contract ResolutionByVote is Resolution {
 
     }
 
-    function voteResolved(string memory _result) virtual public isMember votingOpen {
+    function voteResolved(string memory _result) virtual public isMember votingOpen isBettor(msg.sender) {
         emit VoteRecorded(msg.sender, _result, getResultHash(_result));
 
         bytes32 hashed_result = getResultHash(_result);
@@ -148,21 +154,22 @@ contract ResolutionByVote is Resolution {
     }
 
     function checkMajority() private returns (bool) {
-        emit VoteCount(votesCast, numMembers);
+        uint numBettors = proposition.numBettors();
+        emit VoteCount(votesCast, numBettors);
 
         // See if a majority has been reached
         // TODO: is there a potential race condition here if two people are voting simultaneously?
         if (voteMajorityType == MajorityType.SIMPLE_MAJORITY) {
-            if (votesCast >= numMembers/2.0) {
-                if (votesCastToResolve >= numMembers/2.0) {
+            if (votesCast >= numBettors/2.0) {
+                if (votesCastToResolve >= numBettors/2.0) {
                     isResolved = true;
-                    tabulateResult();
+                    tabulateResult(numBettors);
                 }
             }
         } else if (voteMajorityType == MajorityType.UNANIMITY) {
-            if (votesCast == numMembers) {
+            if (votesCast == numBettors) {
                 isResolved = true;
-                tabulateResult();
+                tabulateResult(numBettors);
             }
         } else {
             // this should not happen
@@ -171,7 +178,7 @@ contract ResolutionByVote is Resolution {
         return true;
     }
 
-    function tabulateResult() private returns (bytes32) {
+    function tabulateResult(uint numBettors) private returns (bytes32) {
 
         if (resultMajorityType == MajorityType.UNANIMITY) {
             uint i;
@@ -181,7 +188,7 @@ contract ResolutionByVote is Resolution {
                 bytes32 _result = resultOptions[i];
                 uint16 _voteTally = voteTally[resultOptions[i]].count;
                 emit ResultCount(_result, _voteTally);
-                if (_voteTally == numMembers) {
+                if (_voteTally == numBettors) {
                     emit ResolutionResultReached(_result);
                     resultReached = true;
                     break;

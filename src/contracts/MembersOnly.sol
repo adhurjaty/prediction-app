@@ -58,6 +58,7 @@ contract managed is membersOnly {
     /**
      */
     function setCommissioner(address _new_commissioner) public isCommissioner {
+        require(members[_new_commissioner] = false, "New commissioner cannot be a member");
         commissioner = _new_commissioner;
     }
 
@@ -66,6 +67,7 @@ contract managed is membersOnly {
      * @param _new_member Address of new member
      */
     function addMember(address _new_member) override public isCommissioner {
+        require(_new_member != msg.sender, "Commissioner cannot add themselves as a member");
         members[_new_member] = true;
         numMembers += 1;
     }

@@ -5,8 +5,8 @@ import { Address } from "node:cluster";
 
 describe("Resolution by vote", function () {
     let commissioner: Signer;
-    let member1: Signer, member2: Signer, member3: Signer, nonmember1: Signer;
-    let member1_address: string, member2_address: string, member3_address: string, nonmember1_address: string; 
+    let member1: Signer, member2: Signer, member3: Signer, nonmember1: Signer, notinthebet1: Signer;
+    let member1_address: string, member2_address: string, member3_address: string, nonmember1_address: string, notinthebet1_address: string; 
     let propositionFactory: ContractFactory, resolutionFactory: ContractFactory;
     let proposition: Contract, resolution: Contract;
     let title: string;
@@ -14,12 +14,13 @@ describe("Resolution by vote", function () {
     before(async function () {
         propositionFactory = await ethers.getContractFactory("EqualAnteProposition");
         resolutionFactory = await ethers.getContractFactory("ResolutionByVote"); 
-        [commissioner, member1, member2, member3, nonmember1] = await ethers.getSigners();
+        [commissioner, member1, member2, member3, nonmember1, notinthebet1] = await ethers.getSigners();
 
         member1_address = await member1.getAddress();
         member2_address = await member2.getAddress();
         member3_address = await member3.getAddress();
         nonmember1_address = await nonmember1.getAddress();
+        notinthebet1_address = await notinthebet1.getAddress();
     });
 
     beforeEach(async function () {
@@ -28,6 +29,7 @@ describe("Resolution by vote", function () {
 
         proposition = await propositionFactory.deploy(title, date+360, date+720);
         resolution = await resolutionFactory.deploy(proposition.address);
+        await proposition.setResolution(resolution.address);
 
         await resolution.connect(commissioner).addResultOption('yes');
         await resolution.connect(commissioner).addResultOption('no');
@@ -35,9 +37,15 @@ describe("Resolution by vote", function () {
         await proposition.connect(commissioner).addMember(member1_address);
         await proposition.connect(commissioner).addMember(member2_address);
         await proposition.connect(commissioner).addMember(member3_address);
+        await proposition.connect(commissioner).addMember(notinthebet1_address);
         await resolution.connect(commissioner).addMember(member1_address);
         await resolution.connect(commissioner).addMember(member2_address);
         await resolution.connect(commissioner).addMember(member3_address);
+        await resolution.connect(commissioner).addMember(notinthebet1_address);
+
+        await expect(proposition.connect(member1)["wager()"]()).to.emit(proposition, 'Wager');
+        await expect(proposition.connect(member2)["wager()"]()).to.emit(proposition, 'Wager');
+        await expect(proposition.connect(member3)["wager()"]()).to.emit(proposition, 'Wager');
     });
     
     it("Should allow a group member to vote on resolving a proposition", async function () { 
@@ -81,10 +89,30 @@ describe("Resolution by vote", function () {
 
         });
 
+        it("Should prevent a non-participant in the bet to vote on resolving", async function () { 
+            await expect(resolution.connect(notinthebet1).voteResolved('yes')).to.be.reverted;
+        });
+    
+        it("Should prevent a bettor from voting to resolve a resolved bet", async function () { 
+            await expect(resolution.connect(member1).voteResolved('yes'))
+                .to.emit(resolution, 'VoteRecorded')
+                .withArgs(member1_address, 'yes', ethers.utils.keccak256(ethers.utils.toUtf8Bytes('yes')));
+            await expect(resolution.connect(member2).voteResolved('yes'))
+                .to.emit(resolution, 'VoteRecorded')
+                .withArgs(member2_address, 'yes', ethers.utils.keccak256(ethers.utils.toUtf8Bytes('yes')));
+
+            await expect(resolution.connect(member3).voteResolved('yes'))
+                .to.emit(resolution, 'ResolutionResultReached')
+                .withArgs(ethers.utils.keccak256(ethers.utils.toUtf8Bytes('yes')));
+
+            await expect(resolution.connect(member1).voteResolved('yes'))
+                .to.be.revertedWith('Bet has been resolved already');
+        });
     });
 
 
-    it("Should disallow a non-participant in the bet to vote on resolving", async function () { expect.fail("Test not implemented"); });
+    // Unimplemented tests
+
     it("Should time out a resolution vote after a set period of time", async function () { expect.fail("Test not implemented"); });
     it("Should distribute proposition winnings equally among winners of the proposition", async function () { expect.fail("Test not implemented"); });
     // it("Should ...", async function () { expect.fail("Test not implemented"); });
