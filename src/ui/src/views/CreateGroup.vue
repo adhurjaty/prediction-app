@@ -7,9 +7,7 @@
         </router-link>
         <h2>Create New Group</h2>
         <input type="text" placeholder="Group name" />
-        <router-link to="/groups/group">
-            <button @click="createGroup()">create</button>
-        </router-link>
+        <button @click="createGroup()">create</button>
     </main>
 </template>
 

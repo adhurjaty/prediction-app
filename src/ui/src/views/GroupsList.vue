@@ -7,15 +7,17 @@
             </router-link>
         </div>
         <div class="groups" v-if="groups.length > 0">
-            <div v-for="group in groups" :key="group.title" class="group-list">
-                <div :style="`background:${group.color}`" class="group-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="20" viewBox="0 0 24 20"><path d="M10.118 16.064c2.293-.529 4.428-.993 3.394-2.945-3.146-5.942-.834-9.119 2.488-9.119 3.388 0 5.644 3.299 2.488 9.119-1.065 1.964 1.149 2.427 3.394 2.945 1.986.459 2.118 1.43 2.118 3.111l-.003.825h-15.994c0-2.196-.176-3.407 2.115-3.936zm-10.116 3.936h6.001c-.028-6.542 2.995-3.697 2.995-8.901 0-2.009-1.311-3.099-2.998-3.099-2.492 0-4.226 2.383-1.866 6.839.775 1.464-.825 1.812-2.545 2.209-1.49.344-1.589 1.072-1.589 2.333l.002.619z"/></svg></div>
-                <div class="group-info">
-                    <p class="title" :style="`color:${group.color}`">{{ group.title }}</p>
-                    <p>{{ group.accuracy }}% accurate</p>
-                    <p>{{ group.betsMade }}/{{ group.betsAvailable }} active bets</p>
-                </div>
+            <div v-for="group in groups" :key="group.title">
+                <router-link :to="{ name: 'Group', params: {id: group.id } }" class="group-list">
+                    <div :style="`background:${group.color}`" class="group-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="20" viewBox="0 0 24 20"><path d="M10.118 16.064c2.293-.529 4.428-.993 3.394-2.945-3.146-5.942-.834-9.119 2.488-9.119 3.388 0 5.644 3.299 2.488 9.119-1.065 1.964 1.149 2.427 3.394 2.945 1.986.459 2.118 1.43 2.118 3.111l-.003.825h-15.994c0-2.196-.176-3.407 2.115-3.936zm-10.116 3.936h6.001c-.028-6.542 2.995-3.697 2.995-8.901 0-2.009-1.311-3.099-2.998-3.099-2.492 0-4.226 2.383-1.866 6.839.775 1.464-.825 1.812-2.545 2.209-1.49.344-1.589 1.072-1.589 2.333l.002.619z"/></svg></div>
+                    <div class="group-info">
+                        <p class="title" :style="`color:${group.color}`">{{ group.title }}</p>
+                        <p>{{ group.accuracy }}% accurate</p>
+                        <p>{{ group.betsMade }}/{{ group.betsAvailable }} active bets</p>  
+                    </div>
+                </router-link>
             </div>
-            <router-link to="/groups/create">
+            <router-link :to="{ name: 'Create Group'}">
                 <button>+ group</button>
             </router-link>
         </div>
@@ -26,6 +28,7 @@
 import { Vue } from 'vue-class-component';
 
 interface Group {
+    id: number
     title: string
     accuracy: number
     betsMade: number
@@ -34,7 +37,7 @@ interface Group {
 }
 export default class GroupPage extends Vue {
     //groups: Array<Group> = [];
-    groups: Array<Group> = [{title:'Sooth Sayans',accuracy:92,betsMade:2,betsAvailable:3,color:'#B644BE'},{title:'Big Flexors',accuracy:0,betsMade:1,betsAvailable:2,color:'#EB0101'}];
+    groups: Array<Group> = [{id:1,title:'Sooth Sayans',accuracy:92,betsMade:2,betsAvailable:3,color:'#B644BE'},{id:2,title:'Big Flexors',accuracy:0,betsMade:1,betsAvailable:2,color:'#EB0101'}];
 }
 </script>
 
