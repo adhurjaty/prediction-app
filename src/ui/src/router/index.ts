@@ -27,14 +27,24 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/Account.vue'),
   },
   {
-    path: '/groups/create',
+    path: '/groups/create/',
     name: 'Create Group',
     component: () => import('../views/CreateGroup.vue'),
   },
   {
-    path: '/groups/group',
+    path: '/groups/:id',
     name: 'Group',
     component: () => import('../views/Group.vue'),
+  },
+  {
+    path: '/groups/:groupId/add-bet',
+    name: 'Add Bet',
+    component: () => import('../views/AddBet.vue'),
+  },
+  {
+    path: '/groups/:groupId/add-members',
+    name: 'Add Members',
+    component: () => import('../views/AddMembers.vue'),
   },
   {
     path: '/about',
