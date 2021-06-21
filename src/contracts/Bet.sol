@@ -2,14 +2,14 @@
 pragma solidity >=0.7.0; // <0.8.0;
 
 import './MembersOnly.sol';
-import "./Resolution.sol";
+import "./Resolver.sol";
 
 /** 
  * @title Base proposition contract
  * @author Bragging Rights
  * TODO: turn this into an abstract contract
  */
-contract Proposition is managed, resolvable {
+contract Bet is managed, resolvable {
 
     /* Bets per member */
     mapping (address => uint256) bets;
@@ -53,7 +53,7 @@ contract Proposition is managed, resolvable {
     /**
      * @dev Checks a bet to the pool
      */
-    function getMyBet() public view isMember returns (uint256) {
+    function getMyWager() public view isMember returns (uint256) {
         return bets[msg.sender];
     }
 
@@ -63,12 +63,12 @@ contract Proposition is managed, resolvable {
 }
 
 /** 
- * @title Proposition type where each bettor has an equal share
+ * @title Bet type where each bettor has an equal share
  * @author Bragging Rights
  */
-contract EqualAnteProposition is Proposition {
+contract EqualAnteBet is Bet {
 
-    constructor(string memory _title, uint _resolution_time, uint _bet_closing_time) Proposition(_title,_resolution_time,_bet_closing_time) { }
+    constructor(string memory _title, uint _resolution_time, uint _bet_closing_time) Bet(_title,_resolution_time,_bet_closing_time) { }
 
     /**
      * @dev Adds a bet to the pool if the amount to be wagered is exactly 1
