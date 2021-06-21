@@ -8,6 +8,11 @@ How do we want to do communication? We can use Github issues for specific softwa
 
 ## Diagrams
 
+### Architecture
+
+![Architecture](./docs/Diagrams/out/Architecture/architecture.png)
+![Smart Contracts](./docs/Diagrams/out/Architecture/Propositions%20and%20Resolutions.png)
+
 ### Use cases
 
 ![Registration](./docs/Diagrams/out/UserStories/Registration%20Sequence.png)

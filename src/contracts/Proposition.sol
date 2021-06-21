@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.7.0; // <0.8.0;
 
-// TODO: Terminology struggles (bet, wager, pool)
-
 import './MembersOnly.sol';
 import "./Resolution.sol";
 
 /** 
  * @title Base proposition contract
  * @author Bragging Rights
+ * TODO: turn this into an abstract contract
  */
 contract Proposition is managed, resolvable {
 
     /* Bets per member */
     mapping (address => uint256) bets;
+    uint public numBettors;
 
     /** Total amount wagered in the pool */
     uint256 public pool;
@@ -24,6 +24,7 @@ contract Proposition is managed, resolvable {
     /** Time when the proposition will be closed to new bets (s since epoch) */
     uint public bet_closing_time;
 
+    event Wager(address member, uint256 wager);
     
     /**
      * @dev Set contract deployer as a member
@@ -43,6 +44,8 @@ contract Proposition is managed, resolvable {
      * @param _amount Amount to be wagered
      */
     function wager(uint256 _amount) virtual public isMember {
+        emit Wager(msg.sender, _amount);
+
         bets[msg.sender] += _amount;
         pool += _amount;
     }
@@ -52,6 +55,10 @@ contract Proposition is managed, resolvable {
      */
     function getMyBet() public view isMember returns (uint256) {
         return bets[msg.sender];
+    }
+
+    function getWager(address bettor) public view isResolver returns (uint256) {
+        return bets[bettor];
     }
 }
 
@@ -76,8 +83,13 @@ contract EqualAnteProposition is Proposition {
      * @dev Adds a bet to the pool
      */
     function wager() public isMember {
-        bets[msg.sender] = 1;
-        pool += 1;
+        if (bets[msg.sender] < 1) {
+            emit Wager(msg.sender, 1);
+
+            bets[msg.sender] = 1;
+            pool += 1;
+            numBettors += 1;
+        }
     }
 
 }
