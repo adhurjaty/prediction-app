@@ -26,8 +26,11 @@
 
 <script lang="ts">
 import { Vue } from 'vue-class-component';
-import { getGroups } from '../backend/apiInterface';
 import { Group } from '../backend/apiModels';
+import { getGroups } from '../backend/apiInterface';
+import { redirectToLoginOnError } from '../util/helpers';
+
+const getGroupsRedirect = redirectToLoginOnError(getGroups);
 
 // interface Group {
 //     id: number
@@ -39,11 +42,12 @@ import { Group } from '../backend/apiModels';
 // }
 
 export default class GroupPage extends Vue {
+    //groups: Array<Group> = [];
     groups: Group[] = [];
 
     async mounted(): Promise<void> {
+        this.groups = await getGroupsRedirect() || [];
         debugger;
-        this.groups = await getGroups();
     }
 }
 </script>
