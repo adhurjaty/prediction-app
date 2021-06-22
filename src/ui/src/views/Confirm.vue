@@ -14,9 +14,12 @@ export default class Confirm extends Vue {
     message: string = 'Confirming...'
 
     async mounted(): Promise<void> {
-        const code = useRoute().query.code as string;
+        const query = useRoute().query;
+        const code = query.code as string;
+        const state = query.state as string;
+        const stateParams = new URLSearchParams(state);
+        const origin = stateParams.get('origin');
         const verifier = window.localStorage.getItem(VERIFIER_KEY);
-        debugger;
 
         if(!verifier) {
             this.message = 'ERROR, could not get verifier from local storage';
@@ -29,6 +32,9 @@ export default class Confirm extends Vue {
         }));
 
         window.localStorage.setItem(TOKEN_KEY, response.idToken);
+        if(origin) {
+            window.location.href = origin;
+        }
     }
 
     private async auth() {
