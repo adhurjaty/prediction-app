@@ -11,6 +11,7 @@
 import { Options, Vue } from 'vue-class-component';
 import { VERIFIER_KEY } from '../util/constants';
 import GoogleLogin from '../auth/googleAuth'
+import { useRoute } from "vue-router";
 
 export default class Secret extends Vue {
     login() {
@@ -18,7 +19,10 @@ export default class Secret extends Vue {
         const verifier = googleLogin.createVerifier();
 
         window.localStorage.setItem(VERIFIER_KEY, verifier);
-        window.location.href = googleLogin.codeUrl(verifier);
+
+        const origin = this.$route.query.origin as (string | undefined);
+
+        window.location.href = googleLogin.codeUrl(verifier, origin);
     }
 }
 

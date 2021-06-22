@@ -25,7 +25,7 @@ export function redirectToLoginOnError<T>(fn: () => Promise<T>): () => Promise<T
             return await fn();
         } catch (e) {
             if(e instanceof Error && e.message.includes('Unauthorized')) {
-                window.location.href = '/login';
+                window.location.href = `/login?origin=${window.location.pathname}`;
                 return null;
             }
             throw e;
