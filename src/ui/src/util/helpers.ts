@@ -18,3 +18,17 @@ export function base64URLEncode(str: string): string {
         .replace(/\//g, '_')
         .replace(/=/g, '');
 }
+
+export function redirectToLoginOnError<T>(fn: () => Promise<T>): () => Promise<T | null> {
+    return async function() {
+        try {
+            return await fn();
+        } catch (e) {
+            if(e instanceof Error && e.message.includes('Unauthorized')) {
+                window.location.href = '/login';
+                return null;
+            }
+            throw e;
+        }
+    }
+}
