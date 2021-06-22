@@ -43,7 +43,7 @@ async function authGet(url: string): Promise<string> {
 
     try {
         if(!token)
-            throw new Error();
+            throw new Error('Unauthorized');
 
         const resp = await axios.get(url, {
             headers: {
@@ -52,6 +52,6 @@ async function authGet(url: string): Promise<string> {
         });
         return resp.data as string;
     } catch (e) {
-        return 'Unauthorized';
+        throw new Error('Unauthorized');
     }
 }
