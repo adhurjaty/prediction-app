@@ -1,8 +1,10 @@
 using System.Threading.Tasks;
+using MediatR;
 
 namespace Infrastructure
 {
-    public interface IQueryHandler<TQuery, TResult> where TQuery : AbstractQuery<TQuery, TResult>
+    public interface IQueryHandler<TQuery, TResult> : IRequestHandler<TQuery, Result<TResult>>
+        where TQuery : AbstractQuery<TQuery, TResult>
     {
         Task<Result<TResult>> Handle(TQuery query);
     }
@@ -12,6 +14,10 @@ namespace Infrastructure
         Task<Result> Handle(TCommand cmd);
     }
 
-    public abstract class AbstractQuery<TQuery, TResult> {}
+    public abstract class AbstractQuery<TQuery, TResult> : IRequest<Result<TResult>>
+    {
+        public AbstractQuery() {}
+    }
+
     public abstract class AbstractCommand<TCommand> {}
 }
