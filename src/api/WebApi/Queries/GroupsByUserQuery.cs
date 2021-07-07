@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 using Infrastructure;
 using ServiceStack.OrmLite;
@@ -29,6 +30,11 @@ namespace WebApi
                 .Where<UserGroup>(userGroup => userGroup.UserId.ToString() == query.UserId);
             
             return await _db.SelectResult(sqlQuery);
+        }
+
+        public Task<Result<List<Group>>> Handle(GroupsByUserQuery request, CancellationToken cancellationToken)
+        {
+            return Handle(request);
         }
     }
 }
