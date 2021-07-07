@@ -27,5 +27,12 @@ namespace WebApi
                 ? Ok(result.Success)
                 : UnprocessableEntity() as ActionResult<T>;
         }
+
+        protected ActionResult ToResponse(Result result)
+        {
+            return result.IsSuccess
+                ? Ok()
+                : UnprocessableEntity() as ActionResult;
+        }
     }
 }

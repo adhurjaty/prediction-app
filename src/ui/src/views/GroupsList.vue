@@ -36,7 +36,6 @@ export default class GroupPage extends Vue {
 
     async mounted(): Promise<void> {
         this.groups = await getGroupsRedirect() || [];
-        debugger;
     }
 }
 </script>

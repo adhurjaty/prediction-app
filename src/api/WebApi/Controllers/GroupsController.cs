@@ -31,5 +31,20 @@ namespace WebApi
                 
             return ToResponse(result);
         }
+
+        [HttpPost]
+        [Authorize]
+        [Route("Group")]
+        public async Task<ActionResult> CreateGroup(Group newGroup)
+        {
+            var result = await (await GetUser())
+                .Bind(user => _mediator.Send(new CreateGroupCommand()
+                {
+                    Name = newGroup.Name,
+                    User = user
+                }));
+            
+            return ToResponse(result);
+        }
     }
 }
