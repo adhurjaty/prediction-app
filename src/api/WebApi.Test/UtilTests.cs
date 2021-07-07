@@ -5,6 +5,7 @@ using Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 using ServiceStack.OrmLite;
+using System;
 
 namespace WebApi.Test
 {
@@ -43,6 +44,44 @@ namespace WebApi.Test
                     Email = "foo@bar.baz"
                 }, config: config => config.Excluding(m => m.Id));
         }
+
+        [Fact]
+        public async Task GroupUserRelationDatabaseTest()
+        {
+            //Given
+            var fooUser = new AppUser()
+            {
+                DisplayName = "Foo Bar",
+                MainnetAddress = "address",
+                PrestigeAddress = "prestige",
+                PrestigePrivateKey = "key",
+                Email = "foo@bar.baz"
+            };
+            var barUser = new AppUser()
+            {
+                DisplayName = "Bar Baz",
+                MainnetAddress = "address",
+                PrestigeAddress = "prestige",
+                PrestigePrivateKey = "key",
+                Email = "foo@bar.com"
+            };
+            var dbGroup = new Group()
+            {
+                Name = "test",
+                Users = new List<AppUser>() { fooUser, barUser }
+            };
+
+            using var fx = new UtilTestFixture()
+                .WithUser(fooUser)
+                .WithUser(barUser)
+                .WithGroup(dbGroup);
+            
+            //When
+            var group = await fx.GetGroup(dbGroup.Id);
+
+            //Then
+            group.Users.Should().BeEquivalentTo(new List<AppUser>() { fooUser, barUser });
+        }
     }
 
     internal class UtilTestFixture : BragDbFixture
@@ -53,9 +92,20 @@ namespace WebApi.Test
             return this;
         }
 
+        public UtilTestFixture WithGroup(Group group)
+        {
+            DbGroup(group);
+            return this;
+        }
+
         public async Task<List<AppUser>> GetUsers()
         {
             return await _db.SelectAsync<AppUser>();
+        }
+
+        public async Task<Group> GetGroup(Guid id)
+        {
+            return await _db.LoadSingleByIdAsync<Group>(id);
         }
     }
 }
