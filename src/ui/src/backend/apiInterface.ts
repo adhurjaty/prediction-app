@@ -32,13 +32,11 @@ export async function getSecret(): Promise<string> {
     return await authGet(`${BASE_URL}/oauth/secret`);
 }
 
-export async function getGroups(): Promise<Array<Group>> {
-    const response = await authGet(`${BASE_URL}/groups`);
-    debugger;
-    return (JSON.parse(response) as Group[]);
+export async function getGroups(): Promise<Group[]> {
+    return await authGet<Group[]>(`${BASE_URL}/groups`);
 }
 
-async function authGet(url: string): Promise<string> {
+async function authGet<T>(url: string): Promise<T> {
     const token = window.localStorage.getItem(TOKEN_KEY);
 
     try {
@@ -50,7 +48,7 @@ async function authGet(url: string): Promise<string> {
                 'Authorization': `Bearer ${token}`
             }
         });
-        return resp.data as string;
+        return resp.data as T;
     } catch (e) {
         throw new Error('Unauthorized');
     }
