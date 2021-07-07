@@ -18,6 +18,9 @@ using Microsoft.AspNetCore.Cors.Infrastructure;
 using System.Data;
 using Npgsql;
 using Infrastructure;
+using ServiceStack.Data;
+using ServiceStack.OrmLite;
+using System.Reflection;
 
 namespace WebApi
 {
@@ -67,19 +70,16 @@ namespace WebApi
 
             services.AddSingleton<IGoogle, GoogleInterface>();
 
-            services.AddScoped<IDbConnection>(x => 
-            {
-                var conn = new NpgsqlConnection(dbConfig.ConnectionString());
-                conn.Open();
-                return conn;
-            });
+            services.AddSingleton<IDbConnectionFactory>(x => 
+                new OrmLiteConnectionFactory(dbConfig.ConnectionString(), 
+                    PostgreSqlDialect.Provider));
+            services.AddSingleton<IDbConnection>(x => 
+                x.GetService<IDbConnectionFactory>().Open());
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(jwt => jwt.UseGoogle(googleSettings.ClientId));
 
-            services.AddMediatR(typeof(Startup));
-            services.AddSingleton<IMediatorResult>(x => 
-                new MediatorRailway(x.GetService<IMediator>()));
+            RegisterCQRS(services);
 
             services.AddCors(options => {
                 var corsPolicy = new CorsPolicyBuilder()
@@ -92,6 +92,20 @@ namespace WebApi
             });
 
             services.AddControllers();
+        }
+
+        private void RegisterCQRS(IServiceCollection services)
+        {
+            var types = this.GetType().Assembly.GetTypes();
+
+            services.RegisterGenericInterface(typeof(IRequestHandler<>));
+            services.RegisterGenericInterface(typeof(IRequestHandler<,>));
+            services.RegisterGenericInterface(typeof(ICommandHandler<>));
+            services.RegisterGenericInterface(typeof(IQueryHandler<,>));
+
+            services.AddMediatR(typeof(Startup).GetType().Assembly);
+            services.AddScoped<IMediatorResult>(x => 
+                new MediatorRailway(x.GetService<IMediator>()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -129,6 +143,28 @@ namespace WebApi
             {
                 endpoints.MapControllers();
             });
+        }
+    }
+
+    public static class ServiceCollectionExtensions
+    {
+        public static void RegisterGenericInterface(this IServiceCollection services, Type genericType)
+        {
+            // code from: https://stackoverflow.com/questions/56143613/inject-generic-interface-in-net-core
+            var types = typeof(Startup).Assembly.GetTypes();
+
+            types
+                .Where(item => item.GetInterfaces()
+                .Where(i => i.IsGenericType).Any(i => 
+                    i.GetGenericTypeDefinition() == genericType) 
+                    && !item.IsAbstract && !item.IsInterface)
+                .ToList()
+                .ForEach(assignedTypes =>
+                {
+                    var serviceType = assignedTypes.GetInterfaces().First(i => 
+                        i.GetGenericTypeDefinition() == genericType);
+                    services.AddSingleton(serviceType, assignedTypes);
+                });
         }
     }
 }

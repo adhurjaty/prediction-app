@@ -4,7 +4,7 @@ using MediatR;
 
 namespace Infrastructure
 {
-    public interface IMediatorResult
+public interface IMediatorResult
     {
         Task<Result<TResult>> Send<TQuery, TResult>(AbstractQuery<TQuery, TResult> query,
             CancellationToken token = default);
