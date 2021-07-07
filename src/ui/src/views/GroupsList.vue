@@ -32,17 +32,7 @@ import { redirectToLoginOnError } from '../util/helpers';
 
 const getGroupsRedirect = redirectToLoginOnError(getGroups);
 
-// interface Group {
-//     id: number
-//     title: string
-//     accuracy: number
-//     betsMade: number
-//     betsAvailable: number
-//     color: string
-// }
-
 export default class GroupPage extends Vue {
-    //groups: Array<Group> = [];
     groups: Group[] = [];
 
     async mounted(): Promise<void> {
