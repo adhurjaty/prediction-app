@@ -154,7 +154,21 @@ namespace Infrastructure
                         .ToArray());
             }
             return Result<TSuccess[], TFailure[]>
-                .Failed(accumulator.ToFailure().Failure.Concat(next.ToFailure().Failure).ToArray());
+                .Failed(accumulator.Failure.Concat(next.ToFailure().Failure).ToArray());
+        }
+
+
+        public static Result<TSuccess[]> Merge<TSuccess>(
+            this Result<TSuccess[]> accumulator,
+            Result<TSuccess> next)
+        {
+            if (accumulator.IsSuccess && next.IsSuccess)
+            {
+                return Result<TSuccess[]>
+                    .Succeeded(accumulator.Success.Concat(new List<TSuccess>() { next.Success })
+                        .ToArray());
+            }
+            return Result<TSuccess[]>.Failed(accumulator.Failure + "\n" + next.Failure);
         }
 
         // Aggregate an array of results together.
@@ -171,6 +185,21 @@ namespace Infrastructure
             this IEnumerable<Task<Result<TSuccess, TFailure[]>>> accumulator)
         {
             var emptySuccess = Result<TSuccess[], TFailure[]>.Succeeded(new TSuccess[0]);
+            return (await Task.WhenAll(accumulator))
+                .Aggregate(emptySuccess, (acc, o) => acc.Merge(o));
+        }
+
+        public static Result<TSuccess[]> Aggregate<TSuccess>(
+            this IEnumerable<Result<TSuccess>> accumulator)
+        {
+            var emptySuccess = Result<TSuccess[]>.Succeeded(new TSuccess[0]);
+            return accumulator.Aggregate(emptySuccess, (acc, o) => acc.Merge(o));
+        }
+
+        public static async Task<Result<TSuccess[]>> Aggregate<TSuccess>(
+            this IEnumerable<Task<Result<TSuccess>>> accumulator)
+        {
+            var emptySuccess = Result<TSuccess[]>.Succeeded(new TSuccess[0]);
             return (await Task.WhenAll(accumulator))
                 .Aggregate(emptySuccess, (acc, o) => acc.Merge(o));
         }
