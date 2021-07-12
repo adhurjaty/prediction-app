@@ -1,7 +1,9 @@
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
+using ServiceStack.OrmLite;
 
 namespace Infrastructure
 {
@@ -10,12 +12,25 @@ namespace Infrastructure
         [Column("id")]
         public Guid Id { get; set; }
 
-        public virtual async Task<Result<DbModel>> Insert(IDbConnection db)
-        {
-            if(Id == default)
-                Id = Guid.NewGuid();
+        public abstract Task<Result<DbModel>> Insert(IDbConnection db, 
+            CancellationToken token = default);
 
-            return await db.InsertResult(this);
+        public abstract Task<Result<DbModel>> Delete(IDbConnection db, 
+            CancellationToken token = default);
+
+        protected async Task<Result<DbModel>> Insert<T>(IDbConnection db, 
+            CancellationToken token = default) where T : DbModel
+        {
+            Id = Guid.NewGuid();
+            var newId = await db.InsertAsync<T>(this as T, token: token);
+            return Result.Succeeded(this as DbModel);
+        }
+
+        protected async Task<Result<DbModel>> Delete<T>(IDbConnection db, 
+            CancellationToken token = default) where T : DbModel
+        {
+            return (await db.DeleteResult<T>(this as T, token: token))
+                .Map(_ => this as DbModel);
         }
     }
 }

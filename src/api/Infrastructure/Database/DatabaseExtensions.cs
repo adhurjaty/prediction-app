@@ -34,6 +34,21 @@ namespace Infrastructure
             return await db.SingleResultById<T>(Guid.Parse(idValue), token);
         }
 
+        public static async Task<Result<T>> LoadSingleResultById<T>(this IDbConnection db,
+            Guid idValue, CancellationToken token = default)
+        {
+            var result = await db.LoadSingleByIdAsync<T>(idValue, token: token);
+            return result != null
+                ? Result<T>.Succeeded(result)
+                : Result<T>.Failed("No matching result");
+        }
+
+        public static async Task<Result<T>> LoadSingleResultById<T>(this IDbConnection db,
+            string idValue, CancellationToken token = default)
+        {
+            return await db.LoadSingleResultById<T>(Guid.Parse(idValue), token);
+        }
+        
         public static async Task<Result<List<T>>> SelectResult<T>(this IDbConnection db,
             Expression<Func<T, bool>> expr, CancellationToken token = default)
         {
@@ -51,9 +66,16 @@ namespace Infrastructure
         public static async Task<Result<T>> InsertResult<T>(this IDbConnection db, 
             T model, CancellationToken token = default) where T : DbModel
         {
-            model.Id = Guid.NewGuid();
-            await db.InsertAsync(model, token: token);
-            return Result.Succeeded(model);
+            return (await model.Insert(db)).Map(m => m as T);
+        }
+
+        public static async Task<Result<T>> DeleteResult<T>(this IDbConnection db,
+            T model, CancellationToken token = default)
+        {
+            var numDeleted = await db.DeleteAsync(model, token: token);
+            return numDeleted == 1
+                ? Result.Succeeded(model)
+                : Result<T>.Failed($"Failed to delete from table {model.GetType().Name}");
         }
     }
 }
