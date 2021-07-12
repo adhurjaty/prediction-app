@@ -11,7 +11,7 @@ using ServiceStack.OrmLite;
 namespace WebApi
 {
     [Alias("groups")]
-    public class Group : DbModel
+    public class Group : CompositeDbModel
     {
         public string Name { get; set; }
 
@@ -51,8 +51,10 @@ namespace WebApi
                 .Map(_ => this as DbModel);
         }
 
-        public async Task LoadReferences(IDbConnection db, CancellationToken token = default)
+        public override async Task LoadReferences(IDbConnection db, 
+            CancellationToken token = default)
         {
+            // bring this back when I figure out multiple active results setting for postgres
             // await Task.WhenAll(UserGroups.Select(ug => 
             //     db.LoadReferencesAsync(ug, token: token)));
             foreach (var ug in UserGroups)
@@ -62,20 +64,15 @@ namespace WebApi
         }
 
         private SemaphoreSlim _sem = new SemaphoreSlim(1);
-        private async Task<Result<AppUser[]>> ApplyToUserGroups(DbModel group,
+        private async Task<Result<UserGroup[]>> ApplyToUserGroups(DbModel group,
             Func<UserGroup, Task> fn)
         {
-            return await Users.Select(async user => 
+            return await UserGroups.Select(async userGroup => 
             {
-                var userGroup = new UserGroup()
-                {
-                    User = user,
-                    Group = group as Group
-                };
                 await _sem.WaitAsync();
                 await fn(userGroup);
                 _sem.Release();
-                return Result<AppUser>.Succeeded(user);
+                return Result<AppUser>.Succeeded(userGroup);
             }).Aggregate();
         }
     }

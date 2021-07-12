@@ -35,16 +35,18 @@ namespace Infrastructure
         }
 
         public static async Task<Result<T>> LoadSingleResultById<T>(this IDbConnection db,
-            Guid idValue, CancellationToken token = default)
+            Guid idValue, CancellationToken token = default) where T : DbModel
         {
             var result = await db.LoadSingleByIdAsync<T>(idValue, token: token);
+            if(result != null && result is CompositeDbModel cdb)
+                await cdb.LoadReferences(db, token);
             return result != null
                 ? Result<T>.Succeeded(result)
                 : Result<T>.Failed("No matching result");
         }
 
         public static async Task<Result<T>> LoadSingleResultById<T>(this IDbConnection db,
-            string idValue, CancellationToken token = default)
+            string idValue, CancellationToken token = default) where T : DbModel
         {
             return await db.LoadSingleResultById<T>(Guid.Parse(idValue), token);
         }
