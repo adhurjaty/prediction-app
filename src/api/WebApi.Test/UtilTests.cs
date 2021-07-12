@@ -105,7 +105,9 @@ namespace WebApi.Test
 
         public async Task<Group> GetGroup(Guid id)
         {
-            return await _db.LoadSingleByIdAsync<Group>(id);
+            var group = await _db.LoadSingleByIdAsync<Group>(id);
+            await group.LoadReferences(_db);
+            return group;
         }
     }
 }

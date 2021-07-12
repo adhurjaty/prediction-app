@@ -20,7 +20,7 @@ namespace WebApi.Test
 
         protected Group DbGroup(Group group)
         {
-            InsertModel(group);
+            group.Insert(_db).Wait();
             return group;
         }
 
@@ -36,11 +36,6 @@ namespace WebApi.Test
                 model.Id = Guid.NewGuid();
 
             _db.Insert(model);
-        }
-
-        private void DeleteDanglingModels()
-        {
-
         }
 
         public override void Dispose()

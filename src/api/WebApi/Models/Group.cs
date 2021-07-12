@@ -51,6 +51,17 @@ namespace WebApi
                 .Map(_ => this as DbModel);
         }
 
+        public async Task LoadReferences(IDbConnection db, CancellationToken token = default)
+        {
+            // await Task.WhenAll(UserGroups.Select(ug => 
+            //     db.LoadReferencesAsync(ug, token: token)));
+            foreach (var ug in UserGroups)
+            {
+                await db.LoadReferencesAsync(ug, token: token);
+            }
+        }
+
+        private SemaphoreSlim _sem = new SemaphoreSlim(1);
         private async Task<Result<AppUser[]>> ApplyToUserGroups(DbModel group,
             Func<UserGroup, Task> fn)
         {
@@ -61,7 +72,9 @@ namespace WebApi
                     User = user,
                     Group = group as Group
                 };
+                await _sem.WaitAsync();
                 await fn(userGroup);
+                _sem.Release();
                 return Result<AppUser>.Succeeded(user);
             }).Aggregate();
         }
