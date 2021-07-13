@@ -82,6 +82,52 @@ namespace WebApi.Test
             //Then
             group.Users.Should().BeEquivalentTo(new List<AppUser>() { fooUser, barUser });
         }
+
+        [Fact]
+        public async Task FriendsRelationDatabaseTest()
+        {
+            //Given
+            var fooUser = new AppUser()
+            {
+                DisplayName = "Foo Bar",
+                MainnetAddress = "address",
+                PrestigeAddress = "prestige",
+                PrestigePrivateKey = "key",
+                Email = "foo@bar.baz"
+            };
+            var barUser = new AppUser()
+            {
+                DisplayName = "Bar Baz",
+                MainnetAddress = "address",
+                PrestigeAddress = "prestige",
+                PrestigePrivateKey = "key",
+                Email = "foo@bar.com"
+            };
+            var bazUser = new AppUser()
+            {
+                DisplayName = "Baz Spam",
+                MainnetAddress = "address",
+                PrestigeAddress = "prestige",
+                PrestigePrivateKey = "key",
+                Email = "baz@bar.com"
+            };
+            
+            fooUser.Friends = new List<AppUser>() { barUser, bazUser };
+
+            using var fx = new UtilTestFixture()
+                .WithUser(barUser)
+                .WithUser(bazUser)
+                .WithUser(fooUser);
+            
+            //When
+            var dbUser = await fx.GetUser(fooUser.Id);
+            var dbBarUser = await fx.GetUser(barUser.Id);
+
+            //Then
+            dbUser.Friends.Should().BeEquivalentTo(new List<AppUser>() { barUser, bazUser });
+            dbBarUser.Friends.Select(x => x.Id).Should().BeEquivalentTo(
+                new List<Guid>() { fooUser.Id });
+        }
     }
 
     internal class UtilTestFixture : BragDbFixture
@@ -107,6 +153,11 @@ namespace WebApi.Test
         {
             var group = await _db.LoadSingleResultById<Group>(id);
             return group.Success;
+        }
+
+        public async Task<AppUser> GetUser(Guid id)
+        {
+            return (await _db.LoadSingleResultById<AppUser>(id)).Success;
         }
     }
 }
