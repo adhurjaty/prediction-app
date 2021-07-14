@@ -41,13 +41,12 @@ contract Bet is managed, resolvable {
 
     /**
      * @dev Adds a bet to the pool
-     * @param _amount Amount to be wagered
      */
-    function wager(uint256 _amount) virtual public isMember {
-        emit Wager(msg.sender, _amount);
+    function wager() virtual public payable isMember {
+        emit Wager(msg.sender, msg.value);
 
-        bets[msg.sender] += _amount;
-        pool += _amount;
+        bets[msg.sender] += msg.value;
+        pool += msg.value;
     }
 
     /**
@@ -63,7 +62,7 @@ contract Bet is managed, resolvable {
 }
 
 /** 
- * @title Bet type where each bettor has an equal share
+ * @title Bet type where each bettor risks an equal share
  * @author Bragging Rights
  */
 contract EqualAnteBet is Bet {
@@ -72,24 +71,15 @@ contract EqualAnteBet is Bet {
 
     /**
      * @dev Adds a bet to the pool if the amount to be wagered is exactly 1
-     * @param _amount Amount to be wagered
      */
-    function wager(uint256 _amount) override public isMember {
-        require(_amount == 1, "Cannot wager more than 1 in an equal ante proposition");
-        wager();
+    function wager() override public payable isMember {
+        require(msg.value == 1, "Cannot wager more than 1 in an equal ante bet");
+        require(bets[msg.sender] < 1, "Sender has already wagered");
+
+        emit Wager(msg.sender, msg.value);
+
+        bets[msg.sender] = msg.value;
+        pool += msg.value;
+        numBettors += 1;
     }
-
-    /**
-     * @dev Adds a bet to the pool
-     */
-    function wager() public isMember {
-        if (bets[msg.sender] < 1) {
-            emit Wager(msg.sender, 1);
-
-            bets[msg.sender] = 1;
-            pool += 1;
-            numBettors += 1;
-        }
-    }
-
 }
