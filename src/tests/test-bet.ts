@@ -87,15 +87,15 @@ describe("Bet", function () {
     
     describe("MembersOnly", function () {
         it("Should prevent a non-member from wagering", async function () {
-            await expect(bet.connect(nonmember1).wager(1000)).to.be.reverted;
+            await expect(bet.connect(nonmember1).wager({ value: 10})).to.be.reverted;
         });
 
         it("Should allow a member to wager and check their bet", async function () {
-            await expect(bet.connect(member1).wager(1000))
+            await expect(bet.connect(member1).wager({ value: 10 }))
                 .to.emit(bet, 'Wager')
-                .withArgs(member1_address, 1000);
+                .withArgs(member1_address, 10);
 
-            expect(await bet.connect(member1).getMyWager()).to.equal(1000);
+            expect(await bet.connect(member1).getMyWager()).to.equal(10);
         });
 
         // Unimplemented test template
