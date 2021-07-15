@@ -100,7 +100,7 @@ namespace WebApi.Test
 
         public async Task<List<AppUser>> GetUsers()
         {
-            return await _db.SelectAsync<AppUser>();
+            return await _db.Select<AppUser>();
         }
 
         public async Task<Group> GetGroup(Guid id)

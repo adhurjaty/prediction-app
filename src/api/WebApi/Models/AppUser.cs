@@ -18,12 +18,12 @@ namespace WebApi
         [Alias("prestige_privatekey")]
         public string PrestigePrivateKey { get; set; }
 
-        public override async Task<Result<DbModel>> Delete(IDbConnection db, CancellationToken token = default)
+        public override async Task<Result<DbModel>> Delete(IDatabaseInterface db, CancellationToken token = default)
         {
             return await Delete<AppUser>(db, token);
         }
 
-        public override async Task<Result<DbModel>> Insert(IDbConnection db, CancellationToken token = default)
+        public override async Task<Result<DbModel>> Insert(IDatabaseInterface db, CancellationToken token = default)
         {
             return await Insert<AppUser>(db, token);
         }

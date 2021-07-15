@@ -6,7 +6,7 @@ namespace Infrastructure
 {
     public abstract class CompositeDbModel : DbModel
     {
-        public abstract Task LoadReferences(IDbConnection db, 
+        public abstract Task LoadReferences(IDatabaseInterface db, 
             CancellationToken token = default);
     }
 }

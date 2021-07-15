@@ -13,16 +13,16 @@ namespace WebApi
 
     public class CreateGroupCommandHandler : ICommandHandler<CreateGroupCommand>
     {
-        private readonly IDbConnection _db;
+        private readonly IDatabaseInterface _db;
 
-        public CreateGroupCommandHandler(IDbConnection db)
+        public CreateGroupCommandHandler(IDatabaseInterface db)
         {
             _db = db;
         }
 
         public async Task<Result> Handle(CreateGroupCommand command)
         {
-            return (await _db.InsertResult(new Group()
+            return await (await _db.InsertResult(new Group()
                 {
                     Name = command.Name
                 }))

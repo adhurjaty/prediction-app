@@ -7,9 +7,9 @@ namespace WebApi
 {
     public abstract class BragControllerBase : ControllerBase
     {
-        protected IDbConnection _db;
+        protected IDatabaseInterface _db;
 
-        public BragControllerBase(IDbConnection db)
+        public BragControllerBase(IDatabaseInterface db)
         {
             _db = db;
         }

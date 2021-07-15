@@ -35,23 +35,23 @@ namespace WebApi
             } 
         }
 
-        public override async Task<Result<DbModel>> Insert(IDbConnection db, 
+        public override async Task<Result<DbModel>> Insert(IDatabaseInterface db, 
             CancellationToken token = default)
         {
             return (await (await Insert<Group>(db, token))
                 .Bind(group => 
-                    ApplyToUserGroups(this, ug => db.InsertAsync(ug, token: token))))
+                    ApplyToUserGroups(this, ug => db.Insert(ug, token: token))))
                 .Map(_ => this as DbModel);
         }
 
-        public override async Task<Result<DbModel>> Delete(IDbConnection db, CancellationToken token = default)
+        public override async Task<Result<DbModel>> Delete(IDatabaseInterface db, CancellationToken token = default)
         {
-            return (await (await ApplyToUserGroups(this, ug => db.DeleteAsync(ug, token: token)))
+            return (await (await ApplyToUserGroups(this, ug => db.Delete(ug, token: token)))
                 .Bind(users => db.DeleteResult(this, token: token)))
                 .Map(_ => this as DbModel);
         }
 
-        public override async Task LoadReferences(IDbConnection db, 
+        public override async Task LoadReferences(IDatabaseInterface db, 
             CancellationToken token = default)
         {
             // bring this back when I figure out multiple active results setting for postgres
@@ -59,7 +59,7 @@ namespace WebApi
             //     db.LoadReferencesAsync(ug, token: token)));
             foreach (var ug in UserGroups)
             {
-                await db.LoadReferencesAsync(ug, token: token);
+                await db.LoadReferences(ug, token: token);
             }
         }
 
