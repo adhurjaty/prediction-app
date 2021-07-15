@@ -32,7 +32,7 @@ namespace WebApi
             {
                 FriendsRelations = value?.Select(x => new FriendsRelation()
                 {
-                    User = this,
+                    UserId = Id,
                     Friend = x
                 }).ToList();
             }
@@ -40,47 +40,38 @@ namespace WebApi
 
         public override async Task<Result<DbModel>> Delete(IDatabaseInterface db, CancellationToken token = default)
         {
-            return (await (await Delete<AppUser>(db, token))
-                .Bind(user =>
-                    ApplyToFriends(this, f => db.DeleteAsync(f, token: token))))
+            return (await (await ApplyToFriends(this, f => db.Delete(f, token: token)))
+                .Bind(users => db.DeleteResult(this, token: token)))
                 .Map(_ => this as DbModel);
         }
 
         public override async Task<Result<DbModel>> Insert(IDatabaseInterface db, CancellationToken token = default)
         {
             return (await (await Insert<AppUser>(db, token))
-                .Bind(user =>
-                    ApplyToFriends(this, f => db.InsertAsync(f, token: token))))
+                .Bind(user => ApplyToFriends(this, f => db.Insert(f, token: token))))
                 .Map(_ => this as DbModel);
         }
 
-        public override async Task LoadReferences(IDbConnection db, CancellationToken token = default)
+        public override async Task LoadReferences(IDatabaseInterface db, CancellationToken token = default)
         {
-            // bring this back when I figure out multiple active results setting for postgres
-            // await Task.WhenAll(UserGroups.Select(ug => 
-            //     db.LoadReferencesAsync(ug, token: token)));
-            foreach (var friend in FriendsRelations ?? new List<FriendsRelation>())
-            {
-                await db.LoadReferencesAsync(friend, token: token);
-            }
+            await db.LoadReferences(this, token: token);
+            await Task.WhenAll(FriendsRelations.Select(f => db.LoadReferences(f, token: token)));
         }
 
-        private SemaphoreSlim _sem = new SemaphoreSlim(1);
         private async Task<Result<FriendsRelation[]>> ApplyToFriends(DbModel group,
             Func<FriendsRelation, Task> fn)
         {
             return await (FriendsRelations ?? new List<FriendsRelation>())
             .Select(async friendsRelation => 
             {
+                friendsRelation.UserId = Id;
                 var otherRelation = new FriendsRelation()
                 {
-                    User = friendsRelation.Friend,
-                    Friend = friendsRelation.User
+                    UserId = friendsRelation.Friend.Id,
+                    Friend = this
                 };
-                await _sem.WaitAsync();
                 await fn(friendsRelation);
                 await fn(otherRelation);
-                _sem.Release();
                 return Result<AppUser>.Succeeded(friendsRelation);
             }).Aggregate() ?? Result.Succeeded(new FriendsRelation[] {});
         }

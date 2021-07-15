@@ -114,8 +114,8 @@ namespace WebApi.Test
             
             fooUser.Friends = new List<AppUser>() { barUser, bazUser };
 
-            using var fx = new UtilTestFixture()
-                .WithUser(barUser)
+            using var fx = new UtilTestFixture();
+            fx.WithUser(barUser)
                 .WithUser(bazUser)
                 .WithUser(fooUser);
             
