@@ -81,6 +81,3 @@ alembic upgrade head
 ```
 
 For more information, here's the [alembic tutorial](https://alembic.sqlalchemy.org/en/latest/tutorial.html)
-
-
-ADD INSTRUCTIONS THAT ARE UP TO DATE
