@@ -176,15 +176,6 @@ namespace WebApi.Test
             return this;
         }
 
-        public GroupsByUserTestFixture WithBridge(List<UserGroup> userGroups)
-        {
-            foreach (var ug in userGroups)
-            {
-                DbUserGroup(ug);
-            }
-            return this;
-        }
-
         public GroupsByUserQueryHandler GetHandler()
         {
             return new GroupsByUserQueryHandler(_db);

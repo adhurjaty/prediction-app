@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using Infrastructure;
@@ -22,15 +23,11 @@ namespace WebApi
 
         public async Task<Result> Handle(CreateGroupCommand command)
         {
-            return await (await _db.InsertResult(new Group()
+            return await _db.InsertResult(new Group()
                 {
-                    Name = command.Name
-                }))
-                .Tee(group => _db.Insert(new UserGroup()
-                {
-                    GroupId = group.Id,
-                    UserId = command.User.Id
-                }));
+                    Name = command.Name,
+                    Users = new List<AppUser>() { command.User }
+                });
         }
     }
 }

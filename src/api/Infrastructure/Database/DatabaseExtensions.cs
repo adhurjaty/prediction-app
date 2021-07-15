@@ -60,7 +60,6 @@ namespace Infrastructure
             {
                 await Task.WhenAll(result.Select(m => 
                     (m as CompositeDbModel).LoadReferences(db, token)));
-                
             }
             return Result<List<T>>.Succeeded(result ?? new List<T>());
         }
@@ -73,9 +72,14 @@ namespace Infrastructure
             {
                 await Task.WhenAll(result.Select(m => 
                     (m as CompositeDbModel).LoadReferences(db, token)));
-                
             }
             return Result<List<T>>.Succeeded(result ?? new List<T>());
+        }
+
+        public static async Task<Result<List<T>>> SelectResult<T>(this IDatabaseInterface db,
+            CancellationToken token = default)
+        {
+            return await db.SelectResult<T>(x => true, token);
         }
 
         public static async Task<Result<T>> InsertResult<T>(this IDatabaseInterface db, 
