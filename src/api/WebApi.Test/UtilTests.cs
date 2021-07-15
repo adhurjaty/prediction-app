@@ -23,8 +23,8 @@ namespace WebApi.Test
         [Fact]
         public async Task BasicDatabaseTests()
         {
-            using var fx = new UtilTestFixture()
-                .WithUser(new AppUser()
+            using var fx = new UtilTestFixture();
+            fx.WithUser(new AppUser()
                 {
                     DisplayName = "Foo Bar",
                     MainnetAddress = "address",
@@ -71,8 +71,8 @@ namespace WebApi.Test
                 Users = new List<AppUser>() { fooUser, barUser }
             };
 
-            using var fx = new UtilTestFixture()
-                .WithUser(fooUser)
+            using var fx = new UtilTestFixture();
+            fx.WithUser(fooUser)
                 .WithUser(barUser)
                 .WithGroup(dbGroup);
             

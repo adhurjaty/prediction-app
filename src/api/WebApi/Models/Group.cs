@@ -40,7 +40,13 @@ namespace WebApi
         {
             return (await (await Insert<Group>(db, token))
                 .Bind(group => 
-                    ApplyToUserGroups(this, ug => db.Insert(ug, token: token))))
+                {
+                    return ApplyToUserGroups(this, ug => 
+                    {
+                        ug.GroupId = Id;
+                        return db.Insert(ug, token: token);
+                    });
+                }))
                 .Map(_ => this as DbModel);
         }
 
