@@ -19,23 +19,10 @@ namespace WebApi
             }
         }
 
-        private Guid _groupId;
         [References(typeof(Group))]
-        public Guid GroupId
-        { 
-            get { return Group?.Id ?? _groupId; }
-            set 
-            { 
-                if(Group != null)
-                    Group.Id = value;
-                _groupId = value;
-            }
-        }
+        public Guid GroupId { get; set; }
 
         [Reference]
         public AppUser User { get; set; }
-
-        [Reference]
-        public Group Group { get; set; }
     }
 }

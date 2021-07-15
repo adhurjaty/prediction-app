@@ -29,7 +29,7 @@ namespace WebApi
             {
                 UserGroups = value?.Select(x => new UserGroup()
                 {
-                    Group = this,
+                    GroupId = Id,
                     User = x
                 }).ToList();
             } 
@@ -54,6 +54,7 @@ namespace WebApi
         public override async Task LoadReferences(IDatabaseInterface db, 
             CancellationToken token = default)
         {
+            await db.LoadReferences(this, token: token);
             await Task.WhenAll(UserGroups.Select(ug => 
                 db.LoadReferences(ug, token: token)));
         }

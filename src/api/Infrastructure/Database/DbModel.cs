@@ -21,7 +21,8 @@ namespace Infrastructure
         protected async Task<Result<DbModel>> Insert<T>(IDatabaseInterface db, 
             CancellationToken token = default) where T : DbModel
         {
-            Id = Guid.NewGuid();
+            if(Id == default)
+                Id = Guid.NewGuid();
             var newId = await db.Insert<T>(this as T, token: token);
             return Result.Succeeded(this as DbModel);
         }

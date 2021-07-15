@@ -5,6 +5,7 @@ using ServiceStack.OrmLite;
 using System.Collections.Generic;
 using System.Threading;
 using System.Linq.Expressions;
+using System.Linq;
 
 namespace Infrastructure
 {
@@ -55,6 +56,12 @@ namespace Infrastructure
             Expression<Func<T, bool>> expr, CancellationToken token = default)
         {
             var result = await db.Select(expr, token);
+            if(result != null && result.FirstOrDefault() is CompositeDbModel model)
+            {
+                await Task.WhenAll(result.Select(m => 
+                    (m as CompositeDbModel).LoadReferences(db, token)));
+                
+            }
             return Result<List<T>>.Succeeded(result ?? new List<T>());
         }
 
@@ -62,6 +69,12 @@ namespace Infrastructure
             SqlExpression<T> expr, CancellationToken token = default)
         {
             var result = await db.Select(expr, token);
+            if(result != null && result.FirstOrDefault() is CompositeDbModel model)
+            {
+                await Task.WhenAll(result.Select(m => 
+                    (m as CompositeDbModel).LoadReferences(db, token)));
+                
+            }
             return Result<List<T>>.Succeeded(result ?? new List<T>());
         }
 
