@@ -15,9 +15,9 @@ namespace WebApi
 
     public class GroupsByUserQueryHandler : IQueryHandler<GroupsByUserQuery, List<Group>>
     {
-        private readonly IDbConnection _db;
+        private readonly IDatabaseInterface _db;
 
-        public GroupsByUserQueryHandler(IDbConnection db)
+        public GroupsByUserQueryHandler(IDatabaseInterface db)
         {
             _db = db;
         }

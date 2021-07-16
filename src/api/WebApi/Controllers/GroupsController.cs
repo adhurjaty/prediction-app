@@ -13,7 +13,7 @@ namespace WebApi
     {
         private readonly IMediatorResult _mediator;
 
-        public GroupsController(IDbConnection db, IMediatorResult mediator) : base(db)
+        public GroupsController(IDatabaseInterface db, IMediatorResult mediator) : base(db)
         {
             _mediator = mediator;
         }

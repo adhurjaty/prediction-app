@@ -12,21 +12,22 @@ namespace Infrastructure
         [Column("id")]
         public Guid Id { get; set; }
 
-        public abstract Task<Result<DbModel>> Insert(IDbConnection db, 
+        public abstract Task<Result<DbModel>> Insert(IDatabaseInterface db, 
             CancellationToken token = default);
 
-        public abstract Task<Result<DbModel>> Delete(IDbConnection db, 
+        public abstract Task<Result<DbModel>> Delete(IDatabaseInterface db, 
             CancellationToken token = default);
 
-        protected async Task<Result<DbModel>> Insert<T>(IDbConnection db, 
+        protected async Task<Result<DbModel>> Insert<T>(IDatabaseInterface db, 
             CancellationToken token = default) where T : DbModel
         {
-            Id = Guid.NewGuid();
-            var newId = await db.InsertAsync<T>(this as T, token: token);
+            if(Id == default)
+                Id = Guid.NewGuid();
+            var newId = await db.Insert<T>(this as T, token: token);
             return Result.Succeeded(this as DbModel);
         }
 
-        protected async Task<Result<DbModel>> Delete<T>(IDbConnection db, 
+        protected async Task<Result<DbModel>> Delete<T>(IDatabaseInterface db, 
             CancellationToken token = default) where T : DbModel
         {
             return (await db.DeleteResult<T>(this as T, token: token))

@@ -14,7 +14,7 @@ namespace WebApi.Test
 
         protected AppUser DbUser(AppUser user)
         {
-            InsertModel(user);
+            user.Insert(_db).Wait();
             return user;
         }
 
@@ -43,6 +43,7 @@ namespace WebApi.Test
             _db.DeleteAll<Vote>();
             _db.DeleteAll<Proposition>();
             _db.DeleteAll<UserGroup>();
+            _db.DeleteAll<FriendsRelation>();
             _db.DeleteAll<Group>();
             _db.DeleteAll<AppUser>();
 

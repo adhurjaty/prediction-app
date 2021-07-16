@@ -6,20 +6,18 @@ namespace Infrastructure
 {
     public abstract class DatabaseFixture : IDisposable
     {
-        protected IDbConnection _db;
+        protected IDatabaseInterface _db;
 
         public DatabaseFixture()
         {
             var factory = new OrmLiteConnectionFactory(
                 "Host=localhost;Username=postgres;Password=igotbraggingrights;Port=5432;Database=braggingrights_test",
                 PostgreSqlDialect.Provider);
-            _db = factory.CreateDbConnection();
-            _db.Open();
+            _db = new DatabaseInterface(factory);
         }
 
         public virtual void Dispose()
         {
-            _db.Close();
         }
     }
 }

@@ -14,12 +14,12 @@ namespace WebApi
         public string PropositionId { get; set; }
         public bool _Vote { get; set; }
 
-        public override async Task<Result<DbModel>> Delete(IDbConnection db, CancellationToken token = default)
+        public override async Task<Result<DbModel>> Delete(IDatabaseInterface db, CancellationToken token = default)
         {
             return await Delete<Vote>(db, token);
         }
 
-        public override async Task<Result<DbModel>> Insert(IDbConnection db, CancellationToken token = default)
+        public override async Task<Result<DbModel>> Insert(IDatabaseInterface db, CancellationToken token = default)
         {
             return await Insert<Vote>(db, token);
         }

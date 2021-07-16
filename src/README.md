@@ -39,6 +39,19 @@ For development, we'll use a docker compose cluster with the following container
   * db [admin UI](http://localhost:8001) on tcp/8001: select postgres and use the credentials above
 
 
+### Running the Database
+
+```sh
+docker-compose up db
+```
+
+go to `src/alembic`
+
+```sh
+source venv/bin/activate
+alembic -c alembic.ini.local upgrade head
+```
+
 ### Building
 
 With docker installed, run:

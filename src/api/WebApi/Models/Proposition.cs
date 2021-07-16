@@ -17,12 +17,12 @@ namespace WebApi
         public string Address { get; set; }
         public bool? Result { get; set; }
 
-        public override async Task<Result<DbModel>> Delete(IDbConnection db, CancellationToken token = default)
+        public override async Task<Result<DbModel>> Delete(IDatabaseInterface db, CancellationToken token = default)
         {
             return await Delete<Proposition>(db, token);
         }
 
-        public override async Task<Result<DbModel>> Insert(IDbConnection db, CancellationToken token = default)
+        public override async Task<Result<DbModel>> Insert(IDatabaseInterface db, CancellationToken token = default)
         {
             return await Insert<Proposition>(db, token);
         }
