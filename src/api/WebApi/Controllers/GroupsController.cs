@@ -32,6 +32,21 @@ namespace WebApi
             return ToResponse(result);
         }
 
+        [HttpGet]
+        [Authorize]
+        [Route("Group/{groupId}")]
+        public async Task<ActionResult<Group>> GetGroup(string groupId)
+        {
+            var result = await (await GetUser())
+                .Bind(user => _mediator.Send(new GroupByIdQuery()
+                {
+                    UserId = user.Id,
+                    GroupId = groupId
+                }));
+                
+            return ToResponse(result);
+        }
+
         [HttpPost]
         [Authorize]
         [Route("Group")]

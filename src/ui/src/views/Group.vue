@@ -2,8 +2,8 @@
 <main>
     <BackButton></BackButton>
     <div class="group-name">
-        <div class="group-icon" :style="`background:${group[$route.params.id].color}`"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="20" viewBox="0 0 24 20"><path d="M10.118 16.064c2.293-.529 4.428-.993 3.394-2.945-3.146-5.942-.834-9.119 2.488-9.119 3.388 0 5.644 3.299 2.488 9.119-1.065 1.964 1.149 2.427 3.394 2.945 1.986.459 2.118 1.43 2.118 3.111l-.003.825h-15.994c0-2.196-.176-3.407 2.115-3.936zm-10.116 3.936h6.001c-.028-6.542 2.995-3.697 2.995-8.901 0-2.009-1.311-3.099-2.998-3.099-2.492 0-4.226 2.383-1.866 6.839.775 1.464-.825 1.812-2.545 2.209-1.49.344-1.589 1.072-1.589 2.333l.002.619z"/></svg></div>
-        <h2 :style="`color:${group[$route.params.id].color}`">{{ group[$route.params.id].title }}</h2>
+        <div class="group-icon" :style="`background:${group.color}`"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="20" viewBox="0 0 24 20"><path d="M10.118 16.064c2.293-.529 4.428-.993 3.394-2.945-3.146-5.942-.834-9.119 2.488-9.119 3.388 0 5.644 3.299 2.488 9.119-1.065 1.964 1.149 2.427 3.394 2.945 1.986.459 2.118 1.43 2.118 3.111l-.003.825h-15.994c0-2.196-.176-3.407 2.115-3.936zm-10.116 3.936h6.001c-.028-6.542 2.995-3.697 2.995-8.901 0-2.009-1.311-3.099-2.998-3.099-2.492 0-4.226 2.383-1.866 6.839.775 1.464-.825 1.812-2.545 2.209-1.49.344-1.589 1.072-1.589 2.333l.002.619z"/></svg></div>
+        <h2 :style="`color:${group.color}`">{{ group.name }}</h2>
     </div>
     <h3>Active Bets</h3>
     <p v-if="bets.length === 0">No bets have been added</p>
@@ -22,8 +22,8 @@
         <button>+ bet</button>
     </router-link>
     <h3>Leaderboard</h3>
-    <p v-if="members.length === 0">You are the only one here. Add some members to get started.</p>
-    <div class="leaderboard-table" v-if="members.length > 0">
+    <p v-if="group.users.length === 0">You are the only one here. Add some members to get started.</p>
+    <div class="leaderboard-table" v-if="group.users.length > 0">
         <table>
             <thead>
                 <tr>
@@ -33,8 +33,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="member in members" :key="member.id">
-                    <td>{{ member.name }}</td>
+                <tr v-for="member in group.users" :key="member.id">
+                    <td>{{ member.displayName }}</td>
                     <td>{{ member.accuracy }}</td>
                     <td>{{ member.prestige }}</td>
                 </tr>
@@ -59,6 +59,8 @@
 
 <script lang="ts">
 import { Vue } from 'vue-class-component';
+import { Group } from '../backend/apiModels';
+import * as api from '../backend/apiInterface';
 
 interface Bet {
     id: number
@@ -67,21 +69,18 @@ interface Bet {
     status: string
 }
 
-interface Member {
-    id: number
-    name: string
-    accuracy: number
-    prestige: number
-}
-
 export default class GroupInfo extends Vue {
-    group: Object = {1: {title: 'Sooth Sayans', color:'#B644BE'}, 2: {title: 'Big Flexors', color:'#EB0101'}}
+    group: Group = new Group();
     bets: Array<Bet> = []
     //bets: Array<Bet> = [{id: 0, title:'How much wood would a wood chuck chuck?', stake: 0, status: 'none'},{id: 1, title:'Will Lebron have 7 rings by the time he retires',stake: 1, status: 'Yes'}]
-    members: Array<Member> = []
+    // members: Array<Member> = []
     //members: Array<Member> = [{id: 0, name: 'ima_speak_the_sooth', accuracy: 100, prestige: 2},{id: 1, name: 'crystal_deez_nuts', accuracy: 0, prestige: -1},{id: 1, name: 'oracle69', accuracy: 0, prestige: -1}]
     betMade(stake: number, status: string): string {
         return stake > 0 ? `you have bet ${stake} prestige point on ${status}` : 'you have not bet'  
+    }
+
+    async mounted() {
+        this.group = await api.getGroup(this.$route.params.id as string);
     }
 }
 </script>
