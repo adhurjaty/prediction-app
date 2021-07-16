@@ -6,21 +6,38 @@
             </div>
         </router-link>
         <h2>Create New Group</h2>
-        <input type="text" placeholder="Group name" />
+        <input type="text" placeholder="Group name" v-model="group.name" />
         <button @click="createGroup()">create</button>
     </main>
 </template>
 
 <script lang="ts">
-    export default {
-        methods: {
-            createGroup() {
-                // API call to create group
-                // also store a random color?
-                const randomColor = Math.floor(Math.random()*16777215).toString(16);
-            }
+import { Vue } from "vue-class-component";
+import { Group } from "../backend/apiModels";
+import * as api from "../backend/apiInterface";
+
+export default class GroupCreator extends Vue {
+    group: Group = new Group();
+
+    async createGroup() {
+        // API call to create group
+        // also store a random color?
+        const randomColor = Math.floor(Math.random()*16777215).toString(16);
+
+        try {
+            var newGroup = await api.createGroup(this.group);
+            this.$router.push({
+                name: 'Group', 
+                params : {
+                    id: newGroup.id
+                }
+            });
+        } catch (error) {
+            debugger;
+            console.log(error);
         }
     }
+}
 </script>
 
 <style lang="scss" scoped>

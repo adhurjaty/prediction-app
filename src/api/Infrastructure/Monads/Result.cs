@@ -70,6 +70,7 @@ namespace Infrastructure
         public bool IsSuccess => IsSuccessful;
 	    public bool IsFailure => !IsSuccessful;
 		protected bool IsSuccessful { get; set; }
+        public string Failure { get; set; }
 
         public static Result<T> Succeeded<T>(T success)
         {
@@ -322,21 +323,19 @@ namespace Infrastructure
         }
 
         public static Result<TSuccess> Bind<TSuccess>(
-            this Result x, Func<Result<TSuccess>> f, 
-            string failMessage = "Failed to bind")
+            this Result x, Func<Result<TSuccess>> f)
         {
             return x.IsSuccess
                 ? f()
-                : Result<TSuccess>.Failed(failMessage);
+                : Result<TSuccess>.Failed(x.Failure);
         }
 
         public static async Task<Result<TSuccess>> Bind<TSuccess>(
-            this Result x, Func<Task<Result<TSuccess>>> f,
-            string failMessage = "Failed to bind")
+            this Result x, Func<Task<Result<TSuccess>>> f)
         {
             return x.IsSuccess
                 ? await f()
-                : Result<TSuccess>.Failed(failMessage);
+                : Result<TSuccess>.Failed(x.Failure);
         }
 
         public static Result<TSuccess> Tee<TSuccess>(this Result<TSuccess> x, Action<TSuccess> f)

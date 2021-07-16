@@ -36,6 +36,16 @@ export async function getGroups(): Promise<Group[]> {
     return await authGet<Group[]>(`${BASE_URL}/groups`);
 }
 
+export async function createGroup(group: Group) : Promise<Group> {
+    return await authPost<Group>(`${BASE_URL}/group`, {
+        name: group.name
+    });
+}
+
+export async function updateGroup(group: Group) : Promise<Group> {
+    return await authPut(`${BASE_URL}/group/${group.id}`, group);
+}
+
 async function authGet<T>(url: string): Promise<T> {
     const token = window.localStorage.getItem(TOKEN_KEY);
 
@@ -44,6 +54,43 @@ async function authGet<T>(url: string): Promise<T> {
             throw new Error('Unauthorized');
 
         const resp = await axios.get(url, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return resp.data as T;
+    } catch (e) {
+        throw new Error('Unauthorized');
+    }
+}
+
+async function authPost<T>(url: string, payload: any): Promise<T> {
+    const token = window.localStorage.getItem(TOKEN_KEY);
+
+    try {
+        if(!token)
+            throw new Error('Unauthorized');
+
+        const resp = await axios.post(url, payload, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        return resp.data as T;
+    } catch (e) {
+        console.log(e);
+        throw new Error('Unauthorized');
+    }
+}
+
+async function authPut<T>(url: string, payload: T): Promise<T> {
+    const token = window.localStorage.getItem(TOKEN_KEY);
+
+    try {
+        if(!token)
+            throw new Error('Unauthorized');
+
+        const resp = await axios.put(url, payload, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

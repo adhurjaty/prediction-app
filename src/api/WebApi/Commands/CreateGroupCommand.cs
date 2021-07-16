@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 using Infrastructure;
 using ServiceStack.OrmLite;
@@ -33,6 +34,11 @@ namespace WebApi
                     Users = new List<AppUser>() { command.User }
                 }))
                 .Tee(group => command.GroupId = group.Id);
+        }
+
+        public Task<Result> Handle(CreateGroupCommand cmd, CancellationToken token)
+        {
+            return Handle(cmd);
         }
     }
 }
