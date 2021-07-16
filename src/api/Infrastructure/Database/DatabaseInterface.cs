@@ -78,7 +78,7 @@ namespace Infrastructure
         public async Task<T> Single<T>(Expression<Func<T, bool>> expression, CancellationToken token = default)
         {
             using var db = _dbFactory.OpenDbConnection();
-            return await db.SingleByIdAsync<T>(expression, token: token);
+            return await db.SingleAsync<T>(expression, token: token);
         }
 
         public async Task<List<T>> Select<T>(SqlExpression<T> expression, CancellationToken token = default)
