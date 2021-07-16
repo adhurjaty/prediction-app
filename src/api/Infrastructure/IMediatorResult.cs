@@ -31,7 +31,7 @@ public interface IMediatorResult
         public async Task<Result> Send<TCommand>(AbstractCommand<TCommand> cmd, 
             CancellationToken token = default)
         {
-            return await _mediator.Send(cmd as IRequest<TCommand>, token) as Result;
+            return await _mediator.Send(cmd, token) as Result;
         }
     }
 }
