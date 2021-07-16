@@ -321,6 +321,24 @@ namespace Infrastructure
                 : Result<string>.Failed(x.Failure);
         }
 
+        public static Result<TSuccess> Bind<TSuccess>(
+            this Result x, Func<Result<TSuccess>> f, 
+            string failMessage = "Failed to bind")
+        {
+            return x.IsSuccess
+                ? f()
+                : Result<TSuccess>.Failed(failMessage);
+        }
+
+        public static async Task<Result<TSuccess>> Bind<TSuccess>(
+            this Result x, Func<Task<Result<TSuccess>>> f,
+            string failMessage = "Failed to bind")
+        {
+            return x.IsSuccess
+                ? await f()
+                : Result<TSuccess>.Failed(failMessage);
+        }
+
         public static Result<TSuccess> Tee<TSuccess>(this Result<TSuccess> x, Action<TSuccess> f)
         {
             if (x.IsSuccess)
