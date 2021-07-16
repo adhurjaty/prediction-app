@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
@@ -10,6 +11,9 @@ namespace WebApi
     {
         public AppUser User { get; set; }
         public string Name { get; set; }
+
+        // output properties
+        public Guid GroupId { get; set; }
     }
 
     public class CreateGroupCommandHandler : ICommandHandler<CreateGroupCommand>
@@ -23,11 +27,12 @@ namespace WebApi
 
         public async Task<Result> Handle(CreateGroupCommand command)
         {
-            return await _db.InsertResult(new Group()
+            return (await _db.InsertResult(new Group()
                 {
                     Name = command.Name,
                     Users = new List<AppUser>() { command.User }
-                });
+                }))
+                .Tee(group => command.GroupId = group.Id);
         }
     }
 }

@@ -35,16 +35,27 @@ namespace WebApi
         [HttpPost]
         [Authorize]
         [Route("Group")]
-        public async Task<ActionResult> CreateGroup(Group newGroup)
+        public async Task<ActionResult<Group>> CreateGroup(Group newGroup)
         {
-            var result = await (await GetUser())
-                .Bind(user => _mediator.Send(new CreateGroupCommand()
-                {
-                    Name = newGroup.Name,
-                    User = user
-                }));
+            var command = new CreateGroupCommand()
+            {
+                Name = newGroup.Name
+            };
+            var result = await (await (await GetUser())
+                .Tee(user => command.User = user)
+                .Bind(user => _mediator.Send(command)))
+                .Bind(() => _db.LoadSingleResultById<Group>(command.GroupId));
             
             return ToResponse(result);
+        }
+
+        [HttpPut]
+        [Authorize]
+        [Route("Group/{groupId}")]
+        public async Task<ActionResult> UpdateGroup(string groupId, Group group)
+        {
+            await Task.Delay(1);
+            return ToResponse(Result.Succeeded(3) as Result);
         }
     }
 }
