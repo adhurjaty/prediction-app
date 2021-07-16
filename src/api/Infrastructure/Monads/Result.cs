@@ -371,5 +371,13 @@ namespace Infrastructure
                 return Result.Failed<T>("Element not found");
             }
         }
+
+        public static Result<T> FailIf<T>(this Result<T> x, Func<T, bool> fn,
+            string failString)
+        {
+            if(x.IsSuccess && fn(x.Success))
+                return Result<T>.Failed(failString);
+            return x;
+        }
     }
 }

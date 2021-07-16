@@ -36,6 +36,10 @@ export async function getGroups(): Promise<Group[]> {
     return await authGet<Group[]>(`${BASE_URL}/groups`);
 }
 
+export async function getGroup(groupId: string): Promise<Group> {
+    return await authGet<Group>(`${BASE_URL}/group/${groupId}`);
+}
+
 export async function createGroup(group: Group) : Promise<Group> {
     return await authPost<Group>(`${BASE_URL}/group`, {
         name: group.name
