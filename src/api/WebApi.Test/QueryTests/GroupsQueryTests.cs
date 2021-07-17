@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WebApi.Test
 {
-    public class GroupsByUserQueryTests
+    public class GroupsQueryTests
     {
         private static AppUser SingleUser = new AppUser()
         {
@@ -127,11 +127,11 @@ namespace WebApi.Test
         public async Task GetGroupsByUserSucces(List<Group> groups, AppUser user,
             List<AppUser> users, List<Group> expected)
         {
-            using var fx = new GroupsByUserTestFixture()
+            using var fx = new GroupsQueryTestFixture()
                 .WithUsers(users)
                 .WithGroups(groups);
 
-            var handler = fx.GetHandler();
+            var handler = fx.GetGroupsByUserHandler();
             var result = await handler.Handle(new GroupsByUserQuery()
             {
                 UserId = user.Id.ToString()
@@ -141,18 +141,76 @@ namespace WebApi.Test
             result.Success.Should().BeEquivalentTo(expected);
         }
 
-        
+        [Fact]
+        public async Task GetGroupByGroupIdSuccess()
+        {
+            var group = new Group()
+            {
+                Name = "Test Group",
+                Users = new List<AppUser>() { SingleUser }
+            };
+            using var fx = new GroupsQueryTestFixture()
+                .WithUser(SingleUser)
+                .WithGroup(group);
+
+            var handler = fx.GetGroupByIdHandler();
+            var result = await handler.Handle(new GroupByIdQuery()
+            {
+                UserId = SingleUser.Id,
+                GroupId = group.Id.ToString()
+            });
+
+            result.IsSuccess.Should().BeTrue();
+            result.Success.Should().BeEquivalentTo(new Group()
+            {
+                Id = group.Id,
+                Name = "Test Group",
+                Users = new List<AppUser>() { SingleUser },
+                UserGroups = new List<UserGroup>()
+                {
+                    new UserGroup()
+                    {
+                        User = SingleUser,
+                        GroupId = group.Id
+                    }
+                }
+            });
+        }
+
+        [Fact]
+        public async Task GetGroupByGroupIdWrongUser()
+        {
+            var group = new Group()
+            {
+                Name = "Test Group",
+                Users = new List<AppUser>() { SingleUser }
+            };
+            using var fx = new GroupsQueryTestFixture()
+                .WithUser(SingleUser)
+                .WithUser(OtherUser)
+                .WithGroup(group);
+
+            var handler = fx.GetGroupByIdHandler();
+            var result = await handler.Handle(new GroupByIdQuery()
+            {
+                UserId = OtherUser.Id,
+                GroupId = group.Id.ToString()
+            });
+
+            result.IsSuccess.Should().BeFalse();
+            result.Failure.Should().BeEquivalentTo($"User {OtherUser.Id} is not in group");
+        }
     }
 
-    internal class GroupsByUserTestFixture : BragDbFixture
+    internal class GroupsQueryTestFixture : BragDbFixture
     {
-        public GroupsByUserTestFixture WithUser(AppUser user)
+        public GroupsQueryTestFixture WithUser(AppUser user)
         {
             DbUser(user);
             return this;
         }
 
-        public GroupsByUserTestFixture WithUsers(List<AppUser> users)
+        public GroupsQueryTestFixture WithUsers(List<AppUser> users)
         {
             foreach (var user in users)
             {
@@ -161,13 +219,13 @@ namespace WebApi.Test
             return this;
         }
 
-        public GroupsByUserTestFixture WithGroup(Group group)
+        public GroupsQueryTestFixture WithGroup(Group group)
         {
             DbGroup(group);
             return this;
         }
 
-        public GroupsByUserTestFixture WithGroups(List<Group> groups)
+        public GroupsQueryTestFixture WithGroups(List<Group> groups)
         {
             foreach (var group in groups)
             {
@@ -176,9 +234,14 @@ namespace WebApi.Test
             return this;
         }
 
-        public GroupsByUserQueryHandler GetHandler()
+        public GroupsByUserQueryHandler GetGroupsByUserHandler()
         {
             return new GroupsByUserQueryHandler(_db);
+        }
+
+        public GroupByIdQueryHandler GetGroupByIdHandler()
+        {
+            return new GroupByIdQueryHandler(_db);
         }
     }
 }
