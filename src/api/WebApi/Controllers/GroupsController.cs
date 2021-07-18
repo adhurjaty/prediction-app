@@ -67,10 +67,10 @@ namespace WebApi
         [HttpPut]
         [Authorize]
         [Route("Group/{groupId}")]
-        public async Task<ActionResult> UpdateGroup(string groupId, Group group)
+        public async Task<ActionResult<Group>> UpdateGroup(string groupId, Group group)
         {
             await Task.Delay(1);
-            return ToResponse(Result.Succeeded(3) as Result);
+            return ToResponse(Result.Succeeded(new Group()) as Result);
         }
     }
 }
