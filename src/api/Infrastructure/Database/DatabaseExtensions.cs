@@ -96,5 +96,11 @@ namespace Infrastructure
                 ? Result.Succeeded(model)
                 : Result<T>.Failed($"Failed to delete from table {model.GetType().Name}");
         }
+
+        public static async Task<Result<T>> UpdateResult<T>(this IDatabaseInterface db,
+            T model, CancellationToken token = default) where T : DbModel
+        {
+            return (await model.Update(db)).Map(x => x as T);
+        }
     }
 }

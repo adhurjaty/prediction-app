@@ -24,5 +24,11 @@ namespace WebApi
 
         [Reference]
         public AppUser Friend { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            var model = obj as FriendsRelation;
+            return model.UserId == UserId && model.FriendId == FriendId;
+        }
     }
 }

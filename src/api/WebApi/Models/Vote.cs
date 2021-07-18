@@ -23,5 +23,10 @@ namespace WebApi
         {
             return await Insert<Vote>(db, token);
         }
+
+        public override async Task<Result<DbModel>> Update(IDatabaseInterface db, CancellationToken token = default)
+        {
+            return await Update<Vote>(db, token);
+        }
     }
 }

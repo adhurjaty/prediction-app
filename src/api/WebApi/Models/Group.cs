@@ -65,13 +65,32 @@ namespace WebApi
                 db.LoadReferences(ug, token: token)));
         }
 
+        public override async Task<Result<DbModel>> Update(IDatabaseInterface db, 
+            CancellationToken token = default)
+        {
+            return (await (await db.LoadSingleResultById<Group>(Id))
+                .Tee(async dbGroup => 
+                {
+                    var listIntersection = UserGroups.IncludeExclude(dbGroup.UserGroups);
+                    var toDelete = listIntersection.LeftExcluded;
+                    var toInsert = listIntersection.RightExcluded;
+                    var toUpdate = listIntersection.Included;
+
+                    await Task.WhenAll(
+                        Task.WhenAll(toDelete.Select(x => db.Delete(x, token))),
+                        Task.WhenAll(toInsert.Select(x => db.Insert(x, token))),
+                        Task.WhenAll(toUpdate.Select(x => db.Update(x, token))));
+                }))
+                .Map(_ => this as DbModel);
+        }
+
         private async Task<Result<UserGroup[]>> ApplyToUserGroups(DbModel group,
             Func<UserGroup, Task> fn)
         {
             return await UserGroups.Select(async userGroup => 
             {
                 await fn(userGroup);
-                return Result<AppUser>.Succeeded(userGroup);
+                return Result<UserGroup>.Succeeded(userGroup);
             }).Aggregate();
         }
     }

@@ -18,6 +18,9 @@ namespace Infrastructure
         public abstract Task<Result<DbModel>> Delete(IDatabaseInterface db, 
             CancellationToken token = default);
 
+        public abstract Task<Result<DbModel>> Update(IDatabaseInterface db,
+            CancellationToken token = default);
+
         protected async Task<Result<DbModel>> Insert<T>(IDatabaseInterface db, 
             CancellationToken token = default) where T : DbModel
         {
@@ -31,6 +34,13 @@ namespace Infrastructure
             CancellationToken token = default) where T : DbModel
         {
             return (await db.DeleteResult<T>(this as T, token: token))
+                .Map(_ => this as DbModel);
+        }
+
+        protected async Task<Result<DbModel>> Update<T>(IDatabaseInterface db,
+            CancellationToken token = default) where T : DbModel
+        {
+            return (await db.UpdateResult<T>(this as T, token: token))
                 .Map(_ => this as DbModel);
         }
     }
