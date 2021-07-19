@@ -35,7 +35,7 @@ namespace Infrastructure
         protected async Task<Result<DbModel>> Delete<T>(IDatabaseInterface db, 
             CancellationToken token = default) where T : DbModel
         {
-            var numDeleted = await db.Delete(this, token: token);
+            var numDeleted = await db.Delete(this as T, token: token);
             return numDeleted == 1
                 ? Result.Succeeded(this as DbModel)
                 : Result<DbModel>.Failed($"Failed to delete from table {GetType().Name}");
