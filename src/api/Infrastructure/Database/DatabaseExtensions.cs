@@ -83,9 +83,13 @@ namespace Infrastructure
         }
 
         public static async Task<Result<T>> InsertResult<T>(this IDatabaseInterface db, 
-            T model, CancellationToken token = default) where T : DbModel
+            T model, CancellationToken token = default) where T : class
         {
-            return (await model.Insert(db)).Map(m => m as T);
+            if(model is DbModel dbModel)
+                return (await dbModel.Insert(db)).Map(m => m as T);
+            return await db.Insert(model, token) > 0
+                ? Result.Succeeded(model)
+                : Result<T>.Failed($"Could not insert ${model.GetType().Name}");
         }
 
         public static async Task<Result<T>> DeleteResult<T>(this IDatabaseInterface db,
