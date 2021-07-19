@@ -68,19 +68,20 @@ namespace WebApi
         public override async Task<Result<DbModel>> Update(IDatabaseInterface db, 
             CancellationToken token = default)
         {
-            return (await (await db.LoadSingleResultById<Group>(Id))
-                .Tee(async dbGroup => 
+            return (await (await (await db.LoadSingleResultById<Group>(Id))
+                .Bind(async dbGroup => 
                 {
                     var listIntersection = UserGroups.IncludeExclude(dbGroup.UserGroups);
-                    var toDelete = listIntersection.LeftExcluded;
-                    var toInsert = listIntersection.RightExcluded;
-                    var toUpdate = listIntersection.Included;
+                    var toDelete = listIntersection.RightExcluded;
+                    var toInsert = listIntersection.LeftExcluded;
 
-                    await Task.WhenAll(
-                        Task.WhenAll(toDelete.Select(x => db.Delete(x, token))),
-                        Task.WhenAll(toInsert.Select(x => db.Insert(x, token))),
-                        Task.WhenAll(toUpdate.Select(x => db.Update(x, token))));
+                    var deleteTask = Task.WhenAll(toDelete.Select(x => db.Delete(x, token)));
+                    var insertTask = toInsert.Select(x => db.InsertResult(x, token))
+                        .Aggregate();
+                    await deleteTask;
+                    return await insertTask;
                 }))
+                .Bind(dbGroup => Update<Group>(db, token)))
                 .Map(_ => this as DbModel);
         }
 

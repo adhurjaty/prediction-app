@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Infrastructure;
@@ -20,6 +21,8 @@ namespace WebApi
 
         public async Task<Result> Handle(UpdateGroupCommand cmd)
         {
+            if((cmd.Group.Users ?? new List<AppUser>()).Count == 0)
+                return Result.Failed("Cannot update group with no users");
             return await _db.UpdateResult(cmd.Group);
         }
 
