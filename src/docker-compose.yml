@@ -42,4 +42,13 @@ services:
       context: .
     ports:
       - 8080:8080 # ui
-    #   - 5001:5001 # api
+
+  api:
+    image: braggingrights/api:latest
+    build:
+      dockerfile: dockerfiles/Dockerfile.api
+      context: .
+    ports:
+      - 5001:5001 # api
+    depends_on:
+      - "db"

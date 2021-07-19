@@ -6,3 +6,4 @@ docker build -f Dockerfile.hardhat.server -t braggingrights/hardhat-server:lates
 docker build -f Dockerfile.webapp -t braggingrights/webapp:latest ..
 docker build -f Dockerfile.db -t braggingrights/postgres:latest ..
 docker build -f Dockerfile.alembic -t braggingrights/alembic:latest ..
+docker build -f Dockerfile.api -t braggingrights/api:latest ..
