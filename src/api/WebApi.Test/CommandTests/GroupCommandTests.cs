@@ -144,6 +144,59 @@ namespace WebApi.Test
                     null
                 }
             };
+
+        [Fact]
+        public async Task DeleteGroupSuccess()
+        {
+            var group = new Group()
+            {
+                Name = "Test",
+                Users = new List<AppUser>() { SimpleUser }
+            };
+
+            using var fx = new GroupCommandTestFixture()
+                .WithUser(SimpleUser)
+                .WithGroup(group);
+
+            var handler = fx.GetDeleteGroupHandler();
+            var result = await handler.Handle(new DeleteGroupCommand()
+            {
+                GroupId = group.Id.ToString()
+            });
+
+            result.IsSuccess.Should().BeTrue();
+
+            var getGroupsHandler = fx.GetGroupsByUserHandler();
+            var groups = await getGroupsHandler.Handle(new GroupsByUserQuery()
+            {
+                UserId = SimpleUser.Id.ToString()
+            });
+
+            groups.Success.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task DeleteGroupDoesntExistFailure()
+        {
+            var group = new Group()
+            {
+                Name = "Test",
+                Users = new List<AppUser>() { SimpleUser }
+            };
+
+            using var fx = new GroupCommandTestFixture()
+                .WithUser(SimpleUser)
+                .WithGroup(group);
+
+            var handler = fx.GetDeleteGroupHandler();
+            var result = await handler.Handle(new DeleteGroupCommand()
+            {
+                GroupId = "c54bb7a4-0390-4743-a81b-3ebce09fbe3f"
+            });
+
+            result.IsFailure.Should().BeTrue();
+            result.Failure.Should().Be("No matching result");
+        }
     }
 
     internal class GroupCommandTestFixture : BragDbFixture
@@ -168,6 +221,16 @@ namespace WebApi.Test
         public UpdateGroupCommandHandler GetUpdateGroupHandler()
         {
             return new UpdateGroupCommandHandler(_db);
+        }
+
+        public DeleteGroupCommandHandler GetDeleteGroupHandler()
+        {
+            return new DeleteGroupCommandHandler(_db);
+        }
+
+        public GroupsByUserQueryHandler GetGroupsByUserHandler()
+        {
+            return new GroupsByUserQueryHandler(_db);
         }
 
         public async Task<List<Group>> GetGroups()

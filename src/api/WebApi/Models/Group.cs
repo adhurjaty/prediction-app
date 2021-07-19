@@ -53,7 +53,7 @@ namespace WebApi
         public override async Task<Result<DbModel>> Delete(IDatabaseInterface db, CancellationToken token = default)
         {
             return (await (await ApplyToUserGroups(this, ug => db.Delete(ug, token: token)))
-                .Bind(users => db.DeleteResult(this, token: token)))
+                .Bind(users => Delete<Group>(db, token)))
                 .Map(_ => this as DbModel);
         }
 
