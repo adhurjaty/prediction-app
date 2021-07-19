@@ -69,8 +69,28 @@ namespace WebApi
         [Route("Group/{groupId}")]
         public async Task<ActionResult<Group>> UpdateGroup(string groupId, Group group)
         {
-            await Task.Delay(1);
-            return ToResponse(Result.Succeeded(new Group()) as Result);
+            var result = await (await (await GetUser())
+                .Bind(user => _mediator.Send(new UpdateGroupCommand()
+                {
+                    Group = group
+                })))
+                .Bind(() => _db.LoadSingleResultById<Group>(groupId));
+
+            return ToResponse(result);
+        }
+
+        [HttpDelete]
+        [Authorize]
+        [Route("Group/{groupId}")]
+        public async Task<ActionResult> DeleteGroup(string groupId)
+        {
+            var result = await (await GetUser())
+                .Bind(user => _mediator.Send(new DeleteGroupCommand()
+                {
+                    GroupId = groupId
+                }));
+
+            return ToResponse(result);
         }
     }
 }

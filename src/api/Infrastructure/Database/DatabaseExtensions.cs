@@ -93,8 +93,11 @@ namespace Infrastructure
         }
 
         public static async Task<Result<T>> DeleteResult<T>(this IDatabaseInterface db,
-            T model, CancellationToken token = default)
+            T model, CancellationToken token = default) where T : class
         {
+            if(model is DbModel dbModel)
+                return (await dbModel.Delete(db)).Map(m => m as T);
+                
             var numDeleted = await db.Delete(model, token: token);
             return numDeleted == 1
                 ? Result.Succeeded(model)
