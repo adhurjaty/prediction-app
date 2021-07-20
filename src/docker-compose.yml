@@ -49,6 +49,6 @@ services:
       dockerfile: dockerfiles/Dockerfile.api
       context: .
     ports:
-      - 5001:5001 # api
+      - 5000:80 # api
     depends_on:
       - "db"
