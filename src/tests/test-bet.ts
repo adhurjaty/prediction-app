@@ -1,7 +1,6 @@
 import { ethers } from "hardhat";
 import { Signer, ContractFactory, Contract } from "ethers";
 import { expect } from "chai";
-import { Address } from "node:cluster";
 
 describe("Bet", function () {
     let commissioner: Signer, newcommissioner: Signer;
