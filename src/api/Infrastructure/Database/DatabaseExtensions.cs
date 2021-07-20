@@ -60,7 +60,6 @@ namespace Infrastructure
             {
                 await Task.WhenAll(result.Select(m => 
                     (m as CompositeDbModel).LoadReferences(db, token)));
-                
             }
             return Result<List<T>>.Succeeded(result ?? new List<T>());
         }
@@ -73,24 +72,42 @@ namespace Infrastructure
             {
                 await Task.WhenAll(result.Select(m => 
                     (m as CompositeDbModel).LoadReferences(db, token)));
-                
             }
             return Result<List<T>>.Succeeded(result ?? new List<T>());
         }
 
-        public static async Task<Result<T>> InsertResult<T>(this IDatabaseInterface db, 
-            T model, CancellationToken token = default) where T : DbModel
+        public static async Task<Result<List<T>>> SelectResult<T>(this IDatabaseInterface db,
+            CancellationToken token = default)
         {
-            return (await model.Insert(db)).Map(m => m as T);
+            return await db.SelectResult<T>(x => true, token);
+        }
+
+        public static async Task<Result<T>> InsertResult<T>(this IDatabaseInterface db, 
+            T model, CancellationToken token = default) where T : class
+        {
+            if(model is DbModel dbModel)
+                return (await dbModel.Insert(db)).Map(m => m as T);
+            return await db.Insert(model, token) > 0
+                ? Result.Succeeded(model)
+                : Result<T>.Failed($"Could not insert ${model.GetType().Name}");
         }
 
         public static async Task<Result<T>> DeleteResult<T>(this IDatabaseInterface db,
-            T model, CancellationToken token = default)
+            T model, CancellationToken token = default) where T : class
         {
+            if(model is DbModel dbModel)
+                return (await dbModel.Delete(db)).Map(m => m as T);
+                
             var numDeleted = await db.Delete(model, token: token);
             return numDeleted == 1
                 ? Result.Succeeded(model)
                 : Result<T>.Failed($"Failed to delete from table {model.GetType().Name}");
+        }
+
+        public static async Task<Result<T>> UpdateResult<T>(this IDatabaseInterface db,
+            T model, CancellationToken token = default) where T : DbModel
+        {
+            return (await model.Update(db)).Map(x => x as T);
         }
     }
 }

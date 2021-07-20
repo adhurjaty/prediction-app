@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Threading;
 using System.Threading.Tasks;
 using Infrastructure;
 using ServiceStack.OrmLite;
@@ -9,6 +12,9 @@ namespace WebApi
     {
         public AppUser User { get; set; }
         public string Name { get; set; }
+
+        // output properties
+        public Guid GroupId { get; set; }
     }
 
     public class CreateGroupCommandHandler : ICommandHandler<CreateGroupCommand>
@@ -22,15 +28,17 @@ namespace WebApi
 
         public async Task<Result> Handle(CreateGroupCommand command)
         {
-            return await (await _db.InsertResult(new Group()
+            return (await _db.InsertResult(new Group()
                 {
-                    Name = command.Name
+                    Name = command.Name,
+                    Users = new List<AppUser>() { command.User }
                 }))
-                .Tee(group => _db.Insert(new UserGroup()
-                {
-                    GroupId = group.Id,
-                    UserId = command.User.Id
-                }));
+                .Tee(group => command.GroupId = group.Id);
+        }
+
+        public Task<Result> Handle(CreateGroupCommand cmd, CancellationToken token)
+        {
+            return Handle(cmd);
         }
     }
 }

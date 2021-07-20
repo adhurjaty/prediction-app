@@ -53,7 +53,7 @@ namespace WebApi
         public override async Task<Result<DbModel>> Delete(IDatabaseInterface db, CancellationToken token = default)
         {
             return (await (await ApplyToUserGroups(this, ug => db.Delete(ug, token: token)))
-                .Bind(users => db.DeleteResult(this, token: token)))
+                .Bind(users => Delete<Group>(db, token)))
                 .Map(_ => this as DbModel);
         }
 
@@ -65,13 +65,33 @@ namespace WebApi
                 db.LoadReferences(ug, token: token)));
         }
 
+        public override async Task<Result<DbModel>> Update(IDatabaseInterface db, 
+            CancellationToken token = default)
+        {
+            return (await (await (await db.LoadSingleResultById<Group>(Id))
+                .Bind(async dbGroup => 
+                {
+                    var listIntersection = UserGroups.IncludeExclude(dbGroup.UserGroups);
+                    var toDelete = listIntersection.RightExcluded;
+                    var toInsert = listIntersection.LeftExcluded;
+
+                    var deleteTask = Task.WhenAll(toDelete.Select(x => db.Delete(x, token)));
+                    var insertTask = toInsert.Select(x => db.InsertResult(x, token))
+                        .Aggregate();
+                    await deleteTask;
+                    return await insertTask;
+                }))
+                .Bind(dbGroup => Update<Group>(db, token)))
+                .Map(_ => this as DbModel);
+        }
+
         private async Task<Result<UserGroup[]>> ApplyToUserGroups(DbModel group,
             Func<UserGroup, Task> fn)
         {
             return await UserGroups.Select(async userGroup => 
             {
                 await fn(userGroup);
-                return Result<AppUser>.Succeeded(userGroup);
+                return Result<UserGroup>.Succeeded(userGroup);
             }).Aggregate();
         }
     }

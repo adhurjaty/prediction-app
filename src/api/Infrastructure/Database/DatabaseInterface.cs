@@ -19,6 +19,7 @@ namespace Infrastructure
         Task<T> Single<T>(Expression<Func<T, bool>> expression, CancellationToken token = default);
         Task<T> LoadSingleById<T>(object idValue, CancellationToken token = default);
         Task<long> Insert<T>(T model, CancellationToken token = default);
+        Task<int> Update<T>(T model, CancellationToken token = default);
         Task<int> Delete<T>(T model, CancellationToken token = default);
         void DeleteAll<T>();
         SqlExpression<T> From<T>();
@@ -78,13 +79,19 @@ namespace Infrastructure
         public async Task<T> Single<T>(Expression<Func<T, bool>> expression, CancellationToken token = default)
         {
             using var db = _dbFactory.OpenDbConnection();
-            return await db.SingleByIdAsync<T>(expression, token: token);
+            return await db.SingleAsync<T>(expression, token: token);
         }
 
         public async Task<List<T>> Select<T>(SqlExpression<T> expression, CancellationToken token = default)
         {
             using var db = _dbFactory.OpenDbConnection();
             return await db.SelectAsync(expression, token: token);
+        }
+
+        public async Task<int> Update<T>(T model, CancellationToken token = default)
+        {
+            using var db = _dbFactory.OpenDbConnection();
+            return await db.UpdateAsync(model, token: token);
         }
 
         public SqlExpression<T> From<T>()

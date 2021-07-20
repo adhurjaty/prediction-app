@@ -18,20 +18,36 @@ namespace Infrastructure
         public abstract Task<Result<DbModel>> Delete(IDatabaseInterface db, 
             CancellationToken token = default);
 
+        public abstract Task<Result<DbModel>> Update(IDatabaseInterface db,
+            CancellationToken token = default);
+
         protected async Task<Result<DbModel>> Insert<T>(IDatabaseInterface db, 
             CancellationToken token = default) where T : DbModel
         {
             if(Id == default)
                 Id = Guid.NewGuid();
             var newId = await db.Insert<T>(this as T, token: token);
-            return Result.Succeeded(this as DbModel);
+            return newId > 0
+                ? Result.Succeeded(this as DbModel)
+                : Result<DbModel>.Failed($"Could not insert record {GetType().Name} with ID: {Id}");
         }
 
         protected async Task<Result<DbModel>> Delete<T>(IDatabaseInterface db, 
             CancellationToken token = default) where T : DbModel
         {
-            return (await db.DeleteResult<T>(this as T, token: token))
-                .Map(_ => this as DbModel);
+            var numDeleted = await db.Delete(this as T, token: token);
+            return numDeleted == 1
+                ? Result.Succeeded(this as DbModel)
+                : Result<DbModel>.Failed($"Failed to delete from table {GetType().Name}");
+        }
+
+        protected async Task<Result<DbModel>> Update<T>(IDatabaseInterface db,
+            CancellationToken token = default) where T : DbModel
+        {
+            var numUpdated = await db.Update<T>(this as T, token: token);
+            return numUpdated > 0
+                ? Result.Succeeded(this as DbModel)
+                : Result<DbModel>.Failed($"Could not update record {GetType().Name} with ID: {Id}");
         }
     }
 }

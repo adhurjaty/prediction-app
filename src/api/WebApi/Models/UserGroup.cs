@@ -24,5 +24,17 @@ namespace WebApi
 
         [Reference]
         public AppUser User { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            var model = obj as UserGroup;
+            return model.UserId == UserId && model.GroupId == GroupId;
+        }
+
+        public override int GetHashCode()
+        {
+            var s = $"{UserId}+{GroupId}";
+            return string.GetHashCode(s);
+        }
     }
 }

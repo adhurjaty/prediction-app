@@ -9,7 +9,8 @@ namespace Infrastructure
         Task<Result<TResult>> Handle(TQuery query);
     }
 
-    public interface ICommandHandler<TCommand> where TCommand : AbstractCommand<TCommand>
+    public interface ICommandHandler<TCommand> : IRequestHandler<TCommand, Result> 
+        where TCommand : AbstractCommand<TCommand>
     {
         Task<Result> Handle(TCommand cmd);
     }
@@ -19,5 +20,8 @@ namespace Infrastructure
         public AbstractQuery() {}
     }
 
-    public abstract class AbstractCommand<TCommand> {}
+    public abstract class AbstractCommand<TCommand> : IRequest<Result>
+    {
+        public AbstractCommand() {}
+    }
 }

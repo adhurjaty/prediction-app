@@ -11,7 +11,11 @@ namespace Infrastructure
     public class Result<TSuccess, TFailure> : Result
 	{
 	    public TSuccess Success { get; protected set; }
-		public TFailure Failure { get; protected set; }
+		public new TFailure Failure 
+        { 
+            get { return (TFailure)_failure; }
+            protected set { _failure = value; } 
+        }
 
 		protected Result()
 		{
@@ -67,9 +71,15 @@ namespace Infrastructure
 
     public class Result 
     {
+        protected object _failure;
         public bool IsSuccess => IsSuccessful;
 	    public bool IsFailure => !IsSuccessful;
 		protected bool IsSuccessful { get; set; }
+        public string Failure 
+        {
+            get { return _failure as string; }
+            set { _failure = value; }
+        }
 
         public static Result<T> Succeeded<T>(T success)
         {
@@ -79,6 +89,24 @@ namespace Infrastructure
         public static Result<T> Failed<T>(string failure)
         {
             return Result<T>.Failed(failure);
+        }
+
+        public static Result Succeeded()
+        {
+            return new Result()
+            {
+                IsSuccessful = true
+            };
+        }
+
+        public static Result Failed(string failure)
+        {
+            var res = new Result()
+            {
+                IsSuccessful = false
+            };
+            res._failure = failure;
+            return res;
         }
     }
 
@@ -321,6 +349,22 @@ namespace Infrastructure
                 : Result<string>.Failed(x.Failure);
         }
 
+        public static Result<TSuccess> Bind<TSuccess>(
+            this Result x, Func<Result<TSuccess>> f)
+        {
+            return x.IsSuccess
+                ? f()
+                : Result<TSuccess>.Failed(x.Failure);
+        }
+
+        public static async Task<Result<TSuccess>> Bind<TSuccess>(
+            this Result x, Func<Task<Result<TSuccess>>> f)
+        {
+            return x.IsSuccess
+                ? await f()
+                : Result<TSuccess>.Failed(x.Failure);
+        }
+
         public static Result<TSuccess> Tee<TSuccess>(this Result<TSuccess> x, Action<TSuccess> f)
         {
             if (x.IsSuccess)
@@ -353,6 +397,14 @@ namespace Infrastructure
             {
                 return Result.Failed<T>("Element not found");
             }
+        }
+
+        public static Result<T> FailIf<T>(this Result<T> x, Func<T, bool> fn,
+            string failString)
+        {
+            if(x.IsSuccess && fn(x.Success))
+                return Result<T>.Failed(failString);
+            return x;
         }
     }
 }

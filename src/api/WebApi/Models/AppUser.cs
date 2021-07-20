@@ -58,6 +58,12 @@ namespace WebApi
             await Task.WhenAll(FriendsRelations.Select(f => db.LoadReferences(f, token: token)));
         }
 
+        public override async Task<Result<DbModel>> Update(IDatabaseInterface db, 
+            CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
         private async Task<Result<FriendsRelation[]>> ApplyToFriends(DbModel group,
             Func<FriendsRelation, Task> fn)
         {
@@ -70,8 +76,7 @@ namespace WebApi
                     UserId = friendsRelation.Friend.Id,
                     Friend = this
                 };
-                await fn(friendsRelation);
-                await fn(otherRelation);
+                await Task.WhenAll(fn(friendsRelation), fn(otherRelation));
                 return Result<AppUser>.Succeeded(friendsRelation);
             }).Aggregate() ?? Result.Succeeded(new FriendsRelation[] {});
         }
