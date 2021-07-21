@@ -7,7 +7,8 @@ WORKDIR /src
 
 COPY ./api .
 
-RUN dotnet build -c Release -o /app/build
+RUN mv ./WebApi/appsettings.Development.json ./WebApi/appsettings.Release.json \
+    && dotnet build -c Release -o /app/build
 
 # commented out because dotnet test returns a failure even if all the tests pass individually
 # need to figure out how to fix this

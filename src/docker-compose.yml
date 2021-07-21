@@ -48,6 +48,8 @@ services:
     build:
       dockerfile: dockerfiles/Dockerfile.api
       context: .
+    environment: 
+      ASPNETCORE_ENVIRONMENT: Release
     ports:
       - 5000:80 # api
     depends_on:
