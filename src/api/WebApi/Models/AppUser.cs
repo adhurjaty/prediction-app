@@ -40,7 +40,8 @@ namespace WebApi
 
         public override async Task<Result<DbModel>> Delete(IDatabaseInterface db, CancellationToken token = default)
         {
-            return (await (await ApplyToFriends(this, f => db.Delete(f, token: token)))
+            return (await (await ApplyToFriends(FriendsRelations, 
+                    f => db.Delete(f, token: token)))
                 .Bind(users => db.DeleteResult(this, token: token)))
                 .Map(_ => this as DbModel);
         }
@@ -48,7 +49,8 @@ namespace WebApi
         public override async Task<Result<DbModel>> Insert(IDatabaseInterface db, CancellationToken token = default)
         {
             return (await (await Insert<AppUser>(db, token))
-                .Bind(user => ApplyToFriends(this, f => db.Insert(f, token: token))))
+                .Bind(user => ApplyToFriends(FriendsRelations, 
+                    f => db.Insert(f, token: token))))
                 .Map(_ => this as DbModel);
         }
 
@@ -61,13 +63,26 @@ namespace WebApi
         public override async Task<Result<DbModel>> Update(IDatabaseInterface db, 
             CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            return (await (await (await db.LoadSingleResultById<AppUser>(Id))
+                .Bind(async dbUser => 
+                {
+                    var listIntersection = FriendsRelations.IncludeExclude(
+                        dbUser.FriendsRelations);
+                    var toDelete = listIntersection.RightExcluded;
+                    var toInsert = listIntersection.LeftExcluded;
+
+                    var deleteTask = ApplyToFriends(toDelete, x => db.Delete(x, token));
+                    var insertTask = ApplyToFriends(toInsert, x => db.InsertResult(x, token));
+                    return await (await deleteTask).Bind(_ => insertTask);
+                }))
+                .Bind(_ => Update<Group>(db, token)))
+                .Map(_ => this as DbModel);
         }
 
-        private async Task<Result<FriendsRelation[]>> ApplyToFriends(DbModel group,
-            Func<FriendsRelation, Task> fn)
+        private async Task<Result<FriendsRelation[]>> ApplyToFriends(
+            List<FriendsRelation> relationships, Func<FriendsRelation, Task> fn)
         {
-            return await (FriendsRelations ?? new List<FriendsRelation>())
+            return await (relationships ?? new List<FriendsRelation>())
             .Select(async friendsRelation => 
             {
                 friendsRelation.UserId = Id;
