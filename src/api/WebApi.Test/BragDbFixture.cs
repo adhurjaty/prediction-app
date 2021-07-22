@@ -41,7 +41,7 @@ namespace WebApi.Test
         public override void Dispose()
         {
             _db.DeleteAll<Vote>();
-            _db.DeleteAll<Proposition>();
+            _db.DeleteAll<Bets>();
             _db.DeleteAll<UserGroup>();
             _db.DeleteAll<FriendsRelation>();
             _db.DeleteAll<Group>();
