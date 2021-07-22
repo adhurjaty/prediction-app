@@ -28,13 +28,14 @@ namespace WebApi
             var friendsResultTask = cmd.FriendIds
                 .Select(id => _db.SingleResultById<AppUser>(id))
                 .Aggregate();
-            return (await userResultTask)
-                .TupleBind(_ => friendsResultTask)
-                .Tee((user, newFriends) => user.FriendsRelations = newFriends
-                    .Select( => ))
-                .TupleMap(user => user.Friends.Where(friend => 
-                    !Sql.In(friend.Id.ToString(), cmd.FriendIds)))
-                .Tee((user, newFriends) => user.Friends.AddRange(newFriends))
+
+            return await (await (await userResultTask)
+                .TupleBind(_ => friendsResultTask))
+                .Tee((user, newFriends) => user.Friends = user.Friends
+                    .Concat(newFriends)
+                    .DistinctBy(x => x.Id)
+                    .ToList())
+                .Bind((user, _) => _db.UpdateResult(user));
         }
 
         public Task<Result> Handle(AddFriendsCommand request, CancellationToken cancellationToken)
