@@ -55,6 +55,10 @@ namespace Infrastructure
             }
         }
 
+        /// <summary>
+        /// Returns a list of lists of decreasing length, removing the first element in 
+        /// each subsequent list. E.g. [1, 2, 3, 4] -> [[1, 2, 3, 4], [2, 3, 4], [3, 4]]
+        /// </summary>
         public static IEnumerable<IEnumerable<T>> Clique<T>(this IEnumerable<T> source)
         {
             for (int i = 0; i < source.Count() - 1; i++)
