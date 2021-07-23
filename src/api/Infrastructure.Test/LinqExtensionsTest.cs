@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Xunit;
 using FluentAssertions;
+using System.Linq;
 
 namespace Infrastructure.Test
 {
@@ -22,6 +23,20 @@ namespace Infrastructure.Test
                 LeftExcluded = new List<int>() { 2, 7, 9 },
                 RightExcluded = new List<int>() { 10, 11 },
                 Included = new List<int>() { 4, 6, 8 }
+            });
+        }
+
+        [Fact]
+        public void CliqueTest()
+        {
+            var range = Enumerable.Range(1, 5);
+            var result = range.Clique();
+            result.Should().BeEquivalentTo(new List<List<int>>()
+            {
+                new List<int>() { 1, 2, 3, 4, 5 },
+                new List<int>() { 2, 3, 4, 5 },
+                new List<int>() { 3, 4, 5 },
+                new List<int>() { 4, 5 }
             });
         }
     }

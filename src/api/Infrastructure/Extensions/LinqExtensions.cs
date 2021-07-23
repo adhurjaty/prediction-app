@@ -54,6 +54,14 @@ namespace Infrastructure
                 }
             }
         }
+
+        public static IEnumerable<IEnumerable<T>> Clique<T>(this IEnumerable<T> source)
+        {
+            for (int i = 0; i < source.Count() - 1; i++)
+            {
+                yield return source.Skip(i);
+            }
+        }
     }
 
     public class ListIntersection<T>
