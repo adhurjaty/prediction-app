@@ -75,7 +75,7 @@ namespace WebApi
                     var insertTask = ApplyToFriends(toInsert, x => db.InsertResult(x, token));
                     return await (await deleteTask).Bind(_ => insertTask);
                 }))
-                .Bind(_ => Update<Group>(db, token)))
+                .Bind(_ => Update<AppUser>(db, token)))
                 .Map(_ => this as DbModel);
         }
 
