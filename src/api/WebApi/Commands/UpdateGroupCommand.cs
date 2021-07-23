@@ -41,14 +41,5 @@ namespace WebApi
         {
             return Handle(request);
         }
-
-        private async Task<Result> SetFriends(AppUser user, IEnumerable<AppUser> friends)
-        {
-            return await friends.Select(friend => _mediator.Send(new AddFriendsCommand()
-            {
-                UserId = user.Id.ToString(),
-                FriendIds = 
-            }))
-        }
     }
 }

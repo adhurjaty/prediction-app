@@ -199,6 +199,14 @@ namespace Infrastructure
             return Result<TSuccess[]>.Failed(accumulator.Failure + "\n" + next.Failure);
         }
 
+        public static Result Merge(this Result accumulator, Result next)
+        {
+            if (accumulator.IsSuccess && next.IsSuccess)
+                return Result.Succeeded();
+
+            return Result.Failed(accumulator.Failure + "\n" + next.Failure);
+        }
+
         // Aggregate an array of results together.
         // If any of the results fail, return combined failures
         // Will only return success if all results succeed
@@ -228,6 +236,14 @@ namespace Infrastructure
             this IEnumerable<Task<Result<TSuccess>>> accumulator)
         {
             var emptySuccess = Result<TSuccess[]>.Succeeded(new TSuccess[0]);
+            return (await Task.WhenAll(accumulator))
+                .Aggregate(emptySuccess, (acc, o) => acc.Merge(o));
+        }
+
+        public static async Task<Result> Aggregate(
+            this IEnumerable<Task<Result>> accumulator)
+        {
+            var emptySuccess = Result.Succeeded();
             return (await Task.WhenAll(accumulator))
                 .Aggregate(emptySuccess, (acc, o) => acc.Merge(o));
         }
