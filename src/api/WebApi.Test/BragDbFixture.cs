@@ -45,28 +45,28 @@ namespace WebApi.Test
             _db.Insert(model);
         }
 
-        protected BragDbFixture WithMediatorResult<TReq, TResp>(Result<TResp> result)
+        public BragDbFixture WithMediatorResult<TReq, TResp>(Result<TResp> result)
             where TReq : AbstractQuery<TReq,TResp>
         {
             _mediatorMock.Setup(x => x.Send(It.IsAny<TReq>(), default)).ReturnsAsync(result);
             return this;
         }
         
-        protected BragDbFixture WithMediatorResult<TCmd>(Result result)
+        public BragDbFixture WithMediatorResult<TCmd>(Result result)
             where TCmd : AbstractCommand<TCmd>
         {
             _mediatorMock.Setup(x => x.Send(It.IsAny<TCmd>(), default)).ReturnsAsync(result);
             return this;
         }
 
-        protected void VerifyMediator<TReq, TResp>(TReq request)
+        public void VerifyMediator<TReq, TResp>(TReq request)
             where TReq : AbstractQuery<TReq,TResp>
         {
             _mediatorMock.Verify(x => x.Send(It.Is<TReq>(y =>
                 EquivalentObjects(request, y)), default), Times.Once());
         }
         
-        protected void VerifyMediator<TCmd>(TCmd request)
+        public void VerifyMediator<TCmd>(TCmd request)
             where TCmd : AbstractCommand<TCmd>
         {
             _mediatorMock.Verify(x => x.Send(It.Is<TCmd>(y =>

@@ -4,6 +4,7 @@ using Xunit;
 using FluentAssertions;
 using Infrastructure;
 using System;
+using Moq;
 
 namespace WebApi.Test
 {
@@ -53,42 +54,43 @@ namespace WebApi.Test
             });
         }
 
+        private static AppUser FooUser = new AppUser()
+        {
+            DisplayName = "Foo",
+            Email = "asdf@me.com"
+        };
+        private static AppUser BarUser = new AppUser()
+        {
+            DisplayName = "Bar",
+            Email = "fdsa@me.com"
+        };
+        private static AppUser BazUser = new AppUser()
+        {
+            DisplayName = "Baz",
+            Email = "jkld@me.com"
+        };
+
         [Fact]
         public async Task UpdateGroupSuccess()
         {
-            var fooUser = new AppUser()
-            {
-                DisplayName = "Foo",
-                Email = "asdf@me.com"
-            };
-            var barUser = new AppUser()
-            {
-                DisplayName = "Bar",
-                Email = "fdsa@me.com"
-            };
-            var bazUser = new AppUser()
-            {
-                DisplayName = "Baz",
-                Email = "jkld@me.com"
-            };
-
             var group = new Group()
             {
                 Name = "This Group",
-                Users = new List<AppUser>() { fooUser, barUser }
+                Users = new List<AppUser>() { FooUser, BarUser }
             };
-
             using var fx = new GroupCommandTestFixture()
-                .WithUser(fooUser)
-                .WithUser(barUser)
-                .WithUser(bazUser)
-                .WithGroup(group);
+                .WithUser(FooUser)
+                .WithUser(BarUser)
+                .WithUser(BazUser)
+                .WithGroup(group)
+                .WithMediatorResult<AddFriendsCommand>(Result.Succeeded()) 
+                    as GroupCommandTestFixture;
             
             var updatedGroup = new Group()
             {
                 Id = group.Id,
                 Name = "ThatGroup",
-                Users = new List<AppUser>() { barUser, bazUser }
+                Users = new List<AppUser>() { BarUser, BazUser }
             };
 
             var handler = fx.GetUpdateGroupHandler();
@@ -100,7 +102,16 @@ namespace WebApi.Test
             result.IsSuccess.Should().BeTrue();
             var dbGroup = await fx.GetGroup(group.Id);
             dbGroup.Name.Should().BeEquivalentTo("ThatGroup");
-            dbGroup.Users.Should().BeEquivalentTo(new List<AppUser>() { barUser, bazUser });
+            dbGroup.Users.Should().BeEquivalentTo(new List<AppUser>() { BarUser, BazUser });
+
+            fx.VerifyMediator(new AddFriendsCommand()
+            {
+                UserId = BarUser.Id.ToString(),
+                FriendIds = new List<string>() 
+                { 
+                    BazUser.Id.ToString() 
+                }
+            });
         }
 
         [Theory]
@@ -115,7 +126,9 @@ namespace WebApi.Test
 
             using var fx = new GroupCommandTestFixture()
                 .WithUser(SimpleUser)
-                .WithGroup(group);
+                .WithGroup(group)
+                .WithMediatorResult<AddFriendsCommand>(Result.Succeeded()) 
+                    as GroupCommandTestFixture;
             
             var handler = fx.GetUpdateGroupHandler();
             var result = await handler.Handle(new UpdateGroupCommand()
@@ -130,6 +143,55 @@ namespace WebApi.Test
 
             result.IsSuccess.Should().BeFalse();
             result.Failure.Should().Be("Cannot update group with no users");
+        }
+
+        [Fact]
+        public async Task UpdateGroup3CliqueFriends()
+        {
+            var group = new Group()
+            {
+                Name = "This Group",
+                Users = new List<AppUser>() { FooUser, BarUser }
+            };
+            using var fx = new GroupCommandTestFixture()
+                .WithUser(FooUser)
+                .WithUser(BarUser)
+                .WithUser(BazUser)
+                .WithGroup(group)
+                .WithMediatorResult<AddFriendsCommand>(Result.Succeeded()) 
+                    as GroupCommandTestFixture;
+            
+            var updatedGroup = new Group()
+            {
+                Id = group.Id,
+                Name = "ThatGroup",
+                Users = new List<AppUser>() { FooUser, BarUser, BazUser }
+            };
+
+            var handler = fx.GetUpdateGroupHandler();
+            var result = await handler.Handle(new UpdateGroupCommand()
+            {
+                Group = updatedGroup
+            });
+
+            fx.VerifyMediator(new AddFriendsCommand()
+            {
+                UserId = FooUser.Id.ToString(),
+                FriendIds = new List<string>() 
+                { 
+                    BarUser.Id.ToString(),
+                    BazUser.Id.ToString() 
+                }
+            });
+            fx.VerifyMediator(new AddFriendsCommand()
+            {
+                UserId = BarUser.Id.ToString(),
+                FriendIds = new List<string>() 
+                { 
+                    BazUser.Id.ToString() 
+                }
+            });
+            fx.VerifyAddFriendsCallNum(2);
         }
 
         public static IEnumerable<object[]> EmptyUserData =>
@@ -241,6 +303,12 @@ namespace WebApi.Test
         public async Task<Group> GetGroup(Guid groupId)
         {
             return (await _db.LoadSingleResultById<Group>(groupId)).Success;
+        }
+
+        public void VerifyAddFriendsCallNum(int numCalls)
+        {
+            _mediatorMock.Verify(x => x.Send(It.IsAny<AddFriendsCommand>(), default),
+                Times.Exactly(numCalls));
         }
     }
 }
