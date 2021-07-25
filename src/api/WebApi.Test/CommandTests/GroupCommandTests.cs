@@ -220,7 +220,7 @@ namespace WebApi.Test
 
         public UpdateGroupCommandHandler GetUpdateGroupHandler()
         {
-            return new UpdateGroupCommandHandler(_db);
+            return new UpdateGroupCommandHandler(_db, _mediatorMock.Object);
         }
 
         public DeleteGroupCommandHandler GetDeleteGroupHandler()
