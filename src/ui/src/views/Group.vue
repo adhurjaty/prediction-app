@@ -63,7 +63,7 @@
 
 <script lang="ts">
 import { Vue } from 'vue-class-component';
-import { Group } from '../backend/apiModels';
+import Group from '../models/group';
 import * as api from '../backend/apiInterface';
 
 interface Bet {
