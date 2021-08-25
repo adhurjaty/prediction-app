@@ -104,7 +104,7 @@ namespace WebApi
             services.RegisterGenericInterface(typeof(IQueryHandler<,>));
 
             services.AddMediatR(typeof(Startup).GetType().Assembly);
-            services.AddScoped<IMediatorResult>(x => 
+            services.AddTransient<IMediatorResult>(x => 
                 new MediatorRailway(x.GetService<IMediator>()));
         }
 
