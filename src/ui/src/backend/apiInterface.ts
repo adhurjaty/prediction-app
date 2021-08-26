@@ -1,6 +1,6 @@
 import { TOKEN_KEY } from '@/util/constants';
 import axios from 'axios';
-import Group from '../models/group';
+import Group from '../groups/models';
 
 const BASE_URL = 'http://localhost:5000';
 
