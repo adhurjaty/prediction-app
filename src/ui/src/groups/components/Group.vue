@@ -63,8 +63,8 @@
 
 <script lang="ts">
 import { Vue } from 'vue-class-component';
-import Group from '../models/group';
-import * as api from '../backend/apiInterface';
+import Group from '../models';
+import * as api from '../../backend/apiInterface';
 
 interface Bet {
     id: number

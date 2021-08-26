@@ -30,9 +30,9 @@
 
 <script lang="ts">
 import { Vue } from 'vue-class-component';
-import Group from '../models/group';
-import { getGroups } from '../backend/apiInterface';
-import { redirectToLoginOnError } from '../util/helpers';
+import Group from '../models';
+import { getGroups } from '../../backend/apiInterface';
+import { redirectToLoginOnError } from '../../util/helpers';
 
 const getGroupsRedirect = redirectToLoginOnError(getGroups);
 
