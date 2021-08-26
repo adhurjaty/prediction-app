@@ -5495,7 +5495,14 @@ internal-ip@^4.3.0:
     default-gateway "^4.2.0"
     ipaddr.js "^1.9.0"
 
-inversify@^5.1.1:
+inversify-props@^2.2.6:
+  version "2.2.6"
+  resolved "https://registry.yarnpkg.com/inversify-props/-/inversify-props-2.2.6.tgz#4c4981487630b3039d6805251c8d1a347b48828a"
+  integrity sha512-ImLafUgM1Me4Xa7hcdo9DRt0Ca139JUa9byX9vzb4ihXkJtzWoxSqSw6hpBL45w4wqtFD3IPC/ldC1HqdaLQUA==
+  dependencies:
+    inversify "^5.0.1"
+
+inversify@^5.0.1, inversify@^5.1.1:
   version "5.1.1"
   resolved "https://registry.yarnpkg.com/inversify/-/inversify-5.1.1.tgz#6fbd668c591337404e005a1946bfe0d802c08730"
   integrity sha512-j8grHGDzv1v+8T1sAQ+3boTCntFPfvxLCkNcxB1J8qA0lUN+fAlSyYd+RXKvaPRL4AGyPxViutBEJHNXOyUdFQ==
