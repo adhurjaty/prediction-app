@@ -50,11 +50,11 @@
     </router-link>
     <div class="bottom-buttons">
         <div>
-            <img src="../assets/addBet.svg" />
+            <img src="../../assets/addBet.svg" />
             <p>add bet</p>
         </div>
         <div>
-            <img src="../assets/addMember.svg" />
+            <img src="../../assets/addMember.svg" />
             <p>add members</p>
         </div>
     </div>
