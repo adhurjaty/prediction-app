@@ -1,15 +1,11 @@
+import { groupsModule } from '@/groups'
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 
-const routes: Array<RouteRecordRaw> = [
+const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Home',
     component: import('../views/Home.vue'),
-  },
-  {
-    path: '/groups',
-    name: 'Groups',
-    component: import('../views/GroupsList.vue'),
   },
   {
     path: '/friends',
@@ -26,16 +22,7 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Account',
     component: () => import('../views/Account.vue'),
   },
-  {
-    path: '/groups/create/',
-    name: 'Create Group',
-    component: () => import('../views/CreateGroup.vue'),
-  },
-  {
-    path: '/groups/:id',
-    name: 'Group',
-    component: () => import('../views/Group.vue'),
-  },
+  ...groupsModule.routes(),
   {
     path: '/groups/:id/add-bet',
     name: 'Add Bet',
