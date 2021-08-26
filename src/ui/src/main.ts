@@ -4,12 +4,13 @@ import './registerServiceWorker'
 import router from './router'
 import BackButton from './components/BackButton.vue';
 import Friend from './components/Friend.vue';
+import { containerBuilder } from './app.container';
 
 
 export class AppModule {
 
     constructor() {
-
+        containerBuilder();
         this.bootstrap();
     }
 
