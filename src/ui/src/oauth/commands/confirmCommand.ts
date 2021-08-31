@@ -24,7 +24,7 @@ export class ConfirmCommand implements IConfirmCommand {
             throw new Error('ERROR, could not get verifier from local storage');
         }
 
-        let response = await this.confirmQuery.query(new OauthConfirmRequest({
+        const response = await this.confirmQuery.query(new OauthConfirmRequest({
             code: code,
             verifier: verifier
         }));

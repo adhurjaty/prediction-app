@@ -11,7 +11,7 @@ export interface IApi {
     post<T>(path: string, body: T): Promise<any>;
     authGet<T>(path: string): Promise<T>;
     authPost<T>(path: string, payload: any): Promise<T>;
-    authPost<T>(path: string, payload: any): Promise<T>;
+    authPut<T>(path: string, payload: any): Promise<T>;
 }
 
 @injectable()
@@ -82,22 +82,4 @@ export class Api implements IApi {
     private getUrl(path: string): string {
         return `${BASE_URL}${trimStart(path, '/')}`;
     }
-}
-
-export async function getGroups(): Promise<Group[]> {
-    return await authGet<Group[]>(`${BASE_URL}/groups`);
-}
-
-export async function getGroup(groupId: string): Promise<Group> {
-    return await authGet<Group>(`${BASE_URL}/group/${groupId}`);
-}
-
-export async function createGroup(group: Group) : Promise<Group> {
-    return await authPost<Group>(`${BASE_URL}/group`, {
-        name: group.name
-    });
-}
-
-export async function updateGroup(group: Group) : Promise<Group> {
-    return await authPut(`${BASE_URL}/group/${group.id}`, group);
 }
