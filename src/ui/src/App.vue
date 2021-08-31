@@ -32,7 +32,7 @@
 
 <style lang="scss">
 body {
-  margin: 20px;
+  margin: 0;
 }
 
 #app {
@@ -42,31 +42,54 @@ body {
   color: #212121;
 }
 
-.hidden {
-  display: none;
+h2, h3 {
+  margin-top: 0;
+}
+
+h2 {
+    font-size: 28px;
+}
+
+h3 {
+    font-size: 24px;
+}
+
+a {
+  text-decoration: none;
 }
 
 header {
-    width: 100vw;
     position: fixed;
+    width: 100vw;
     top: 0;
-    left: 0;
-    height: 45px;
-    background: #212121;
+    padding: 5px;
+    background: $black-header;
     text-align: center;
-
-    img {
-      margin-top: 4px;
-    }
 
     svg {
       position: absolute;
-      right: 8px;
-      top: 6px;
+      right: 15px;
+      top: 9px;
       width: 32px;
       height: auto;
-      fill: #4FDE6E;
+      fill: $green-notification;
     }
+}
+
+section {
+    height: calc(100vh - 176px);
+    padding: 30px 20px 20px;
+    overflow-y: auto;
+    margin: 45px 0 90px;
+
+    &.empty {
+        display: grid;
+        place-items: center;
+    }  
+}
+
+.hidden {
+  display: none;
 }
 
 #nav {
@@ -76,9 +99,9 @@ header {
   grid-template-columns: repeat(4,1fr);
   width: 100vw;
   left: 0;
-  border-top: 1px solid #dadada;
+  border-top: 1px solid $gray-border;
   height: 83px;
-  background: white;
+  background: #fff;
 
   a {
     text-decoration: none;
@@ -90,21 +113,21 @@ header {
         margin: 0 auto;
         height: 40px;
         width: auto;
-        fill: #b8b8b8;
+        fill: $gray-inactive;
         margin-bottom: 5px;
     }
 
     span {
-      color: #b8b8b8;
+      color: $gray-inactive;
     }
 
     &.router-link-exact-active {
       svg {
-        fill: #3ab154;
+        fill: $green-button;
       }
 
       span {
-        color: #3ab154;
+        color: $green-button;
       }
     }
   }

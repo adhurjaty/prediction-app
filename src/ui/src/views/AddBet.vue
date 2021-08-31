@@ -1,14 +1,12 @@
 <template>
-    <main>
+    <section>
         <BackButton></BackButton>
         <h2>Create Custom Bet</h2>
         <form>
             <label>Title<span class="required">*</span></label>
             <input type="text" placeholder="Title" required />
-            <label>Stake<span class="required">*</span></label>
-            <input type="text" placeholder="Stake" required />
             <label>Description<span class="required">*</span></label>
-            <textarea class="tall" type="text" placeholder="Enter description" required></textarea>
+            <textarea rows="6" placeholder="Enter description" required></textarea>
             <label>Resolution Type<span class="required">*</span></label>
             <select required v-model="resolutionType">
                 <option value="" disabled selected>choose a type</option>
@@ -20,9 +18,11 @@
             <label>Close Date<span class="required">*</span></label>
             <p>No one will be able to bet on this after this date has passed</p>
             <input type="datetime-local" required />
-            <button @click="createGroup()">create</button>
+            <label>Stake</label>
+            <p>Stakes will be proposed to you by group members</p>
+            <button @click="addBet()">create</button>
         </form>
-    </main>
+    </section>
 </template>
 
 <script lang="ts">
@@ -35,32 +35,29 @@ export default class AddBet extends Vue {
 </script>
 
 <style lang="scss" scoped>
-    main {
-        margin-top: 66px;
-        height: calc(100vh + 120px);
-        overflow: auto;
-    }
-
     label {
         font-size: 20px;
         margin: 5px 0;
         display: block;
+
+        + p {
+            margin-top: 0;
+        }
     }
 
     .required {
         color: red;
     }
 
-    .tall {
-        height: 10vh;
-        min-height: 100px;
+    textarea {
         display: block;
         margin-bottom: 30px;
-        width: calc(100% - 15px);
+        width: calc(100% - 20px);
         font-family: Avenir, Helvetica, Arial, sans-serif;
-        font-size: 16px;
+        font-size: 18px;
         padding: 5px 5px;
         resize: none;
+        padding-left: 10px;
     }
 
     select {
@@ -70,10 +67,7 @@ export default class AddBet extends Vue {
         width: 100%;
         font-size: 18px;
         color: #757575;
-    }
-
-    .back {
-        @include back();
+        padding-left: 10px;
     }
 
     h2 {
@@ -82,11 +76,7 @@ export default class AddBet extends Vue {
     }
 
     input {
-        display: block;
-        height: 40px;
-        margin-bottom: 30px;
-        width: calc(100% - 10px);
-        font-size: 18px;
+        @include input;
     }
 
     button {

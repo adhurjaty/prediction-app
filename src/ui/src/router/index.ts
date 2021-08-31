@@ -37,12 +37,12 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('../views/Group.vue'),
   },
   {
-    path: '/groups/:groupId/add-bet',
+    path: '/groups/:id/add-bet',
     name: 'Add Bet',
     component: () => import('../views/AddBet.vue'),
   },
   {
-    path: '/groups/:groupId/add-members',
+    path: '/groups/:id/add-members',
     name: 'Add Members',
     component: () => import('../views/AddMembers.vue'),
   },

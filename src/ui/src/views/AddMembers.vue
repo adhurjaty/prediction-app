@@ -1,53 +1,53 @@
 <template>
-    <main>
+    <section>
         <BackButton></BackButton>
-        <h2>Add to {{ group[$route.params.groupId].title }}</h2>
+        <h2>Add to {{ group.name }}</h2>
         <div class="invite">
             <img src="../assets/addMember.svg" />
             <p>Invite friends</p>
         </div>
         <h3>Friends</h3>
-        <Friend v-for="friend in friends" :key="friend.id" :name="friend.name" :id="friend.id" @updateState="updateFriendStates($event, friend.id)"></Friend>
-        <button :disabled="!friendActive" class="send">send invites</button>
-    </main>
+        <div v-if="friends.length > 0">
+            <Friend v-for="friend in friends" :key="friend.id" :name="friend.displayName" :id="friend.id" @updateState="updateFriendStates($event, friend.id)"></Friend>
+            <button :disabled="!friendActive" class="send">send invites</button>
+        </div>
+        <div v-if="friends.length == 0">
+            <p>All your current friends are in this group already</p>
+        </div>
+    </section>
 </template>
 
 <script lang="ts">
 import { Vue } from 'vue-class-component';
+import { Group } from '../backend/apiModels';
+import * as api from '../backend/apiInterface';
 
 interface Friend {
-    id: number
-    name: string
+    id: string
+    displayName: string
 }
 
 export default class AddMember extends Vue {
-    group: Object = {1: {title: 'Sooth Sayans', color:'#B644BE'}, 2: {title: 'Big Flexors', color:'#EB0101'}};
-    friends: Array<Friend> = [{id: 0, name: 'ima_speak_the_sooth'},{id: 1, name:'crystal_deez_nuts'}];
-    friendStates: Array<boolean> = [...Array(this.friends.length).fill(false)];
+    group: Group = new Group();
+    allFriends: Array<Friend> = [{id: 'b0d20f6a-5cfd-4e92-96eb-9b0e694f285f', displayName: 'Anil Dhurjaty'},{id: '359f531c-8b67-45a2-82ee-2118759f0e09', displayName:'Tony Wong'}]; // replace with api call
+    friends: Array<Friend> = [];
+    friendStates: Array<boolean>  = new Array(this.friends.length).fill(false);
     friendActive: boolean = false;
-    updateFriendStates(val: boolean, id: number): void {
-        this.friendStates[id] = val;
+    
+    updateFriendStates(val: boolean, id: string): void {
+        let index = this.friends.map(x => x.id).indexOf(id);
+        this.friendStates[index] = val;
         this.friendActive = this.friendStates.includes(true) ? true : false;
+    }
+
+    async mounted() {
+        this.group = await api.getGroup(this.$route.params.id as string);
+        this.friends = this.allFriends.filter(user => !this.group.users.map(x => x.displayName).includes(user.displayName));
     }
 }
 </script>
 
 <style lang="scss" scoped>
-    main {
-        margin-top: 66px;
-        height: calc(100vh + 120px);
-        overflow: auto;
-    }
-
-    h2 {
-        margin-top: 0;
-        font-size: 28px;
-    }
-
-    h3 {
-        font-size: 24px;
-    }
-
     .invite {
         display: flex;
 
@@ -60,36 +60,13 @@ export default class AddMember extends Vue {
         }
     }
 
-    .friend {
-        display: flex;
-        margin-bottom: 20px;
-    }
-
-    .circle {
-        text-transform: uppercase;
-        height: 50px;
-        width: 50px;
-        background: #999999;
-        display: grid;
-        place-content: center;
-        border-radius: 99px;
-        font-size: 40px;
-        overflow: hidden;
-        color: #eee;
-        margin-right: 10px;
-
-        p {
-            font-size: 18px;
-        }
-    }
-
     .send {
         border: none;
         padding: 10px;
-        background: #3ab154;
+        background-color: #3ab154;
         color: white;
         font-size: 18px;
-        transition: background .5s;
+        transition: background-color .5s;
 
         &:disabled {
             color: #727272;
