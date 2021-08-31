@@ -6,6 +6,13 @@
 
 <style lang="scss" scoped>
     .back {
-        @include back();
+        position: absolute;
+        top: 0;
+        left: 0;
+        background: $green-button;
+        height: 52px;
+        display: grid;
+        place-content: center;
+        padding: 0px 10px;
     }
 </style>

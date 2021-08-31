@@ -1,8 +1,12 @@
 <template>
-<main>
+<section>
     <BackButton></BackButton>
     <div class="group-name">
-        <div class="group-icon" :style="`background:${group.color}`"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="20" viewBox="0 0 24 20"><path d="M10.118 16.064c2.293-.529 4.428-.993 3.394-2.945-3.146-5.942-.834-9.119 2.488-9.119 3.388 0 5.644 3.299 2.488 9.119-1.065 1.964 1.149 2.427 3.394 2.945 1.986.459 2.118 1.43 2.118 3.111l-.003.825h-15.994c0-2.196-.176-3.407 2.115-3.936zm-10.116 3.936h6.001c-.028-6.542 2.995-3.697 2.995-8.901 0-2.009-1.311-3.099-2.998-3.099-2.492 0-4.226 2.383-1.866 6.839.775 1.464-.825 1.812-2.545 2.209-1.49.344-1.589 1.072-1.589 2.333l.002.619z"/></svg></div>
+        <div class="group-icon circle">
+            <div class="circle-inner">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="20" viewBox="0 0 24 20"><path d="M10.118 16.064c2.293-.529 4.428-.993 3.394-2.945-3.146-5.942-.834-9.119 2.488-9.119 3.388 0 5.644 3.299 2.488 9.119-1.065 1.964 1.149 2.427 3.394 2.945 1.986.459 2.118 1.43 2.118 3.111l-.003.825h-15.994c0-2.196-.176-3.407 2.115-3.936zm-10.116 3.936h6.001c-.028-6.542 2.995-3.697 2.995-8.901 0-2.009-1.311-3.099-2.998-3.099-2.492 0-4.226 2.383-1.866 6.839.775 1.464-.825 1.812-2.545 2.209-1.49.344-1.589 1.072-1.589 2.333l.002.619z"/></svg>
+            </div>
+        </div>
         <h2 :style="`color:${group.color}`">{{ group.name }}</h2>
     </div>
     <h3>Active Bets</h3>
@@ -18,7 +22,7 @@
             </div>
         </div>
     </div>
-    <router-link :to="{ name: 'Add Bet', params: {groupId: $route.params.id} }">
+    <router-link :to="{ name: 'Add Bet', params: {id: $route.params.id} }">
         <button>+ bet</button>
     </router-link>
     <h3>Leaderboard</h3>
@@ -41,7 +45,7 @@
             </tbody>
         </table>
     </div>
-    <router-link :to="{ name: 'Add Members', params: {groupId: $route.params.id} }">
+    <router-link :to="{ name: 'Add Members', params: {id: $route.params.id} }">
         <button>+ members</button>
     </router-link>
     <div class="bottom-buttons">
@@ -54,7 +58,7 @@
             <p>add members</p>
         </div>
     </div>
-</main>
+</section>
 </template>
 
 <script lang="ts">
@@ -71,12 +75,10 @@ interface Bet {
 
 export default class GroupInfo extends Vue {
     group: Group = new Group();
-    bets: Array<Bet> = []
-    //bets: Array<Bet> = [{id: 0, title:'How much wood would a wood chuck chuck?', stake: 0, status: 'none'},{id: 1, title:'Will Lebron have 7 rings by the time he retires',stake: 1, status: 'Yes'}]
-    // members: Array<Member> = []
-    //members: Array<Member> = [{id: 0, name: 'ima_speak_the_sooth', accuracy: 100, prestige: 2},{id: 1, name: 'crystal_deez_nuts', accuracy: 0, prestige: -1},{id: 1, name: 'oracle69', accuracy: 0, prestige: -1}]
+    bets: Array<Bet> = [];
+
     betMade(stake: number, status: string): string {
-        return stake > 0 ? `you have bet ${stake} prestige point on ${status}` : 'you have not bet'  
+        return stake > 0 ? `you have bet ${stake} prestige point on ${status}` : 'you have not bet';
     }
 
     async mounted() {
@@ -86,26 +88,17 @@ export default class GroupInfo extends Vue {
 </script>
 
 <style lang="scss" scoped>
-    main {
-        margin-top: 66px;
-        height: calc(100vh - 128px);
-        overflow: auto;
-    }
-
     .group-name {
-        display: flex;
+        @include iconWithData;
 
-        .group-icon {
-            border-radius: 99px;
-            //background: #B644BE;
-            margin-right: 10px;
+        margin-bottom: 0;
+
+        h2 {
+            margin-top: 7px;
         }
 
-        svg {
+        .circle svg {
             height: 40px;
-            width: auto;
-            padding: 15px;
-            fill: #212121;
         }
     }
 
@@ -198,9 +191,5 @@ export default class GroupInfo extends Vue {
             margin: 0;
             color: #3ab154;
         }
-    }
-    
-    .back {
-        @include back();
     }
 </style>
