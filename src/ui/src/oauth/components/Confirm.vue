@@ -7,8 +7,8 @@
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
 import { useRoute } from "vue-router";
-import { authConfirm, OauthConfirmRequest } from '../backend/apiInterface';
-import { TOKEN_KEY, VERIFIER_KEY } from '../util/constants';
+import { authConfirm, OauthConfirmRequest } from '../../backend/apiInterface';
+import { TOKEN_KEY, VERIFIER_KEY } from '../../util/constants';
 
 export default class Confirm extends Vue {
     message: string = 'Confirming...'

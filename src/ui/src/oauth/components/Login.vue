@@ -9,8 +9,8 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { VERIFIER_KEY } from '../util/constants';
-import GoogleLogin from '../auth/googleAuth'
+import { VERIFIER_KEY } from '../../util/constants';
+import GoogleLogin from '../googleLogin'
 import { useRoute } from "vue-router";
 
 export default class Secret extends Vue {

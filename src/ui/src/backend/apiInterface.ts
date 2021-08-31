@@ -1,8 +1,82 @@
 import { TOKEN_KEY } from '@/util/constants';
+import { trimStart } from '@/util/helpers';
 import axios from 'axios';
+import { injectable } from 'inversify-props';
 import Group from '../groups/models';
 
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = 'http://localhost:5000/';
+
+
+export interface IApi {
+    authGet<T>(path: string): Promise<T>;
+    authPost<T>(path: string, payload: any): Promise<T>;
+    authPost<T>(path: string, payload: any): Promise<T>;
+}
+
+@injectable()
+export class Api implements IApi {
+    public async authGet<T>(path: string): Promise<T> {
+        const url = this.getUrl(path);
+        const token = window.localStorage.getItem(TOKEN_KEY);
+    
+        try {
+            if(!token)
+                throw new Error('Unauthorized');
+    
+            const resp = await axios.get(url, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            return resp.data as T;
+        } catch (e) {
+            throw new Error('Unauthorized');
+        }
+    }
+    
+    public async authPost<T>(path: string, payload: any): Promise<T> {
+        const url = this.getUrl(path);
+        const token = window.localStorage.getItem(TOKEN_KEY);
+    
+        try {
+            if(!token)
+                throw new Error('Unauthorized');
+    
+            const resp = await axios.post(url, payload, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            return resp.data as T;
+        } catch (e) {
+            console.log(e);
+            throw new Error('Unauthorized');
+        }
+    }
+    
+    public async authPut<T>(path: string, payload: T): Promise<T> {
+        const url = this.getUrl(path);
+        const token = window.localStorage.getItem(TOKEN_KEY);
+    
+        try {
+            if(!token)
+                throw new Error('Unauthorized');
+    
+            const resp = await axios.put(url, payload, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            return resp.data as T;
+        } catch (e) {
+            throw new Error('Unauthorized');
+        }
+    }
+
+    private getUrl(path: string): string {
+        return `${BASE_URL}${trimStart(path, '/')}`;
+    }
+}
 
 export class OauthConfirmRequest {
     public code : string = '';
@@ -48,59 +122,4 @@ export async function createGroup(group: Group) : Promise<Group> {
 
 export async function updateGroup(group: Group) : Promise<Group> {
     return await authPut(`${BASE_URL}/group/${group.id}`, group);
-}
-
-async function authGet<T>(url: string): Promise<T> {
-    const token = window.localStorage.getItem(TOKEN_KEY);
-
-    try {
-        if(!token)
-            throw new Error('Unauthorized');
-
-        const resp = await axios.get(url, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        return resp.data as T;
-    } catch (e) {
-        throw new Error('Unauthorized');
-    }
-}
-
-async function authPost<T>(url: string, payload: any): Promise<T> {
-    const token = window.localStorage.getItem(TOKEN_KEY);
-
-    try {
-        if(!token)
-            throw new Error('Unauthorized');
-
-        const resp = await axios.post(url, payload, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        return resp.data as T;
-    } catch (e) {
-        console.log(e);
-        throw new Error('Unauthorized');
-    }
-}
-
-async function authPut<T>(url: string, payload: T): Promise<T> {
-    const token = window.localStorage.getItem(TOKEN_KEY);
-
-    try {
-        if(!token)
-            throw new Error('Unauthorized');
-
-        const resp = await axios.put(url, payload, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-        return resp.data as T;
-    } catch (e) {
-        throw new Error('Unauthorized');
-    }
 }
