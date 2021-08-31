@@ -10,11 +10,11 @@
 <script lang="ts">
 import { inject } from 'inversify-props';
 import { Vue } from 'vue-class-component';
-import { ILoginCommand } from '../loginCommand';
+import { ILoginCommand } from '../commands/loginCommand';
 
 export default class Secret extends Vue {
     @inject() loginCommand: ILoginCommand
-    
+
     login() {
         this.loginCommand.execute(this.$route.query.origin as (string | undefined));
     }

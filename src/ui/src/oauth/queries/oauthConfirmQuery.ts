@@ -1,6 +1,6 @@
 import { IApi } from "@/backend/apiInterface";
 import { inject, injectable } from "inversify-props";
-import { OauthConfirmRequest, OauthConfirmResponse } from "./models";
+import { OauthConfirmRequest, OauthConfirmResponse } from "../models";
 
 export interface IOauthConfirmQuery {
     query(request: OauthConfirmRequest): Promise<OauthConfirmResponse>;
