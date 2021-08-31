@@ -53,3 +53,9 @@ export function redirectToLoginOnErrorDec<T>(
     };
     return descriptor;
 }
+
+export function trimStart(s: string, start: string): string {
+    const pattern = `^(?:${start})+`;
+    const re = new RegExp(pattern);
+    return s.replace(re, '');
+}
