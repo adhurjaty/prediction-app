@@ -12,20 +12,24 @@
 </template>
 
 <script lang="ts">
+import { inject } from "inversify-props";
 import { Vue } from "vue-class-component";
 import Group from "../models";
-import * as api from "../../backend/apiInterface";
+import { ICreateGroupCommand } from '../commands/createGroupCommand';
 
 export default class GroupCreator extends Vue {
+    @inject() createGroupCommand: ICreateGroupCommand;
+
     group: Group = new Group();
 
     async createGroup() {
+
         // API call to create group
         // also store a random color?
         const randomColor = Math.floor(Math.random()*16777215).toString(16);
 
         try {
-            var newGroup = await api.createGroup(this.group);
+            var newGroup = await this.createGroupCommand.execute(this.group);
             this.$router.push({
                 name: 'Group', 
                 params : {

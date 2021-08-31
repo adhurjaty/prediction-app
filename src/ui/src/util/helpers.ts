@@ -33,7 +33,7 @@ export function redirectToLoginOnError<T>(fn: () => Promise<T>): () => Promise<T
     }
 }
 
-export function redirectToLoginOnErrorDec<T>(
+export function authorize<T>(
     target: Object,
     key: string | symbol,
     descriptor: PropertyDescriptor

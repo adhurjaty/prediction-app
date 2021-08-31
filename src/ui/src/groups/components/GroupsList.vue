@@ -29,18 +29,17 @@
 </template>
 
 <script lang="ts">
+import { inject } from 'inversify-props';
 import { Vue } from 'vue-class-component';
 import Group from '../models';
-import { getGroups } from '../../backend/apiInterface';
-import { redirectToLoginOnError } from '../../util/helpers';
-
-const getGroupsRedirect = redirectToLoginOnError(getGroups);
+import { IGroupsQuery } from '../queries/groupsQuery';
 
 export default class GroupPage extends Vue {
+    @inject() groupsQuery: IGroupsQuery;
     groups: Group[] = [];
 
-    async mounted(): Promise<void> {
-        this.groups = await getGroupsRedirect() || [];
+    async created(): Promise<void> {
+        this.groups = await this.groupsQuery.query() || [];
     }
 }
 </script>

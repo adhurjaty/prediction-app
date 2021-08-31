@@ -64,7 +64,8 @@
 <script lang="ts">
 import { Vue } from 'vue-class-component';
 import Group from '../models';
-import * as api from '../../backend/apiInterface';
+import { inject } from 'inversify-props';
+import { IGroupQuery } from '../queries/groupQuery';
 
 interface Bet {
     id: number
@@ -74,6 +75,8 @@ interface Bet {
 }
 
 export default class GroupInfo extends Vue {
+    @inject() groupQuery: IGroupQuery;
+
     group: Group = new Group();
     bets: Array<Bet> = [];
 
@@ -81,8 +84,8 @@ export default class GroupInfo extends Vue {
         return stake > 0 ? `you have bet ${stake} prestige point on ${status}` : 'you have not bet';
     }
 
-    async mounted() {
-        this.group = await api.getGroup(this.$route.params.id as string);
+    async created() {
+        this.group = await this.groupQuery.query(this.$route.params.id as string);
     }
 }
 </script>
