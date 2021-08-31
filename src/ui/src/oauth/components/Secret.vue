@@ -8,14 +8,16 @@
 </template>
 
 <script lang="ts">
+import { inject } from 'inversify-props';
 import { Options, Vue } from 'vue-class-component';
-import { getSecret } from '../backend/apiInterface';
+import { IOauthSecretQuery } from '../oauthSecretQuery';
 
 export default class Secret extends Vue {
+    @inject() secretQuery: IOauthSecretQuery
     message: string = "loading..."
 
-    async mounted(): Promise<void> {
-        this.message = await getSecret();
+    async created(): Promise<void> {
+        this.message = await this.secretQuery.query();
     }
 }
 
