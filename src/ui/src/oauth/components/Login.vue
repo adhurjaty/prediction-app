@@ -8,21 +8,15 @@
 </template>
 
 <script lang="ts">
-import { Options, Vue } from 'vue-class-component';
-import { VERIFIER_KEY } from '../../util/constants';
-import GoogleLogin from '../googleLogin'
-import { useRoute } from "vue-router";
+import { inject } from 'inversify-props';
+import { Vue } from 'vue-class-component';
+import { ILoginCommand } from '../loginCommand';
 
 export default class Secret extends Vue {
+    @inject() loginCommand: ILoginCommand
+    
     login() {
-        const googleLogin = new GoogleLogin();
-        const verifier = googleLogin.createVerifier();
-
-        window.localStorage.setItem(VERIFIER_KEY, verifier);
-
-        const origin = this.$route.query.origin as (string | undefined);
-
-        window.location.href = googleLogin.codeUrl(verifier, origin);
+        this.loginCommand.execute(this.$route.query.origin as (string | undefined));
     }
 }
 

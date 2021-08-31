@@ -8,6 +8,7 @@ const BASE_URL = 'http://localhost:5000/';
 
 
 export interface IApi {
+    post<T>(path: string, body: T): Promise<any>;
     authGet<T>(path: string): Promise<T>;
     authPost<T>(path: string, payload: any): Promise<T>;
     authPost<T>(path: string, payload: any): Promise<T>;
@@ -15,6 +16,11 @@ export interface IApi {
 
 @injectable()
 export class Api implements IApi {
+    public async post<T>(path: string, body: T): Promise<any> {
+        const url = this.getUrl(path);
+        return await axios.post(url, body);
+    }
+
     public async authGet<T>(path: string): Promise<T> {
         const url = this.getUrl(path);
         const token = window.localStorage.getItem(TOKEN_KEY);
@@ -76,34 +82,6 @@ export class Api implements IApi {
     private getUrl(path: string): string {
         return `${BASE_URL}${trimStart(path, '/')}`;
     }
-}
-
-export class OauthConfirmRequest {
-    public code : string = '';
-    public verifier : string = '';
-
-    constructor(init? : Partial<OauthConfirmRequest>) {
-        Object.assign(this, init);
-    }
-}
-
-export class OauthConfirmResponse {
-    public idToken : string = '';
-
-    constructor(init? : Partial<OauthConfirmResponse>) {
-        Object.assign(this, init);
-    }
-}
-
-export async function authConfirm(request : OauthConfirmRequest): Promise<OauthConfirmResponse> {
-    const resp = await axios.post(`${BASE_URL}/oauth/codelogin`, request);
-    return new OauthConfirmResponse({
-        idToken: resp.data
-    });
-}
-
-export async function getSecret(): Promise<string> {
-    return await authGet(`${BASE_URL}/oauth/secret`);
 }
 
 export async function getGroups(): Promise<Group[]> {

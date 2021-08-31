@@ -26,3 +26,20 @@ export class GoogleOauth {
         return url;
     }
 }
+
+export class OauthConfirmRequest {
+    public code : string = '';
+    public verifier : string = '';
+
+    constructor(init? : Partial<OauthConfirmRequest>) {
+        Object.assign(this, init);
+    }
+}
+
+export class OauthConfirmResponse {
+    public idToken : string = '';
+
+    constructor(init? : Partial<OauthConfirmResponse>) {
+        Object.assign(this, init);
+    }
+}

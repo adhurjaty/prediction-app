@@ -1,7 +1,14 @@
+import { injectable } from 'inversify-props';
 import { randomString } from '../util/helpers'
 import { GoogleOauth } from './models';
 
-export default class GoogleLogin {
+export interface IGoogleLogin {
+    createVerifier(): string;
+    codeUrl(verifier: string, origin?: string): string;
+} 
+
+@injectable()
+export class GoogleLogin implements IGoogleLogin {
     createVerifier() : string {
         return randomString(32);
     }
