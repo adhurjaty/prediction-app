@@ -1,4 +1,5 @@
 import { groupsModule } from '@/groups'
+import { oauthModule } from '@/oauth'
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
@@ -23,6 +24,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/Account.vue'),
   },
   ...groupsModule.routes(),
+  ...oauthModule.routes(),
   {
     path: '/groups/:id/add-bet',
     name: 'Add Bet',
@@ -42,25 +44,11 @@ const routes: RouteRecordRaw[] = [
     component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
   },
   {
-      path: '/login',
-      name: 'Login',
-      component: () => import('../views/Login.vue'),
-  },
-  {
       path: '/contract',
       name: 'Contract',
       component: () => import('../views/Contract.vue')
-  },
-  {
-    path: '/confirm',
-    name: 'Confirm',
-    component: () => import('../views/Confirm.vue')
-  },
-  {
-      path: '/secret',
-      name: 'Secret',
-      component: () => import('../views/Secret.vue')
   }
+  
 ]
 
 const router = createRouter({
