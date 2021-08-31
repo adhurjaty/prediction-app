@@ -2,8 +2,8 @@ import { TOKEN_KEY, VERIFIER_KEY } from "@/util/constants";
 import { ILocalStorage } from "@/util/localStorage";
 import { ILocationBrowser } from "@/util/locationBrowser";
 import { inject, injectable } from "inversify-props";
-import { OauthConfirmRequest } from "./models";
-import { IOauthConfirmQuery } from "./oauthConfirmQuery";
+import { OauthConfirmRequest } from "../models";
+import { IOauthConfirmQuery } from "../queries/oauthConfirmQuery";
 
 export interface IConfirmCommand {
     execute(code: string, state: string): Promise<void>;

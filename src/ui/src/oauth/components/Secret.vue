@@ -10,7 +10,7 @@
 <script lang="ts">
 import { inject } from 'inversify-props';
 import { Options, Vue } from 'vue-class-component';
-import { IOauthSecretQuery } from '../oauthSecretQuery';
+import { IOauthSecretQuery } from '../queries/oauthSecretQuery';
 
 export default class Secret extends Vue {
     @inject() secretQuery: IOauthSecretQuery

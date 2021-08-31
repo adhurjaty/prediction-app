@@ -1,7 +1,7 @@
 import { ILocalStorage } from "@/util/localStorage";
 import { inject, injectable } from "inversify-props";
 import { VERIFIER_KEY } from '@/util/constants';
-import { IGoogleLogin } from "./googleLogin";
+import { IGoogleLogin } from "../googleLogin";
 import { ILocationBrowser } from "@/util/locationBrowser";
 
 export interface ILoginCommand {

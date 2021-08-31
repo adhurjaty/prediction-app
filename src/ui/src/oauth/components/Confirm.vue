@@ -8,7 +8,7 @@
 import { inject } from 'inversify-props';
 import { Options, Vue } from 'vue-class-component';
 import { useRoute } from "vue-router";
-import { IConfirmCommand } from '../confirmCommand';
+import { IConfirmCommand } from '../commands/confirmCommand';
 
 export default class Confirm extends Vue {
     @inject() confirmCommand: IConfirmCommand;

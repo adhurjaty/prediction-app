@@ -1,9 +1,9 @@
 import { container } from "inversify-props"
-import { ConfirmCommand, IConfirmCommand } from "./confirmCommand";
+import { ConfirmCommand, IConfirmCommand } from "./commands/confirmCommand";
 import { GoogleLogin, IGoogleLogin } from "./googleLogin";
-import { ILoginCommand, LoginCommand } from "./loginCommand";
-import { IOauthConfirmQuery, OauthConfirmQuery } from "./oauthConfirmQuery"
-import { IOauthSecretQuery, OauthSecretQuery } from "./oauthSecretQuery";
+import { ILoginCommand, LoginCommand } from "./commands/loginCommand";
+import { IOauthConfirmQuery, OauthConfirmQuery } from "./queries/oauthConfirmQuery"
+import { IOauthSecretQuery, OauthSecretQuery } from "./queries/oauthSecretQuery";
 
 export default () => {
     container.addSingleton<IGoogleLogin>(GoogleLogin);
