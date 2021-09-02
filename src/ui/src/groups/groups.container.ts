@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { container } from "inversify-props";
 import { CreateGroupCommand, ICreateGroupCommand } from "./commands/createGroupCommand";
 import { IUpdateGroupCommand, UpdateGroupCommand } from "./commands/updateGroupCommand";
