@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { container } from 'inversify-props';
 import { IApi, Api } from './backend/apiInterface';
 import { groupsModule } from './groups';

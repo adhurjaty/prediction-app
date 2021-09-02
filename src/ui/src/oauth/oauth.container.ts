@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import { container } from "inversify-props"
 import { ConfirmCommand, IConfirmCommand } from "./commands/confirmCommand";
 import { GoogleLogin, IGoogleLogin } from "./googleLogin";
