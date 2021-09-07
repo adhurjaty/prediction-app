@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { Options, Vue } from 'vue-class-component';
-import { Group } from '../groups/models';
+import { Group } from '../models';
 
 interface Friend {
     id: string
@@ -52,7 +52,7 @@ export default class AddMember extends Vue {
         this.friendActive = this.friendStates.includes(true) ? true : false;
     }
 
-    async mounted() {
+    async created() {
         // this.group = await api.getGroup(this.$route.params.id as string);
         // this.friends = this.allFriends.filter(user => !this.group.users.map(x => x.displayName).includes(user.displayName));
     }
