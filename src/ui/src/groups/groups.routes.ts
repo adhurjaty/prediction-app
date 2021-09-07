@@ -5,17 +5,22 @@ export default (): RouteRecordRaw[] => {
         {
             path: '/groups',
             name: 'Groups',
-            component: import('./components/GroupsList.vue'),
+            component: import('./views/GroupsList.vue'),
         },
         {
             path: '/groups/create/',
             name: 'Create Group',
-            component: () => import('./components/CreateGroup.vue'),
+            component: () => import('./views/CreateGroup.vue'),
         },
         {
             path: '/groups/:id',
             name: 'Group',
-            component: () => import('./components/Group.vue'),
-        }
+            component: () => import('./views/Group.vue'),
+        },
+        {
+            path: '/groups/:id/add-members',
+            name: 'Add Members',
+            component: () => import('./views/AddMembers.vue'),
+          },
     ]
 }

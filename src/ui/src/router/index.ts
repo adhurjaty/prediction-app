@@ -31,11 +31,6 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../views/AddBet.vue'),
   },
   {
-    path: '/groups/:id/add-members',
-    name: 'Add Members',
-    component: () => import('../views/AddMembers.vue'),
-  },
-  {
     path: '/about',
     name: 'About',
     // route level code-splitting
