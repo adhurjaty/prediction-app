@@ -31,7 +31,7 @@
 <script lang="ts">
 import { inject } from 'inversify-props';
 import { Vue } from 'vue-class-component';
-import Group from '../models';
+import { Group } from '../models';
 import { IGroupsQuery } from '../queries/groupsQuery';
 
 export default class GroupPage extends Vue {

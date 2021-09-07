@@ -14,7 +14,7 @@
 <script lang="ts">
 import { inject } from "inversify-props";
 import { Vue } from "vue-class-component";
-import Group from "../models";
+import { Group } from "../models";
 import { ICreateGroupCommand } from '../commands/createGroupCommand';
 
 export default class GroupCreator extends Vue {

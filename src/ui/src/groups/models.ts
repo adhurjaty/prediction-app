@@ -1,6 +1,6 @@
 import User from "../models/user";
 
-export default class Group {
+export class Group {
     public id: string = '';
     public name: string = '';
     public accuracy?: number;

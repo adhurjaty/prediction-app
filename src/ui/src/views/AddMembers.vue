@@ -18,22 +18,34 @@
 </template>
 
 <script lang="ts">
-import { Vue } from 'vue-class-component';
-import { Group } from '../backend/apiModels';
-import * as api from '../backend/apiInterface';
+import { Options, Vue } from 'vue-class-component';
+import { Group } from '../groups/models';
 
 interface Friend {
     id: string
     displayName: string
 }
 
+@Options({
+    props: {
+        group: Object
+    }
+})
 export default class AddMember extends Vue {
-    group: Group = new Group();
+    group!: Group;
     allFriends: Array<Friend> = [{id: 'b0d20f6a-5cfd-4e92-96eb-9b0e694f285f', displayName: 'Anil Dhurjaty'},{id: '359f531c-8b67-45a2-82ee-2118759f0e09', displayName:'Tony Wong'}]; // replace with api call
     friends: Array<Friend> = [];
     friendStates: Array<boolean>  = new Array(this.friends.length).fill(false);
     friendActive: boolean = false;
-    
+
+    constructor() {
+        super();
+        const debug = this.group;
+        debugger;
+        this.friends = this.allFriends.filter(user => 
+            !this.group.users.find(x => x.displayName == user.displayName));
+    }
+
     updateFriendStates(val: boolean, id: string): void {
         let index = this.friends.map(x => x.id).indexOf(id);
         this.friendStates[index] = val;
@@ -41,8 +53,8 @@ export default class AddMember extends Vue {
     }
 
     async mounted() {
-        this.group = await api.getGroup(this.$route.params.id as string);
-        this.friends = this.allFriends.filter(user => !this.group.users.map(x => x.displayName).includes(user.displayName));
+        // this.group = await api.getGroup(this.$route.params.id as string);
+        // this.friends = this.allFriends.filter(user => !this.group.users.map(x => x.displayName).includes(user.displayName));
     }
 }
 </script>
