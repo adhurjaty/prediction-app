@@ -2,7 +2,6 @@ import { TOKEN_KEY } from '@/util/constants';
 import { trimStart } from '@/util/helpers';
 import axios from 'axios';
 import { injectable } from 'inversify-props';
-import Group from '../groups/models';
 
 const BASE_URL = 'http://localhost:5000/';
 

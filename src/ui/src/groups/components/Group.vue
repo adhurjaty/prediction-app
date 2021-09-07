@@ -63,7 +63,7 @@
 
 <script lang="ts">
 import { Vue } from 'vue-class-component';
-import Group from '../models';
+import { Group } from '../models';
 import { inject } from 'inversify-props';
 import { IGroupQuery } from '../queries/groupQuery';
 
