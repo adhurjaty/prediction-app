@@ -13,7 +13,7 @@ import { Vue } from 'vue-class-component';
 import { ILoginCommand } from '../commands/loginCommand';
 
 export default class Secret extends Vue {
-    @inject() loginCommand: ILoginCommand
+    @inject() private loginCommand: ILoginCommand
 
     login() {
         this.loginCommand.execute(this.$route.query.origin as (string | undefined));
