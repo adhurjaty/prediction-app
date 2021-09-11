@@ -1,6 +1,6 @@
 import 'reflect-metadata';
 import { ILocalStorage } from "@/util/localStorage";
-import { cid, container, inject, injectable } from "inversify-props";
+import { inject, injectable } from "inversify-props";
 import { VERIFIER_KEY } from '@/util/constants';
 import { IGoogleLogin } from "../googleLogin";
 import { ILocationBrowser } from "@/util/locationBrowser";
