@@ -1,10 +1,10 @@
-import 'reflect-metadata';
 import { TOKEN_KEY, VERIFIER_KEY } from "@/util/constants";
 import { ILocalStorage } from "@/util/localStorage";
 import { ILocationBrowser } from "@/util/locationBrowser";
-import { cid, container, inject, injectable } from "inversify-props";
+import { inject, injectable } from "inversify-props";
 import { OauthConfirmRequest } from "../models";
 import { IOauthConfirmQuery } from "../queries/oauthConfirmQuery";
+import { TYPES } from '@/app.types';
 
 export interface IConfirmCommand {
     execute(code: string, state: string): Promise<void>;
@@ -12,11 +12,9 @@ export interface IConfirmCommand {
 
 @injectable()
 export class ConfirmCommand implements IConfirmCommand {
-    @inject() localStorage: ILocalStorage
-    // don't know why @inject won't work, but this works
-    // TODO: figure this out
-    private confirmQuery = container.get<IOauthConfirmQuery>(cid.IOauthConfirmQuery);
-    private location = container.get<ILocationBrowser>(cid.ILocationBrowser);
+    @inject(TYPES.LOCAL_STORAGE) private localStorage: ILocalStorage
+    @inject(TYPES.OAUTH_CONFIRM) private confirmQuery: IOauthConfirmQuery;
+    @inject(TYPES.LOCATION_BROWSER) private location: ILocationBrowser;
 
     public async execute(code: string, state: string): Promise<void> {
         const stateParams = new URLSearchParams(state);
