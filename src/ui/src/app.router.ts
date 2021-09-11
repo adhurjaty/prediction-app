@@ -6,29 +6,29 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Home',
-    component: import('../views/Home.vue'),
+    component: import('./views/Home.vue'),
   },
   {
     path: '/friends',
     name: 'Friends',
-    component: () => import('../views/FriendsList.vue'),
+    component: () => import('./views/FriendsList.vue'),
   },
   {
     path: '/bets',
     name: 'Bets',
-    component: () => import('../views/BetsList.vue'),
+    component: () => import('./views/BetsList.vue'),
   },
   {
     path: '/account',
     name: 'Account',
-    component: () => import('../views/Account.vue'),
+    component: () => import('./views/Account.vue'),
   },
   ...groupsModule.routes(),
   ...oauthModule.routes(),
   {
     path: '/groups/:id/add-bet',
     name: 'Add Bet',
-    component: () => import('../views/AddBet.vue'),
+    component: () => import('./views/AddBet.vue'),
   },
   {
     path: '/about',
@@ -36,12 +36,12 @@ const routes: RouteRecordRaw[] = [
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    component: () => import(/* webpackChunkName: "about" */ './views/About.vue')
   },
   {
       path: '/contract',
       name: 'Contract',
-      component: () => import('../views/Contract.vue')
+      component: () => import('./views/Contract.vue')
   }
   
 ]

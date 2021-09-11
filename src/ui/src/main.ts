@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import './registerServiceWorker'
-import router from './router'
+import router from './app.router'
 import BackButton from './components/BackButton.vue';
 import Friend from './components/Friend.vue';
 import { containerBuilder } from './app.container';
