@@ -1,5 +1,6 @@
 
 export interface Bet {
+    type: string
     title: string,
     description: string,
     closeDate: Date,
