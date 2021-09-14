@@ -19,15 +19,15 @@
                     @change="onSelectionChanged($event)"
                     required>
                 <option v-for="option in typeOptions" 
-                        :key="option.key"
-                        :value="option.key">
-                    {{option.value}}
+                        :key="option"
+                        :value="option">
+                    {{option}}
                 </option>
             </select>
-            <input v-if="bet.type.toLowerCase() === 'date'" 
+            <input v-if="bet.type === 'date'" 
                    type="date" 
                    required />
-            <input v-if="bet.type.toLowerCase() === 'event'" 
+            <input v-if="bet.type === 'event'" 
                    type="text" 
                    placeholder="describe triggering event" 
                    required />
@@ -46,7 +46,6 @@
 <script lang="ts">
 import { Vue } from 'vue-class-component';
 import { Bet, DateBet, EventBet } from '../bets.models'
-import { KeyValue } from '../../util/helperTypes'
 
 class AddingBet {
     title: string;
@@ -64,7 +63,7 @@ class AddingBet {
 }
 
 class AddingEventBet extends AddingBet implements EventBet {
-    type: string = 'Event'
+    type: string = 'event'
     resolutionDescription: string;
 
     constructor(private bet: AddingBet) {
@@ -73,7 +72,7 @@ class AddingEventBet extends AddingBet implements EventBet {
 }
 
 class AddingDateBet extends AddingBet implements DateBet {
-    type: string = 'Date'
+    type: string = 'date'
     resolveDate: Date;
 
     constructor(private bet: AddingBet) {
@@ -82,32 +81,19 @@ class AddingDateBet extends AddingBet implements DateBet {
 }
 
 export default class AddBet extends Vue {
-    possibleBets!: Bet[];
-    bet!: Bet;
+    baseBet = new AddingBet();
+    possibleBets: Bet[] = [
+        new AddingEventBet(this.baseBet),
+        new AddingDateBet(this.baseBet)
+    ];
+    bet: Bet = this.possibleBets[0];
 
-    public get typeOptions(): KeyValue<string, string>[] {
-        return (this.possibleBets || []).map(x => {
-            return {
-                key: x.type.toLowerCase(),
-                value: x.type
-            };
-        });
-    }
-
-    created() {
-        const baseBet = new AddingBet();
-        this.possibleBets = [
-            new AddingEventBet(baseBet),
-            new AddingDateBet(baseBet)
-        ];
-        this.bet = this.possibleBets[0];
-    }
+    typeOptions: Array<string> = (this.possibleBets || []).map(x => x.type);
 
     onSelectionChanged(event: Event): void {
         this.bet = this.possibleBets.find(x => 
-                x.type.toLowerCase() === (event.target as HTMLInputElement).value) 
+                x.type === (event.target as HTMLInputElement).value) 
             || this.possibleBets[0];
-        debugger;
     }
 }
 </script>
@@ -146,6 +132,7 @@ export default class AddBet extends Vue {
         font-size: 18px;
         color: #757575;
         padding-left: 10px;
+        text-transform: capitalize;
     }
 
     h2 {
