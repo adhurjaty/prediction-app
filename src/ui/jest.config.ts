@@ -11,7 +11,6 @@ const config: Config.InitialOptions = {
       "json"
   ],
   testMatch: [
-    "**/tests/**/*.+(ts|tsx|js)",
     "**/?(*.)+(spec|test).+(ts|tsx|js)"
   ],
   transform: {

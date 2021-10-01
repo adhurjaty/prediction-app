@@ -3,6 +3,7 @@ import { Group } from '@/groups/models'
 import { cid, container, mockSingleton, resetContainer } from 'inversify-props'
 import { IApi } from '../src/backend/apiInterface'
 import { ICreateGroupCommand } from '../src/groups/commands/createGroupCommand'
+import { MockApiFactory } from './__mocks__/backend.mocks'
 
 
 beforeEach(() => {
@@ -11,40 +12,15 @@ beforeEach(() => {
 })
 
 describe('group command tests', () => {
-    it('creates a group successfully ', () => {
-        ApiMock.postMockValue = new Group({
-            name: 'foo'
-        });
-        mockSingleton<IApi>(cid.Api, ApiMock);
+    it('creates a group successfully ', async () => {
+        const apiFactory = new MockApiFactory();
+        apiFactory.mock.authPost.mockReturnValue(Promise.resolve(new Group({ name: 'foo' })));
+        mockSingleton<IApi>(cid.Api, apiFactory.getMock());
 
         const sut = container.get<ICreateGroupCommand>(cid.CreateGroupCommand);
-        sut.execute(new Group({ name: 'bar' }))
-            .then(grp => {
-                expect(grp).toEqual(new Group({ name: 'foo' }));
-                expect(ApiMock.pathArg).toBe('/group');
-                expect(ApiMock.bodyArg).toEqual(new Group({ name: 'bar' }));
-            });
+        const grp = await sut.execute(new Group({ name: 'bar' }))
+        expect(grp).toEqual(new Group({ name: 'foo' }));
+        expect(apiFactory.mock.authPost).toHaveBeenCalledWith('/group',
+            expect.objectContaining({ name: 'bar' }));
     })
 })
-
-class ApiMock implements IApi {
-    static pathArg: string = "";
-    static bodyArg: any | null;
-    static postMockValue: any | null;
-
-    post<T>(path: string, body: T): Promise<any> {
-        ApiMock.pathArg = path;
-        ApiMock.bodyArg = body;
-
-        return Promise.resolve(ApiMock.postMockValue);
-    }
-    authGet<T>(path: string): Promise<T> {
-        throw new Error('Method not implemented.')
-    }
-    authPost<T>(path: string, payload: any): Promise<T> {
-        throw new Error('Method not implemented.')
-    }
-    authPut<T>(path: string, payload: any): Promise<T> {
-        throw new Error('Method not implemented.')
-    }
-}
