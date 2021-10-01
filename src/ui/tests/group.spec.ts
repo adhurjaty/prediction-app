@@ -1,4 +1,4 @@
-import { containerBuilder } from '@/app.container'
+import { containerBuilder } from '../src/app.container'
 import { Group } from '@/groups/models'
 import { cid, container, mockSingleton, resetContainer } from 'inversify-props'
 import { IApi } from '../src/backend/apiInterface'
