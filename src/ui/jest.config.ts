@@ -16,8 +16,13 @@ const config: Config.InitialOptions = {
   ],
   transform: {
       "^.+\\.(ts|tsx)$": "ts-jest",
-      "^.+\\.(vue)$": "vue-jest"
-  },
+        "^.+\\.(vue)$": "vue-jest"
+    },
+    moduleNameMapper: {
+        "^@/(.*)$": "<rootDir>/src/$1",
+        "^~/(.*)$": "<rootDir>/src/$1"
+    },
+    testEnvironment: "node"
 }
 
 export default config;
