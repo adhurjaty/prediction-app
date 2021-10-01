@@ -1,14 +1,9 @@
 import type {Config} from '@jest/types';
 
-const { compilerOptions } = require('tsconfig');
-
 const config: Config.InitialOptions = {
   roots: [
     "<rootDir>"
   ],
-  moduleNameMapper: {
-    "@/(.*)": "<rootDir>/src/$1"
-  },
   moduleFileExtensions: [
       "ts",
       "js",
