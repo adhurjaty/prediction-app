@@ -11,7 +11,7 @@ import {
 import { Group } from "@/groups/models";
 import { IGroupQuery } from "@/groups/queries/groupQuery";
 import { cid, container, inject } from "inversify-props";
-import { RootState } from '@/store';
+import { RootState } from '@/app.store';
 
 
 export enum GroupsMutations {

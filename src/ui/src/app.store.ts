@@ -1,7 +1,7 @@
 import { createStore, createLogger } from 'vuex';
 // import createPersistedState from 'vuex-persistedstate';
 
-import { store as groups, GroupStore, State as GroupState } from './group.store';
+import { store as groups, GroupStore, State as GroupState } from './groups/group.store';
 
 export type RootState = {
     groups: GroupStore

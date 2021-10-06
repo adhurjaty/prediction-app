@@ -66,8 +66,8 @@ import { Vue } from 'vue-class-component';
 import { Group } from '../models';
 import { inject } from 'inversify-props';
 import { IGroupQuery } from '../queries/groupQuery';
-import { GroupsActions } from '../../store/group.store';
-import { Store } from '../../store';
+import { GroupsActions } from '../group.store';
+import { Store } from '../../app.store';
 
 interface Bet {
     id: number
@@ -85,8 +85,6 @@ declare module '@vue/runtime-core' {
 
 
 export default class GroupInfo extends Vue {
-    @inject() groupQuery: IGroupQuery;
-
     group: Group = new Group();
     bets: Array<Bet> = [];
 
