@@ -5,7 +5,7 @@ import router from './app.router'
 import BackButton from './components/BackButton.vue';
 import Friend from './components/Friend.vue';
 import { containerBuilder } from './app.container';
-import { store } from './store';
+import { store } from './app.store';
 
 
 export class AppModule {
