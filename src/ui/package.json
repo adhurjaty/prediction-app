@@ -23,8 +23,7 @@
     "vue-class-component": "^8.0.0-0",
     "vue-property-decorator": "^9.1.2",
     "vue-router": "^4.0.0-0",
-    "vuex": "^4.0.2",
-    "vuex-module-decorators": "^1.0.1"
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@typechain/ethers-v5": "^6.0.5",
