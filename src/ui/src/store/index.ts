@@ -1,9 +1,7 @@
 import { createStore, createLogger } from 'vuex';
 // import createPersistedState from 'vuex-persistedstate';
 
-// TODO: How to surpass cyclical dependency linting errors cleanly?
-// eslint-disable-next-line import/no-cycle
-import { store as groups, GroupStore, State as DocumentsState } from './group.store';
+import { store as groups, GroupStore, State as GroupState } from './group.store';
 
 export type RootState = {
     groups: GroupStore

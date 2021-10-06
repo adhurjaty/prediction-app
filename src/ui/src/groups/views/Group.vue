@@ -66,7 +66,8 @@ import { Vue } from 'vue-class-component';
 import { Group } from '../models';
 import { inject } from 'inversify-props';
 import { IGroupQuery } from '../queries/groupQuery';
-import { ACTIONS } from '../../store/group.store';
+import { GroupsActions } from '../../store/group.store';
+import { Store } from '../../store';
 
 interface Bet {
     id: number
@@ -74,6 +75,14 @@ interface Bet {
     stake: number
     status: string
 }
+
+// TODO: move this to shims-vuex.d.ts. Not working with vscode intellisense
+declare module '@vue/runtime-core' {
+    interface ComponentCustomProperties {
+        $store: Store;
+    }
+}
+
 
 export default class GroupInfo extends Vue {
     @inject() groupQuery: IGroupQuery;
@@ -86,10 +95,8 @@ export default class GroupInfo extends Vue {
     }
 
     async created() {
-        debugger;
-        await this.$store.dispatch(ACTIONS.FETCH_GROUP, this.$route.params.id as string);
-        debugger;
-        this.group = this.$store.state.groups.group;
+        await this.$store.dispatch(GroupsActions.FETCH_GROUP, this.$route.params.id as string);
+        this.group = this.$store.getters.getGroup || new Group();
     }
 }
 </script>

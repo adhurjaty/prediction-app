@@ -11,9 +11,7 @@ import {
 import { Group } from "@/groups/models";
 import { IGroupQuery } from "@/groups/queries/groupQuery";
 import { cid, container, inject } from "inversify-props";
-// eslint-disable-next-line import/no-cycle
 import { RootState } from '@/store';
-import buildDependencies from '@/util/bindDependencies';
 
 
 export enum GroupsMutations {
