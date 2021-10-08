@@ -16,11 +16,15 @@ import { inject } from "inversify-props";
 import { Vue } from "vue-class-component";
 import { Group } from "../models";
 import { ICreateGroupCommand } from '../commands/createGroupCommand';
+import { authorize } from "../../util/decorators";
 
 export default class GroupCreator extends Vue {
     @inject() createGroupCommand: ICreateGroupCommand;
 
     group: Group = new Group();
+
+    @authorize
+    created() {}
 
     async createGroup() {
 
