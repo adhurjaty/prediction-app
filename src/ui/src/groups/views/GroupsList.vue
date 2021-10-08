@@ -30,12 +30,14 @@
 
 <script lang="ts">
 import { Vue } from 'vue-class-component';
+import { authorize } from '../../util/decorators';
 import { GroupsActions } from '../group.store';
 import { Group } from '../models';
 
 export default class GroupPage extends Vue {
     groups: Group[] = [];
 
+    @authorize
     async created(): Promise<void> {
         await this.$store.dispatch(GroupsActions.FETCH_GROUPS);
         this.groups = this.$store.getters.getGroups;

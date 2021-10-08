@@ -26,6 +26,7 @@ import { inject } from 'inversify-props';
 import { Options, Vue } from 'vue-class-component';
 import { Group } from '../models';
 import { IGroupQuery } from '../queries/groupQuery';
+import { authorize } from '../../util/decorators';
 
 interface Friend {
     id: string
@@ -55,6 +56,7 @@ export default class AddMember extends Vue {
         this.friendActive = this.friendStates.includes(true) ? true : false;
     }
 
+    @authorize
     async created() {
         this.group = this.groupProp;
         if(!this.group) {
