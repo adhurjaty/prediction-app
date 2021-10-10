@@ -23,7 +23,6 @@ export default class Confirm extends Vue {
         } catch (error) {
             const _error: Error = error;
             this.message = _error.message;
-            debugger;
         }
     }
 }
