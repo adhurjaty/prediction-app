@@ -22,12 +22,11 @@
 
 <script lang="ts">
 import 'reflect-metadata';
-import { inject } from 'inversify-props';
 import { Vue } from 'vue-class-component';
 import { Group } from '../models';
-import { IGroupQuery } from '../queries/groupQuery';
 import { authorize } from '../../util/decorators';
 import { GroupsActions } from '../group.store';
+import { Store } from '@/app.store';
 
 interface Friend {
     id: string
@@ -35,6 +34,8 @@ interface Friend {
 }
 
 export default class AddMember extends Vue {
+    private store: Store = this.$store;
+
     group: Group | null = null;
     allFriends: Array<Friend> = [{id: 'b0d20f6a-5cfd-4e92-96eb-9b0e694f285f', displayName: 'Anil Dhurjaty'},{id: '359f531c-8b67-45a2-82ee-2118759f0e09', displayName:'Tony Wong'}]; // replace with api call
     friends: Array<Friend> = [];
@@ -49,8 +50,8 @@ export default class AddMember extends Vue {
 
     @authorize
     async created() {
-        await this.$store.dispatch(GroupsActions.FETCH_GROUP, this.$route.params.id as string);
-        this.group = this.$store.getters.getGroup;
+        await this.store.dispatch(GroupsActions.FETCH_GROUP, this.$route.params.id as string);
+        this.group = this.store.getters.getGroup;
         this.friends = this.allFriends.filter(user => {
             return !this.group!.users
                 .map(x => x.displayName)

@@ -75,15 +75,9 @@ interface Bet {
     status: string
 }
 
-// TODO: move this to shims-vuex.d.ts. Not working with vscode intellisense
-declare module '@vue/runtime-core' {
-    interface ComponentCustomProperties {
-        $store: Store;
-    }
-}
-
-
 export default class GroupInfo extends Vue {
+    private store: Store = this.$store;
+    
     group: Group = new Group();
     bets: Array<Bet> = [];
 
@@ -93,8 +87,8 @@ export default class GroupInfo extends Vue {
 
     @authorize
     async created() {
-        await this.$store.dispatch(GroupsActions.FETCH_GROUP, this.$route.params.id as string);
-        this.group = this.$store.getters.getGroup || new Group();
+        await this.store.dispatch(GroupsActions.FETCH_GROUP, this.$route.params.id as string);
+        this.group = this.store.getters.getGroup || new Group();
     }
 }
 </script>
