@@ -13,6 +13,7 @@ import { IGroupQuery } from "@/groups/queries/groupQuery";
 import { cid, container, inject } from "inversify-props";
 import { RootState } from '@/app.store';
 import { IGroupsQuery } from './queries/groupsQuery';
+import { ICreateGroupCommand } from './commands/createGroupCommand';
 
 
 export enum GroupsMutations {
@@ -22,7 +23,8 @@ export enum GroupsMutations {
 
 export enum GroupsActions {
     FETCH_GROUP = 'FETCH_GROUP',
-    FETCH_GROUPS = 'FETCH_GROUPS'
+    FETCH_GROUPS = 'FETCH_GROUPS',
+    CREATE_GROUP = 'CREATE_GROUP'
 }
 
 export type State = {
@@ -68,13 +70,18 @@ const mutations: MutationTree<State> & Mutations = {
 
 export interface Actions {
     [GroupsActions.FETCH_GROUP]
-        ({ commit }: AugmentedActionContext, groupId: string): Promise<void>;
+        ({ state, commit }: AugmentedActionContext, groupId: string): Promise<void>;
     [GroupsActions.FETCH_GROUPS]
         ({ commit }: AugmentedActionContext): Promise<void>;
+    [GroupsActions.CREATE_GROUP]
+        ({ commit }: AugmentedActionContext, group: Group): Promise<void>;
 }
 
 const actions: ActionTree<State, RootState> & Actions = {
-    async [GroupsActions.FETCH_GROUP]({ commit }, groupId: string) {
+    async [GroupsActions.FETCH_GROUP]({ state, commit }, groupId: string) {
+        if (state.group?.id === groupId) {
+            return;
+        }
         const groupQuery = container.get<IGroupQuery>(cid.GroupQuery);
         const group = await groupQuery.query(groupId);
         commit(GroupsMutations.SET_GROUP, group);
@@ -83,6 +90,11 @@ const actions: ActionTree<State, RootState> & Actions = {
         const groupsQuery = container.get<IGroupsQuery>(cid.GroupsQuery);
         const groups = await groupsQuery.query() || [];
         commit(GroupsMutations.SET_GROUPS, groups);
+    },
+    async [GroupsActions.CREATE_GROUP]({ commit }, group: Group) {
+        const createGroupCommand = container.get<ICreateGroupCommand>(cid.CreateGroupCommand);
+        const newGroup = await createGroupCommand.execute(group);
+        commit(GroupsMutations.SET_GROUP, newGroup);
     }
 }
 
