@@ -66,7 +66,6 @@ import { Vue } from 'vue-class-component';
 import { Group } from '../models';
 import { GroupsActions } from '../group.store';
 import { Store } from '../../app.store';
-import { authorize } from '../../util/decorators'
 
 interface Bet {
     id: number
@@ -76,8 +75,6 @@ interface Bet {
 }
 
 export default class GroupInfo extends Vue {
-    private store: Store = this.$store;
-    
     group: Group = new Group();
     bets: Array<Bet> = [];
 
@@ -85,10 +82,10 @@ export default class GroupInfo extends Vue {
         return stake > 0 ? `you have bet ${stake} prestige point on ${status}` : 'you have not bet';
     }
 
-    @authorize
     async created() {
-        await this.store.dispatch(GroupsActions.FETCH_GROUP, this.$route.params.id as string);
-        this.group = this.store.getters.getGroup || new Group();
+        const store: Store = this.$store;
+        await store.dispatch(GroupsActions.FETCH_GROUP, this.$route.params.id as string);
+        this.group = store.getters.getGroup || new Group();
     }
 }
 </script>

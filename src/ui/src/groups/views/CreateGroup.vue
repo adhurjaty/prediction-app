@@ -14,17 +14,11 @@
 <script lang="ts">
 import { Vue } from "vue-class-component";
 import { Group } from "../models";
-import { authorize } from "../../util/decorators";
 import { GroupsActions } from "../group.store";
 import { Store } from "../../app.store";
 
 export default class GroupCreator extends Vue {
-    private store: Store = this.$store;
-
     group: Group = new Group();
-
-    @authorize
-    created() {}
 
     async createGroup() {
 
@@ -33,8 +27,9 @@ export default class GroupCreator extends Vue {
         const randomColor = Math.floor(Math.random()*16777215).toString(16);
 
         try {
-            await this.store.dispatch(GroupsActions.CREATE_GROUP, this.group);
-            const newGroup = this.store.getters.getGroup;
+            const store: Store = this.$store;
+            await store.dispatch(GroupsActions.CREATE_GROUP, this.group);
+            const newGroup = store.getters.getGroup;
             this.$router.push({
                 name: 'Group', 
                 params : {

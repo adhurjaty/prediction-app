@@ -31,19 +31,16 @@
 <script lang="ts">
 import { Store } from '@/app.store';
 import { Vue } from 'vue-class-component';
-import { authorize } from '../../util/decorators';
 import { GroupsActions } from '../group.store';
 import { Group } from '../models';
 
 export default class GroupPage extends Vue {
-    private store: Store = this.$store;
-
     groups: Group[] = [];
 
-    @authorize
     async created(): Promise<void> {
-        await this.store.dispatch(GroupsActions.FETCH_GROUPS);
-        this.groups = this.store.getters.getGroups;
+        const store: Store = this.$store;
+        await store.dispatch(GroupsActions.FETCH_GROUPS);
+        this.groups = store.getters.getGroups;
     }
 }
 </script>
