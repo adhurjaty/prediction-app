@@ -2,12 +2,15 @@ import { createStore, createLogger } from 'vuex';
 // import createPersistedState from 'vuex-persistedstate';
 
 import { store as groups, GroupStore, State as GroupState } from './groups/group.store';
+import { store as users, UsersStore, State as UsersState } from './users/users.store';
 
 export type RootState = {
-    groups: GroupStore
+    groups: GroupState,
+    users: UsersState
 };
 
-export type Store = GroupStore<Pick<RootState, 'groups'>>;
+export type Store = GroupStore<Pick<RootState, 'groups'>>
+    & UsersStore<Pick<RootState, 'users'>>;
 
 // disable persisted state for now
 // Plug in logger when in development environment
@@ -20,7 +23,8 @@ export type Store = GroupStore<Pick<RootState, 'groups'>>;
 export const store = createStore({
     // plugins,
     modules: {
-        groups
+        groups,
+        users
     },
 });
 

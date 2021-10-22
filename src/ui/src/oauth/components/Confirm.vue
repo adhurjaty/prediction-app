@@ -21,6 +21,7 @@ export default class Confirm extends Vue {
         try {
             await this.confirmCommand.execute(code, state);
         } catch (error) {
+            debugger;
             const _error: Error = error;
             this.message = _error.message;
         }
