@@ -11,10 +11,12 @@ namespace WebApi
     [ApiController]
     public class GroupsController : BragControllerBase
     {
+        private readonly IDatabaseInterface _db;
         private readonly IMediatorResult _mediator;
 
-        public GroupsController(IDatabaseInterface db, IMediatorResult mediator) : base(db)
+        public GroupsController(IDatabaseInterface db, IMediatorResult mediator)
         {
+            _db = db;
             _mediator = mediator;
         }
 
@@ -23,11 +25,10 @@ namespace WebApi
         [Route("Groups")]
         public async Task<ActionResult<List<Group>>> GetGroups()
         {
-            var result = await (await GetUser())
-                .Bind(user => _mediator.Send(new GroupsByUserQuery()
-                {
-                    UserId = user.Id.ToString()
-                }));
+            var result = await _mediator.Send(new GroupsByUserQuery()
+            {
+                Email = GetEmailFromClaims()
+            });
                 
             return ToResponse(result);
         }
@@ -37,12 +38,11 @@ namespace WebApi
         [Route("Group/{groupId}")]
         public async Task<ActionResult<Group>> GetGroup(string groupId)
         {
-            var result = await (await GetUser())
-                .Bind(user => _mediator.Send(new GroupByIdQuery()
-                {
-                    UserId = user.Id,
-                    GroupId = groupId
-                }));
+            var result = await _mediator.Send(new GroupByIdQuery()
+            {
+                Email = GetEmailFromClaims(),
+                GroupId = groupId
+            });
                 
             return ToResponse(result);
         }
@@ -54,11 +54,10 @@ namespace WebApi
         {
             var command = new CreateGroupCommand()
             {
-                Name = newGroup.Name
+                Name = newGroup.Name,
+                Email = GetEmailFromClaims()
             };
-            var result = await (await (await GetUser())
-                .Tee(user => command.User = user)
-                .Bind(user => _mediator.Send(command)))
+            var result = await (await _mediator.Send(command))
                 .Bind(() => _db.LoadSingleResultById<Group>(command.GroupId));
             
             return ToResponse(result);
@@ -69,11 +68,10 @@ namespace WebApi
         [Route("Group/{groupId}")]
         public async Task<ActionResult<Group>> UpdateGroup(string groupId, Group group)
         {
-            var result = await (await (await GetUser())
-                .Bind(user => _mediator.Send(new UpdateGroupCommand()
+            var result = await (await _mediator.Send(new UpdateGroupCommand()
                 {
                     Group = group
-                })))
+                }))
                 .Bind(() => _db.LoadSingleResultById<Group>(groupId));
 
             return ToResponse(result);
@@ -84,11 +82,11 @@ namespace WebApi
         [Route("Group/{groupId}")]
         public async Task<ActionResult> DeleteGroup(string groupId)
         {
-            var result = await (await GetUser())
-                .Bind(user => _mediator.Send(new DeleteGroupCommand()
-                {
-                    GroupId = groupId
-                }));
+            var result = await _mediator.Send(new DeleteGroupCommand()
+            {
+                Email = GetEmailFromClaims(),
+                GroupId = groupId
+            });
 
             return ToResponse(result);
         }

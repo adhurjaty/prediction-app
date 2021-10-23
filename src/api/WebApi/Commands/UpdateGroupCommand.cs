@@ -8,7 +8,8 @@ namespace WebApi
 {
     public class UpdateGroupCommand : AbstractCommand<UpdateGroupCommand>
     {
-        public Group Group { get; set; }
+        public string Email { get; init; }
+        public Group Group { get; init; }
     }
 
     public class UpdateGroupCommandHandler : ICommandHandler<UpdateGroupCommand>
@@ -26,7 +27,10 @@ namespace WebApi
         {
             if((cmd.Group.Users ?? new List<AppUser>()).Count == 0)
                 return Result.Failed("Cannot update group with no users");
-            
+
+            if(cmd.Group.Users.FirstOrDefault(x => x.Email == cmd.Email) is null)
+                return Result.Failed($"User {cmd.Email} is not in group");
+
             return await (await cmd.Group.Users.Clique()
                 .Select(users => _mediator.Send(new AddFriendsCommand()
                 {

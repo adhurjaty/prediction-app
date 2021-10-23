@@ -8,14 +8,23 @@ namespace WebApi
     [ApiController]
     public class UserController : BragControllerBase
     {
-        public UserController(IDatabaseInterface db) : base(db) { }
+        private readonly IMediatorResult _mediator;
+
+        public UserController(IMediatorResult mediator) 
+        {
+            _mediator = mediator;
+        }
 
         [HttpGet]
         [Authorize]
         [Route("User")]
         public async Task<ActionResult<AppUser>> GetAppUser()
         {
-            return ToResponse(await GetUser());
+            var result = await _mediator.Send(new UserQuery
+            {
+                Email = GetEmailFromClaims()
+            });
+            return ToResponse(result);
         }
     }
 }

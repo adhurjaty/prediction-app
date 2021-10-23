@@ -422,5 +422,13 @@ namespace Infrastructure
                 return Result<T>.Failed(failString);
             return x;
         }
+
+        public static Result<(T, U)> FailIf<T, U>(this Result<(T, U)> x, Func<T, U, bool> fn,
+            string failString)
+        {
+            if(x.IsSuccess && fn(x.Success.Item1, x.Success.Item2))
+                return Result<(T, U)>.Failed(failString);
+            return x;
+        }
     }
 }
