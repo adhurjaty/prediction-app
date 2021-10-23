@@ -21,13 +21,14 @@ namespace WebApi.Test
         {
             //Given
             using var fx = new GroupCommandTestFixture();
-            fx.WithUser(SimpleUser);
+            fx.WithUser(SimpleUser)
+                .WithMediatorResult<UserQuery, AppUser>(Result.Succeeded(SimpleUser));
 
             //When
             var handler = fx.GetCreateGroupHandler();
             var result = await handler.Handle(new CreateGroupCommand()
             {
-                User = SimpleUser,
+                Email = SimpleUser.Email,
                 Name = "Test Group"
             });
 
@@ -84,6 +85,7 @@ namespace WebApi.Test
                 .WithUser(BazUser)
                 .WithGroup(group)
                 .WithMediatorResult<AddFriendsCommand>(Result.Succeeded()) 
+                .WithMediatorResult<GroupByIdQuery, Group>(Result.Succeeded(group))
                     as GroupCommandTestFixture;
             
             var updatedGroup = new Group()
@@ -96,6 +98,7 @@ namespace WebApi.Test
             var handler = fx.GetUpdateGroupHandler();
             var result = await handler.Handle(new UpdateGroupCommand()
             {
+                Email = BarUser.Email,
                 Group = updatedGroup
             });
 
@@ -159,6 +162,7 @@ namespace WebApi.Test
                 .WithUser(BazUser)
                 .WithGroup(group)
                 .WithMediatorResult<AddFriendsCommand>(Result.Succeeded()) 
+                .WithMediatorResult<GroupByIdQuery, Group>(Result.Succeeded(group))
                     as GroupCommandTestFixture;
             
             var updatedGroup = new Group()
@@ -171,6 +175,7 @@ namespace WebApi.Test
             var handler = fx.GetUpdateGroupHandler();
             var result = await handler.Handle(new UpdateGroupCommand()
             {
+                Email = FooUser.Email,
                 Group = updatedGroup
             });
 
@@ -223,6 +228,7 @@ namespace WebApi.Test
             var handler = fx.GetDeleteGroupHandler();
             var result = await handler.Handle(new DeleteGroupCommand()
             {
+                Email = SimpleUser.Email,
                 GroupId = group.Id.ToString()
             });
 
@@ -231,7 +237,7 @@ namespace WebApi.Test
             var getGroupsHandler = fx.GetGroupsByUserHandler();
             var groups = await getGroupsHandler.Handle(new GroupsByUserQuery()
             {
-                UserId = SimpleUser.Id.ToString()
+                Email = SimpleUser.Email
             });
 
             groups.Success.Should().BeEmpty();
@@ -277,7 +283,7 @@ namespace WebApi.Test
 
         public CreateGroupCommandHandler GetCreateGroupHandler()
         {
-            return new CreateGroupCommandHandler(_db);
+            return new CreateGroupCommandHandler(_db, _mediatorMock.Object);
         }
 
         public UpdateGroupCommandHandler GetUpdateGroupHandler()

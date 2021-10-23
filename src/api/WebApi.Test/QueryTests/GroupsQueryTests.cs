@@ -3,6 +3,7 @@ using FluentAssertions;
 using System.Collections.Generic;
 using System;
 using System.Threading.Tasks;
+using Infrastructure;
 
 namespace WebApi.Test
 {
@@ -134,7 +135,7 @@ namespace WebApi.Test
             var handler = fx.GetGroupsByUserHandler();
             var result = await handler.Handle(new GroupsByUserQuery()
             {
-                UserId = user.Id.ToString()
+                Email = user.Email
             });
 
             result.IsSuccess.Should().BeTrue();
@@ -151,12 +152,14 @@ namespace WebApi.Test
             };
             using var fx = new GroupsQueryTestFixture()
                 .WithUser(SingleUser)
-                .WithGroup(group);
+                .WithGroup(group)
+                .WithMediatorResult<UserQuery, AppUser>(Result.Succeeded(SingleUser))
+                as GroupsQueryTestFixture;
 
             var handler = fx.GetGroupByIdHandler();
             var result = await handler.Handle(new GroupByIdQuery()
             {
-                UserId = SingleUser.Id,
+                Email = SingleUser.Email,
                 GroupId = group.Id.ToString()
             });
 
@@ -189,16 +192,21 @@ namespace WebApi.Test
                 .WithUser(SingleUser)
                 .WithUser(OtherUser)
                 .WithGroup(group);
+            fx.WithMediatorResult<UserQuery, AppUser>(Result.Succeeded(OtherUser));
 
             var handler = fx.GetGroupByIdHandler();
             var result = await handler.Handle(new GroupByIdQuery()
             {
-                UserId = OtherUser.Id,
+                Email = OtherUser.Email,
                 GroupId = group.Id.ToString()
             });
 
             result.IsSuccess.Should().BeFalse();
-            result.Failure.Should().BeEquivalentTo($"User {OtherUser.Id} is not in group");
+            result.Failure.Should().BeEquivalentTo($"User {OtherUser.Email} is not in group");
+            fx.VerifyMediator<UserQuery, AppUser>(new UserQuery()
+            {
+                Email = OtherUser.Email
+            });
         }
     }
 
@@ -241,7 +249,7 @@ namespace WebApi.Test
 
         public GroupByIdQueryHandler GetGroupByIdHandler()
         {
-            return new GroupByIdQueryHandler(_db);
+            return new GroupByIdQueryHandler(_db, _mediatorMock.Object);
         }
     }
 }

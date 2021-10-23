@@ -70,6 +70,7 @@ namespace WebApi
         {
             var result = await (await _mediator.Send(new UpdateGroupCommand()
                 {
+                    Email = GetEmailFromClaims(),
                     Group = group
                 }))
                 .Bind(() => _db.LoadSingleResultById<Group>(groupId));
