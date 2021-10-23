@@ -20,9 +20,8 @@ namespace WebApi
 
         public async Task<Result<AppUser>> Handle(UserEagerQuery query)
         {
-            return (await (await _db.SingleResult<AppUser>(x => x.Email == query.Email))
-                .Tee(user => _db.LoadReferences(user)));
-                // .;
+            return await (await _db.SingleResult<AppUser>(x => x.Email == query.Email))
+                .Bind(user => _db.LoadSingleResultById<AppUser>(user.Id));
         }
 
         public Task<Result<AppUser>> Handle(UserEagerQuery request, CancellationToken cancellationToken)
