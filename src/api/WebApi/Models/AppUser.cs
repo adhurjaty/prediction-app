@@ -38,6 +38,7 @@ namespace WebApi
             }
         }
 
+        // TODO: move these methods to some other class. Breaks SRP
         public override async Task<Result<DbModel>> Delete(IDatabaseInterface db, CancellationToken token = default)
         {
             return (await (await ApplyToFriends(FriendsRelations, 
