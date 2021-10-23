@@ -32,7 +32,7 @@ export default class FriendsPage extends Vue {
 
     async created(): Promise<void> {
         const store: Store = this.$store;
-        await store.dispatch(UsersActions.FETCH_USER);
+        await store.dispatch(UsersActions.FETCH_FULL_USER);
         const user = store.getters.getUser;
         this.friends = user?.friends || [];
     }

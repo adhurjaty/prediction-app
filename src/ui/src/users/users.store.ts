@@ -11,6 +11,7 @@ import {
     Module,
     GetterTree
 } from 'vuex';
+import { IUserFullQuery } from "./queries/userFullQuery";
 import { IUserQuery } from "./queries/userQuery";
 
 export enum UsersMutations {
@@ -18,7 +19,8 @@ export enum UsersMutations {
 }
 
 export enum UsersActions {
-    FETCH_USER = 'FETCH_USER'
+    FETCH_USER = 'FETCH_USER',
+    FETCH_FULL_USER = 'FETCH_FULL_USER'
 }
 
 export type State = {
@@ -57,11 +59,18 @@ const mutations: MutationTree<State> & Mutations = {
 export interface Actions {
     [UsersActions.FETCH_USER]
         ({ state, commit }: AugmentedActionContext): Promise<void>;
+    [UsersActions.FETCH_FULL_USER]
+        ({ state, commit }: AugmentedActionContext): Promise<void>;
 }
 
 const actions: ActionTree<State, RootState> & Actions = {
     async [UsersActions.FETCH_USER]({ state, commit }) {
         const userQuery = container.get<IUserQuery>(cid.UserQuery);
+        const user = await userQuery.query();
+        commit(UsersMutations.SET_USER, user);
+    },
+    async [UsersActions.FETCH_FULL_USER]({ state, commit }) {
+        const userQuery = container.get<IUserFullQuery>(cid.UserFullQuery);
         const user = await userQuery.query();
         commit(UsersMutations.SET_USER, user);
     }

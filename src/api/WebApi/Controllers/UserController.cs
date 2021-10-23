@@ -26,5 +26,17 @@ namespace WebApi
             });
             return ToResponse(result);
         }
+
+        [HttpGet]
+        [Authorize]
+        [Route("FullUser")]
+        public async Task<ActionResult<AppUser>> GetFullUser()
+        {
+            var result = await _mediator.Send(new UserEagerQuery
+            {
+                Email = GetEmailFromClaims()
+            });
+            return ToResponse(result);
+        }
     }
 }
