@@ -1,5 +1,6 @@
 import { groupsModule } from '@/groups'
 import { oauthModule } from '@/oauth'
+import { usersModule } from './users'
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
@@ -9,20 +10,11 @@ const routes: RouteRecordRaw[] = [
     component: import('./views/Home.vue'),
   },
   {
-    path: '/friends',
-    name: 'Friends',
-    component: () => import('./views/FriendsList.vue'),
-  },
-  {
     path: '/bets',
     name: 'Bets',
     component: () => import('./views/BetsList.vue'),
-  },
-  {
-    path: '/account',
-    name: 'Account',
-    component: () => import('./views/Account.vue'),
-  },
+    },
+  ...usersModule.routes(),
   ...groupsModule.routes(),
   ...oauthModule.routes(),
   {
