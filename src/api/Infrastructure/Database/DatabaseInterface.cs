@@ -15,9 +15,11 @@ namespace Infrastructure
         Task<Result<List<T>>> Select<T>(CancellationToken token = default);
         Task<Result<List<T>>> Select<T>(Expression<Func<T, bool>> expression, CancellationToken token = default);
         Task<Result<List<T>>> Select<T>(SqlExpression<T> expression, CancellationToken token = default);
-        Task<Result<T>> SingleById<T>(object idValue, CancellationToken token = default);
+        Task<Result<T>> SingleById<T>(Guid idValue, CancellationToken token = default);
+        Task<Result<T>> SingleById<T>(string idValue, CancellationToken token = default);
         Task<Result<T>> Single<T>(Expression<Func<T, bool>> expression, CancellationToken token = default);
-        Task<Result<T>> LoadSingleById<T>(object idValue, CancellationToken token = default);
+        Task<Result<T>> LoadSingleById<T>(Guid idValue, CancellationToken token = default);
+        Task<Result<T>> LoadSingleById<T>(string idValue, CancellationToken token = default);
         Task<Result<long>> Insert<T>(T model, CancellationToken token = default);
         Task<Result<int>> Update<T>(T model, CancellationToken token = default);
         Task<Result<int>> Delete<T>(T model, CancellationToken token = default);
@@ -59,10 +61,19 @@ namespace Infrastructure
             return Result.Succeeded();  // not sure what a failure would look like
         }
 
-        public async Task<Result<T>> LoadSingleById<T>(object idValue, CancellationToken token = default)
+        public async Task<Result<T>> LoadSingleById<T>(Guid idValue, CancellationToken token = default)
         {
             using var db = _dbFactory.OpenDbConnection();
             var model = await db.LoadSingleByIdAsync<T>(idValue, token: token);
+            return model is not null
+                ? Result.Succeeded(model)
+                : Result<T>.Failed("No matching result");
+        }
+
+        public async Task<Result<T>> LoadSingleById<T>(string idValue, CancellationToken token = default)
+        {
+            using var db = _dbFactory.OpenDbConnection();
+            var model = await db.LoadSingleByIdAsync<T>(Guid.Parse(idValue), token: token);
             return model is not null
                 ? Result.Succeeded(model)
                 : Result<T>.Failed("No matching result");
@@ -80,10 +91,17 @@ namespace Infrastructure
             return Result.Succeeded(await db.SelectAsync(expression, token: token));
         }
 
-        public async Task<Result<T>> SingleById<T>(object idValue, CancellationToken token = default)
+        public async Task<Result<T>> SingleById<T>(Guid idValue, CancellationToken token = default)
         {
             using var db = _dbFactory.OpenDbConnection();
             return Result.Succeeded(await db.SingleByIdAsync<T>(idValue, token: token));
+        }
+
+        public async Task<Result<T>> SingleById<T>(string idValue, CancellationToken token = default)
+        {
+            using var db = _dbFactory.OpenDbConnection();
+            return Result.Succeeded(await db.SingleByIdAsync<T>(Guid.Parse(idValue), 
+                token: token));
         }
 
         public async Task<Result<T>> Single<T>(Expression<Func<T, bool>> expression, CancellationToken token = default)

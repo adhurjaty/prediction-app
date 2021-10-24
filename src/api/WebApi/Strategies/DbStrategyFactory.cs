@@ -13,22 +13,29 @@ namespace WebApi
     public class DbStrategyFactory : IDbStrategyFactory
     {
         private readonly Dictionary<Type, object> _strategies;
-        
-        public DbStrategyFactory()
+
+        public DbStrategyFactory(IEnumerable<Type> assemblyTypes)
         {
-            var types = typeof(Startup).Assembly.GetTypes();
-            _strategies = types
+            _strategies = assemblyTypes
                 .Where(item => item.GetInterfaces()
                         .Where(i => i.IsGenericType)
                         .Any(i => i.GetGenericTypeDefinition() == typeof(IDbStrategy<>))
                     && !item.IsAbstract && !item.IsInterface)
-                .ToDictionary(assignedType => a)
-                
+                .Where(assignedType => assignedType.GetGenericArguments().Count() == 0)
+                .ToDictionary(
+                    assignedType => assignedType.GetInterfaces().First().GetGenericArguments().First(),
+                    assignedType => Activator.CreateInstance(assignedType));
         }
 
         public IDbStrategy<T> Get<T>()
         {
+            return (_strategies.GetValueOrDefault(typeof(T)) as IDbStrategy<T>)
+                ?? GetDefaultStrategy<T>();
+        }
 
+        private IDbStrategy<T> GetDefaultStrategy<T>()
+        {
+            return new DefaultDbStrategy<T>();
         }
     }
 }

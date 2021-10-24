@@ -8,18 +8,18 @@ using Infrastructure;
 
 namespace WebApi
 {
-    public class AppUserDbStrategy : IDbStrategy<AppUser>
+    public class AppUserDbStrategy : DefaultModelDbStrategy<AppUser>
     {
-        public async Task<Result<int>> Delete(IDatabaseInterface db, AppUser model, CancellationToken token = default)
+        public override async Task<Result<int>> Delete(IDatabaseInterface db, AppUser model, CancellationToken token = default)
         {
             return await (await ApplyToFriends(model, model.FriendsRelations,
                     f => db.Delete(f, token: token)))
-                .Bind(users => db.Delete(this, token: token));
+                .Bind(users => db.Delete(model, token: token));
         }
 
-        public async Task<Result<long>> Insert(IDatabaseInterface db, AppUser model, CancellationToken token = default)
+        public override async Task<Result<long>> Insert(IDatabaseInterface db, AppUser model, CancellationToken token = default)
         {
-            return await (await db.Insert<AppUser>(model, token))
+            return await (await base.Insert(db, model, token))
                 .Bind(async id =>
                 {
                     return (await ApplyToFriends(model, model.FriendsRelations,
@@ -28,15 +28,15 @@ namespace WebApi
                 });
         }
 
-        public async Task<Result> LoadReferences(IDatabaseInterface db, AppUser model, CancellationToken token = default)
+        public override async Task<Result> LoadReferences(IDatabaseInterface db, AppUser model, CancellationToken token = default)
         {
-            return (await db.LoadReferences(this, token: token))
+            return (await db.LoadReferences(model, token: token))
                 .Merge(await model.FriendsRelations
                     .Select(f => db.LoadReferences(f, token: token))
                     .Aggregate());
         }
 
-        public async Task<Result<int>> Update(IDatabaseInterface db, AppUser model, CancellationToken token = default)
+        public override async Task<Result<int>> Update(IDatabaseInterface db, AppUser model, CancellationToken token = default)
         {
             return (await (await (await db.LoadSingleById<AppUser>(model.Id))
                 .Bind(async dbUser =>

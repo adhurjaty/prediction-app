@@ -60,7 +60,12 @@ namespace WebApi
             return _db.Select(expression, token);
         }
 
-        public Task<Result<T>> SingleById<T>(object idValue, CancellationToken token = default)
+        public Task<Result<T>> SingleById<T>(Guid idValue, CancellationToken token = default)
+        {
+            return _db.SingleById<T>(idValue, token);
+        }
+
+        public Task<Result<T>> SingleById<T>(string idValue, CancellationToken token = default)
         {
             return _db.SingleById<T>(idValue, token);
         }
@@ -70,7 +75,12 @@ namespace WebApi
             return _db.Single(expression, token);
         }
 
-        public Task<Result<T>> LoadSingleById<T>(object idValue, CancellationToken token = default)
+        public Task<Result<T>> LoadSingleById<T>(Guid idValue, CancellationToken token = default)
+        {
+            return _db.LoadSingleById<T>(idValue, token);
+        }
+
+        public Task<Result<T>> LoadSingleById<T>(string idValue, CancellationToken token = default)
         {
             return _db.LoadSingleById<T>(idValue, token);
         }
