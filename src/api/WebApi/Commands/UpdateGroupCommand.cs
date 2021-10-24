@@ -43,7 +43,7 @@ namespace WebApi
                         FriendIds = users.Skip(1).Select(x => x.Id.ToString()).ToList()
                     }))
                     .Aggregate()))
-                .Bind(() => _db.UpdateResult(cmd.Group));
+                .Bind(() => _db.Update(cmd.Group));
         }
 
         public Task<Result> Handle(UpdateGroupCommand request, CancellationToken cancellationToken)

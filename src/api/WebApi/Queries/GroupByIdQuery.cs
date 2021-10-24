@@ -28,7 +28,7 @@ namespace WebApi
 
         public async Task<Result<Group>> Handle(GroupByIdQuery query)
         {
-            return (await (await _db.LoadSingleResultById<Group>(query.GroupId))
+            return (await (await _db.LoadSingleById<Group>(query.GroupId))
                 .TupleBind(_ => _mediator.Send(new UserQuery()
                 {
                     Email = query.Email
