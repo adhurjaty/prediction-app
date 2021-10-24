@@ -14,20 +14,21 @@ namespace WebApi.Test
         protected readonly Mock<IMediatorResult> _mediatorMock = 
             new Mock<IMediatorResult>();
 
-        public BragDbFixture()
+        public BragDbFixture() : base()
         {
-
+            var strategyFactory = new DbStrategyFactory(typeof(Startup).Assembly.GetTypes());
+            _db = new ModelsDatbaseInterface(_db, strategyFactory);
         }
 
         protected AppUser DbUser(AppUser user)
         {
-            user.Insert(_db).Wait();
+            _db.Insert(user).Wait();
             return user;
         }
 
         protected Group DbGroup(Group group)
         {
-            group.Insert(_db).Wait();
+            _db.Insert(group).Wait();
             return group;
         }
 
