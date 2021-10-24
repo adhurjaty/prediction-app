@@ -11,7 +11,7 @@ using System.Linq;
 namespace WebApi
 {
     [Alias("users")]
-    public class AppUser : CompositeDbModel
+    public class AppUser : DbModel
     {
         public string DisplayName { get; set; }
         public string Email { get; set; }
