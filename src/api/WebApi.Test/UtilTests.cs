@@ -146,18 +146,18 @@ namespace WebApi.Test
 
         public async Task<List<AppUser>> GetUsers()
         {
-            return await _db.Select<AppUser>();
+            return (await _db.Select<AppUser>()).Success;
         }
 
         public async Task<Group> GetGroup(Guid id)
         {
-            var group = await _db.LoadSingleResultById<Group>(id);
+            var group = await _db.LoadSingleById<Group>(id);
             return group.Success;
         }
 
         public async Task<AppUser> GetUser(Guid id)
         {
-            return (await _db.LoadSingleResultById<AppUser>(id)).Success;
+            return (await _db.LoadSingleById<AppUser>(id)).Success;
         }
     }
 }

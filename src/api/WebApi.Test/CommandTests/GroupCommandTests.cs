@@ -303,12 +303,12 @@ namespace WebApi.Test
 
         public async Task<List<Group>> GetGroups()
         {
-            return (await _db.SelectResult<Group>()).Success;
+            return (await _db.Select<Group>()).Success;
         }
 
         public async Task<Group> GetGroup(Guid groupId)
         {
-            return (await _db.LoadSingleResultById<Group>(groupId)).Success;
+            return (await _db.LoadSingleById<Group>(groupId)).Success;
         }
 
         public void VerifyAddFriendsCallNum(int numCalls)

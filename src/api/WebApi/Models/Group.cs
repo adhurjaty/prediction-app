@@ -11,7 +11,7 @@ using ServiceStack.OrmLite;
 namespace WebApi
 {
     [Alias("groups")]
-    public class Group : CompositeDbModel
+    public class Group : DbModel
     {
         public string Name { get; set; }
 
