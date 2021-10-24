@@ -14,6 +14,12 @@ export default (): RouteRecordRaw[] => {
             name: 'Account',
             component: () => import('./views/Account.vue'),
             beforeEnter: auth
+        },
+        {
+            path: '/friends/:id',
+            name: 'Friend',
+            component: import('./views/Friend.vue'),
+            beforeEnter: auth
         }
     ]
 }
