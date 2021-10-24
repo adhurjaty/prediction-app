@@ -30,21 +30,21 @@ namespace Infrastructure
             return await db.LoadSingleById<T>(Guid.Parse(idValue), token);
         }
         
-        public static async Task<Result<T>> Insert<T>(this IDatabaseInterface db, 
+        public static async Task<Result<T>> InsertResult<T>(this IDatabaseInterface db, 
             T model, CancellationToken token = default) where T : class
         {
             return (await db.Insert(model, token))
                 .Map(_ => model);
         }
 
-        public static async Task<Result<T>> Delete<T>(this IDatabaseInterface db,
+        public static async Task<Result<T>> DeleteResult<T>(this IDatabaseInterface db,
             T model, CancellationToken token = default) where T : class
         {
             return (await db.Delete(model, token: token))
                 .Map(_ => model);
         }
 
-        public static async Task<Result<T>> Update<T>(this IDatabaseInterface db,
+        public static async Task<Result<T>> UpdateResult<T>(this IDatabaseInterface db,
             T model, CancellationToken token = default)
         {
             return (await db.Update(db))

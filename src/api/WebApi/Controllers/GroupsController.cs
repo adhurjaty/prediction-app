@@ -58,7 +58,7 @@ namespace WebApi
                 Email = GetEmailFromClaims()
             };
             var result = await (await _mediator.Send(command))
-                .Bind(() => _db.LoadSingleResultById<Group>(command.GroupId));
+                .Bind(() => _db.LoadSingleById<Group>(command.GroupId));
             
             return ToResponse(result);
         }
@@ -73,7 +73,7 @@ namespace WebApi
                     Email = GetEmailFromClaims(),
                     Group = group
                 }))
-                .Bind(() => _db.LoadSingleResultById<Group>(groupId));
+                .Bind(() => _db.LoadSingleById<Group>(groupId));
 
             return ToResponse(result);
         }

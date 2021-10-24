@@ -23,11 +23,11 @@ namespace WebApi
         public async Task<Result> Handle(DeleteGroupCommand cmd)
         {
 
-            return await (await _db.LoadSingleResultById<Group>(cmd.GroupId))
+            return await (await _db.LoadSingleById<Group>(cmd.GroupId))
                 .FailIf(group => 
                     group.Users.FirstOrDefault(x => x.Email == cmd.Email) is null,
                     $"User {cmd.Email} is not in group")
-                .Bind(group => _db.DeleteResult(group)); 
+                .Bind(group => _db.Delete(group)); 
         }
 
         public Task<Result> Handle(DeleteGroupCommand request, CancellationToken cancellationToken)
