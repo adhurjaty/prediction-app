@@ -30,10 +30,10 @@ namespace WebApi
 
         public async Task<Result> LoadReferences(IDatabaseInterface db, AppUser model, CancellationToken token = default)
         {
-            await db.LoadReferences(this, token: token);
-            return await model.FriendsRelations
-                .Select(f => db.LoadReferences(f, token: token))
-                .Aggregate();
+            return (await db.LoadReferences(this, token: token))
+                .Merge(await model.FriendsRelations
+                    .Select(f => db.LoadReferences(f, token: token))
+                    .Aggregate());
         }
 
         public async Task<Result<int>> Update(IDatabaseInterface db, AppUser model, CancellationToken token = default)
