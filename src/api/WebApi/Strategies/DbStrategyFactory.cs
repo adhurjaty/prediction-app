@@ -5,7 +5,12 @@ using System.Linq;
 
 namespace WebApi
 {
-    public class DbStrategyFactory
+    public interface IDbStrategyFactory
+    {
+        IDbStrategy<T> Get<T>();
+    }
+
+    public class DbStrategyFactory : IDbStrategyFactory
     {
         private readonly Dictionary<Type, object> _strategies;
         
@@ -21,7 +26,7 @@ namespace WebApi
                 
         }
 
-        public IDbStrategy Get<T>()
+        public IDbStrategy<T> Get<T>()
         {
 
         }
