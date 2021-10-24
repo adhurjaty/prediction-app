@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using Infrastructure;
 
 namespace WebApi
 {
@@ -29,13 +30,15 @@ namespace WebApi
 
         public IDbStrategy<T> Get<T>()
         {
-            return (_strategies.GetValueOrDefault(typeof(T)) as IDbStrategy<T>)
+            return _strategies.GetValueOrDefault(typeof(T)) as IDbStrategy<T>
                 ?? GetDefaultStrategy<T>();
         }
 
         private IDbStrategy<T> GetDefaultStrategy<T>()
         {
-            return new DefaultDbStrategy<T>();
+            return typeof(T).IsAssignableTo(typeof(DbModel))
+                ? Activator.CreateInstance(typeof(DefaultModelDbStrategy<>).MakeGenericType(typeof(T))) as IDbStrategy<T>
+                : new DefaultDbStrategy<T>();
         }
     }
 }

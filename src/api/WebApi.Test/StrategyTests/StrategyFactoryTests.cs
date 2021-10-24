@@ -16,14 +16,24 @@ namespace WebApi.Test
         }
 
         [Fact]
-        public void GetDefaultStrategy()
+        public void GetDefaultModelStrategy()
         {
             var factory = new DbStrategyFactory(typeof(Startup).Assembly.GetTypes());
             var strategy = factory.Get<TestType>();
 
-            strategy.Should().BeOfType(typeof(DefaultDbStrategy<TestType>));
+            strategy.Should().BeOfType(typeof(DefaultModelDbStrategy<TestType>));
         }
 
-        private class TestType : DbModel { }
+        [Fact]
+        public void GetDefaultStrategy()
+        {
+            var factory = new DbStrategyFactory(typeof(Startup).Assembly.GetTypes());
+            var strategy = factory.Get<GenericType>();
+
+            strategy.Should().BeOfType(typeof(DefaultDbStrategy<GenericType>));
+        }
     }
+
+    public class TestType : DbModel { }
+    public class GenericType { }
 }

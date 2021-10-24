@@ -17,19 +17,6 @@ namespace Infrastructure
             return await db.SingleById<T>(Guid.Parse(idValue), token);
         }
 
-        public static async Task<Result<T>> LoadSingleById<T>(this IDatabaseInterface db,
-            Guid idValue, CancellationToken token = default)
-        {
-            return await (await db.LoadSingleById<T>(idValue, token: token))
-                .TeeResult(result => db.LoadReferences(result, token));
-        }
-
-        public static async Task<Result<T>> LoadSingleById<T>(this IDatabaseInterface db,
-            string idValue, CancellationToken token = default)
-        {
-            return await db.LoadSingleById<T>(Guid.Parse(idValue), token);
-        }
-        
         public static async Task<Result<T>> InsertResult<T>(this IDatabaseInterface db, 
             T model, CancellationToken token = default) where T : class
         {
@@ -47,7 +34,7 @@ namespace Infrastructure
         public static async Task<Result<T>> UpdateResult<T>(this IDatabaseInterface db,
             T model, CancellationToken token = default)
         {
-            return (await db.Update(db))
+            return (await db.Update(model, token))
                 .Map(_ => model);
         }
     }
