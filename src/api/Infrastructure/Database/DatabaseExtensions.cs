@@ -11,45 +11,23 @@ namespace Infrastructure
 {
     public static class DatabaseExtensions
     {
-        public static async Task<Result<T>> SingleResult<T>(this IDatabaseInterface db,
-            Expression<Func<T, bool>> expr, CancellationToken token = default)
-        {
-            var result = await db.Single(expr, token);
-            return result != null 
-                ? Result<T>.Succeeded(result)
-                : Result<T>.Failed("No matching result");
-        }
-
-        public static async Task<Result<T>> SingleResultById<T>(this IDatabaseInterface db,
-            Guid idValue, CancellationToken token = default)
-        {
-            var result = await db.SingleById<T>(idValue, token);
-            return result != null 
-                ? Result<T>.Succeeded(result)
-                : Result<T>.Failed("No matching result");
-        }
-
-        public static async Task<Result<T>> SingleResultById<T>(this IDatabaseInterface db,
+        public static async Task<Result<T>> SingleById<T>(this IDatabaseInterface db,
             string idValue, CancellationToken token = default)
         {
-            return await db.SingleResultById<T>(Guid.Parse(idValue), token);
+            return await db.SingleById<T>(Guid.Parse(idValue), token);
+        }
+
+        public static async Task<Result<T>> LoadSingleById<T>(this IDatabaseInterface db,
+            Guid idValue, CancellationToken token = default)
+        {
+            return await (await db.LoadSingleById<T>(idValue, token: token))
+                .TeeResult(result => db.LoadReferences(result, token));
         }
 
         public static async Task<Result<T>> LoadSingleResultById<T>(this IDatabaseInterface db,
-            Guid idValue, CancellationToken token = default) where T : DbModel
+            string idValue, CancellationToken token = default)
         {
-            var result = await db.LoadSingleById<T>(idValue, token: token);
-            if(result != null && result is CompositeDbModel cdb)
-                await cdb.LoadReferences(db, token);
-            return result != null
-                ? Result<T>.Succeeded(result)
-                : Result<T>.Failed("No matching result");
-        }
-
-        public static async Task<Result<T>> LoadSingleResultById<T>(this IDatabaseInterface db,
-            string idValue, CancellationToken token = default) where T : DbModel
-        {
-            return await db.LoadSingleResultById<T>(Guid.Parse(idValue), token);
+            return await db.LoadSingleById<T>(Guid.Parse(idValue), token);
         }
         
         public static async Task<Result<List<T>>> SelectResult<T>(this IDatabaseInterface db,
