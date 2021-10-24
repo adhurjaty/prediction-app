@@ -57,17 +57,17 @@ namespace WebApi
             List<FriendsRelation> relationships, Func<FriendsRelation, Task> fn)
         {
             return await (relationships ?? new List<FriendsRelation>())
-            .Select(async friendsRelation => 
-            {
-                friendsRelation.UserId = user.Id;
-                var otherRelation = new FriendsRelation()
+                .Select(async friendsRelation => 
                 {
-                    UserId = friendsRelation.Friend.Id,
-                    Friend = user
-                };
-                await Task.WhenAll(fn(friendsRelation), fn(otherRelation));
-                return Result<AppUser>.Succeeded(friendsRelation);
-            }).Aggregate() ?? Result.Succeeded(new FriendsRelation[] {});
+                    friendsRelation.UserId = user.Id;
+                    var otherRelation = new FriendsRelation()
+                    {
+                        UserId = friendsRelation.FriendId,
+                        Friend = user
+                    };
+                    await Task.WhenAll(fn(friendsRelation), fn(otherRelation));
+                    return Result<AppUser>.Succeeded(friendsRelation);
+                }).Aggregate() ?? Result.Succeeded(new FriendsRelation[] {});
         }
     }
 }

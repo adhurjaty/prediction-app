@@ -75,14 +75,16 @@ namespace WebApi
             return _db.Single(expression, token);
         }
 
-        public Task<Result<T>> LoadSingleById<T>(Guid idValue, CancellationToken token = default)
+        public async Task<Result<T>> LoadSingleById<T>(Guid idValue, CancellationToken token = default)
         {
-            return _db.LoadSingleById<T>(idValue, token);
+            var strategy = _strategyFactory.Get<T>();
+            return await (await _db.LoadSingleById<T>(idValue, token: token))
+                .TeeResult(result => strategy.LoadReferences(_db, result, token));
         }
 
-        public Task<Result<T>> LoadSingleById<T>(string idValue, CancellationToken token = default)
+        public async Task<Result<T>> LoadSingleById<T>(string idValue, CancellationToken token = default)
         {
-            return _db.LoadSingleById<T>(idValue, token);
+            return await LoadSingleById<T>(Guid.Parse(idValue), token);
         }
 
         public Result DeleteAll<T>()
