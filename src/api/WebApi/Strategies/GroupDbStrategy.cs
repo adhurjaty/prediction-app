@@ -6,17 +6,17 @@ using Infrastructure;
 
 namespace WebApi
 {
-    public class GroupDbStrategy : IDbStrategy<Group>
+    public class GroupDbStrategy : DefaultModelDbStrategy<Group>
     {
-        public async Task<Result<int>> Delete(IDatabaseInterface db, Group model, CancellationToken token = default)
+        public override async Task<Result<int>> Delete(IDatabaseInterface db, Group model, CancellationToken token = default)
         {
             return (await (await ApplyToUserGroups(model, ug => db.Delete(ug, token: token)))
                 .Bind(users => db.Delete(model, token)));
         }
 
-        public async Task<Result<long>> Insert(IDatabaseInterface db, Group model, CancellationToken token = default)
+        public override async Task<Result<long>> Insert(IDatabaseInterface db, Group model, CancellationToken token = default)
         {
-            return (await (await db.Insert(model, token))
+            return (await (await base.Insert(db, model, token))
                 .TupleBind(_ => 
                 {
                     return ApplyToUserGroups(model, ug => 
@@ -28,14 +28,14 @@ namespace WebApi
                 .Map((id, _) => id);
         }
 
-        public async Task<Result> LoadReferences(IDatabaseInterface db, Group model, CancellationToken token = default)
+        public override async Task<Result> LoadReferences(IDatabaseInterface db, Group model, CancellationToken token = default)
         {
             return (await db.LoadReferences(model, token: token))
                 .Merge(await model.UserGroups.Select(ug => 
                     db.LoadReferences(ug, token: token)).Aggregate());
         }
 
-        public async Task<Result<int>> Update(IDatabaseInterface db, Group model, CancellationToken token = default)
+        public override async Task<Result<int>> Update(IDatabaseInterface db, Group model, CancellationToken token = default)
         {
             return (await (await (await db.LoadSingleById<Group>(model.Id))
                 .Bind(async dbGroup =>

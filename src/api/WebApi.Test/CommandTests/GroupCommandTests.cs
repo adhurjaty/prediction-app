@@ -303,7 +303,7 @@ namespace WebApi.Test
 
         public async Task<List<Group>> GetGroups()
         {
-            return (await _db.Select<Group>()).Success;
+            return (await _db.LoadSelect<Group>()).Success;
         }
 
         public async Task<Group> GetGroup(Guid groupId)

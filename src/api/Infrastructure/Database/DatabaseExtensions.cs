@@ -37,5 +37,30 @@ namespace Infrastructure
             return (await db.Update(model, token))
                 .Map(_ => model);
         }
+
+        public static async Task<Result<List<T>>> LoadSelect<T>(this IDatabaseInterface db,
+            CancellationToken token = default)
+        {
+            return await (await db.Select<T>(token))
+                .TeeResult(results =>
+                    results.Select(x => db.LoadReferences(x, token)).Aggregate());
+        }
+
+        public static async Task<Result<List<T>>> LoadSelect<T>(this IDatabaseInterface db,
+            Expression<Func<T, bool>> expression, CancellationToken token = default)
+        {
+            return await (await db.Select<T>(expression, token))
+                .TeeResult(results =>
+                    results.Select(x => db.LoadReferences(x, token)).Aggregate());
+        }
+
+        public static async Task<Result<List<T>>> LoadSelect<T>(this IDatabaseInterface db,
+            SqlExpression<T> expression, CancellationToken token = default)
+        {
+            return await (await db.Select<T>(expression, token))
+                .TeeResult(results =>
+                    results.Select(x => db.LoadReferences(x, token)).Aggregate());
+        }
+        
     }
 }
