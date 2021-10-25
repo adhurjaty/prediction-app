@@ -10,7 +10,11 @@
             </div>
             <h3>Friends</h3>
             <div v-if="friends.length > 0">
-                <Friend v-for="friend in friends" :key="friend.id" :name="friend.displayName" :id="friend.id" @updateState="updateFriendStates($event, friend.id)"></Friend>
+                <Friend v-for="friend in friends" 
+                        :key="friend.id" 
+                        :name="friend.displayName" 
+                        :id="friend.id" 
+                        @updateState="updateFriendStates($event, friend.id)" />
                 <button :disabled="!friendActive" class="send">send invites</button>
             </div>
             <div v-if="friends.length == 0">
@@ -26,6 +30,7 @@ import { Vue } from 'vue-class-component';
 import { Group } from '../models';
 import { GroupsActions } from '../group.store';
 import { Store } from '@/app.store';
+import { UsersActions } from '@/users/users.store';
 
 interface Friend {
     id: string
@@ -34,7 +39,6 @@ interface Friend {
 
 export default class AddMember extends Vue {
     group: Group | null = null;
-    allFriends: Array<Friend> = [{id: 'b0d20f6a-5cfd-4e92-96eb-9b0e694f285f', displayName: 'Anil Dhurjaty'},{id: '359f531c-8b67-45a2-82ee-2118759f0e09', displayName:'Tony Wong'}]; // replace with api call
     friends: Array<Friend> = [];
     friendStates: Array<boolean>  = new Array(this.friends.length).fill(false);
     friendActive: boolean = false;
@@ -47,9 +51,15 @@ export default class AddMember extends Vue {
 
     async created() {
         const store: Store = this.$store;
-        await store.dispatch(GroupsActions.FETCH_GROUP, this.$route.params.id as string);
+        await Promise.all([
+            store.dispatch(GroupsActions.FETCH_GROUP, this.$route.params.id as string),
+            store.dispatch(UsersActions.FETCH_FULL_USER)
+        ]);
+
         this.group = store.getters.getGroup;
-        this.friends = this.allFriends.filter(user => {
+        const user = store.getters.getUser;
+
+        this.friends = (user?.friends || []).filter(user => {
             return !this.group!.users
                 .map(x => x.displayName)
                 .includes(user.displayName);
