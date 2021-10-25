@@ -2,6 +2,7 @@ import { groupsModule } from '@/groups'
 import { oauthModule } from '@/oauth'
 import { usersModule } from './users'
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
+import { betsModule } from './bets'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -9,19 +10,10 @@ const routes: RouteRecordRaw[] = [
     name: 'Home',
     component: import('./views/Home.vue'),
   },
-  {
-    path: '/bets',
-    name: 'Bets',
-    component: () => import('./views/BetsList.vue'),
-    },
-  ...usersModule.routes(),
-  ...groupsModule.routes(),
-  ...oauthModule.routes(),
-  {
-    path: '/groups/:id/add-bet',
-    name: 'Add Bet',
-    component: () => import('./views/AddBet.vue'),
-  },
+    ...usersModule.routes(),
+    ...groupsModule.routes(),
+    ...oauthModule.routes(),
+    ...betsModule.routes(),
   {
     path: '/about',
     name: 'About',
