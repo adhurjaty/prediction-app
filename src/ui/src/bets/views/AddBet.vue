@@ -95,6 +95,10 @@ export default class AddBet extends Vue {
                 x.type === (event.target as HTMLInputElement).value) 
             || this.possibleBets[0];
     }
+
+    addBet(): Promise<void> {
+        
+    }
 }
 </script>
 

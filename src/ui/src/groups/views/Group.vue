@@ -64,7 +64,7 @@
 <script lang="ts">
 import { Vue } from 'vue-class-component';
 import { Group } from '../models';
-import { GroupsActions } from '../group.store';
+import { GroupsActions } from '../groups.store';
 import { Store } from '../../app.store';
 
 interface Bet {
