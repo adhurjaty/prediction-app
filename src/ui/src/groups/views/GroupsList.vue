@@ -31,7 +31,7 @@
 <script lang="ts">
 import { Store } from '@/app.store';
 import { Vue } from 'vue-class-component';
-import { GroupsActions } from '../group.store';
+import { GroupsActions } from '../groups.store';
 import { Group } from '../models';
 
 export default class GroupPage extends Vue {
