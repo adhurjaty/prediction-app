@@ -99,12 +99,12 @@ namespace WebApi.Test
 
         public async Task<AppUser> GetUser(Guid userId)
         {
-            return (await _db.LoadSingleResultById<AppUser>(userId)).Success;
+            return (await _db.LoadSingleById<AppUser>(userId)).Success;
         }
 
         public async Task<List<FriendsRelation>> GetFriendsRelations()
         {
-            return await _db.Select<FriendsRelation>();
+            return (await _db.Select<FriendsRelation>()).Success;
         }
     }
 }

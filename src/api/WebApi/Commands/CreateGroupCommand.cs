@@ -10,7 +10,7 @@ namespace WebApi
 {
     public class CreateGroupCommand : AbstractCommand<CreateGroupCommand>
     {
-        public AppUser User { get; set; }
+        public string Email { get; set; }
         public string Name { get; set; }
 
         // output properties
@@ -20,19 +20,25 @@ namespace WebApi
     public class CreateGroupCommandHandler : ICommandHandler<CreateGroupCommand>
     {
         private readonly IDatabaseInterface _db;
+        private readonly IMediatorResult _mediator;
 
-        public CreateGroupCommandHandler(IDatabaseInterface db)
+        public CreateGroupCommandHandler(IDatabaseInterface db, IMediatorResult mediator)
         {
             _db = db;
+            _mediator = mediator;
         }
 
         public async Task<Result> Handle(CreateGroupCommand command)
         {
-            return (await _db.InsertResult(new Group()
+            return (await (await _mediator.Send(new UserQuery()
+                {
+                    Email = command.Email
+                }))
+                .Bind(user => _db.InsertResult(new Group()
                 {
                     Name = command.Name,
-                    Users = new List<AppUser>() { command.User }
-                }))
+                    Users = new List<AppUser>() { user }
+                })))
                 .Tee(group => command.GroupId = group.Id);
         }
 

@@ -12,14 +12,12 @@
 </template>
 
 <script lang="ts">
-import { inject } from "inversify-props";
 import { Vue } from "vue-class-component";
 import { Group } from "../models";
-import { ICreateGroupCommand } from '../commands/createGroupCommand';
+import { GroupsActions } from "../group.store";
+import { Store } from "../../app.store";
 
 export default class GroupCreator extends Vue {
-    @inject() createGroupCommand: ICreateGroupCommand;
-
     group: Group = new Group();
 
     async createGroup() {
@@ -29,11 +27,13 @@ export default class GroupCreator extends Vue {
         const randomColor = Math.floor(Math.random()*16777215).toString(16);
 
         try {
-            var newGroup = await this.createGroupCommand.execute(this.group);
+            const store: Store = this.$store;
+            await store.dispatch(GroupsActions.CREATE_GROUP, this.group);
+            const newGroup = store.getters.getGroup;
             this.$router.push({
                 name: 'Group', 
                 params : {
-                    id: newGroup.id
+                    id: newGroup!.id
                 }
             });
         } catch (error) {

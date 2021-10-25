@@ -33,6 +33,9 @@ export class ConfirmCommand implements IConfirmCommand {
         this.localStorage.setItem(TOKEN_KEY, response.idToken);
         if(origin) {
             this.location.go(origin);
+        } else {
+            debugger;
+            this.location.go('/groups');
         }
     }
 

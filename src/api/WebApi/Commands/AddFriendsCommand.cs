@@ -24,9 +24,9 @@ namespace WebApi
 
         public async Task<Result> Handle(AddFriendsCommand cmd)
         {
-            var userResultTask = _db.LoadSingleResultById<AppUser>(cmd.UserId);
+            var userResultTask = _db.LoadSingleById<AppUser>(cmd.UserId);
             var friendsResultTask = cmd.FriendIds
-                .Select(id => _db.SingleResultById<AppUser>(id))
+                .Select(id => _db.SingleById<AppUser>(id))
                 .Aggregate();
 
             return await (await (await userResultTask)

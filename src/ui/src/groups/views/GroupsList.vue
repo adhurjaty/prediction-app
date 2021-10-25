@@ -29,17 +29,18 @@
 </template>
 
 <script lang="ts">
-import { inject } from 'inversify-props';
+import { Store } from '@/app.store';
 import { Vue } from 'vue-class-component';
+import { GroupsActions } from '../group.store';
 import { Group } from '../models';
-import { IGroupsQuery } from '../queries/groupsQuery';
 
 export default class GroupPage extends Vue {
-    @inject() groupsQuery: IGroupsQuery;
     groups: Group[] = [];
 
     async created(): Promise<void> {
-        this.groups = await this.groupsQuery.query() || [];
+        const store: Store = this.$store;
+        await store.dispatch(GroupsActions.FETCH_GROUPS);
+        this.groups = store.getters.getGroups;
     }
 }
 </script>

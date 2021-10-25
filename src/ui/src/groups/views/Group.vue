@@ -64,8 +64,8 @@
 <script lang="ts">
 import { Vue } from 'vue-class-component';
 import { Group } from '../models';
-import { inject } from 'inversify-props';
-import { IGroupQuery } from '../queries/groupQuery';
+import { GroupsActions } from '../group.store';
+import { Store } from '../../app.store';
 
 interface Bet {
     id: number
@@ -75,8 +75,6 @@ interface Bet {
 }
 
 export default class GroupInfo extends Vue {
-    @inject() groupQuery: IGroupQuery;
-
     group: Group = new Group();
     bets: Array<Bet> = [];
 
@@ -85,7 +83,9 @@ export default class GroupInfo extends Vue {
     }
 
     async created() {
-        this.group = await this.groupQuery.query(this.$route.params.id as string);
+        const store: Store = this.$store;
+        await store.dispatch(GroupsActions.FETCH_GROUP, this.$route.params.id as string);
+        this.group = store.getters.getGroup || new Group();
     }
 }
 </script>

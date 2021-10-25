@@ -73,8 +73,12 @@ namespace WebApi
             services.AddSingleton<IDbConnectionFactory>(x => 
                 new OrmLiteConnectionFactory(dbConfig.ConnectionString(), 
                     PostgreSqlDialect.Provider));
-            services.AddSingleton<IDatabaseInterface>(x => 
-                new DatabaseInterface(x.GetService<IDbConnectionFactory>()));
+            services.AddSingleton<IDatabaseInterface>(x =>
+            {
+                var dbInt = new DatabaseInterface(x.GetService<IDbConnectionFactory>());
+                var strategyFactory = new DbStrategyFactory(typeof(Startup).Assembly.GetTypes());
+                return new ModelsDatbaseInterface(dbInt, strategyFactory);
+            });
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(jwt => jwt.UseGoogle(googleSettings.ClientId));

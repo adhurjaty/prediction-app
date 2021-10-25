@@ -402,6 +402,18 @@ namespace Infrastructure
             return x;
         }
 
+        public static async Task<Result<TSuccess>> TeeResult<TSuccess>(
+            this Result<TSuccess> x, Func<TSuccess, Task<Result>> f)
+        {
+            return await x.Bind(async result =>
+            {
+                var tee = (await f(result));
+                return tee.IsSuccess
+                    ? Result.Succeeded(result)
+                    : Result.Failed<TSuccess>(tee.Failure);
+            });
+        }
+
         public static Result<T> FirstResult<T>(this IEnumerable<T> lst,
             Func<T, bool> expr)
         {
@@ -420,6 +432,14 @@ namespace Infrastructure
         {
             if(x.IsSuccess && fn(x.Success))
                 return Result<T>.Failed(failString);
+            return x;
+        }
+
+        public static Result<(T, U)> FailIf<T, U>(this Result<(T, U)> x, Func<T, U, bool> fn,
+            string failString)
+        {
+            if(x.IsSuccess && fn(x.Success.Item1, x.Success.Item2))
+                return Result<(T, U)>.Failed(failString);
             return x;
         }
     }

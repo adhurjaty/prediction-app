@@ -10,7 +10,7 @@ namespace WebApi
 {
     public class GroupsByUserQuery : AbstractQuery<GroupsByUserQuery, List<Group>>
     {
-        public string UserId { get; set; }
+        public string Email { get; set; }
     }
 
     public class GroupsByUserQueryHandler : IQueryHandler<GroupsByUserQuery, List<Group>>
@@ -27,9 +27,10 @@ namespace WebApi
         {
             var sqlQuery = _db.From<Group>()
                 .Join<Group, UserGroup>((group, userGroup) => group.Id == userGroup.GroupId)
-                .Where<UserGroup>(userGroup => userGroup.UserId.ToString() == query.UserId);
+                .Join<UserGroup, AppUser>((userGroup, user) => userGroup.UserId == user.Id)
+                .Where<AppUser>(user => user.Email == query.Email);
             
-            return await _db.SelectResult(sqlQuery);
+            return await _db.Select(sqlQuery);
         }
 
         public Task<Result<List<Group>>> Handle(GroupsByUserQuery request, CancellationToken cancellationToken)
