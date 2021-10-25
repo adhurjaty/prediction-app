@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Infrastructure;
@@ -20,8 +21,8 @@ namespace WebApi
 
         public async Task<Result<AppUser>> Handle(UserEagerQuery query)
         {
-            return await (await _db.Single<AppUser>(x => x.Email == query.Email))
-                .Bind(user => _db.LoadSingleById<AppUser>(user.Id));
+            return (await _db.LoadSelect<AppUser>(x => x.Email == query.Email))
+                .Map(x => x.FirstOrDefault());
         }
 
         public Task<Result<AppUser>> Handle(UserEagerQuery request, CancellationToken cancellationToken)
