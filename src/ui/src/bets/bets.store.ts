@@ -11,6 +11,9 @@ import {
     GetterTree
 } from 'vuex';
 import { Bet } from './bets.models';
+import { ICreateBetCommand } from './commands/createBetCommand';
+import { IBetQuery } from './queries/betQuery';
+import { IBetsQuery } from './queries/betsQuery';
 
 export enum BetsMutations {
     SET_BET = 'SET_BET',
@@ -84,7 +87,7 @@ const actions: ActionTree<State, RootState> & Actions = {
         const bet = await betQuery.query(betId);
         commit(BetsMutations.SET_BET, bet);
     },
-    async [BetsActions.FETCH_BET]({ state, commit }) {
+    async [BetsActions.FETCH_BETS]({ state, commit }) {
         const betsQuery = container.get<IBetsQuery>(cid.BetsQuery);
         const bets = await betsQuery.query();
         commit(BetsMutations.SET_BETS, bets);
