@@ -7,6 +7,7 @@ import { ILocalStorage, LocalStorage } from './util/localStorage';
 import { ILocationBrowser, LocationBrowser } from './util/locationBrowser';
 import { TYPES } from './app.types';
 import { usersModule } from './users';
+import { betsModule } from './bets';
 
 export function containerBuilder(): void {
     container.addSingleton<IApi>(Api);
@@ -16,4 +17,5 @@ export function containerBuilder(): void {
     groupsModule.container();
     oauthModule.container();
     usersModule.container();
+    betsModule.container();
 }
