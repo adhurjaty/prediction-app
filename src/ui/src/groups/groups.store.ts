@@ -9,11 +9,9 @@ import {
     GetterTree
 } from 'vuex';
 import { Group } from "@/groups/models";
-import { IGroupQuery } from "@/groups/queries/groupQuery";
 import { cid, container, inject } from "inversify-props";
 import { RootState } from '@/app.store';
-import { IGroupsQuery } from './queries/groupsQuery';
-import { ICreateGroupCommand } from './commands/createGroupCommand';
+import { IGroupsApi } from './groups.api';
 
 
 export enum GroupsMutations {
@@ -82,18 +80,18 @@ const actions: ActionTree<State, RootState> & Actions = {
         if (state.group?.id === groupId) {
             return;
         }
-        const groupQuery = container.get<IGroupQuery>(cid.GroupQuery);
-        const group = await groupQuery.query(groupId);
+        const groupsApi = container.get<IGroupsApi>(cid.GroupsApi);
+        const group = await groupsApi.get(groupId);
         commit(GroupsMutations.SET_GROUP, group);
     },
     async [GroupsActions.FETCH_GROUPS]({ commit }) {
-        const groupsQuery = container.get<IGroupsQuery>(cid.GroupsQuery);
-        const groups = await groupsQuery.query() || [];
+        const groupsApi = container.get<IGroupsApi>(cid.GroupsApi);
+        const groups = await groupsApi.list();
         commit(GroupsMutations.SET_GROUPS, groups);
     },
     async [GroupsActions.CREATE_GROUP]({ commit }, group: Group) {
-        const createGroupCommand = container.get<ICreateGroupCommand>(cid.CreateGroupCommand);
-        const newGroup = await createGroupCommand.execute(group);
+        const groupsApi = container.get<IGroupsApi>(cid.GroupsApi);
+        const newGroup = await groupsApi.create(group);
         commit(GroupsMutations.SET_GROUP, newGroup);
     }
 }
