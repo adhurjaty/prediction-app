@@ -11,8 +11,7 @@ import {
     Module,
     GetterTree
 } from 'vuex';
-import { IUserFullQuery } from "./queries/userFullQuery";
-import { IUserQuery } from "./queries/userQuery";
+import { IUsersApi } from "./users.api";
 
 export enum UsersMutations {
     SET_USER = 'SET_USER'
@@ -65,13 +64,13 @@ export interface Actions {
 
 const actions: ActionTree<State, RootState> & Actions = {
     async [UsersActions.FETCH_USER]({ state, commit }) {
-        const userQuery = container.get<IUserQuery>(cid.UserQuery);
-        const user = await userQuery.query();
+        const usersApi = container.get<IUsersApi>(cid.UsersApi);
+        const user = await usersApi.get();
         commit(UsersMutations.SET_USER, user);
     },
     async [UsersActions.FETCH_FULL_USER]({ state, commit }) {
-        const userQuery = container.get<IUserFullQuery>(cid.UserFullQuery);
-        const user = await userQuery.query();
+        const usersApi = container.get<IUsersApi>(cid.UsersApi);
+        const user = await usersApi.getFull();
         commit(UsersMutations.SET_USER, user);
     }
 };
