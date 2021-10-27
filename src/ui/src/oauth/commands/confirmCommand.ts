@@ -3,8 +3,8 @@ import { ILocalStorage } from "@/util/localStorage";
 import { ILocationBrowser } from "@/util/locationBrowser";
 import { inject, injectable } from "inversify-props";
 import { OauthConfirmRequest } from "../models";
-import { IOauthConfirmQuery } from "../queries/oauthConfirmQuery";
 import { TYPES } from '@/app.types';
+import { IOauthApi } from "../oauth.api";
 
 export interface IConfirmCommand {
     execute(code: string, state: string): Promise<void>;
@@ -13,8 +13,8 @@ export interface IConfirmCommand {
 @injectable()
 export class ConfirmCommand implements IConfirmCommand {
     @inject(TYPES.LOCAL_STORAGE) private localStorage: ILocalStorage
-    @inject(TYPES.OAUTH_CONFIRM) private confirmQuery: IOauthConfirmQuery;
     @inject(TYPES.LOCATION_BROWSER) private location: ILocationBrowser;
+    @inject() private oauthAPi!: IOauthApi;
 
     public async execute(code: string, state: string): Promise<void> {
         const stateParams = new URLSearchParams(state);
@@ -25,7 +25,7 @@ export class ConfirmCommand implements IConfirmCommand {
             throw new Error('ERROR, could not get verifier from local storage');
         }
 
-        const response = await this.confirmQuery.query(new OauthConfirmRequest({
+        const response = await this.oauthAPi.codeLogin(new OauthConfirmRequest({
             code: code,
             verifier: verifier
         }));
