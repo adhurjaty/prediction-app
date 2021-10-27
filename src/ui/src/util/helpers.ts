@@ -32,3 +32,9 @@ export function redirectToLoginOnError<T>(fn: () => Promise<T>): () => Promise<T
         }
     }
 }
+
+export function trimStart(s: string, start: string): string {
+    const pattern = `^(?:${start})+`;
+    const re = new RegExp(pattern);
+    return s.replace(re, '');
+}

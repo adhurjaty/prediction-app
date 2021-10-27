@@ -73,8 +73,12 @@ namespace WebApi
             services.AddSingleton<IDbConnectionFactory>(x => 
                 new OrmLiteConnectionFactory(dbConfig.ConnectionString(), 
                     PostgreSqlDialect.Provider));
-            services.AddSingleton<IDbConnection>(x => 
-                x.GetService<IDbConnectionFactory>().Open());
+            services.AddSingleton<IDatabaseInterface>(x =>
+            {
+                var dbInt = new DatabaseInterface(x.GetService<IDbConnectionFactory>());
+                var strategyFactory = new DbStrategyFactory(typeof(Startup).Assembly.GetTypes());
+                return new ModelsDatbaseInterface(dbInt, strategyFactory);
+            });
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(jwt => jwt.UseGoogle(googleSettings.ClientId));
@@ -104,7 +108,7 @@ namespace WebApi
             services.RegisterGenericInterface(typeof(IQueryHandler<,>));
 
             services.AddMediatR(typeof(Startup).GetType().Assembly);
-            services.AddScoped<IMediatorResult>(x => 
+            services.AddTransient<IMediatorResult>(x => 
                 new MediatorRailway(x.GetService<IMediator>()));
         }
 

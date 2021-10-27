@@ -11,7 +11,11 @@ namespace Infrastructure
     public class Result<TSuccess, TFailure> : Result
 	{
 	    public TSuccess Success { get; protected set; }
-		public TFailure Failure { get; protected set; }
+		public new TFailure Failure 
+        { 
+            get { return (TFailure)_failure; }
+            protected set { _failure = value; } 
+        }
 
 		protected Result()
 		{
@@ -67,9 +71,15 @@ namespace Infrastructure
 
     public class Result 
     {
+        protected object _failure;
         public bool IsSuccess => IsSuccessful;
 	    public bool IsFailure => !IsSuccessful;
 		protected bool IsSuccessful { get; set; }
+        public string Failure 
+        {
+            get { return _failure as string; }
+            set { _failure = value; }
+        }
 
         public static Result<T> Succeeded<T>(T success)
         {
@@ -79,6 +89,24 @@ namespace Infrastructure
         public static Result<T> Failed<T>(string failure)
         {
             return Result<T>.Failed(failure);
+        }
+
+        public static Result Succeeded()
+        {
+            return new Result()
+            {
+                IsSuccessful = true
+            };
+        }
+
+        public static Result Failed(string failure)
+        {
+            var res = new Result()
+            {
+                IsSuccessful = false
+            };
+            res._failure = failure;
+            return res;
         }
     }
 
@@ -171,6 +199,14 @@ namespace Infrastructure
             return Result<TSuccess[]>.Failed(accumulator.Failure + "\n" + next.Failure);
         }
 
+        public static Result Merge(this Result accumulator, Result next)
+        {
+            if (accumulator.IsSuccess && next.IsSuccess)
+                return Result.Succeeded();
+
+            return Result.Failed(accumulator.Failure + "\n" + next.Failure);
+        }
+
         // Aggregate an array of results together.
         // If any of the results fail, return combined failures
         // Will only return success if all results succeed
@@ -200,6 +236,14 @@ namespace Infrastructure
             this IEnumerable<Task<Result<TSuccess>>> accumulator)
         {
             var emptySuccess = Result<TSuccess[]>.Succeeded(new TSuccess[0]);
+            return (await Task.WhenAll(accumulator))
+                .Aggregate(emptySuccess, (acc, o) => acc.Merge(o));
+        }
+
+        public static async Task<Result> Aggregate(
+            this IEnumerable<Task<Result>> accumulator)
+        {
+            var emptySuccess = Result.Succeeded();
             return (await Task.WhenAll(accumulator))
                 .Aggregate(emptySuccess, (acc, o) => acc.Merge(o));
         }
@@ -321,6 +365,22 @@ namespace Infrastructure
                 : Result<string>.Failed(x.Failure);
         }
 
+        public static Result<TSuccess> Bind<TSuccess>(
+            this Result x, Func<Result<TSuccess>> f)
+        {
+            return x.IsSuccess
+                ? f()
+                : Result<TSuccess>.Failed(x.Failure);
+        }
+
+        public static async Task<Result<TSuccess>> Bind<TSuccess>(
+            this Result x, Func<Task<Result<TSuccess>>> f)
+        {
+            return x.IsSuccess
+                ? await f()
+                : Result<TSuccess>.Failed(x.Failure);
+        }
+
         public static Result<TSuccess> Tee<TSuccess>(this Result<TSuccess> x, Action<TSuccess> f)
         {
             if (x.IsSuccess)
@@ -342,6 +402,18 @@ namespace Infrastructure
             return x;
         }
 
+        public static async Task<Result<TSuccess>> TeeResult<TSuccess>(
+            this Result<TSuccess> x, Func<TSuccess, Task<Result>> f)
+        {
+            return await x.Bind(async result =>
+            {
+                var tee = (await f(result));
+                return tee.IsSuccess
+                    ? Result.Succeeded(result)
+                    : Result.Failed<TSuccess>(tee.Failure);
+            });
+        }
+
         public static Result<T> FirstResult<T>(this IEnumerable<T> lst,
             Func<T, bool> expr)
         {
@@ -353,6 +425,22 @@ namespace Infrastructure
             {
                 return Result.Failed<T>("Element not found");
             }
+        }
+
+        public static Result<T> FailIf<T>(this Result<T> x, Func<T, bool> fn,
+            string failString)
+        {
+            if(x.IsSuccess && fn(x.Success))
+                return Result<T>.Failed(failString);
+            return x;
+        }
+
+        public static Result<(T, U)> FailIf<T, U>(this Result<(T, U)> x, Func<T, U, bool> fn,
+            string failString)
+        {
+            if(x.IsSuccess && fn(x.Success.Item1, x.Success.Item2))
+                return Result<(T, U)>.Failed(failString);
+            return x;
         }
     }
 }

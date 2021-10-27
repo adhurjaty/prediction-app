@@ -1,0 +1,4 @@
+export const TYPES = {
+    OAUTH_CONFIRM: 'OAUTH_CONFIRM',
+    OAUTH_SECRET: 'OAUTH_SECRET'
+}

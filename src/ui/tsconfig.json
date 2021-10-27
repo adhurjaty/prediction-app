@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "esnext",
-    "module": "esnext",
+    "module": "commonjs",
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
@@ -13,7 +13,9 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": [
-      "webpack-env"
+      "webpack-env",
+      "jest",
+      "node"
     ],
     "paths": {
       "@/*": [
@@ -25,15 +27,18 @@
       "dom",
       "dom.iterable",
       "scripthost"
-    ]
+    ],
+    "strictPropertyInitialization": false
   },
   "include": [
+    "@types/**/*.d.ts",  
     "src/**/*.ts",
     "src/**/*.tsx",
     "src/**/*.vue",
     "tests/**/*.ts",
-    "tests/**/*.tsx"
-, "src/router.ts"  ],
+    "tests/**/*.tsx", 
+    "src/router.ts"
+  ],
   "exclude": [
     "node_modules"
   ]
