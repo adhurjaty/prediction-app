@@ -1,11 +1,7 @@
 import 'reflect-metadata';
 import { container } from "inversify-props";
-import { CreateBetCommand, ICreateBetCommand } from './commands/createBetCommand';
-import { BetQuery, IBetQuery } from './queries/betQuery';
-import { BetsQuery, IBetsQuery } from './queries/betsQuery';
+import { BetsApi, IBetsApi } from './bets.api';
 
 export default () => {
-    container.addSingleton<ICreateBetCommand>(CreateBetCommand);
-    container.addSingleton<IBetQuery>(BetQuery);
-    container.addSingleton<IBetsQuery>(BetsQuery);
+    container.addSingleton<IBetsApi>(BetsApi);
 }

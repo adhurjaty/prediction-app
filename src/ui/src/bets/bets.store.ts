@@ -10,10 +10,8 @@ import {
     Module,
     GetterTree
 } from 'vuex';
+import { IBetsApi } from './bets.api';
 import { Bet } from './bets.models';
-import { ICreateBetCommand } from './commands/createBetCommand';
-import { IBetQuery } from './queries/betQuery';
-import { IBetsQuery } from './queries/betsQuery';
 
 export enum BetsMutations {
     SET_BET = 'SET_BET',
@@ -83,18 +81,18 @@ const actions: ActionTree<State, RootState> & Actions = {
         if (state.bet?.id == betId) {
             return
         }
-        const betQuery = container.get<IBetQuery>(cid.BetQuery);
-        const bet = await betQuery.query(betId);
+        const betsApi = container.get<IBetsApi>(cid.BetsApi);
+        const bet = await betsApi.get(betId);
         commit(BetsMutations.SET_BET, bet);
     },
     async [BetsActions.FETCH_BETS]({ state, commit }) {
-        const betsQuery = container.get<IBetsQuery>(cid.BetsQuery);
-        const bets = await betsQuery.query();
+        const betsApi = container.get<IBetsApi>(cid.BetsApi);
+        const bets = await betsApi.list();
         commit(BetsMutations.SET_BETS, bets);
     },
     async [BetsActions.CREATE_BET]({ state, commit }, bet: Bet) {
-        const createCommand = container.get<ICreateBetCommand>(cid.CreateBetCommand);
-        const newBet = await createCommand.execute(bet);
+        const betsApi = container.get<IBetsApi>(cid.BetsApi);
+        const newBet = await betsApi.create(bet);
         commit(BetsMutations.SET_BET, newBet);
     }
 }
