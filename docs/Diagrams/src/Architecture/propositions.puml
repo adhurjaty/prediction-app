@@ -1,19 +1,19 @@
 @startuml Propositions and Resolutions
 
-title Propositions and Resolutions
+title Bets and Resolutions
 
-card Proposition [
-    Proposition
+card Bet [
+    Bet
     ====
-    Currency: Prestige, USD, ETH
+    Currency: USD, ETH
     ----
-    WagerType: Equal ante, shares
+    WagerType: Equal ante, shares, hub-spoke
     ----
     ResultType: yes/no, scalar, categorical, range
 ]
 
 card Resolution [
-    Resolution
+    Resolver
     ====
     Trigger: by event, by datetime
     ----
@@ -31,7 +31,7 @@ card ResolutionByVote [
 ]
 card ResolutionByOracle
 
-Proposition *-- Resolution : has a
+Bet *-- Resolution : has a
 Resolution ^-- ResolutionByOracle : is a
 Resolution ^-- ResolutionByVote : is a
 

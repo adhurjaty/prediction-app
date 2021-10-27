@@ -7,7 +7,6 @@ import "./Resolver.sol";
 /** 
  * @title Base proposition contract
  * @author Bragging Rights
- * TODO: turn this into an abstract contract
  */
 contract Bet is managed, resolvable {
 
