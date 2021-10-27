@@ -1,3 +1,4 @@
+import { TYPES } from "@/app.types";
 import { IHttp } from "@/backend/httpInterface";
 import { inject, injectable } from "inversify-props";
 import { Bet } from "./bets.models";
@@ -11,7 +12,7 @@ export interface IBetsApi {
 
 @injectable()
 export class BetsApi implements IBetsApi {
-    @inject() private http: IHttp;
+    @inject(TYPES.HTTP) private http!: IHttp;
 
     async get(id: string): Promise<Bet> {
         return await this.http.authGet<Bet>(`/bets/${id}`);
