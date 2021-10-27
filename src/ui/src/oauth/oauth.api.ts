@@ -1,3 +1,4 @@
+import { TYPES } from "@/app.types";
 import { IHttp } from "@/backend/httpInterface";
 import { inject, injectable } from "inversify-props";
 import { OauthConfirmRequest, OauthConfirmResponse } from "./models";
@@ -9,7 +10,7 @@ export interface IOauthApi {
 
 @injectable()
 export class OauthAPi implements IOauthApi {
-    @inject() private http!: IHttp;
+    @inject(TYPES.HTTP) private http!: IHttp;
 
     async codeLogin(request: OauthConfirmRequest): Promise<OauthConfirmResponse> {
         const response = await this.http.post('/oauth/codelogin', request);

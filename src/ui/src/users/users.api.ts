@@ -1,3 +1,4 @@
+import { TYPES } from "@/app.types";
 import { IHttp } from "@/backend/httpInterface";
 import User from "@/models/user";
 import { inject, injectable } from "inversify-props";
@@ -9,7 +10,7 @@ export interface IUsersApi {
 
 @injectable()
 export class UsersApi implements IUsersApi {
-    @inject() private http!: IHttp;
+    @inject(TYPES.HTTP) private http!: IHttp;
 
     async get(): Promise<User> {
         return await this.http.authGet<User>('/user');

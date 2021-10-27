@@ -1,3 +1,4 @@
+import { TYPES } from "@/app.types";
 import { Group } from "@/groups/models";
 import { inject, injectable } from "inversify-props";
 import { IHttp } from "../backend/httpInterface";
@@ -11,7 +12,7 @@ export interface IGroupsApi {
 
 @injectable()
 export class GroupsApi implements IGroupsApi {
-    @inject() private http: IHttp
+    @inject(TYPES.HTTP) private http!: IHttp
 
     async get(id: string): Promise<Group> {
         return await this.http.authGet<Group>(`/group/${id}`);
