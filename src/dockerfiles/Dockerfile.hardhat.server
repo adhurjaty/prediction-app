@@ -9,6 +9,8 @@ RUN npm install --save-dev \
                 @nomiclabs/hardhat-ethers \
                 @nomiclabs/hardhat-waffle \
                 @nomiclabs/hardhat-web3 \
+                @typechain/hardhat \
+                @typechain/ethers-v5 \
                 ethereum-waffle \
                 chai \
                 mocha

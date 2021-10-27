@@ -1,0 +1,23 @@
+@startuml Hub and Spoke Bet
+
+actor Hub as hub
+actor Spoke as spoke
+participant Commissioner as backend
+participant Blockchain as bc
+participant "Bet (SC)" as bet
+participant "Resolver (SC)" as resolver
+database Database as db
+
+hub -> spoke : Negotiate terms offline? Bet amounts and outcomes
+hub -> backend : Create hub and spoke bet with title, outcomes, odds (eventually)
+backend -> bc : BetAgainstMe(title, my_outcome, their_outcome)
+backend -> bc : Resolver(bet address)
+backend -> bet : Bet.setResolver(resolver address)
+backend -> resolver : Resolver.setOutcome(outcome)
+
+hub -> bet : Increase available "house" funds - Bet.wager(amount)
+backend -> spoke : New bet available
+spoke -> bet : Bet against the hub - Bet.wager(amount)
+spoke -> bet : blah
+
+@enduml
