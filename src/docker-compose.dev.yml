@@ -10,7 +10,8 @@ services:
     # extends: # we can't use this because the ports are merged, not overridden, causing a mapping conflict
     #   file: docker-compose.yml
     #   service: webapp
-    command: ../src/src/App.vue
+    # command: ../src/.
+    working_dir: /opt/braggingrights/src
     volumes: 
       - ./ui:/opt/braggingrights/src
     environment:
