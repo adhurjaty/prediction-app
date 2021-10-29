@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+
+  webapp_dev:
+    image: braggingrights/webapp:latest
+    build: 
+      dockerfile: dockerfiles/Dockerfile.webapp
+      context: .
+    # extends: # we can't use this because the ports are merged, not overridden, causing a mapping conflict
+    #   file: docker-compose.yml
+    #   service: webapp
+    command: ../src/src/App.vue
+    volumes: 
+      - ./ui:/opt/braggingrights/src
+    environment:
+      - NODE_ENV=development
+    ports:
+      - 8082:8080 # ui
