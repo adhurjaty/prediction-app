@@ -1,19 +1,16 @@
-FROM node:latest
+FROM ethereum/solc:stable-alpine AS solcbuilder
+
+WORKDIR /opt/braggingrights
+ADD ./contracts contracts/.
+
+# This compiles the contract into a single json file: build/contracts/combined.json
+RUN sh contracts/build_contracts.sh
+
+FROM node:fermium
 
 WORKDIR /opt/braggingrights
 RUN npm init --yes
-
 RUN npm install --save-dev ethers chai mocha 
-
-# installing solc globally provides the `solcjs` CLI tool
-# Bug: solcjs --standard-json flag is broken (issue #460)
-# RUN npm install -g solc
-
-RUN apt-get update \
-    && apt-get install -y software-properties-common \
-    && add-apt-repository -y ppa:ethereum/ethereum \
-    && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 1C52189C923F6CA9 \
-    && apt-get update && apt-get install -y --allow-unauthenticated solc
 
 RUN mkdir scripts \
     && mkdir contracts \
@@ -26,20 +23,18 @@ ADD ./contracts contracts/.
 ADD ./tests tests/.
 ADD ./ui ui/.
 
-# Install Vue
-RUN (cd ui && exec yarn install)
+COPY --from=solcbuilder /opt/braggingrights/build/contracts ./build/contracts
 
-# This compiles the contract into a single json file: build/contracts/combined.json
-RUN sh contracts/build_contracts.sh
-
-# TODO:
+# TODO: are we actually using these compiled contracts???
 # Move compiled contracts to right place for vue and the webapi
 # RUN mv build/contracts/compiled.json <TARGET_DIR> \
 #     && npx typechain --target=ethers-v5 "./abi/*.json"
 
 WORKDIR /opt/braggingrights/ui
-RUN yarn build
 
-# TODO: replace this with a script that runs both the production vue server and webapi
-ENTRYPOINT ["yarn"]
-CMD ["serve"]
+# Install Vue
+RUN yarn install --modules-folder /opt/node_modules
+ENV PATH "$PATH:/opt/node_modules/.bin"
+RUN yarn build --modules-folder /opt/node_modules
+
+ENTRYPOINT ["yarn", "serve", "--modules-folder", "/opt/node_modules"]

@@ -1,4 +1,4 @@
-FROM node:latest
+FROM node:fermium
 
 WORKDIR /opt/braggingrights
 RUN npm init --yes

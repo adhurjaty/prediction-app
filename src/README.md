@@ -33,24 +33,13 @@ For development, we'll use a docker compose cluster with the following container
   * postgres on tcp/5432
   * credentials: postgres/igotbraggingrights
 * **braggingrights/webapp**
-  * vue on tcp/8080
-  * api on tcp/TBD
+  * vue on tcp/8080 (production)
+  * vue on tcp/8082 (dev/hot reload version)
+* **braggingrights/api**
+  * api on tcp/5000
 * **adminer**
   * db [admin UI](http://localhost:8001) on tcp/8001: select postgres and use the credentials above
 
-
-### Running the Database
-
-```sh
-docker-compose up db
-```
-
-go to `src/alembic`
-
-```sh
-source venv/bin/activate
-alembic -c alembic.ini.local upgrade head
-```
 
 ### Building
 
@@ -69,13 +58,21 @@ braggingrights/hardhat-server   latest    83463a246dea   11 hours ago    1.4GB
 ...
 ```
 
-### Running with docker compose
+### Running 
+
+Without the dev webapp container:
 
 ```bash
 docker-compose up 
 ```
 
-### Running just the blockchain
+With the dev webapp container:
+
+```bash
+docker-compose -f docker-compose.yml -f docker-compose.dev.yml up
+```
+
+#### Running just the blockchain
 
 To start up the local blockchain net, available on `localhost:8545`, run:
 
