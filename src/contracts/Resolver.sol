@@ -4,22 +4,30 @@ pragma solidity >=0.7.0; // <0.8.0;
 import './MembersOnly.sol';
 import './Bet.sol';
 
+/**
+ * @title Interface contract for bets that are resolved using a Resolver contract
+ * @author Anthony Wong
+ */
+/* TODO: Should this be incorporated directly into Bet? */
 /* TODO: documentation */
 contract resolvable {
     /**  */
-    Resolver resolver;
+    Resolver private resolver;
 
     /** Time when the proposition will be resolved (s since epoch) */
     uint public resolution_time;
+
+    event SetResolver(address resolver);
 
     modifier isResolver() {
         require(msg.sender == address(resolver), "Caller is not the resolver");
         _;
     }
 
-    /** TODO: this should be protected by isCommissioner... */
+    /** FIXME: this should be protected by isCommissioner... */
     function setResolver(address _resolver) public {
         resolver = Resolver(_resolver);
+        emit SetResolver(_resolver);
     }
     
     /**  */
@@ -29,6 +37,10 @@ contract resolvable {
 }
 
 /* TODO: documentation */
+/**
+ * @title Base contract responsible for resolution of bets
+ * @author Anthony Wong
+ */
 contract Resolver is managed {
     Bet public bet;
     bool public isResolved;
@@ -56,6 +68,11 @@ contract Resolver is managed {
 
 // }
 
+/**
+ * @title Resolver 
+ * @author Anthony Wong
+ */
+/* TODO: documentation */
 contract ResolverByVote is Resolver {
 
     struct MemberVote {
@@ -153,7 +170,11 @@ contract ResolverByVote is Resolver {
         checkMajority();
     }
 
-    function checkMajority() private returns (bool) {
+    /** 
+     * @notice Checks to see if a majority of resolution votes has been reached 
+     * @return majorityReached
+     */
+    function checkMajority() private returns (bool majorityReached) {
         uint numBettors = bet.numBettors();
         emit VoteCount(votesCast, numBettors);
 
@@ -178,6 +199,11 @@ contract ResolverByVote is Resolver {
         return true;
     }
 
+    /** 
+     * @notice Checks to see if a majority of resolution votes has been reached 
+     * @param numBettors the number of somethings
+     * @return majorityReached
+     */
     function tabulateOutcome(uint numBettors) private returns (bytes32) {
 
         if (outcomeMajorityType == MajorityType.UNANIMITY) {
