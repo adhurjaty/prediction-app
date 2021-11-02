@@ -41,4 +41,17 @@ contract BetAgainstMe is Bet {
 
         emit Wager(msg.sender, msg.value);
     }
+
+    /**
+     * @notice Pays a member of the bet after the bet has been resolved
+     * @param _to the 
+     * @param _amount unused in this bet type
+     */
+    function pay(address payable _to, uint256 _amount) override public isCommissioner {
+        require(members[_to], "Payee is not a member");
+        uint256 amount = bets[_to] * 2;
+        (bool success, ) = _to.call{value: amount}("");
+        require(success, "Failed to send Ether");
+        emit PayMember(_to, amount);
+    }
 }

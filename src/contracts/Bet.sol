@@ -5,9 +5,10 @@ import './MembersOnly.sol';
 import "./Resolver.sol";
 
 /** 
- * @title Base proposition contract
+ * @title Base contract for a bet
  * @author Bragging Rights
  */
+/* TODO: Bet maybe should override addMember to also addMember to the resolver */
 contract Bet is managed, resolvable {
 
     /* Bets per member */
@@ -24,6 +25,7 @@ contract Bet is managed, resolvable {
     uint public bet_closing_time;
 
     event Wager(address member, uint256 wager);
+    event PayMember(address payee, uint amount);
     
     /**
      * @dev Set contract deployer as a member
@@ -57,6 +59,16 @@ contract Bet is managed, resolvable {
 
     function getWager(address bettor) public view isResolver returns (uint256) {
         return bets[bettor];
+    }
+
+    /**
+     * @dev
+     */
+    function pay(address payable _to, uint256 _amount) virtual public isCommissioner {
+        require(members[_to], "Payee is not a member");
+        (bool success, ) = _to.call{value: _amount}("");
+        require(success, "Failed to send Ether");
+        emit PayMember(_to, _amount);
     }
 }
 

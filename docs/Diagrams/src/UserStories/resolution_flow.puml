@@ -1,11 +1,11 @@
 @startuml resolution_flow
 
-title Resolution Flow for Managed Propositions
+title Resolution Flow for Managed Bets
 
 actor "Group Member" as member
 participant "Commissioner/backend" as commissioner
 participant "SC Event Watcher" as watcher
-participant "Proposition (SC)" as proposition
+participant "Bet (SC)" as proposition
 participant "Resolution (SC)" as resolution
 database Database as db
 
