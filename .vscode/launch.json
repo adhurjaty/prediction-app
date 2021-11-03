@@ -28,7 +28,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "vuejs: chrome",
-            "url": "http://localhost:8080",
+            "url": "http://localhost:8082",
             "webRoot": "${workspaceFolder}/src/ui",
             "breakOnLoad": true,
             "pathMapping": {

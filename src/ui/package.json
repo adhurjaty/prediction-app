@@ -6,7 +6,7 @@
     "verbose": true
   },
   "scripts": {
-    "serve": "vue-cli-service serve --mode deployment",
+    "serve": "vue-cli-service serve --mode deployment --port 8082",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test": "jest test"
@@ -15,6 +15,7 @@
     "@vue/composition-api": "^1.0.0-rc.7",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
+    "dotenv": "^10.0.0",
     "inversify": "^5.1.1",
     "inversify-props": "^2.2.6",
     "reflect-metadata": "^0.1.13",
