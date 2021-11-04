@@ -9,12 +9,15 @@ namespace WebApi
     [ApiController]
     public class BetsController : BragControllerBase
     {
+        private readonly IDatabaseInterface _db;
         private readonly IMediatorResult _mediator;
 
-        public BetsController(IMediatorResult mediator)
+        public BetsController(IDatabaseInterface db, IMediatorResult mediator)
         {
+            _db = db;
             _mediator = mediator;
         }
+
 
         [HttpGet]
         [Authorize]
@@ -23,7 +26,7 @@ namespace WebApi
         {
             
         }
-        
+
         [HttpGet]
         [Authorize]
         [Route("Bets/{betId}")]
@@ -33,6 +36,22 @@ namespace WebApi
             {
                 Id = betId
             });
+        }
+
+        [HttpPost]
+        [Authorize]
+        [Route("Bets")]
+        public async Task<ActionResult<Bet>> CreateBet(Bet bet)
+        {
+            var cmd = new CreateBetCommand()
+            {
+                Title = bet.Title,
+                Description = bet.Description,
+                GroupId = bet.GroupId
+            };
+
+            var result = await (await _mediator.Send(cmd))
+                .Bind(() => _db.LoadSingleById<Bet>(cmd.BetId));
 
             return ToResponse(result);
         }
