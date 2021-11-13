@@ -1,0 +1,149 @@
+@startuml
+
+title Contracts Inheritance
+
+abstract class MembersOnly {
+    members : mapping(address => bool)
+    numMembers : uint
+
+    isMember(): modifier
+    addMember(address) isMember: void
+    checkMembership(): bool
+}
+
+abstract class Managed {
+    commisioner: address
+    isCommissioner(): modifier
+    setCommissioner(address): void
+    addMember(address) isCommissioner: void
+}
+
+abstract class Resolver {
+    timeResolved : date?
+    betClosingTime: date
+}
+
+abstract class YesNoResolver {
+    {abstract} setResolved(bool): void
+}
+
+abstract class OracleYesNoResolver {
+
+}
+
+abstract class VoteYesNoResolver {
+    votes: mapping(address => bool)
+    numYeses: uint
+    numNos: uint
+
+    hasntVoted(): modifier
+    vote(bool) isMember hasntVoted: void
+}
+
+abstract class MajorityVoteYesNoResolver {
+    {override} setResolved(bool): void
+}
+
+abstract class UnanimousVoteYesNoResolver {
+    {override} setResolved(bool): void
+}
+
+abstract class VoteScalarResolver {
+    votes: mapping(address => int)
+
+    setResolved(int): void
+}
+
+abstract class Bet {
+    title: string
+    bets: mapping(address => uint)
+    closingTime: date
+    wager: event
+    payMember: event
+
+    getWager(address): uint
+    getMyWager(): uint
+    wager(): void
+    -pay(): void
+}
+
+class VoteYesNoBet {
+    type: VoteTypeEnum
+}
+
+class OracleYesNoBet {
+    checkOracle(): bool?
+}
+
+abstract class PriceIsRightResolver {
+    {override} setResolved(int): void
+}
+
+abstract class ClosestResolver {
+    {override} setResolved(int): void
+}
+
+class VoteScalarBet {
+    type: ScalarVoteTypeEnum
+}
+
+interface IYesNoBet {
+    wager(bool): void
+    getMyWager(): bool
+    getWager(address): bool
+}
+
+interface IScalarBet {
+    wager(int)
+    getMyWager(): int
+    getWager(address): int
+}
+
+interface IVoteYesNoBet {
+    vote(bool): void
+}
+
+interface IVoteScalarBet {
+    vote(int): vote
+}
+
+interface IOracleYesNoBet {
+    checkOracle(): bool?
+}
+
+interface IOracleScalarBet {
+    checkOracle(): bool?
+}
+
+Managed --|> MembersOnly
+Resolver --|> Managed
+YesNoResolver --|> Resolver
+ScalarResolver --|> Resolver
+VoteYesNoResolver --|> YesNoResolver
+OracleYesNoResolver --|> YesNoResolver
+MajorityVoteYesNoResolver --|> VoteYesNoResolver
+UnanimousVoteYesNoResolver --|> VoteYesNoResolver
+VoteScalarResolver --|> ScalarResolver
+Bet --|> Managed
+
+IVoteYesNoBet --|> IYesNoBet
+IOracleYesNoBet --|> IYesNoBet
+IVoteScalarBet --|> IScalarBet
+IOracleScalarBet --|> IScalarBet
+
+VoteYesNoBet --|> IVoteYesNoBet
+VoteYesNoBet --|> Bet
+VoteYesNoBet --* MajorityVoteYesNoResolver
+VoteYesNoBet --* UnanimousVoteYesNoResolver
+
+OracleYesNoBet --|> Bet
+OracleYesNoBet --|> OracleYesNoResolver
+OracleYesNoBet --|> IOracleYesNoBet
+
+PriceIsRightResolver --|> VoteScalarResolver
+ClosestResolver --|> VoteScalarResolver
+VoteScalarBet --|> Bet
+VoteScalarBet --|> IVoteScalarBet
+VoteScalarBet --* PriceIsRightResolver
+VoteScalarBet --* ClosestResolver
+@enduml
