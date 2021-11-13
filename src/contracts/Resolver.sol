@@ -41,7 +41,7 @@ contract resolvable {
  * @title Base contract responsible for resolution of bets
  * @author Anthony Wong
  */
-contract Resolver is managed {
+abstract contract Resolver is managed {
     Bet public bet;
     bool public isResolved;
 
