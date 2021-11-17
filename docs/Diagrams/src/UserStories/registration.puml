@@ -16,7 +16,10 @@ group OAuth
     ui -> api : Create user endpoint
     api -> oauth : Register user
     oauth -> api : Return user info
-    api -> db : Insert user
+    api -> db: Check if user exists
+    db -> api: Return if user exists
+    api -> ui: Login (if exists)
+    api -> db : Insert user (if user does not exist)
     api -> ui : Report oauth success/failure
 end
 

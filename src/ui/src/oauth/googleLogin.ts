@@ -16,7 +16,7 @@ export class GoogleLogin implements IGoogleLogin {
     codeUrl(verifier : string, origin?: string) : string {
         const googleLogin = new GoogleOauth({
             client_id: '466916983544-t7m40b8hn047m9v5hcbgr9q2vt6hsavm.apps.googleusercontent.com',
-            redirect_uri: 'http://localhost:8080/confirm',
+            redirect_uri: 'http://localhost:8082/confirm',
             response_type: 'code',
             scope: 'openid email',
             access_type: 'offline',

@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
 using System.Threading.Tasks;
 using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
@@ -8,10 +11,12 @@ namespace WebApi
     [ApiController]
     public class UserController : BragControllerBase
     {
+        private readonly IDatabaseInterface _db;
         private readonly IMediatorResult _mediator;
 
-        public UserController(IMediatorResult mediator) 
+        public UserController(IDatabaseInterface db, IMediatorResult mediator) 
         {
+            _db = db;
             _mediator = mediator;
         }
 
@@ -36,6 +41,22 @@ namespace WebApi
             {
                 Email = GetEmailFromClaims()
             });
+            return ToResponse(result);
+        }
+
+        [HttpPost]
+        [Authorize]
+        [Route("User")]
+        public async Task<ActionResult<AppUser>> CreateUser(AppUser newUser)
+        {
+            var command = new CreateUserCommand()
+            {
+                DisplayName = newUser.DisplayName,
+                Email = newUser.Email
+            };
+            var result = await (await _mediator.Send(command))
+                .Bind(() => _db.LoadSingleById<AppUser>(command.UserId));
+            
             return ToResponse(result);
         }
     }

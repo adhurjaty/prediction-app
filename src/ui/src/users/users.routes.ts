@@ -18,8 +18,13 @@ export default (): RouteRecordRaw[] => {
         {
             path: '/friends/:id',
             name: 'Friend',
-            component: import('./views/Friend.vue'),
+            component: () => import('./views/Friend.vue'),
             beforeEnter: auth
+        },
+        {
+            path: '/register',
+            name: 'Register',
+            component: () => import('./views/CreateUser.vue')
         }
     ]
 }

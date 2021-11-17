@@ -3,12 +3,15 @@ import { oauthModule } from '@/oauth'
 import { usersModule } from './users'
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import { betsModule } from './bets'
+import auth from "@/middleware/auth"
+
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'Home',
-    component: import('./views/Home.vue'),
+    component: import('./groups/views/GroupsList.vue'),
+    beforeEnter: auth,
   },
     ...usersModule.routes(),
     ...groupsModule.routes(),

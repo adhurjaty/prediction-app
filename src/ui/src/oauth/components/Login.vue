@@ -1,10 +1,14 @@
 <template>
-    <div class="container">
-        <h1>Login</h1>
+    <section>
+        <img src="@/assets/header-icon.png" />
+        <h1>delph.ai</h1>
         <div>
             <button @click="login">Login</button>
+            <router-link :to="{ name: 'Register'}">
+                <a>register</a>
+            </router-link>
         </div>
-    </div>
+    </section>
 </template>
 
 <script lang="ts">
@@ -25,22 +29,37 @@ export default class Secret extends Vue {
 
 <style lang="scss" scoped>
 
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+section {
+    position: fixed;
+    height: 100vh;
+    width: 100vw;
+    background: $black-header;
+    z-index: 999;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    place-content: center;
+    text-align: center;
+
+    img {
+        margin: 0 auto;
+    }
 
     h1 {
-        padding: 15px;
-        align-self: center;
+        color: #fff;
+        font-size: 55px;
+        margin-top: 10px;
     }
 
-    div {
-        padding: 10px;
+    a {
+        color: #fff;
+        display: block;
+        text-decoration: underline;
     }
 
-    span {
-        padding-left: 15px;
+    button {
+        @include button;
+        margin-bottom: 20px;
     }
 }
 
