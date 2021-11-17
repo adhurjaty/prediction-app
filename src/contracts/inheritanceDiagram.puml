@@ -9,6 +9,7 @@ abstract class MembersOnly {
     isMember(): modifier
     addMember(address) isMember: void
     checkMembership(): bool
+    pay(person: address, amount: wei): void
 }
 
 abstract class Managed {
@@ -21,9 +22,11 @@ abstract class Managed {
 abstract class Resolver {
     timeResolved : date?
     betClosingTime: date
+    {abstract} getWinners(): address[]
 }
 
 abstract class YesNoResolver {
+    result: bool?
     {abstract} setResolved(bool): void
 }
 
@@ -40,18 +43,20 @@ abstract class VoteYesNoResolver {
     vote(bool) isMember hasntVoted: void
 }
 
-abstract class MajorityVoteYesNoResolver {
+class MajorityVoteYesNoResolver {
     {override} setResolved(bool): void
 }
 
-abstract class UnanimousVoteYesNoResolver {
+class UnanimousVoteYesNoResolver {
     {override} setResolved(bool): void
+}
+
+abstract class ScalarResolver {
+    result: int?
 }
 
 abstract class VoteScalarResolver {
     votes: mapping(address => int)
-
-    setResolved(int): void
 }
 
 abstract class Bet {
@@ -60,43 +65,66 @@ abstract class Bet {
     closingTime: date
     wager: event
     payMember: event
+    pool: wei
 
     getWager(address): uint
     getMyWager(): uint
-    wager(): void
-    -pay(): void
+    {virtual} wager(): void
+    {abstract} getWinners(): address[]
 }
 
 class VoteYesNoBet {
-    type: VoteTypeEnum
+    resolverType: VoteTypeEnum
+    betType: BetTypeEnum
+}
+
+class HubAndSpokeBet {
+    hub: address
+    spokes: address[]
 }
 
 class OracleYesNoBet {
     checkOracle(): bool?
 }
 
-abstract class PriceIsRightResolver {
+abstract AverageScalarResolver {
     {override} setResolved(int): void
 }
 
-abstract class ClosestResolver {
+abstract UnanimousScalarResolver {
+    {override} setResolved(int): void
+}
+
+class PriceIsRightBet {
+    {override} setResolved(int): void
+}
+
+class ClosestBet {
     {override} setResolved(int): void
 }
 
 class VoteScalarBet {
     type: ScalarVoteTypeEnum
+    betType: BetTypeEnum
+}
+
+interface IBet {
+    getWinners(): address[]
 }
 
 interface IYesNoBet {
+    result: bool?
     wager(bool): void
     getMyWager(): bool
     getWager(address): bool
 }
 
 interface IScalarBet {
+    result: int?
     wager(int)
     getMyWager(): int
     getWager(address): int
+    getResult(): int?
 }
 
 interface IVoteYesNoBet {
@@ -112,7 +140,7 @@ interface IOracleYesNoBet {
 }
 
 interface IOracleScalarBet {
-    checkOracle(): bool?
+    checkOracle(): int?
 }
 
 Managed --|> MembersOnly
@@ -126,24 +154,33 @@ UnanimousVoteYesNoResolver --|> VoteYesNoResolver
 VoteScalarResolver --|> ScalarResolver
 Bet --|> Managed
 
+IYesNoBet --|> IBet
+IScalarBet --|> IBet
+
 IVoteYesNoBet --|> IYesNoBet
 IOracleYesNoBet --|> IYesNoBet
 IVoteScalarBet --|> IScalarBet
 IOracleScalarBet --|> IScalarBet
 
+HubAndSpokeBet --|> Bet
+
 VoteYesNoBet --|> IVoteYesNoBet
-VoteYesNoBet --|> Bet
 VoteYesNoBet --* MajorityVoteYesNoResolver
 VoteYesNoBet --* UnanimousVoteYesNoResolver
+VoteYesNoBet --* HubAndSpokeBet
 
 OracleYesNoBet --|> Bet
 OracleYesNoBet --|> OracleYesNoResolver
 OracleYesNoBet --|> IOracleYesNoBet
 
-PriceIsRightResolver --|> VoteScalarResolver
-ClosestResolver --|> VoteScalarResolver
-VoteScalarBet --|> Bet
+PriceIsRightBet --|> Bet
+ClosestBet --|> Bet
 VoteScalarBet --|> IVoteScalarBet
-VoteScalarBet --* PriceIsRightResolver
-VoteScalarBet --* ClosestResolver
+VoteScalarBet --* PriceIsRightBet
+VoteScalarBet --* ClosestBet
+AverageScalarResolver --|> VoteScalarResolver
+UnanimousScalarResolver --|> VoteScalarResolver
+VoteScalarBet --* AverageScalarResolver
+VoteScalarBet --* UnanimousScalarResolver
+
 @enduml
