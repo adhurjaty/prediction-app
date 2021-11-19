@@ -69,29 +69,35 @@ abstract class Bet {
 
     getWager(address): uint
     getMyWager(): uint
-    {virtual} wager(): void
     {abstract} getWinners(): address[]
 }
 
-class VoteYesNoBet {
+class VoteYesNoContract {
     resolverType: VoteTypeEnum
     betType: BetTypeEnum
 }
 
-class HubAndSpokeBet {
-    hub: address
-    spokes: address[]
+abstract class YesNoBet {
+    predictions: mapping(address => bool)
+    {virtual} wager(bool): void
+    {abstract} pay(bool): void
 }
 
-class OracleYesNoBet {
+class HubAndSpokeBet {
+    hubVote: bool
+    hub: address
+    {override} wager(bool): void
+}
+
+class OracleYesNoContract {
     checkOracle(): bool?
 }
 
-abstract AverageScalarResolver {
+class AverageScalarResolver {
     {override} setResolved(int): void
 }
 
-abstract UnanimousScalarResolver {
+class UnanimousScalarResolver {
     {override} setResolved(int): void
 }
 
@@ -101,6 +107,12 @@ class PriceIsRightBet {
 
 class ClosestBet {
     {override} setResolved(int): void
+}
+
+abstract class ScalarBet {
+    predictions: mapping(address => int)
+    {virtual} wager(int): void
+    {abstract} pay(int): void
 }
 
 class VoteScalarBet {
@@ -127,7 +139,7 @@ interface IScalarBet {
     getResult(): int?
 }
 
-interface IVoteYesNoBet {
+interface IVoteYesNoContract {
     vote(bool): void
 }
 
@@ -135,7 +147,7 @@ interface IVoteScalarBet {
     vote(int): vote
 }
 
-interface IOracleYesNoBet {
+interface IOracleYesNoContract {
     checkOracle(): bool?
 }
 
@@ -157,29 +169,31 @@ Bet --|> Managed
 IYesNoBet --|> IBet
 IScalarBet --|> IBet
 
-IVoteYesNoBet --|> IYesNoBet
-IOracleYesNoBet --|> IYesNoBet
+IVoteYesNoContract --|> IYesNoBet
+IOracleYesNoContract --|> IYesNoBet
 IVoteScalarBet --|> IScalarBet
 IOracleScalarBet --|> IScalarBet
 
-HubAndSpokeBet --|> Bet
+YesNoBet --|> Bet
+HubAndSpokeBet --|> YesNoBet
 
-VoteYesNoBet --|> IVoteYesNoBet
-VoteYesNoBet --* MajorityVoteYesNoResolver
-VoteYesNoBet --* UnanimousVoteYesNoResolver
-VoteYesNoBet --* HubAndSpokeBet
+VoteYesNoContract --|> IVoteYesNoContract
+VoteYesNoContract --* MajorityVoteYesNoResolver
+VoteYesNoContract --* UnanimousVoteYesNoResolver
+VoteYesNoContract --* HubAndSpokeBet
 
-OracleYesNoBet --|> Bet
-OracleYesNoBet --|> OracleYesNoResolver
-OracleYesNoBet --|> IOracleYesNoBet
+OracleYesNoContract --|> Bet
+OracleYesNoContract --|> OracleYesNoResolver
+OracleYesNoContract --|> IOracleYesNoContract
 
-PriceIsRightBet --|> Bet
-ClosestBet --|> Bet
+PriceIsRightBet --|> ScalarBet
+ClosestBet --|> ScalarBet
 VoteScalarBet --|> IVoteScalarBet
 VoteScalarBet --* PriceIsRightBet
 VoteScalarBet --* ClosestBet
 AverageScalarResolver --|> VoteScalarResolver
 UnanimousScalarResolver --|> VoteScalarResolver
+ScalarBet --|> Bet
 VoteScalarBet --* AverageScalarResolver
 VoteScalarBet --* UnanimousScalarResolver
 
