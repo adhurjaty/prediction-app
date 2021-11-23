@@ -1,3 +1,5 @@
+import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-waffle";
 import { ethers } from "hardhat";
 import { Signer, ContractFactory, Contract } from "ethers";
 import { expect } from "chai";
@@ -42,9 +44,9 @@ describe("Resolver by vote", function () {
         await resolver.connect(commissioner).addMember(member3_address);
         await resolver.connect(commissioner).addMember(notinthebet1_address);
 
-        await expect(bet.connect(member1)["wager()"]()).to.emit(bet, 'Wager');
-        await expect(bet.connect(member2)["wager()"]()).to.emit(bet, 'Wager');
-        await expect(bet.connect(member3)["wager()"]()).to.emit(bet, 'Wager');
+        await expect(bet.connect(member1).wager({value: 1})).to.emit(bet, 'Wager');
+        await expect(bet.connect(member2).wager({value: 1})).to.emit(bet, 'Wager');
+        await expect(bet.connect(member3).wager({value: 1})).to.emit(bet, 'Wager');
     });
     
     it("Should allow a group member to vote on resolving a bet", async function () { 

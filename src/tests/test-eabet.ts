@@ -1,3 +1,5 @@
+import "@nomiclabs/hardhat-ethers";
+import "@nomiclabs/hardhat-waffle";
 import { ethers } from "hardhat";
 import { Signer, ContractFactory, Contract } from "ethers";
 import { expect } from "chai";
@@ -17,18 +19,13 @@ describe("EqualAnteBet", function () {
         await bet.connect(commissioner).addMember(await member1.getAddress());
     });
 
-    it("Should allow a member to wager without specifying a value", async function () { 
-        bet.connect(member1)['wager()']();
-        expect(await bet.connect(member1).getMyWager()).to.equal(1);
-    });
-
     it("Should allow a member to wager exactly 1", async function () { 
-        bet.connect(member1)['wager(uint256)'](1);
+        bet.connect(member1).wager({value: 1});
         expect(await bet.connect(member1).getMyWager()).to.equal(1);
     });
 
     it("Should prevent a member from wagering more than 1", async function () { 
-        await(expect(bet.connect(member1)['wager(uint256)'](1000)).to.be.reverted);
+        await(expect(bet.connect(member1).wager({value: 100})).to.be.reverted);
     });
     // it("Should ...", async function () { expect.fail("Test not implemented"); });
 
