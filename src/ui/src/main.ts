@@ -6,11 +6,14 @@ import BackButton from './components/BackButton.vue';
 import Friend from './components/Friend.vue';
 import { containerBuilder } from './app.container';
 import { store } from './app.store';
+import * as dotenv from 'dotenv';
 
 
 export class AppModule {
 
     constructor() {
+        dotenv.config();
+
         containerBuilder();
         this.bootstrap();
     }

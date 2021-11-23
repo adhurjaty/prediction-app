@@ -6,7 +6,7 @@ import { injectable } from 'inversify-props';
 const BASE_URL = 'http://localhost:5000/';
 
 
-export interface IApi {
+export interface IHttp {
     post<T>(path: string, body: T): Promise<any>;
     authGet<T>(path: string): Promise<T>;
     authPost<T>(path: string, payload: any): Promise<T>;
@@ -14,7 +14,7 @@ export interface IApi {
 }
 
 @injectable()
-export class Api implements IApi {
+export class DelphHttp implements IHttp {
     public async post<T>(path: string, body: T): Promise<any> {
         const url = this.getUrl(path);
         return await axios.post(url, body);

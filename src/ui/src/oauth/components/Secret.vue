@@ -10,14 +10,14 @@
 <script lang="ts">
 import { inject } from 'inversify-props';
 import { Options, Vue } from 'vue-class-component';
-import { IOauthSecretQuery } from '../queries/oauthSecretQuery';
+import { IOauthApi } from '../oauth.api';
 
 export default class Secret extends Vue {
-    @inject() secretQuery: IOauthSecretQuery
+    @inject() oauthApi!: IOauthApi
     message: string = "loading..."
 
     async created(): Promise<void> {
-        this.message = await this.secretQuery.query();
+        this.message = await this.oauthApi.secret();
     }
 }
 

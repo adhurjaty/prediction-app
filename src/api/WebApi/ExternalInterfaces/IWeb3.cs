@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using Nethereum.Web3.Accounts;
 using Nethereum.Web3;
+using Nethereum.Contracts;
 
 namespace WebApi
 {
@@ -9,6 +10,7 @@ namespace WebApi
         Task<string> Deploy(DeployableContractInfo info);
         Task<string> DeployEqualAnte(EqualAntePropositionDeploy msg);
         Task<decimal> GetBalance();
+        Task<Contract> GetContract(string abi, string address);
     }
 
     public class Web3Wrapper : IWeb3
@@ -40,6 +42,11 @@ namespace WebApi
         {
             var wei = await _wrapped.Eth.GetBalance.SendRequestAsync(_settings.UserAddress);
             return Web3.Convert.FromWei(wei.Value);
+        }
+
+        public async Task<Contract> GetContract(string abi, string address)
+        {
+            return await Task.Run(() => _wrapped.Eth.GetContract(abi, address));
         }
     }
 }

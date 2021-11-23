@@ -46,8 +46,11 @@
 <script lang="ts">
 import { Vue } from 'vue-class-component';
 import { Bet, DateBet, EventBet } from '../bets.models'
+import { Store } from '../../app.store';
+import { BetsActions } from '../bets.store';
 
 class AddingBet {
+    id: string;
     title: string;
     description: string;
     closeDate: Date;
@@ -94,6 +97,16 @@ export default class AddBet extends Vue {
         this.bet = this.possibleBets.find(x => 
                 x.type === (event.target as HTMLInputElement).value) 
             || this.possibleBets[0];
+    }
+
+    async addBet(): Promise<void> {
+        const store: Store = this.$store;
+        await store.dispatch(BetsActions.CREATE_BET, this.bet);
+        const betId = store.getters.getBet?.id;
+        if(betId)
+            this.$router.push({ name: 'Bet', params: { id: betId }});
+        else
+            throw new Error('Bet does not exist');
     }
 }
 </script>
