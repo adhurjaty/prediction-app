@@ -66,9 +66,9 @@ contract Bet is managed, resolvable {
      */
     function pay(address payable _to, uint256 _amount) virtual public isCommissioner {
         require(members[_to], "Payee is not a member");
-        emit PayMember(_to, _amount);
         (bool success, ) = _to.call{value: _amount}("");
         require(success, "Failed to send Ether");
+        emit PayMember(_to, _amount);
     }
 }
 
