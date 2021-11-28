@@ -7,9 +7,7 @@ entity users {
     ---
     * display_name
     * email
-    * prestige_address
     * mainnet_address
-    * prestige_privatekey
     * oauth_token(s)
 }
 
@@ -24,14 +22,15 @@ entity user_group_bridge {
     * group_id
 }
 
-entity propositions {
+entity bets {
     * id
     ---
     * group_id
     * title
     * description
     * address
-    * result (yes/no)
+    * close_time
+    * resolved_time
 }
 
 entity votes {
@@ -42,10 +41,19 @@ entity votes {
     * vote
 }
 
+entity user_bet_results {
+    * user_id
+    * bet_id
+    ---
+    * hasWon
+}
+
 users <-- user_group_bridge
 groups <-- user_group_bridge
-propositions --> groups
+bets --> groups
 votes --> users
-votes --> propositions
+votes --> bets
+user_bet_results --> users
+user_bet_results --> bets
 
 @enduml
