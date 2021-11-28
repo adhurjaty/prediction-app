@@ -15,6 +15,7 @@ namespace WebApi
         public string Title { get; set; }
         public string Description { get; set; }
         public string Address { get; set; }
-        public bool? Result { get; set; }
+        public DateTime CloseTime { get; set; }
+        public DateTime? ResolvedTime { get; set; }
     }
 }
