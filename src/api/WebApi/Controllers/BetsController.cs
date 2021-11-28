@@ -24,7 +24,12 @@ namespace WebApi
         [Route("Bets")]
         public async Task<ActionResult<List<Bet>>> GetBets()
         {
-            
+            var result = await _mediator.Send(new BetsByUserQuery()
+            {
+                Email = GetEmailFromClaims()
+            });
+
+            return ToResponse(result);
         }
 
         [HttpGet]
@@ -36,6 +41,8 @@ namespace WebApi
             {
                 Id = betId
             });
+
+            return ToResponse(result);
         }
 
         [HttpPost]
