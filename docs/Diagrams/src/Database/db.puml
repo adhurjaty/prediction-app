@@ -33,14 +33,6 @@ entity bets {
     * resolved_time
 }
 
-entity votes {
-    * id
-    ---
-    * user_id
-    * proposition_id
-    * vote
-}
-
 entity user_bet_results {
     * user_id
     * bet_id
@@ -48,12 +40,17 @@ entity user_bet_results {
     * hasWon
 }
 
-users <-- user_group_bridge
-groups <-- user_group_bridge
-bets --> groups
-votes --> users
-votes --> bets
+entity friends_relation {
+    * user_id
+    * friend_id
+}
+
+user_group_bridge --> users
+user_group_bridge --> groups
 user_bet_results --> users
 user_bet_results --> bets
+friends_relation --> users
+bets --> groups
+
 
 @enduml
