@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,5 +18,8 @@ namespace WebApi
         public string Address { get; set; }
         public DateTime CloseTime { get; set; }
         public DateTime? ResolvedTime { get; set; }
+
+        [Reference]
+        public List<UserBetResult> UserBetResults { get; set; }
     }
 }
