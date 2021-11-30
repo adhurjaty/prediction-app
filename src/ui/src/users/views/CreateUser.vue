@@ -19,17 +19,13 @@ export default class UserCreator extends Vue {
 
     async createUser() {
 
-        // API call to create group
+        // API call to create user
 
         try {
             const store: Store = this.$store;
             await store.dispatch(UsersActions.CREATE_USER, this.user);
-            const newUser = store.getters.getUser;
             this.$router.push({
-                name: 'User', 
-                params : {
-                    id: newUser!.id
-                }
+                name: 'Groups'
             });
         } catch (error) {
             debugger;

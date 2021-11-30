@@ -7,7 +7,7 @@ const BASE_URL = 'http://localhost:5000/';
 
 
 export interface IHttp {
-    post<T>(path: string, body: T): Promise<any>;
+    post<T>(path: string, body: any): Promise<any>;
     authGet<T>(path: string): Promise<T>;
     authPost<T>(path: string, payload: any): Promise<T>;
     authPut<T>(path: string, payload: any): Promise<T>;
@@ -15,7 +15,7 @@ export interface IHttp {
 
 @injectable()
 export class DelphHttp implements IHttp {
-    public async post<T>(path: string, body: T): Promise<any> {
+    public async post<T>(path: string, body: any): Promise<any> {
         const url = this.getUrl(path);
         return await axios.post(url, body);
     }

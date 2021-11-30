@@ -22,8 +22,8 @@ export class UsersApi implements IUsersApi {
     }
 
     async create(user: User): Promise<User> {
-        return await this.http.authPost<User>('/user', {
-            name: user.displayName,
+        return await this.http.post<User>('/user', {
+            displayName: user.displayName,
             email: user.email
         });
     }
