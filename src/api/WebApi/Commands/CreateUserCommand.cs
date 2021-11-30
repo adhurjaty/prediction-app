@@ -30,15 +30,11 @@ namespace WebApi
 
         public async Task<Result> Handle(CreateUserCommand command)
         {
-            return (await (await _mediator.Send(new UserQuery()
-                {
-                    Email = command.Email
-                }))
-                .Bind(user => _db.InsertResult(new AppUser()
+            return (await _db.InsertResult(new AppUser()
                 {
                     DisplayName = command.DisplayName,
                     Email = command.Email
-                })))
+                }))
                 .Tee(user => command.UserId = user.Id);
         }
 

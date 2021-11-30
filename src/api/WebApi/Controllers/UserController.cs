@@ -45,7 +45,6 @@ namespace WebApi
         }
 
         [HttpPost]
-        [Authorize]
         [Route("User")]
         public async Task<ActionResult<AppUser>> CreateUser(AppUser newUser)
         {
@@ -54,9 +53,7 @@ namespace WebApi
                 DisplayName = newUser.DisplayName,
                 Email = newUser.Email
             };
-            var result = await (await _mediator.Send(command))
-                .Bind(() => _db.LoadSingleById<AppUser>(command.UserId));
-            
+            var result = await _mediator.Send(command);
             return ToResponse(result);
         }
     }
