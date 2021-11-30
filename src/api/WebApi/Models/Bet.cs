@@ -12,7 +12,8 @@ namespace WebApi
     [Alias("bets")]
     public class Bet : DbModel
     {
-        public string GroupId { get; set; }
+        [References(typeof(Group))]
+        public Guid GroupId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }
         public string Address { get; set; }

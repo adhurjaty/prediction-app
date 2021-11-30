@@ -38,12 +38,10 @@ namespace WebApi.Test
             return userGroup;
         }
 
-        private void InsertModel<T>(T model) where T : DbModel
+        protected Bet DbBet(Bet bet)
         {
-            if(model.Id == default)
-                model.Id = Guid.NewGuid();
-
-            _db.Insert(model);
+            _db.Insert(bet).Wait();
+            return bet;
         }
 
         public BragDbFixture WithMediatorResult<TReq, TResp>(Result<TResp> result)

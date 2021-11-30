@@ -54,7 +54,7 @@ namespace WebApi
             {
                 Title = bet.Title,
                 Description = bet.Description,
-                GroupId = bet.GroupId
+                GroupId = bet.GroupId.ToString()
             };
 
             var result = await (await _mediator.Send(cmd))

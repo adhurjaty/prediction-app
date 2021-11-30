@@ -21,7 +21,7 @@ namespace WebApi
 
         public async Task<Result<List<Bet>>> Handle(BetsByGroupQuery query)
         {
-            return await _db.Select<Bet>(x => x.GroupId.ToString() == query.GroupId);
+            return await _db.LoadSelect<Bet>(x => x.GroupId.ToString() == query.GroupId);
         }
 
         public Task<Result<List<Bet>>> Handle(BetsByGroupQuery request, CancellationToken cancellationToken)

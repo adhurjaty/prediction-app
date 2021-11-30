@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Infrastructure;
@@ -32,7 +33,7 @@ namespace WebApi
             {
                 Title = cmd.Title,
                 Description = cmd.Description,
-                GroupId = cmd.GroupId
+                GroupId = Guid.Parse(cmd.GroupId)
             })).Tee(bet => cmd.BetId = bet.Id.ToString());
         }
 

@@ -30,7 +30,7 @@ namespace WebApi
                 .Join<UserBetResult, AppUser>((ubr, u) => ubr.UserId == u.Id)
                 .Where<AppUser>(u => u.Email == query.Email);
 
-            var resolvedBetsResultTask = _db.Select<Bet>(sqlQuery);
+            var resolvedBetsResultTask = _db.LoadSelect<Bet>(sqlQuery);
 
             // get open bets from user's groups
             return (await (await (await _mediator.Send(new GroupsByUserQuery()

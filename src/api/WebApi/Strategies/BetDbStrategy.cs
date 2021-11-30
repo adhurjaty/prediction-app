@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -61,11 +62,12 @@ namespace WebApi
         private async Task<Result<UserBetResult[]>> ApplyToBetResults(Bet bet,
             Func<UserBetResult, Task> fn)
         {
-            return await bet.UserBetResults.Select(async userBetResult =>
-            {
-                await fn(userBetResult);
-                return Result<UserBetResult>.Succeeded(userBetResult);
-            }).Aggregate();
+            return await (bet.UserBetResults ?? new List<UserBetResult>())
+                .Select(async userBetResult =>
+                {
+                    await fn(userBetResult);
+                    return Result<UserBetResult>.Succeeded(userBetResult);
+                }).Aggregate();
         }
     }
 }
