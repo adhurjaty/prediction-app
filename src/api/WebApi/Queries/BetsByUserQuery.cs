@@ -41,7 +41,8 @@ namespace WebApi
                 {
                     GroupId = group.Id.ToString()
                 })).Aggregate()))
-                .Map(x => x.SelectMany(y => y))
+                .Map(x => x.SelectMany(y => y)
+                    .Where(y => !y.UserBetResults?.Any() ?? true))
                 .TupleBind(_ => resolvedBetsResultTask))
                 .Map((openBets, closedBets) => openBets.Concat(closedBets).ToList());
         }

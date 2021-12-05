@@ -45,7 +45,7 @@ namespace WebApi.Test
         {
             Id = new Guid("0c9213d3-9bbf-4175-9115-7414889e7ac1"),
             Title = "Test bet",
-            Description = "test description",
+            Description = "test description 1",
             Address = "123456",
             CloseTime = new DateTime(2022, 11, 25)
         };
@@ -54,8 +54,8 @@ namespace WebApi.Test
         {
             Id = new Guid("0d85354a-bd4b-4264-93a6-30b36c09a801"),
             Title = "Test bet",
-            Description = "test description",
-            Address = "123456",
+            Description = "test description 2",
+            Address = "23442",
             CloseTime = new DateTime(2022, 11, 25)
         };
 
@@ -63,8 +63,8 @@ namespace WebApi.Test
         {
             Id = new Guid("f5b5c2c1-f6c9-4905-948f-864a02e43d01"),
             Title = "Test bet",
-            Description = "test description",
-            Address = "123456",
+            Description = "test description 3",
+            Address = "988934",
             CloseTime = new DateTime(2022, 11, 25),
         };
 
@@ -72,8 +72,8 @@ namespace WebApi.Test
         {
             Id = new Guid("d7aebdcd-a84e-4260-b9b0-ec1da73c20d1"),
             Title = "Test bet",
-            Description = "test description",
-            Address = "123456",
+            Description = "test description 4",
+            Address = "808234",
             CloseTime = new DateTime(2022, 11, 25)
         };
 
@@ -110,6 +110,52 @@ namespace WebApi.Test
 
             result.IsSuccess.Should().BeTrue();
             result.Success.Should().BeEquivalentTo(new List<Bet> { Bet1, Bet2 });
+        }
+
+        [Fact]
+        public async Task GetBetsByUser()
+        {
+            var users = new List<AppUser>() { SingleUser, OtherUser };
+            Group1.Users = new List<AppUser>() { SingleUser, OtherUser };
+            Group2.Users = new List<AppUser>() { SingleUser };
+            Bet1.UserBetResults = new List<UserBetResult>()
+            {
+                new UserBetResult()
+                {
+                    User = SingleUser,
+                    HasWon = true
+                }
+            };
+            Bet1.CloseTime = new DateTime(2021, 11, 1);
+            Bet1.GroupId = Group1.Id;
+            Bet2.GroupId = Group1.Id;
+            Bet3.GroupId = Group2.Id;
+            Bet4.GroupId = Group2.Id;
+
+            using var fx = ((new BetsQueryTestFixture()
+                .WithUsers(users)
+                .WithGroups(new List<Group> { Group1, Group2 })
+                .WithBets(new List<Bet> { Bet1, Bet2, Bet3, Bet4 })
+                .WithMediatorResult<GroupsByUserQuery, List<Group>>(Result.Succeeded(
+                    new List<Group>()
+                    {
+                        Group1
+                    })) as BetsQueryTestFixture)
+                .WithMediatorResult<BetsByGroupQuery, List<Bet>>(Result.Succeeded(
+                    new List<Bet>()
+                    {
+                        Bet1,
+                        Bet2
+                    })) as BetsQueryTestFixture);
+
+            var sut = fx.GetBetsByUserHandler();
+            var result = await sut.Handle(new BetsByUserQuery()
+            {
+                Email = "other@example.com"
+            });
+
+            result.IsSuccess.Should().BeTrue();
+            result.Success.Should().BeEquivalentTo(new List<Bet> { Bet2 });
         }
     }
 
