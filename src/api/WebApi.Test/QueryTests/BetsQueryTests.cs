@@ -65,7 +65,7 @@ namespace WebApi.Test
             Title = "Test bet",
             Description = "test description",
             Address = "123456",
-            CloseTime = new DateTime(2022, 11, 25)
+            CloseTime = new DateTime(2022, 11, 25),
         };
 
         private static Bet Bet4 = new Bet()

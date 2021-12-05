@@ -23,6 +23,6 @@ def upgrade():
 
 
 def downgrade():
-    op.drop_column('bets' 'close_time')
-    op.drop_column('bets' 'resolved_time')
+    op.drop_column('bets', 'close_time')
+    op.drop_column('bets', 'resolved_time')
     op.add_column('bets', sa.Column('result', sa.Boolean, nullable=True))

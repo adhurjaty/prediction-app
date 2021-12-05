@@ -21,7 +21,7 @@ def upgrade():
     op.create_table('user_bet_results',
         sa.Column('user_id', UUID(as_uuid=True), sa.ForeignKey('users.id')),
         sa.Column('bet_id', UUID(as_uuid=True), sa.ForeignKey('bets.id')),
-        sa.Column('hasWon', sa.Boolean(), nullable=False))
+        sa.Column('has_won', sa.Boolean(), nullable=False))
 
 
 def downgrade():

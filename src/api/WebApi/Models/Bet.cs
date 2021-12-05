@@ -21,6 +21,6 @@ namespace WebApi
         public DateTime? ResolvedTime { get; set; }
 
         [Reference]
-        public List<UserBetResult> UserBetResults { get; set; }
+        public List<UserBetResult> UserBetResults { get; set; } = new List<UserBetResult>();
     }
 }
