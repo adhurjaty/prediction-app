@@ -48,13 +48,15 @@ namespace WebApi
         [HttpPost]
         [Authorize]
         [Route("Bets")]
-        public async Task<ActionResult<Bet>> CreateBet(Bet bet)
+        public async Task<ActionResult<Bet>> CreateBet(CreateBetRequest request)
         {
             var cmd = new CreateBetCommand()
             {
-                Title = bet.Title,
-                Description = bet.Description,
-                GroupId = bet.GroupId.ToString()
+                Title = request.Title,
+                Description = request.Description,
+                GroupId = request.GroupId.ToString(),
+                BetAddress = request.BetAddress,
+                ResolverAddress = request.ResolverAddress
             };
 
             var result = await (await _mediator.Send(cmd))
@@ -62,5 +64,11 @@ namespace WebApi
 
             return ToResponse(result);
         }
+    }
+
+    public class CreateBetRequest : Bet
+    {
+        public string BetAddress { get; set; }
+        public string ResolverAddress { get; set; }
     }
 }
