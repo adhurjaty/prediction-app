@@ -12,18 +12,15 @@ namespace WebApi
     public class BetByIdQueryHandler : IQueryHandler<BetByIdQuery, Bet>
     {
         private readonly IDatabaseInterface _db;
-        private readonly IWeb3 _eth;
 
-        public BetByIdQueryHandler(IDatabaseInterface db, IWeb3 eth)
+        public BetByIdQueryHandler(IDatabaseInterface db)
         {
             _db = db;
-            _eth = eth;
         }
 
         public async Task<Result<Bet>> Handle(BetByIdQuery query)
         {
-            return (await _db.LoadSingleById<Bet>(query.Id))
-                .
+            return await _db.LoadSingleById<Bet>(query.Id);
         }
 
         public Task<Result<Bet>> Handle(BetByIdQuery request, CancellationToken cancellationToken)

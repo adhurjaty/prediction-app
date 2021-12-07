@@ -34,5 +34,9 @@ namespace WebApi
                 }).ToList();
             } 
         }
+
+        [Reference]
+        public List<Bet> Bets { get; set; }
+        
     }
 }

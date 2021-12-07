@@ -1,0 +1,13 @@
+@startuml
+
+title Contract Design
+
+interface BetAgainstMe {
+    
+}
+
+class BetAgainstMe {
+
+}
+
+@enduml

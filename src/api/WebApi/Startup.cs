@@ -80,6 +80,8 @@ namespace WebApi
                 return new ModelsDatbaseInterface(dbInt, strategyFactory);
             });
 
+            services.AddSingleton<IContractDeployer, DummyContractDeployer>();
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(jwt => jwt.UseGoogle(googleSettings.ClientId));
 
