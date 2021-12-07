@@ -1,0 +1,19 @@
+@startuml
+
+title Deploy Bet Against Me Flow
+
+actor User as user
+participant UI as ui
+participant Backend as api
+participant AppAccount as appAccount
+
+user -> ui : Deploy BetAgainstMe
+ui -> api : Deploy with bet\naddress and resolver\naddress
+api -> appAccount : Deploy
+appAccount -> appAccount : Retrieve bet type
+appAccount -> appAccount : Retrieve resolver type
+appAccount --> api : Address
+api --> ui : Address
+ui -> appAccount : Place bet
+
+@enduml
