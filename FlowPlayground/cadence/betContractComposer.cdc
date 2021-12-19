@@ -1,35 +1,24 @@
 import BetsLibrary, ResolverLibrary from 0xf8d6e0586b0a20c7
 
 pub contract BetContractComposer {
-    priv let betPath: PublicPath
-    priv let resolverPath: PublicPath
+    priv let resolver: {ResolverLibrary.YesNoResolver}
+    priv let bet: {BetsLibrary.YesNoBet}
 
     init () {
-        let storeBetPath = /storage/ComposerBetPath
-        let storeResolverPath = /storage/ComposerResolverPath
-
-        self.betPath = /public/ComposerBetPath
-        self.resolverPath = /public/ComposerResolverPath
-
-        self.account.save(
-            <-create BetsLibrary.DummyYesNoBet(), 
-            to: storeBetPath
-        )
-        self.account.save(
-            <-create ResolverLibrary.MajorityYesNoResolver(numMembers: 5), 
-            to: storeResolverPath
-        )
-
-        self.account.link<&BetsLibrary.DummyYesNoBet{BetsLibrary.YesNoBet}>(
-            self.betsPath,
-            target: storeBetPath
-        )
-        self.account.link<&ResolverLibrary.MajorityYesNoResolver{ResolverLibrary.YesNoResolver}>(
-            self.resolverPath,
-            target: storeResolverPath
-        )
+        self.resolver = ResolverLibrary.MajorityYesNoResolver(numMembers: 5)
+        self.bet = BetsLibrary.DummyYesNoBet()
     }
 
+    pub fun makeBet(prediction: Bool) {
+        self.bet.makeBet(prediction: prediction)
+    }
 
+    pub fun voteToResolve(vote: Bool) {
+        self.resolver.vote(vote: vote)
+    }
+
+    pub fun getResult(): Bool? {
+        return self.resolver.getResult()
+    }
 }
  
