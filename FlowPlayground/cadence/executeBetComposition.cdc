@@ -6,18 +6,20 @@ transaction {
     }
 
     execute {
-        BetContractComposer.makeBet(prediction: true)
-        BetContractComposer.makeBet(prediction: false)
-        BetContractComposer.voteToResolve(vote: true)
-        log(BetContractComposer.getResult())
-        BetContractComposer.voteToResolve(vote: false)
-        log(BetContractComposer.getResult())
-        BetContractComposer.voteToResolve(vote: false)
-        log(BetContractComposer.getResult())
-        BetContractComposer.voteToResolve(vote: true)
-        log(BetContractComposer.getResult())
-        BetContractComposer.voteToResolve(vote: true)
-        log(BetContractComposer.getResult())
+        let composer <- BetContractComposer.createContractComposer()
+        composer.makeBet(prediction: true)
+        composer.makeBet(prediction: false)
+        composer.voteToResolve(vote: true)
+        log(composer.getResult())
+        composer.voteToResolve(vote: false)
+        log(composer.getResult())
+        composer.voteToResolve(vote: false)
+        log(composer.getResult())
+        composer.voteToResolve(vote: true)
+        log(composer.getResult())
+        composer.voteToResolve(vote: true)
+        log(composer.getResult())
+        destroy composer
     }
 }
  

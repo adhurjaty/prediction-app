@@ -1,10 +1,10 @@
 pub contract ResolverLibrary {
-    pub struct interface YesNoResolver {
+    pub resource interface YesNoResolver {
         pub fun getResult(): Bool?
         pub fun vote(vote: Bool)
     }
 
-    pub struct MajorityYesNoResolver : YesNoResolver {
+    pub resource MajorityYesNoResolver : YesNoResolver {
         priv var result: Bool?
         priv let numMembers: Int
         priv var numYeses: Int
@@ -36,7 +36,7 @@ pub contract ResolverLibrary {
         }
     }
 
-    pub struct UnanimousYesNoResolver : YesNoResolver {
+    pub resource UnanimousYesNoResolver : YesNoResolver {
         priv var result: Bool?
         priv var runningDecision: Bool?
         priv var isDisputed: Bool
@@ -70,5 +70,13 @@ pub contract ResolverLibrary {
                 self.result = vote
             }
         }
-}
+    }
+
+    pub fun createMajorityYesNoResolver(numMembers: Int): @MajorityYesNoResolver {
+        return <-create MajorityYesNoResolver(numMembers: numMembers)
+    }
+
+    pub fun createUnanimousYesNoResolver(numMembers: Int): @UnanimousYesNoResolver {
+        return <-create UnanimousYesNoResolver(numMembers: numMembers)
+    }
 }

@@ -1,9 +1,9 @@
 pub contract BetsLibrary {
-    pub struct interface YesNoBet {
+    pub resource interface YesNoBet {
         pub fun makeBet(prediction: Bool)
     }
 
-    pub struct DummyYesNoBet : YesNoBet {
+    pub resource DummyYesNoBet : YesNoBet {
         
     
         pub fun makeBet(prediction: Bool) {
@@ -11,5 +11,7 @@ pub contract BetsLibrary {
         }
     }
 
-    
+    pub fun createDummyYesNoBet(): @DummyYesNoBet {
+        return <-create DummyYesNoBet()
+    }
 }
