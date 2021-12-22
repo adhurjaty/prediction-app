@@ -1,7 +1,19 @@
 pub contract ResolverLibrary {
+    pub resource YesNoVote {
+        pub var resolution: Bool?
+
+        init () {
+            self.resolution = nil
+        }
+
+        pub fun setResolved(resolution: Bool) {
+            self.resolution = resolution
+        }
+    }
+
     pub resource interface YesNoResolver {
         pub fun getResult(): Bool?
-        pub fun vote(vote: Bool)
+        pub fun vote(vote: @YesNoVote)
     }
 
     pub resource MajorityYesNoResolver : YesNoResolver {
@@ -21,18 +33,21 @@ pub contract ResolverLibrary {
             return self.result
         }
 
-        pub fun vote(vote: Bool) {
+        pub fun vote(vote: @YesNoVote) {
             self.numVotes = self.numVotes + 1
             var numYesNoVotes = 0
-            if vote {
+            let voteBool = vote.resolution
+                ?? panic("Resolution vote has not been cast")
+            if voteBool {
                 self.numYeses = self.numYeses + 1
                 numYesNoVotes = self.numYeses
             } else {
                 numYesNoVotes = self.numVotes - self.numYeses
             }
             if numYesNoVotes > (self.numMembers / 2) {
-                self.result = vote
+                self.result = voteBool
             }
+            destroy vote
         }
     }
 
@@ -55,20 +70,24 @@ pub contract ResolverLibrary {
             return self.result
         }
 
-        pub fun vote(vote: Bool) {
+        pub fun vote(vote: @YesNoVote) {
             post {
                 self.isDisputed: "Resolution is in dispute"
             }
 
-            if self.runningDecision != nil && self.runningDecision != vote {
+            let voteBool = vote.resolution
+                ?? panic("Resolution vote has not been cast")
+            if self.runningDecision != nil && self.runningDecision != voteBool {
                 self.isDisputed = true
+                destroy vote
                 return
             }
-            self.runningDecision = vote
+            self.runningDecision = voteBool
             self.numVotes = self.numVotes + 1
             if self.numVotes == self.numMembers {
-                self.result = vote
+                self.result = voteBool
             }
+            destroy vote
         }
     }
 

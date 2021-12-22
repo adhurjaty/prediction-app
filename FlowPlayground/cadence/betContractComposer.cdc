@@ -6,8 +6,8 @@ pub contract BetContractComposer {
         priv let resolver: @AnyResource{ResolverLibrary.YesNoResolver}
         priv let bet: @AnyResource{BetsLibrary.YesNoBet}
 
-        init () {
-            self.resolver <- ResolverLibrary.createMajorityYesNoResolver(numMembers: 5)
+        init (numMembers: Int) {
+            self.resolver <- ResolverLibrary.createMajorityYesNoResolver(numMembers: numMembers)
             self.bet <- BetsLibrary.createDummyYesNoBet()
         }
 
@@ -29,8 +29,17 @@ pub contract BetContractComposer {
         }
     }
 
-    pub fun createContractComposer(): @ContractComposer {
-        return <-create ContractComposer()
+    pub fun buildContractComposer(groupAccount: AuthAccount, contractId: String): 
+        Capability<&ContractComposer>
+    {
+        let composer <-create ContractComposer(numMembers: 5)
+        
+        let storagePath = /storage/ComposerContract123
+        let privPath = /private/ComposerContract123
+
+        groupAccount.save(<-composer, to: storagePath)
+        return groupAccount.link<&ContractComposer>(privPath, target: storagePath)
+            ?? panic("Could not save contract")
     }
 }
  

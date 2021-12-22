@@ -7,4 +7,3 @@ transaction {
         log(HelloComposition.hello())
     }
 }
- 
