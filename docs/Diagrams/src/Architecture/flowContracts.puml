@@ -1,0 +1,113 @@
+@startuml
+
+title Flow Contracts
+
+namespace BetsLibrary {
+    entity YesNoBet {
+        member: Address?
+        prediction: Bool?
+        wager: Vault<FUSD>
+    }
+
+    entity ScalarBet {
+        prediction: Int?
+        wager: Vault<FUSD>
+    }
+
+    entity YesNoBetStruct {
+        prediction: Bool
+        wager: Float
+    }
+
+    entity ScalarBetStruct {
+        prediction: Int
+        wager: Float
+    }
+
+    interface BetContract {
+        closeTime: DateTime
+        getExpectedPayout(Address): Float
+    }
+
+    interface YesNoBetContract {
+        result: Bool?
+        wager(YesNoBet): void
+        getWager(Address): YesNoBetStruct
+    }
+
+    interface ScalarBetContract {
+        result: int?
+        wager(ScalarBet): void
+        getWager(Address): ScalarBetStruct
+    }
+
+    class HubAndSpokesBet {
+        -hubBet: YesNoBet
+        -spokeBets: {Address: YesNoBet}
+        -pool: Float
+        closeTime: DateTime
+        result: Bool?
+        wager(YesNoBet): void
+        getWager(Address): YesNoBetStruct
+        getExpectedPayout(Address): Float
+    }
+
+    class ManyToManyBet {
+        -bets: {Address: YesNoBet}
+        -pool: Float
+        closeTime: DateTime
+        result: Bool?
+        wager(YesNoBet): void
+        getWager(Address): YesNoBetStruct
+        getExpectedPayout(Address): Float
+    }
+}
+
+namespace ResolverLibrary {
+    entity YesNoOutcome {
+        outcome: Bool
+    }
+
+    entity VoteScalarOutcome {
+        outcome: Bool
+    }
+
+    interface YesNoResolver {
+        outcome: Bool?
+    }
+
+    interface VoteYesNoResolver {
+        vote(YesNoOutcome): void
+    }
+
+    interface OracleYesNoResolver {
+        checkOracle(): void
+    }
+
+    class MajorityYesNoResolver {
+        -numMembers: UInt
+        -numYeses: UInt
+        -numNos: UInt
+        outcome: Bool?
+        vote(YesNoOutcome): void
+    }
+
+    class UnanimousYesNoResolver {
+        -numMembers: UInt
+        outcome: Bool?
+        vote(YesNoOutcome): void
+    }
+}
+
+
+ResolverLibrary.VoteYesNoResolver --|> ResolverLibrary.YesNoResolver
+ResolverLibrary.OracleYesNoResolver --|> ResolverLibrary.YesNoResolver
+ResolverLibrary.MajorityYesNoResolver --|> ResolverLibrary.VoteYesNoResolver
+ResolverLibrary.UnanimousYesNoResolver --|> ResolverLibrary.VoteYesNoResolver
+
+BetsLibrary.YesNoBetContract --|> BetsLibrary.BetContract
+BetsLibrary.ScalarBetContract --|> BetsLibrary.BetContract
+BetsLibrary.HubAndSpokesBet --|> BetsLibrary.YesNoBetContract
+BetsLibrary.ManyToManyBet --|> BetsLibrary.YesNoBetContract
+
+@enduml
