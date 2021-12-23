@@ -4,19 +4,23 @@ pub contract BetContractComposer {
     pub resource ContractComposer {
 
         priv let resolver: @AnyResource{ResolverLibrary.YesNoResolver}
-        priv let bet: @AnyResource{BetsLibrary.YesNoBet}
+        priv let bet: @BetsLibrary.DummyYesNoBet
 
-        init (numMembers: Int) {
+        init (numMembers: UInt) {
             self.resolver <- ResolverLibrary.createMajorityYesNoResolver(numMembers: numMembers)
-            self.bet <- BetsLibrary.createDummyYesNoBet()
+            self.bet <- BetsLibrary.createDummyYesNoBet(numMembers: numMembers)
         }
 
-        pub fun makeBet(prediction: Bool) {
-            self.bet.makeBet(prediction: prediction)
+        pub fun makeBet(acct: AuthAccount, bet: @BetsLibrary.YesNoBet) {
+            self.bet.makeBet(acct: acct, bet: <-bet)
         }
 
-        pub fun voteToResolve(vote: Bool) {
-            self.resolver.vote(vote: vote)
+        access(account) fun withdrawBet(): @BetsLibrary.YesNoBet {
+            return <-self.bet.withdrawBet()
+        }
+
+        pub fun voteToResolve(vote: @ResolverLibrary.YesNoVote) {
+            self.resolver.vote(vote: <-vote)
         }
 
         pub fun getResult(): Bool? {
@@ -29,17 +33,19 @@ pub contract BetContractComposer {
         }
     }
 
-    pub fun buildContractComposer(groupAccount: AuthAccount, contractId: String): 
-        Capability<&ContractComposer>
-    {
-        let composer <-create ContractComposer(numMembers: 5)
-        
-        let storagePath = /storage/ComposerContract123
-        let privPath = /private/ComposerContract123
+    pub resource Administrator {
 
-        groupAccount.save(<-composer, to: storagePath)
-        return groupAccount.link<&ContractComposer>(privPath, target: storagePath)
-            ?? panic("Could not save contract")
+        init() {
+
+        }
+
+        pub fun createContractComposer(numMembers: UInt): @ContractComposer {
+            return <-create ContractComposer(numMembers: numMembers)
+        }
+    }
+
+    pub init() {
+        self.account.save(<-create Administrator(), to: /storage/composerAdmin)
     }
 }
  

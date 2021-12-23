@@ -16,13 +16,34 @@ pub contract ResolverLibrary {
         pub fun vote(vote: @YesNoVote)
     }
 
+    pub resource BaseYesNoResolver {
+        priv let initVotes: @[YesNoVote]
+
+        init (numVoters: UInt) {
+            var n = numVoters
+            self.initVotes <- []
+            while n > 0 {
+                self.initVotes.append(<-create YesNoVote())
+                n = n - 1
+            }
+        }
+
+        access(account) fun withdrawVote(): @YesNoVote {
+            return <-self.initVotes.removeFirst()
+        }
+        
+        destroy() {
+            destroy self.initVotes
+        }
+    }
+
     pub resource MajorityYesNoResolver : YesNoResolver {
         priv var result: Bool?
-        priv let numMembers: Int
-        priv var numYeses: Int
-        priv var numVotes: Int
+        priv let numMembers: UInt
+        priv var numYeses: UInt
+        priv var numVotes: UInt
     
-        init (numMembers: Int) {
+        init (numMembers: UInt) {
             self.result = nil
             self.numMembers = numMembers
             self.numYeses = 0
@@ -35,7 +56,7 @@ pub contract ResolverLibrary {
 
         pub fun vote(vote: @YesNoVote) {
             self.numVotes = self.numVotes + 1
-            var numYesNoVotes = 0
+            var numYesNoVotes: UInt = 0
             let voteBool = vote.resolution
                 ?? panic("Resolution vote has not been cast")
             if voteBool {
@@ -55,10 +76,10 @@ pub contract ResolverLibrary {
         priv var result: Bool?
         priv var runningDecision: Bool?
         priv var isDisputed: Bool
-        priv var numVotes: Int
-        priv let numMembers: Int
+        priv var numVotes: UInt
+        priv let numMembers: UInt
 
-        init (numMembers: Int) {
+        init (numMembers: UInt) {
             self.result = nil
             self.runningDecision = nil
             self.isDisputed = false
@@ -91,11 +112,12 @@ pub contract ResolverLibrary {
         }
     }
 
-    pub fun createMajorityYesNoResolver(numMembers: Int): @MajorityYesNoResolver {
+    pub fun createMajorityYesNoResolver(numMembers: UInt): @MajorityYesNoResolver {
         return <-create MajorityYesNoResolver(numMembers: numMembers)
     }
 
-    pub fun createUnanimousYesNoResolver(numMembers: Int): @UnanimousYesNoResolver {
+    pub fun createUnanimousYesNoResolver(numMembers: UInt): @UnanimousYesNoResolver {
         return <-create UnanimousYesNoResolver(numMembers: numMembers)
     }
 }
+ 
