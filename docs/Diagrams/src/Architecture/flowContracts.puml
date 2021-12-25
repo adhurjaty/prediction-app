@@ -7,11 +7,13 @@ namespace BetsLibrary {
         member: Address?
         prediction: Bool?
         wager: Vault<FUSD>
+        placeBet(prediction: Bool, wager: Vault<FUSD>): void
     }
 
     entity ScalarBet {
         prediction: Int?
         wager: Vault<FUSD>
+        placeBet(prediction: Int, wager: Vault<FUSD>): void
     }
 
     entity YesNoBetStruct {
@@ -24,19 +26,29 @@ namespace BetsLibrary {
         wager: Float
     }
 
+    entity YesNoBetStub {
+        member: Address
+        prediction: Bool
+        wager: Float
+    }
+
+    entity ScalarBetStub {
+        member: Address
+        prediction: Int
+        wager: Float
+    }
+
     interface BetContract {
         closeTime: DateTime
         getExpectedPayout(Address): Float
     }
 
     interface YesNoBetContract {
-        result: Bool?
-        wager(YesNoBet): void
+        wager(YesNoBet): YesNoBetStub
         getWager(Address): YesNoBetStruct
     }
 
     interface ScalarBetContract {
-        result: int?
         wager(ScalarBet): void
         getWager(Address): ScalarBetStruct
     }
@@ -46,8 +58,7 @@ namespace BetsLibrary {
         -spokeBets: {Address: YesNoBet}
         -pool: Float
         closeTime: DateTime
-        result: Bool?
-        wager(YesNoBet): void
+        wager(YesNoBet): YesNoBetStub
         getWager(Address): YesNoBetStruct
         getExpectedPayout(Address): Float
     }
@@ -56,11 +67,15 @@ namespace BetsLibrary {
         -bets: {Address: YesNoBet}
         -pool: Float
         closeTime: DateTime
-        result: Bool?
-        wager(YesNoBet): void
+        wager(YesNoBet): YesNoBetStub
         getWager(Address): YesNoBetStruct
         getExpectedPayout(Address): Float
     }
+
+    YesNoBetContract --|> BetContract
+    ScalarBetContract --|> BetContract
+    HubAndSpokesBet --|> YesNoBetContract
+    ManyToManyBet --|> YesNoBetContract
 }
 
 namespace ResolverLibrary {
@@ -97,17 +112,42 @@ namespace ResolverLibrary {
         outcome: Bool?
         vote(YesNoOutcome): void
     }
+
+
+    VoteYesNoResolver --|> YesNoResolver
+    OracleYesNoResolver --|> YesNoResolver
+    MajorityYesNoResolver --|> VoteYesNoResolver
+    UnanimousYesNoResolver --|> VoteYesNoResolver
 }
 
+namespace BetResolverComposer {
+    interface YesNoVoteBet {
 
-ResolverLibrary.VoteYesNoResolver --|> ResolverLibrary.YesNoResolver
-ResolverLibrary.OracleYesNoResolver --|> ResolverLibrary.YesNoResolver
-ResolverLibrary.MajorityYesNoResolver --|> ResolverLibrary.VoteYesNoResolver
-ResolverLibrary.UnanimousYesNoResolver --|> ResolverLibrary.VoteYesNoResolver
+    }
 
-BetsLibrary.YesNoBetContract --|> BetsLibrary.BetContract
-BetsLibrary.ScalarBetContract --|> BetsLibrary.BetContract
-BetsLibrary.HubAndSpokesBet --|> BetsLibrary.YesNoBetContract
-BetsLibrary.ManyToManyBet --|> BetsLibrary.YesNoBetContract
+    entity Administrator {
+        createHubAndSpokesVoteBet(): \nHubAndSpokesVoteBet
+    }
+
+    class HubAndSpokesVoteBet {
+        -bet: HubAndSpokesBet
+        -resolver: MajorityYesNoResolver
+        -memberBetTokens: {Address: YesNoBet}
+        -memberVoteTokens: {Address: YesNoOutcome}
+        closeTime: DateTime
+        outcome: Bool?
+        wager(YesNoBet): void
+        getWager(Address): YesNoBetStruct
+        getExpectedPayout(Address): Float
+        vote(YesNoOutcome): void
+    }
+
+    HubAndSpokesVoteBet --|> YesNoVoteBet
+}
+
+BetResolverComposer.YesNoVoteBet --|> BetsLibrary.YesNoBetContract
+BetResolverComposer.YesNoVoteBet --|> ResolverLibrary.VoteYesNoResolver
+BetResolverComposer.HubAndSpokesVoteBet --* BetsLibrary.HubAndSpokesBet
+BetResolverComposer.HubAndSpokesVoteBet --* ResolverLibrary.MajorityYesNoResolver
 
 @enduml

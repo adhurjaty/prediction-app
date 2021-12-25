@@ -1,0 +1,56 @@
+@startuml
+
+title Flow Contract Sequence
+
+actor "Initiator User" as init
+participant "Initiator User Storage" as initStorage
+actor "Member User" as member
+participant "Member User Storage" as memberStorage
+actor Delphai as delph
+participant "Delphai Storage" as delphStorage
+participant Flow as flow
+
+delph -> delph : deploy BetsLibrary
+delph -> delph : deploy ResolverLibrary
+delph -> delph : deploy Composer
+delph --> delphStorage : save Administrator
+init -> delph : create new bet transaction
+delph -> delph : sign transaction
+delph -> delphStorage : get administrator capability
+delphStorage --> delph : return administrator capability
+delph -> delph : create new Composer resource
+delph -> delph : create betting tokens for\nmembers of the group
+init -> delph : place bet transaction
+delph -> delph : sign transaction
+delph -> init : transfer bet token
+init -> init : update token with bet
+init -> delph : place bet
+delph --> init : return bet stub
+init -> initStorage : save stub
+member -> delph : place bet transaction
+delph -> delph : sign transaction
+delph -> member : transfer bet token
+member -> member : update token with bet
+member -> delph : place bet transaction
+delph --> member : return bet stub
+member -> memberStorage : save stub
+-> delph : bet closed
+delph -> delph : create vote tokens
+init -> delph : get vote token
+delph --> init : return vote token
+init -> init : update vote token
+init -> delph : vote with token
+member -> delph : get vote token
+delph --> member : return vote token
+member -> member : update vote token
+member -> delph : vote with token
+delph -> delph : resolve bet
+init -> initStorage : get stub
+initStorage --> init : return stub
+init -> delph : get payout with stub
+member -> memberStorage : get stub
+memberStorage --> member : return stub
+member -> delph : get payout with stub
+
+
+@enduml
