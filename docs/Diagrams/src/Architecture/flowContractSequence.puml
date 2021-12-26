@@ -8,7 +8,6 @@ actor "Member User" as member
 participant "Member User Storage" as memberStorage
 actor Delphai as delph
 participant "Delphai Storage" as delphStorage
-participant Flow as flow
 
 delph -> delph : deploy BetsLibrary
 delph -> delph : deploy ResolverLibrary
