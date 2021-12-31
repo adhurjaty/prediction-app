@@ -1,5 +1,5 @@
 import path from "path";
-import { deployContractByName, emulator, getAccountAddress, init, sendTransaction, shallPass, shallRevert } from "flow-js-testing";
+import { deployContractByName, emulator, getAccountAddress, init, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
 
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(10000);
@@ -41,7 +41,7 @@ describe("basic-test", ()=>{
             name: "BetContractComposer"
         });
 
-        const [tx, error1] = await shallPass(
+        const [tx, error1] = await shallResolve(
             sendTransaction({
                 name: "createBetResource",
                 args: ["betId1234", [initMember, otherMember]],
@@ -50,26 +50,28 @@ describe("basic-test", ()=>{
             }));
         console.log(tx, error1);
 
-        const [tx2, error2] = await shallPass(
+        const [tx2, error2] = await shallResolve(
             sendTransaction({
                 name: "placeBet",
-                args: ["betId1234", true, 20.0],
+                args: ["betId1234", true, 20],
                 signers: [admin, initMember],
                 addressMap: { "delphai": admin }
             }));
+        console.log(tx2, error2);
 
-        const [tx3, error3] = await shallPass(
+        const [tx3, error3] = await shallResolve(
             sendTransaction({
                 name: "placeBet",
-                args: ["betId1234", false, 20.0],
+                args: ["betId1234", false, 20],
                 signers: [admin, otherMember],
                 addressMap: { "delphai": admin }
             }));
+        console.log(tx3, error3);
 
         const [tx4, error4] = await shallRevert(
             sendTransaction({
                 name: "placeBet",
-                args: ["betId1234", true, 20.0],
+                args: ["betId1234", true, 20],
                 signers: [admin, otherMember],
                 addressMap: { "delphai": admin }
             }));

@@ -6,6 +6,6 @@ transaction(betId: String, members: [Address]) {
             from: BetContractComposer.adminStoragePath) 
             ?? panic("Could not get admin capability")
 
-        admin.deployContractComposer(betId: betId, admin: admin, members: members)
+        adminRef.deployContractComposer(betId: betId, admin: admin, members: members)
     }
 }
