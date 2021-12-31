@@ -23,6 +23,25 @@ pub contract BetContractComposer {
         }
     }
 
+    pub resource YesNoBetBank {
+        priv let members: {Address: Bool}
+
+        init () {
+            self.members = {}
+        }
+
+        pub fun addMember(member: Address) {
+            self.members[member] = true
+        }
+
+        pub fun withdrawToken(address: Address): @YesNoBet {
+            if self.members[address] ?? false {
+                return <-create YesNoBet(address: address)
+            }
+            panic("user not in group")
+        }
+    }
+
     pub resource DummyYesNoBet {
         priv let madeBets: @{Address: YesNoBet}
 
@@ -196,25 +215,33 @@ pub contract BetContractComposer {
             admin.save(<-contract, to: savePath)
             admin.link<&BetContractComposer.ContractComposer>(publicPath, target: savePath)
 
-            self.saveYesNoBets(betId: betId, admin: admin, members: members)
+            self.addMembers(betId: betId, admin: admin, members: members)
         }
 
-        priv fun saveYesNoBets(betId: String, admin: AuthAccount, members: [Address]) {
+        priv fun addMembers(betId: String, admin: AuthAccount, members: [Address]) {
+            let tokenBank <-create YesNoBetBank()
             for member in members {
-                self.saveYesNoBet(betId: betId, admin: admin, member: member)
+                tokenBank.addMember(member: member)
             }
+
+            let savePath = self.getYesNoBetStoragePath(betId: betId)
+            admin.save(<-tokenBank, to: savePath)
         }
 
         priv fun saveYesNoBet(betId: String, admin: AuthAccount, member: Address) {
-            var betStoragePath = self.getYesNoBetStoragePath(betId: betId, member: member)
+            var betStoragePath = self.getYesNoBetStoragePath(betId: betId)
             admin.save(<-create YesNoBet(address: member), to: betStoragePath)
         }
 
-        priv fun getYesNoBetStoragePath(betId: String, member: Address): StoragePath {
-            return StoragePath(identifier: betId
-                .concat("/")
-                .concat(member.toString())
-                .concat("/YesNoBet"))
+        priv fun getYesNoBetStoragePath(betId: String): StoragePath {
+            return /storage/betId1234YesNoBet
+            // return StoragePath(identifier: betId.concat("/YesNoBet"))
+        }
+
+        pub fun withdrawBetToken(betId: String, admin: AuthAccount, member: Address): @YesNoBet {
+            let bankCapabiliy = admin.borrow<&BetContractComposer.YesNoBetBank>(
+                from: self.getYesNoBetStoragePath(betId: betId))!
+            return <-bankCapabiliy.withdrawToken(address: member)
         }
     }
 
@@ -225,11 +252,13 @@ pub contract BetContractComposer {
     }
 
     pub fun getDeploymentStoragePath(betId: String): StoragePath {
-        return StoragePath(identifier: betId)
+        return /storage/betId1234
+        // return StoragePath(identifier: betId)
     }
 
     pub fun getDeploymentPublicPath(betId: String): PublicPath {
-        return PublicPath(identifier: betId)
+        return /public/betId1234
+        // return PublicPath(identifier: betId)
     }
 
 }
