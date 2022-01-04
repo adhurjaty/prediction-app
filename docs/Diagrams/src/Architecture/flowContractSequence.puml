@@ -3,53 +3,57 @@
 title Flow Contract Sequence
 
 actor "Initiator User" as init
-participant "Initiator User Storage" as initStorage
 actor "Member User" as member
-participant "Member User Storage" as memberStorage
+participant UI as ui
+participant API as api
 actor Delphai as delph
-participant "Delphai Storage" as delphStorage
+' entities are transactions
+entity "Create Bet" as createTransaction
+entity "Place Bet" as betTransaction
+entity "Token Vault" as tokenTransaction
+entity "Send Vault" as sendTransaction
+participant "Bets Contract" as contract
 
-delph -> delph : deploy BetsLibrary
-delph -> delph : deploy ResolverLibrary
-delph -> delph : deploy Composer
-delph --> delphStorage : save Administrator
-init -> delph : create new bet transaction
-delph -> delph : sign transaction
-delph -> delphStorage : get administrator capability
-delphStorage --> delph : return administrator capability
-delph -> delph : create new Composer resource
-delph -> delph : create betting tokens for\nmembers of the group
-init -> delph : place bet transaction
-delph -> delph : sign transaction
-delph -> init : transfer bet token
-init -> init : update token with bet
-init -> delph : place bet
-delph --> init : return bet stub
-init -> initStorage : save stub
-member -> delph : place bet transaction
-delph -> delph : sign transaction
-delph -> member : transfer bet token
-member -> member : update token with bet
-member -> delph : place bet transaction
-delph --> member : return bet stub
-member -> memberStorage : save stub
--> delph : bet closed
-delph -> delph : create vote tokens
-init -> delph : get vote token
-delph --> init : return vote token
-init -> init : update vote token
-init -> delph : vote with token
-member -> delph : get vote token
-delph --> member : return vote token
-member -> member : update vote token
-member -> delph : vote with token
-delph -> delph : resolve bet
-init -> initStorage : get stub
-initStorage --> init : return stub
-init -> delph : get payout with stub
-member -> memberStorage : get stub
-memberStorage --> member : return stub
-member -> delph : get payout with stub
-
+delph -> contract : deploy
+contract --> delph : save Administrator\nresource
+init -> ui : create yes/no bet
+ui -> api : create bet
+api -> createTransaction : sign transaction (initiator\nand admin)
+createTransaction -> contract : create bet resource
+contract --> delph : save bet resource
+alt user has token vault
+    delph -> init : transfer bet token
+else
+    delph -> delph : cache token
+end
+alt user has token vault
+    delph -> member : transfer bet token
+else
+    delph -> delph : cache token
+end
+createTransaction --> ui : bet created event
+ui -> betTransaction : sign transaction (initiator)
+betTransaction -> init : get token
+alt user has token
+    init --> betTransaction : return token
+else
+    betTransaction --> ui : panic
+    ui -> tokenTransaction : sign transaction (initiator)
+    tokenTransaction -> contract : create vault
+    contract --> init : save vault
+    contract --> ui : vault saved event
+    ui -> api : send token request
+    api -> sendTransaction : sign transaction (admin)
+    sendTransaction -> delph : get token
+    delph --> sendTransaction : return token
+    sendTransaction -> init : transfer token
+    sendTransaction --> ui : token saved event
+    ui -> betTransaction : sign transaction (initiator)
+    betTransaction -> init : get token
+    init --> betTransaction : return token
+end
+betTransaction -> betTransaction : update token with bet
+betTransaction -> contract : place bet
+contract -> delph : transfer token
 
 @enduml
