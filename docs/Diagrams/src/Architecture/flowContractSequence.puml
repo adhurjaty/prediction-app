@@ -10,6 +10,7 @@ actor Delphai as delph
 ' entities are transactions
 entity "Create Bet" as createTransaction
 entity "Place Bet" as betTransaction
+entity "Resolve Vote" as resolveTransaction
 entity "Token Vault" as tokenTransaction
 entity "Send Vault" as sendTransaction
 participant "Bets Contract" as contract
@@ -52,8 +53,24 @@ else
     betTransaction -> init : get token
     init --> betTransaction : return token
 end
-betTransaction -> betTransaction : update token with bet
+betTransaction -> betTransaction : update token\nwith bet
 betTransaction -> contract : place bet
 contract -> delph : transfer token
+delph -> delph : record bet and\ndestroy token
+member -> ui : place bet
+ui -> betTransaction : sign transaction (member)
+betTransaction -> contract : same process as above
+contract -> contract : ...
+contract -> delph : ...
+ -> delph : bet closes
+ delph -> init : transfer resolution token
+ delph -> member : transfer resolution token
+init -> ui : send resolution vote
+ui -> resolveTransaction : vote resolution
+resolveTransaction -> resolveTransaction : update token\nwith vote
+resolveTransaction -> delph : record vote and destory token
+member -> delph : same process as above
+delph -> delph : determine victor
+delph -> init : deposit funds
 
 @enduml
