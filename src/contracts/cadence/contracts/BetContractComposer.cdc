@@ -2,45 +2,12 @@
 pub contract BetContractComposer {
     pub let adminStoragePath: StoragePath
 
-    pub resource YesNoBet {
-        priv var address: Address
-        pub var prediction: Bool?
-        pub var wager: Int
+    
 
-        init (address: Address) {
-            self.address = address
-            self.prediction = nil
-            self.wager = 0
-        }
+    
 
-        pub fun makeBet(prediction: Bool, wager: Int) {
-            self.prediction = prediction
-            self.wager = wager
-        }
-
-        pub fun getAddress(): Address {
-            return self.address
-        }
-    }
-
-    pub resource YesNoBetBank {
-        priv let members: {Address: Bool}
-
-        init () {
-            self.members = {}
-        }
-
-        pub fun addMember(member: Address) {
-            self.members[member] = true
-        }
-
-        pub fun withdrawToken(address: Address): @YesNoBet {
-            if self.members[address] ?? false {
-                return <-create YesNoBet(address: address)
-            }
-            panic("user not in group")
-        }
-    }
+    
+    
 
     pub resource DummyYesNoBet {
         priv let madeBets: @{Address: YesNoBet}

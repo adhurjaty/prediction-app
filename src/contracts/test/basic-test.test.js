@@ -20,7 +20,7 @@ describe("basic-test", ()=>{
     afterEach(async () => {
         return emulator.stop();
     });
-    
+
     test("create composer library", async () => {
         const delphai = await getAccountAddress("Delphai");
         const [deployResult, error] = await deployContractByName({
