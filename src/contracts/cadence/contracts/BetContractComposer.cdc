@@ -5,7 +5,7 @@ pub contract BetContractComposer {
     pub resource YesNoBet {
         priv var address: Address
         pub var prediction: Bool?
-        pub var wager: UInt16
+        pub var wager: Int
 
         init (address: Address) {
             self.address = address
@@ -13,7 +13,7 @@ pub contract BetContractComposer {
             self.wager = 0
         }
 
-        pub fun makeBet(prediction: Bool, wager: UInt16) {
+        pub fun makeBet(prediction: Bool, wager: Int) {
             self.prediction = prediction
             self.wager = wager
         }

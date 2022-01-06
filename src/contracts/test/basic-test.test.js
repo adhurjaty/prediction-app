@@ -68,12 +68,13 @@ describe("basic-test", ()=>{
             }));
         console.log(tx3, error3);
 
-        const [tx4, error4] = await shallRevert(
+        const result = await shallRevert(
             sendTransaction({
                 name: "placeBet",
                 args: ["betId1234", true, 20],
                 signers: [admin, otherMember],
                 addressMap: { "delphai": admin }
             }));
+        console.log(result)
     });
 })
