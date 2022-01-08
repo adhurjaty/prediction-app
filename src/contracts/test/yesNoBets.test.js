@@ -31,7 +31,7 @@ describe("yes-no-bets", ()=>{
         expect(error).toBeNull();
     });
 
-    test("deposit and withdraw yes no bet token", async () => {
+    test("deposit yes no bet token", async () => {
         const delphai = await getAccountAddress("Delphai");
         const [deployResult, error] = await deployContractByName({
             to: delphai,
@@ -51,7 +51,7 @@ describe("yes-no-bets", ()=>{
         const [transferResult, error3] = await shallResolve(
             sendTransaction({
                 name: "transferToken",
-                args: ["betId1234", member],
+                args: ["betId1234", [member]],
                 signers: [delphai],
                 addressMap: { "delphai": delphai }
             })
@@ -59,60 +59,13 @@ describe("yes-no-bets", ()=>{
         expect(error3).toBeNull();
     });
 
-    // test("create composer library", async () => {
-    //     const delphai = await getAccountAddress("Delphai");
-    //     const [deployResult, error] = await deployContractByName({
-    //         to: delphai,
-    //         name: "BetContractComposer"
-    //     });
-    //     console.log(deployResult, error);
-    // });
+    test("cache tokens if no receiver vault exists", async () => {
+        const delphai = await getAccountAddress("Delphai");
+        const [deployResult, error] = await deployContractByName({
+            to: delphai,
+            name: "YesNoBetLibrary"
+        });
 
-    // test("place bets from different users", async () => {
-    //     const admin = await getAccountAddress("delphai");
-    //     const initMember = await getAccountAddress("initMember");
-    //     const otherMember = await getAccountAddress("otherMember");
-    //     const nonMember = await getAccountAddress("nonMember");
 
-    //     const [deployResult, error] = await deployContractByName({
-    //         to: admin,
-    //         name: "BetContractComposer"
-    //     });
-
-    //     const [tx, error1] = await shallResolve(
-    //         sendTransaction({
-    //             name: "createBetResource",
-    //             args: ["betId1234", [initMember, otherMember]],
-    //             signers: [admin],
-    //             addressMap: { "delphai": admin }
-    //         }));
-    //     console.log(tx, error1);
-
-    //     const [tx2, error2] = await shallResolve(
-    //         sendTransaction({
-    //             name: "placeBet",
-    //             args: ["betId1234", true, 20],
-    //             signers: [admin, initMember],
-    //             addressMap: { "delphai": admin }
-    //         }));
-    //     console.log(tx2, error2);
-
-    //     const [tx3, error3] = await shallResolve(
-    //         sendTransaction({
-    //             name: "placeBet",
-    //             args: ["betId1234", false, 20],
-    //             signers: [admin, otherMember],
-    //             addressMap: { "delphai": admin }
-    //         }));
-    //     console.log(tx3, error3);
-
-    //     const result = await shallRevert(
-    //         sendTransaction({
-    //             name: "placeBet",
-    //             args: ["betId1234", true, 20],
-    //             signers: [admin, otherMember],
-    //             addressMap: { "delphai": admin }
-    //         }));
-    //     console.log(result)
-    // });
+    })
 })

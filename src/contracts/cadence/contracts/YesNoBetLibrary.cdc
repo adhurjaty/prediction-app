@@ -1,5 +1,6 @@
 pub contract YesNoBetLibrary {
     pub let yesNoBetMinterStoragePath: StoragePath
+    pub let yesNoBetBankRepoStoragePath: StoragePath
 
     pub resource YesNoBet {
         pub let betId: String
@@ -50,7 +51,7 @@ pub contract YesNoBetLibrary {
         }
     }
 
-    pub resource YesNoBetBank {
+    pub struct YesNoBetBank {
         priv let betId: String
         priv let members: {Address: Bool}
 
@@ -72,6 +73,25 @@ pub contract YesNoBetLibrary {
         }
     }
 
+    pub resource YesNoBetBankRepo {
+        priv let bankMap: {String: YesNoBetBank}
+
+        init () {
+            self.bankMap = {}
+        }
+
+        pub fun cacheTokens(betId: String, members: [Address]) {
+            self.bankMap[betId] = YesNoBetBank(betId: betId, members: members)
+        }
+
+        pub fun withdrawToken(betId: String, address: Address): @YesNoBet {
+            let bank = self.bankMap[betId] 
+                ?? panic("Bet ID does not exist")
+            let token <-bank.withdrawToken(address: address) 
+            return <-token
+        }
+    }
+
     pub resource YesNoBetTokenMinter {
         pub fun createToken(betId: String, address: Address): @YesNoBet {
             return <-create YesNoBet(betId: betId, userAddress: address)
@@ -84,6 +104,10 @@ pub contract YesNoBetLibrary {
 
     init () {
         self.yesNoBetMinterStoragePath = /storage/YesNoBetMinter
-        self.account.save(<-create YesNoBetTokenMinter(), to: self.yesNoBetMinterStoragePath)
+        self.yesNoBetBankRepoStoragePath = /storage/YesNoBetBankRepo
+        self.account.save(<-create YesNoBetTokenMinter(), 
+            to: self.yesNoBetMinterStoragePath)
+        self.account.save(<-create YesNoBetBankRepo(), 
+            to: self.yesNoBetBankRepoStoragePath)
     }
 }
