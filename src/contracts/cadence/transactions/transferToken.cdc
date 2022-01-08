@@ -20,10 +20,10 @@ transaction(betId: String, receiverAddresses: [Address]) {
         for address in receiverAddresses {
             let receiverCap = getAccount(address).getCapability<&AnyResource{YesNoBetLibrary.YesNoBetReceiver}>(
                 /public/YesNoBetVault);
-            if receiverCap != nil {
-                let receiver = receiverCap.borrow() ?? panic("Could not get capability")
+            let receiver = receiverCap.borrow()
+            if receiver != nil {
                 let token <- self.minterRef.createToken(betId: betId, address: address)
-                receiver.receive(token: <-token)
+                receiver!.receive(token: <-token)
             } else {
                 addressesToCache.append(address)
             }

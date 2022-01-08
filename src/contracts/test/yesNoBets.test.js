@@ -66,6 +66,26 @@ describe("yes-no-bets", ()=>{
             name: "YesNoBetLibrary"
         });
 
+        const member = await getAccountAddress("member");
+        const [saveResult, error2] = await shallResolve(
+            sendTransaction({
+                name: "saveYesNoBetVault",
+                signers: [member],
+                addressMap: { "delphai": delphai }
+            })
+        );
+        expect(error2).toBeNull();
 
+        const member2 = await getAccountAddress("member2");
+
+        const [transferResult, error3] = await shallResolve(
+            sendTransaction({
+                name: "transferToken",
+                args: ["betId1234", [member, member2]],
+                signers: [delphai],
+                addressMap: { "delphai": delphai }
+            })
+        )
+        expect(error3).toBeNull();
     })
 })
