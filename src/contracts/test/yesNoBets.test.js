@@ -1,5 +1,5 @@
 import path from "path";
-import { deployContractByName, emulator, getAccountAddress, init, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
+import { deployContractByName, emulator, executeScript, getAccountAddress, getFlowBalance, init, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
 
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(10000);
@@ -27,7 +27,7 @@ describe("yes-no-bets", ()=>{
             to: delphai,
             name: "YesNoBetLibrary"
         });
-        console.log(deployResult, error);
+        // console.log(deployResult, error);
         expect(error).toBeNull();
     });
 
@@ -87,5 +87,5 @@ describe("yes-no-bets", ()=>{
             })
         )
         expect(error3).toBeNull();
-    })
+    });
 })

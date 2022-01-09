@@ -1,32 +1,7 @@
 
 pub contract BetContractComposer {
     pub let adminStoragePath: StoragePath
-
     
-
-    
-
-    
-    
-
-    pub resource DummyYesNoBet {
-        priv let madeBets: @{Address: YesNoBet}
-
-        init (numMembers: Int) {
-            var n = numMembers
-            self.madeBets <- {}
-        }
-
-        pub fun makeBet(acct: AuthAccount, bet: @YesNoBet) {
-            log("bet made")
-            self.madeBets[acct.address] <-! bet
-        }
-
-        destroy () {
-            destroy self.madeBets
-        }
-    }
-
     pub resource YesNoVote {
         pub var resolution: Bool?
 

@@ -1,7 +1,7 @@
 import BetContractComposer from 0xdelphai
 
 transaction(betId: String, prediction: Bool, wager: Int) {
-    prepare(admin: AuthAccount, member: AuthAccount) {
+    prepare(acct: AuthAccount) {
         let adminRef = admin.borrow<&BetContractComposer.Administrator>(
             from: BetContractComposer.adminStoragePath) 
             ?? panic("Could not get admin capability")
