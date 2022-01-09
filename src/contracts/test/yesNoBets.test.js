@@ -88,4 +88,44 @@ describe("yes-no-bets", ()=>{
         )
         expect(error3).toBeNull();
     });
+
+    test("place simple bet", async () => {
+        const delphai = await getAccountAddress("Delphai");
+        const [deployResult, error] = await deployContractByName({
+            to: delphai,
+            name: "YesNoBetLibrary"
+        });
+
+        const member = await getAccountAddress("member");
+        const [saveResult, error2] = await shallResolve(
+            sendTransaction({
+                name: "saveYesNoBetVault",
+                signers: [member],
+                addressMap: { "delphai": delphai }
+            })
+        );
+        expect(error2).toBeNull();
+
+        const [transferResult, error3] = await shallResolve(
+            sendTransaction({
+                name: "transferToken",
+                args: ["betId1234", [member]],
+                signers: [delphai],
+                addressMap: { "delphai": delphai }
+            })
+        )
+        expect(error3).toBeNull();
+
+        const [placeBetResult, placeBetError] = await shallResolve(
+            sendTransaction({
+                name: "placeBet",
+                signers: [member],
+                args: ["bet1234", true, 77],
+                addressMap: { "delphai": delphai }
+            })
+        );
+        expect(placeBetError).toBeNull();
+        console.log(placeBetResult);
+        // console.log(placeBetResult.events[0].data);
+    });
 })

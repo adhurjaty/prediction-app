@@ -5,6 +5,8 @@ pub contract YesNoBetLibrary {
     pub let yesNoBetMinterStoragePath: StoragePath
     pub let yesNoBetBankRepoStoragePath: StoragePath
 
+    pub event BetMadeEvent(status: String)
+
     pub resource YesNoBet {
         pub let betId: String
         pub let userAddress: Address
@@ -117,8 +119,6 @@ pub contract YesNoBetLibrary {
         priv let numMembers: Int
         priv let madeBets: {Address: YesNoBetStruct}
 
-        event BetMadeEvent(status: String)
-
         init (numMembers: Int) {
             self.numMembers = numMembers
             self.madeBets = {}
@@ -129,14 +129,19 @@ pub contract YesNoBetLibrary {
                 panic("Must set prediction to place bet")
             }
 
-            emit BetMadeEvent("Bet made")
-            
+            emit BetMadeEvent(status: "Bet made")
+
             self.madeBets[bet.userAddress] = YesNoBetStruct(
                 userAddress: bet.userAddress,
                 prediction: bet.prediction!,
                 wager: bet.wager
             )
             destroy bet
+        }
+
+        pub fun getBet(address: Address): YesNoBetStruct {
+            return self.madeBets[address]
+                ?? panic("Member has not made a bet")
         }
     }
 
