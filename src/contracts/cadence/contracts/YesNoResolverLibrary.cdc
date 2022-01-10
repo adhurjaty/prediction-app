@@ -134,6 +134,10 @@ pub contract YesNoResolverLibrary {
         }
     }
 
+    pub fun createYesNoVoteVault(): @YesNoVoteVault {
+        return <-create YesNoVoteVault()
+    }
+
     init () {
         self.yesNoVoteMinterStoragePath = /storage/YesNoVoteMinter
         self.account.save(<-create YesNoVoteTokenMinter(),
