@@ -1,4 +1,4 @@
-import FlowToken from 0xFlowToken
+import FungibleToken from 0xFungibleToken
 
 pub contract YesNoBetLibrary {
     pub let yesNoBetMinterStoragePath: StoragePath
@@ -19,7 +19,7 @@ pub contract YesNoBetLibrary {
             self.wager = 0.0
         }
 
-        pub fun makeBet(prediction: Bool, wager: @FlowToken.Vault) {
+        pub fun makeBet(prediction: Bool, wager: @FungibleToken.Vault) {
             self.prediction = prediction
             self.wager = wager.balance
             destroy wager

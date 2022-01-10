@@ -19,7 +19,6 @@ transaction(betId: String, prediction: Bool, wager: UFix64) {
         let betToken <- self.vaultRef.withdraw()
 
         let flowVault <- self.flowVaultRef.withdraw(amount: wager)
-            as! @FlowToken.Vault
 
         betToken.makeBet(prediction: prediction, wager: <-flowVault)
 

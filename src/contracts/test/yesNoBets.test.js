@@ -23,11 +23,11 @@ describe("yes-no-bets", ()=>{
 
     test("deploy bet library", async () => {
         const delphai = await getAccountAddress("Delphai");
-        const flowToken = await getContractAddress("FlowToken", true);
+        const fungibleToken = await getContractAddress("FungibleToken", true);
         const [deployResult, error] = await deployContractByName({
             to: delphai,
             name: "YesNoBetLibrary",
-            addressMap: { FlowToken: flowToken }
+            addressMap: { FungibleToken: fungibleToken }
         });
         // console.log(deployResult, error);
         expect(error).toBeNull();
@@ -35,9 +35,11 @@ describe("yes-no-bets", ()=>{
 
     test("deposit yes no bet token", async () => {
         const delphai = await getAccountAddress("Delphai");
+        const fungibleToken = await getContractAddress("FungibleToken", true);
         const [deployResult, error] = await deployContractByName({
             to: delphai,
-            name: "YesNoBetLibrary"
+            name: "YesNoBetLibrary",
+            addressMap: { FungibleToken: fungibleToken }
         });
 
         const member = await getAccountAddress("member");
@@ -63,11 +65,11 @@ describe("yes-no-bets", ()=>{
 
     test("cache tokens if no receiver vault exists", async () => {
         const delphai = await getAccountAddress("Delphai");
-        const flowToken = await getContractAddress("FlowToken", true);
+        const fungibleToken = await getContractAddress("FungibleToken", true);
         const [deployResult, error] = await deployContractByName({
             to: delphai,
             name: "YesNoBetLibrary",
-            addressMap: { FlowToken: flowToken }
+            addressMap: { FungibleToken: fungibleToken }
         });
 
         const member = await getAccountAddress("member");
@@ -96,10 +98,11 @@ describe("yes-no-bets", ()=>{
     test("place simple bet", async () => {
         const delphai = await getAccountAddress("Delphai");
         const flowToken = await getContractAddress("FlowToken", true);
+        const fungibleToken = await getContractAddress("FungibleToken", true);
         const [deployResult, error] = await deployContractByName({
             to: delphai,
             name: "YesNoBetLibrary",
-            addressMap: { FlowToken: flowToken }
+            addressMap: { FungibleToken: fungibleToken }
         });
         
         const member = await getAccountAddress("member");
@@ -135,7 +138,6 @@ describe("yes-no-bets", ()=>{
             })
         );
         expect(placeBetError).toBeNull();
-        console.log(placeBetResult);
         expect(placeBetResult.events[1].data.status).toBe("Bet made");
     });
 })
