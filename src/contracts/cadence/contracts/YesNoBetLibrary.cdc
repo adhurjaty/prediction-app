@@ -1,5 +1,4 @@
-// import FungibleToken from 0x1
-// import StoragePath from 0x1
+import FlowToken from 0xFlowToken
 
 pub contract YesNoBetLibrary {
     pub let yesNoBetMinterStoragePath: StoragePath
@@ -11,27 +10,28 @@ pub contract YesNoBetLibrary {
         pub let betId: String
         pub let userAddress: Address
         pub var prediction: Bool?
-        pub var wager: Int
+        pub var wager: UFix64
 
         init (betId: String, userAddress: Address) {
             self.betId = betId
             self.userAddress = userAddress
             self.prediction = nil
-            self.wager = 0
+            self.wager = 0.0
         }
 
-        pub fun makeBet(prediction: Bool, wager: Int) {
+        pub fun makeBet(prediction: Bool, wager: @FlowToken.Vault) {
             self.prediction = prediction
-            self.wager = wager
+            self.wager = wager.balance
+            destroy wager
         }
     }
 
     pub struct YesNoBetStruct {
         pub let userAddress: Address
         pub let prediction: Bool
-        pub let wager: Int
+        pub let wager: UFix64
 
-        init (userAddress: Address, prediction: Bool, wager: Int) {
+        init (userAddress: Address, prediction: Bool, wager: UFix64) {
             self.userAddress = userAddress
             self.prediction = prediction
             self.wager = wager

@@ -1,5 +1,5 @@
 import path from "path";
-import { deployContractByName, emulator, executeScript, getAccountAddress, getFlowBalance, init, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
+import { deployContractByName, emulator, executeScript, getAccountAddress, getContractAddress, getFlowBalance, init, mintFlow, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
 
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(10000);
@@ -23,9 +23,11 @@ describe("yes-no-bets", ()=>{
 
     test("deploy bet library", async () => {
         const delphai = await getAccountAddress("Delphai");
+        const flowToken = await getContractAddress("FlowToken", true);
         const [deployResult, error] = await deployContractByName({
             to: delphai,
-            name: "YesNoBetLibrary"
+            name: "YesNoBetLibrary",
+            addressMap: { FlowToken: flowToken }
         });
         // console.log(deployResult, error);
         expect(error).toBeNull();
@@ -61,9 +63,11 @@ describe("yes-no-bets", ()=>{
 
     test("cache tokens if no receiver vault exists", async () => {
         const delphai = await getAccountAddress("Delphai");
+        const flowToken = await getContractAddress("FlowToken", true);
         const [deployResult, error] = await deployContractByName({
             to: delphai,
-            name: "YesNoBetLibrary"
+            name: "YesNoBetLibrary",
+            addressMap: { FlowToken: flowToken }
         });
 
         const member = await getAccountAddress("member");
@@ -91,11 +95,13 @@ describe("yes-no-bets", ()=>{
 
     test("place simple bet", async () => {
         const delphai = await getAccountAddress("Delphai");
+        const flowToken = await getContractAddress("FlowToken", true);
         const [deployResult, error] = await deployContractByName({
             to: delphai,
-            name: "YesNoBetLibrary"
+            name: "YesNoBetLibrary",
+            addressMap: { FlowToken: flowToken }
         });
-
+        
         const member = await getAccountAddress("member");
         const [saveResult, error2] = await shallResolve(
             sendTransaction({
@@ -116,16 +122,20 @@ describe("yes-no-bets", ()=>{
         )
         expect(error3).toBeNull();
 
+        await mintFlow(member, "42.0");
         const [placeBetResult, placeBetError] = await shallResolve(
             sendTransaction({
                 name: "placeBet",
                 signers: [member],
-                args: ["bet1234", true, 77],
-                addressMap: { "delphai": delphai }
+                args: ["bet1234", true, 20],
+                addressMap: {
+                    delphai: delphai,
+                    FlowToken: flowToken
+                }
             })
         );
         expect(placeBetError).toBeNull();
         console.log(placeBetResult);
-        expect(placeBetResult.events[0].data.status).toBe("Bet made");
+        expect(placeBetResult.events[1].data.status).toBe("Bet made");
     });
 })
