@@ -126,6 +126,6 @@ describe("yes-no-bets", ()=>{
         );
         expect(placeBetError).toBeNull();
         console.log(placeBetResult);
-        // console.log(placeBetResult.events[0].data);
+        expect(placeBetResult.events[0].data.status).toBe("Bet made");
     });
 })
