@@ -1,0 +1,29 @@
+@startuml Flow Storage
+title Flow Storage
+
+rectangle "DelphAI Account" {
+
+    folder "/Private" {
+        file "Bet Capability" as BC
+    }
+
+    folder "/Storage" {
+        
+        file "Bet Resource" as BR
+        file "Escrow Vault" as escrow
+    }
+
+    file Transactions
+    file Scripts
+    file "Smart Contracts"
+}
+
+rectangle "Initiator User" {
+    file "Wager Vault" as WV1
+}
+
+rectangle "Member User" {
+    file "Wager Vault" as WV2
+}
+
+@enduml
