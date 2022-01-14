@@ -1,11 +1,12 @@
-// import ExampleToken from 0x1
-import FungibleToken from 0xFungibleToken
-import FlowToken from 0xFlowToken
-// import FUSD from 0x1
+// import FungibleToken from 0xFungibleToken
+import FUSD from 0xFUSD
+// import FUSD from 0xf8d6e0586b0a20c7
+// import FlowToken from 0xFlowToken
 
 transaction() {
     prepare(acct: AuthAccount) {    
-        let vaultRef = acct.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
+        let vaultRef = acct
+            .borrow<&FUSD.Vault>(from: /storage/fusdVault)
             ?? panic("Could not borrow a reference to the owner's vault")
 
         // let tokenReceiver = acct

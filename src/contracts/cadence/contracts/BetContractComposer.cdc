@@ -1,27 +1,16 @@
+import YesNoBetLibrary, YesNoResolverLibrary from 0xdelphai
 
 pub contract BetContractComposer {
     pub let adminStoragePath: StoragePath
-    
-    pub resource YesNoVote {
-        pub var resolution: Bool?
-
-        init () {
-            self.resolution = nil
-        }
-
-        pub fun setResolved(resolution: Bool) {
-            self.resolution = resolution
-        }
-    }
 
     pub resource ContractComposer {
 
-        priv let resolver: @AnyResource{YesNoResolver}
-        priv let bet: @DummyYesNoBet
+        priv let resolver: @AnyResource{YesNoResolverLibrary.YesNoResolver}
+        priv let bet: @YesNoBetLibrary.DummyYesNoBet
 
         init (numMembers: Int) {
-            self.resolver <-create MajorityYesNoResolver(numMembers: numMembers)
-            self.bet <-create DummyYesNoBet(numMembers: numMembers)
+            self.resolver <-createMajorityYesNoResolver(numMembers: numMembers)
+            self.bet <-createDummyYesNoBet(numMembers: numMembers)
         }
 
         pub fun makeBet(acct: AuthAccount, bet: @YesNoBet) {
