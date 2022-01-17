@@ -1,7 +1,16 @@
-contract DelhaiUsers {
+import FungibleToken from 0xFungibleToken
+
+pub contract DelphaiUsers {
     pub resource interface BetToken {
         pub let betId: String
         pub let userAddress: Address
+        pub let wager: @[FungibleToken.Vault]
+
+        pub fun getVault(): @FungibleToken.Vault {
+            pre {
+                self.wager.length == 1: "Bet has already been made"
+            }
+        }
     }
 
     pub resource BetTokenVault {
@@ -9,6 +18,10 @@ contract DelhaiUsers {
 
         init () {
             self.tokens <- {}
+        }
+
+        destroy () {
+            destroy self.tokens
         }
     }
 
@@ -23,6 +36,10 @@ contract DelhaiUsers {
         init () {
             self.tokens <- {}
         }
+
+        destroy () {
+            destroy self.tokens
+        }
     }
 
     pub resource DelpahiUser {
@@ -32,6 +49,11 @@ contract DelhaiUsers {
         init () {
             self.betTokenVault <-create BetTokenVault()
             self.resolutionTokenVault <-create ResolutionTokenVault()
+        }
+
+        destroy () {
+            destroy self.betTokenVault
+            destroy self.resolutionTokenVault
         }
     }
 }
