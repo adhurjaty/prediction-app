@@ -24,6 +24,11 @@ pub contract DelphaiUsers {
             self.tokens[token.betId] <-! token
         }
 
+        pub fun withdraw(betId: String): @AnyResource{BetToken} {
+            return <- (self.tokens.remove(key: betId)
+                ?? panic("No bet token for betId: ".concat(betId)))
+        }
+
         destroy () {
             destroy self.tokens
         }
@@ -43,6 +48,11 @@ pub contract DelphaiUsers {
 
         pub fun deposit(token: @AnyResource{ResolutionToken}) {
             self.tokens[token.betId] <-! token
+        }
+
+        pub fun withdraw(betId: String): @AnyResource{ResolutionToken} {
+            return <- (self.tokens.remove(key: betId)
+                ?? panic("No resolution token for betId: ".concat(betId)))
         }
 
         destroy () {

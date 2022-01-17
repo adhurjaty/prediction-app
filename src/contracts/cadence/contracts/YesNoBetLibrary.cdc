@@ -21,7 +21,7 @@ pub contract YesNoBetLibrary {
 
         pub fun makeBet(prediction: Bool, wager: @FungibleToken.Vault) {
             pre {
-                self.wager.length == 1: "Bet has already been made"
+                self.wager.length == 0: "Bet has already been made"
             }
             self.prediction = prediction
             self.wager.append(<-wager)
