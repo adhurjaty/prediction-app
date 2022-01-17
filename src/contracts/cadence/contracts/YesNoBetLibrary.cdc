@@ -42,8 +42,8 @@ pub contract YesNoBetLibrary {
         pub fun receive(token: @YesNoBet)
     }
 
-    pub resource YesNoBetVault: YesNoBetReceiver {
-        priv var tokens: @[YesNoBet]
+    pub resource BetTokenVault: YesNoBetReceiver {
+        priv var tokens: @{String: AnyResource{BetToken}}
 
         init () {
             self.tokens <- []
@@ -53,14 +53,14 @@ pub contract YesNoBetLibrary {
             post {
                 self.tokens.length == 1 : "Token already exists in vault"
             }
-            self.tokens.append(<-token)
+            self.tokens[token.betId] <-token
         }
 
-        pub fun withdraw(): @YesNoBet {
+        pub fun withdraw(betId: String): @YesNoBet {
             pre {
                 self.tokens.length == 1 : "No token exists in vault"
             }
-            return <- self.tokens.remove(at: 0)
+            return <-! self.tokens[betId]
         }
 
         destroy () {
@@ -124,7 +124,7 @@ pub contract YesNoBetLibrary {
             self.madeBets = {}
         }
 
-        pub fun makeBet(bet: @YesNoBet) {
+        pub fun makeBet(bet: @YesNoBet): @YesNoBet {
             if bet.prediction == nil {
                 panic("Must set prediction to place bet")
             }
@@ -136,7 +136,7 @@ pub contract YesNoBetLibrary {
                 prediction: bet.prediction!,
                 wager: bet.wager
             )
-            destroy bet
+            return <-bet
         }
 
         pub fun getBet(address: Address): YesNoBetStruct {

@@ -1,4 +1,5 @@
 import YesNoBetLibrary, YesNoResolverLibrary from 0xdelphai
+import FungibleToken from 0xFungibleToken
 
 pub contract BetContractComposer {
     pub let adminStoragePath: StoragePath
@@ -7,6 +8,7 @@ pub contract BetContractComposer {
 
         priv let resolver: @AnyResource{YesNoResolverLibrary.YesNoResolver}
         priv let bet: @YesNoBetLibrary.DummyYesNoBet
+        priv let potVault: @AnyResource{FungibleToken.Receiver, FungibleToken.Provider}
 
         init (numMembers: Int) {
             self.resolver <-createMajorityYesNoResolver(numMembers: numMembers)
