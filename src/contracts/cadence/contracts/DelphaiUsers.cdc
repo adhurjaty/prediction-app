@@ -20,6 +20,10 @@ pub contract DelphaiUsers {
             self.tokens <- {}
         }
 
+        pub fun deposit(token: @AnyResource{BetToken}) {
+            self.tokens[token.betId] <-! token
+        }
+
         destroy () {
             destroy self.tokens
         }
@@ -37,12 +41,21 @@ pub contract DelphaiUsers {
             self.tokens <- {}
         }
 
+        pub fun deposit(token: @AnyResource{ResolutionToken}) {
+            self.tokens[token.betId] <-! token
+        }
+
         destroy () {
             destroy self.tokens
         }
     }
 
-    pub resource DelpahiUser {
+    pub resource interface TokenReceiver {
+        pub fun depositBetToken(token: @AnyResource{BetToken})
+        pub fun depositResolutionToken(token: @AnyResource{ResolutionToken}) 
+    }
+
+    pub resource DelphaiUser: TokenReceiver {
         pub let betTokenVault: @BetTokenVault
         pub let resolutionTokenVault: @ResolutionTokenVault
 
@@ -51,9 +64,21 @@ pub contract DelphaiUsers {
             self.resolutionTokenVault <-create ResolutionTokenVault()
         }
 
+        pub fun depositBetToken(token: @AnyResource{BetToken}) {
+            self.betTokenVault.deposit(token: <-token)
+        }
+
+        pub fun depositResolutionToken(token: @AnyResource{ResolutionToken}) {
+            self.resolutionTokenVault.deposit(token: <-token)
+        }
+
         destroy () {
             destroy self.betTokenVault
             destroy self.resolutionTokenVault
         }
+    }
+
+    pub fun createDelphaiUser(): @DelphaiUser {
+        return <-create DelphaiUser()
     }
 }

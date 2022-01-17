@@ -36,23 +36,30 @@ describe("yes-no-bets", ()=>{
                 DelphaiUsers: delphai
             }
         });
-        // console.log(deployResult, error);
         expect(error).toBeNull();
     });
 
     test("deposit yes no bet token", async () => {
         const delphai = await getAccountAddress("Delphai");
-        const fungibleToken = await getContractAddress("FungibleToken", true);
+        const [usersResult, usersError] = await deployContractByName({
+            to: delphai,
+            name: "DelphaiUsers"
+        });
+        expect(usersError).toBeNull();
+
         const [deployResult, error] = await deployContractByName({
             to: delphai,
             name: "YesNoBetLibrary",
-            addressMap: { FungibleToken: fungibleToken }
+            addressMap: {
+                DelphaiUsers: delphai
+            }
         });
+        expect(error).toBeNull();
 
         const member = await getAccountAddress("member");
         const [saveResult, error2] = await shallResolve(
             sendTransaction({
-                name: "saveYesNoBetVault",
+                name: "saveDelphaiUser",
                 signers: [member],
                 addressMap: { "delphai": delphai }
             })
