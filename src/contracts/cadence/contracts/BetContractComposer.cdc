@@ -2,7 +2,7 @@ import YesNoBetLibrary from 0xdelphai
 import YesNoResolverLibrary from 0xdelphai
 import DelphaiUsers from 0xdelphai
 import FungibleToken from 0xFungibleToken
-import FUSD from 0xFUSD
+import FlowToken from 0xFlowToken
 
 pub contract BetContractComposer {
     pub let adminStoragePath: StoragePath
@@ -16,7 +16,7 @@ pub contract BetContractComposer {
         init (numMembers: Int) {
             self.resolver <-YesNoResolverLibrary.createMajorityYesNoResolver(numMembers: numMembers)
             self.bet <-YesNoBetLibrary.createDummyYesNoBet(numMembers: numMembers)
-            self.potVault <-FUSD.createEmptyVault()
+            self.potVault <-FlowToken.createEmptyVault()
         }
 
         pub fun makeBet(bet: @AnyResource{DelphaiUsers.BetToken}) {
@@ -40,7 +40,7 @@ pub contract BetContractComposer {
     }
 
     pub resource Administrator {
-        pub fun createContractComposer(betId: String, numMembers: Int): @ContractComposer {
+        pub fun createContractComposer(numMembers: Int): @ContractComposer {
             return <-create ContractComposer(numMembers: numMembers)
         }
     }
