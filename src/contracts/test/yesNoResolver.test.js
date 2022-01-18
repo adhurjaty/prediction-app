@@ -4,7 +4,7 @@ import { deployContractByName, emulator, executeScript, getAccountAddress, getFl
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(10000);
 
-describe("yes-no-votes", ()=>{
+describe("yes-no-resolver", ()=>{
     beforeEach(async () => {
         const basePath = path.resolve(__dirname, "../cadence"); 
             // You can specify different port to parallelize execution of describe blocks
@@ -23,25 +23,45 @@ describe("yes-no-votes", ()=>{
 
     test("deploy resolver library", async () => {
         const delphai = await getAccountAddress("Delphai");
+
+        const [usersResult, usersError] = await deployContractByName({
+            to: delphai,
+            name: "DelphaiUsers"
+        });
+        expect(usersError).toBeNull();
+
         const [deployResult, error] = await deployContractByName({
             to: delphai,
-            name: "YesNoResolverLibrary"
+            name: "YesNoResolverLibrary",
+            addressMap: {
+                DelphaiUsers: delphai
+            }
         });
-        // console.log(deployResult, error);
         expect(error).toBeNull();
     });
 
     test("deposit yes no bet token", async () => {
         const delphai = await getAccountAddress("Delphai");
+        
+        const [usersResult, usersError] = await deployContractByName({
+            to: delphai,
+            name: "DelphaiUsers"
+        });
+        expect(usersError).toBeNull();
+
         const [deployResult, error] = await deployContractByName({
             to: delphai,
-            name: "YesNoResolverLibrary"
+            name: "YesNoResolverLibrary",
+            addressMap: {
+                DelphaiUsers: delphai
+            }
         });
+        expect(error).toBeNull();
 
         const member = await getAccountAddress("member");
         const [saveResult, error2] = await shallResolve(
             sendTransaction({
-                name: "saveYesNoVoteVault",
+                name: "saveDelphaiUser",
                 signers: [member],
                 addressMap: { "delphai": delphai }
             })
@@ -50,7 +70,7 @@ describe("yes-no-votes", ()=>{
 
         const [transferResult, error3] = await shallResolve(
             sendTransaction({
-                name: "transferVoteToken",
+                name: "transferResolutionToken",
                 args: ["betId1234", [member]],
                 signers: [delphai],
                 addressMap: { "delphai": delphai }

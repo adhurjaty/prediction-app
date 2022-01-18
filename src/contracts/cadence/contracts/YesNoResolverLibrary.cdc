@@ -1,7 +1,9 @@
-pub contract YesNoResolverLibrary {
-    pub let yesNoVoteMinterStoragePath: StoragePath
+import DelphaiUsers from 0xdelphai
 
-    pub resource YesNoVote {
+pub contract YesNoResolverLibrary {
+    pub let yesNoResolutionMinterStoragePath: StoragePath
+
+    pub resource YesNoResolutionToken: DelphaiUsers.ResolutionToken {
         pub let betId: String
         pub let userAddress: Address
         pub var resolution: Bool?
@@ -17,46 +19,15 @@ pub contract YesNoResolverLibrary {
         }
     }
 
-    pub resource interface YesNoVoteReceiver {
-        pub fun receive(token: @YesNoVote)
-    }
-
-    pub resource YesNoVoteVault: YesNoVoteReceiver {
-        priv var tokens: @[YesNoVote]
-
-        init () {
-            self.tokens <- []
-        }
-
-        pub fun receive(token: @YesNoVote) {
-            post {
-                self.tokens.length == 1 : "Token already exists in vault"
-            }
-            self.tokens.append(<-token)
-        }
-
-        pub fun withdraw(): @YesNoVote {
-            pre {
-                self.tokens.length == 1 : "No token exists in vault"
-            }
-            return <- self.tokens.remove(at: 0)
-        }
-
-        destroy () {
-            destroy self.tokens
+    pub resource YesNoResolutionTokenMinter {
+        pub fun createToken(betId: String, address: Address): @YesNoResolutionToken {
+            return <-create YesNoResolutionToken(betId: betId, userAddress: address)
         }
     }
-
-    pub resource YesNoVoteTokenMinter {
-        pub fun createToken(betId: String, address: Address): @YesNoVote {
-            return <-create YesNoVote(betId: betId, userAddress: address)
-        }
-    }
-
 
     pub resource interface YesNoResolver {
         pub fun getResult(): Bool?
-        pub fun vote(vote: @YesNoVote)
+        pub fun vote(vote: @YesNoResolutionToken)
     }
 
     pub resource MajorityYesNoResolver : YesNoResolver {
@@ -76,7 +47,7 @@ pub contract YesNoResolverLibrary {
             return self.result
         }
 
-        pub fun vote(vote: @YesNoVote) {
+        pub fun vote(vote: @YesNoResolutionToken) {
             self.numVotes = self.numVotes + 1
             var numYesNoVotes: Int = 0
             let voteBool = vote.resolution
@@ -113,7 +84,7 @@ pub contract YesNoResolverLibrary {
             return self.result
         }
 
-        pub fun vote(vote: @YesNoVote) {
+        pub fun vote(vote: @YesNoResolutionToken) {
             post {
                 self.isDisputed: "Resolution is in dispute"
             }
@@ -134,13 +105,9 @@ pub contract YesNoResolverLibrary {
         }
     }
 
-    pub fun createYesNoVoteVault(): @YesNoVoteVault {
-        return <-create YesNoVoteVault()
-    }
-
     init () {
-        self.yesNoVoteMinterStoragePath = /storage/YesNoVoteMinter
-        self.account.save(<-create YesNoVoteTokenMinter(),
-            to: self.yesNoVoteMinterStoragePath)
+        self.yesNoResolutionMinterStoragePath = /storage/YesNoVoteMinter
+        self.account.save(<-create YesNoResolutionTokenMinter(),
+            to: self.yesNoResolutionMinterStoragePath)
     }
 }
