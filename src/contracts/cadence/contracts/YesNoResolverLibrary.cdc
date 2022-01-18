@@ -27,7 +27,7 @@ pub contract YesNoResolverLibrary {
 
     pub resource interface YesNoResolver {
         pub fun getResult(): Bool?
-        pub fun vote(vote: @YesNoResolutionToken)
+        pub fun vote(vote: @AnyResource{DelphaiUsers.ResolutionToken})
     }
 
     pub resource MajorityYesNoResolver : YesNoResolver {
@@ -47,10 +47,11 @@ pub contract YesNoResolverLibrary {
             return self.result
         }
 
-        pub fun vote(vote: @YesNoResolutionToken) {
+        pub fun vote(vote: @AnyResource{DelphaiUsers.ResolutionToken}) {
+            let yesNoVote <- vote as! @YesNoResolutionToken
             self.numVotes = self.numVotes + 1
             var numYesNoVotes: Int = 0
-            let voteBool = vote.resolution
+            let voteBool = yesNoVote.resolution
                 ?? panic("Resolution vote has not been cast")
             if voteBool {
                 self.numYeses = self.numYeses + 1
@@ -61,7 +62,7 @@ pub contract YesNoResolverLibrary {
             if numYesNoVotes > (self.numMembers / 2) {
                 self.result = voteBool
             }
-            destroy vote
+            destroy yesNoVote
         }
     }
 
@@ -84,16 +85,17 @@ pub contract YesNoResolverLibrary {
             return self.result
         }
 
-        pub fun vote(vote: @YesNoResolutionToken) {
+        pub fun vote(vote: @AnyResource{DelphaiUsers.ResolutionToken}) {
             post {
                 self.isDisputed: "Resolution is in dispute"
             }
 
-            let voteBool = vote.resolution
+            let yesNoVote <- vote as! @YesNoResolutionToken
+            let voteBool = yesNoVote.resolution
                 ?? panic("Resolution vote has not been cast")
             if self.runningDecision != nil && self.runningDecision != voteBool {
                 self.isDisputed = true
-                destroy vote
+                destroy yesNoVote
                 return
             }
             self.runningDecision = voteBool
@@ -101,7 +103,7 @@ pub contract YesNoResolverLibrary {
             if self.numVotes == self.numMembers {
                 self.result = voteBool
             }
-            destroy vote
+            destroy yesNoVote
         }
     }
 
@@ -109,5 +111,9 @@ pub contract YesNoResolverLibrary {
         self.yesNoResolutionMinterStoragePath = /storage/YesNoVoteMinter
         self.account.save(<-create YesNoResolutionTokenMinter(),
             to: self.yesNoResolutionMinterStoragePath)
+    }
+
+    pub fun createMajorityYesNoResolver(numMembers: Int): @MajorityYesNoResolver {
+        return <-create MajorityYesNoResolver(numMembers: numMembers)
     }
 }

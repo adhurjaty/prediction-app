@@ -63,21 +63,23 @@ pub contract YesNoBetLibrary {
             self.madeBets = {}
         }
 
-        pub fun makeBet(bet: @YesNoBetToken): @FungibleToken.Vault {
-            if bet.prediction == nil {
+        pub fun makeBet(bet: @AnyResource{DelphaiUsers.BetToken}): @FungibleToken.Vault {
+            let token <- bet as! @YesNoBetToken
+
+            if token.prediction == nil {
                 panic("Must set prediction to place bet")
             }
 
             emit BetMadeEvent(status: "Bet made")
 
-            let vault <- bet.getVault()
-            self.madeBets[bet.userAddress] = YesNoBetStruct(
-                userAddress: bet.userAddress,
-                prediction: bet.prediction!,
+            let vault <- token.getVault()
+            self.madeBets[token.userAddress] = YesNoBetStruct(
+                userAddress: token.userAddress,
+                prediction: token.prediction!,
                 wager: vault.balance
             )
 
-            destroy bet
+            destroy token
             return <-vault
         }
 

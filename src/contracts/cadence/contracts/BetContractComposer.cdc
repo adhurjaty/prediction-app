@@ -1,5 +1,8 @@
-import YesNoBetLibrary, YesNoResolverLibrary from 0xdelphai
+import YesNoBetLibrary from 0xdelphai
+import YesNoResolverLibrary from 0xdelphai
+import DelphaiUsers from 0xdelphai
 import FungibleToken from 0xFungibleToken
+import FUSD from 0xFUSD
 
 pub contract BetContractComposer {
     pub let adminStoragePath: StoragePath
@@ -8,18 +11,20 @@ pub contract BetContractComposer {
 
         priv let resolver: @AnyResource{YesNoResolverLibrary.YesNoResolver}
         priv let bet: @YesNoBetLibrary.DummyYesNoBet
-        priv let potVault: @AnyResource{FungibleToken.Receiver, FungibleToken.Provider}
+        priv let potVault: @FungibleToken.Vault
 
         init (numMembers: Int) {
-            self.resolver <-createMajorityYesNoResolver(numMembers: numMembers)
-            self.bet <-createDummyYesNoBet(numMembers: numMembers)
+            self.resolver <-YesNoResolverLibrary.createMajorityYesNoResolver(numMembers: numMembers)
+            self.bet <-YesNoBetLibrary.createDummyYesNoBet(numMembers: numMembers)
+            self.potVault <-FUSD.createEmptyVault()
         }
 
-        pub fun makeBet(acct: AuthAccount, bet: @YesNoBet) {
-            self.bet.makeBet(acct: acct, bet: <-bet)
+        pub fun makeBet(bet: @AnyResource{DelphaiUsers.BetToken}) {
+            let betVault <-self.bet.makeBet(bet: <-bet)
+            self.potVault.deposit(from: <-betVault)
         }
 
-        pub fun voteToResolve(vote: @YesNoVote) {
+        pub fun voteToResolve(vote: @AnyResource{DelphaiUsers.ResolutionToken}) {
             self.resolver.vote(vote: <-vote)
         }
 
@@ -30,68 +35,31 @@ pub contract BetContractComposer {
         destroy() {
             destroy self.resolver
             destroy self.bet
+            destroy self.potVault
         }
     }
 
     pub resource Administrator {
-        init() {
-
-        }
-
-        pub fun deployContractComposer(betId: String, admin: AuthAccount, members: [Address]) {
-            let contract <-create ContractComposer(numMembers: members.length)
-
-            let savePath = BetContractComposer.getDeploymentStoragePath(betId: betId)
-            let publicPath = BetContractComposer.getDeploymentPublicPath(betId: betId)
-
-            admin.save(<-contract, to: savePath)
-            admin.link<&BetContractComposer.ContractComposer>(publicPath, target: savePath)
-
-            self.addMembers(betId: betId, admin: admin, members: members)
-        }
-
-        priv fun addMembers(betId: String, admin: AuthAccount, members: [Address]) {
-            let tokenBank <-create YesNoBetBank()
-            for member in members {
-                tokenBank.addMember(member: member)
-            }
-
-            let savePath = self.getYesNoBetStoragePath(betId: betId)
-            admin.save(<-tokenBank, to: savePath)
-        }
-
-        priv fun saveYesNoBet(betId: String, admin: AuthAccount, member: Address) {
-            var betStoragePath = self.getYesNoBetStoragePath(betId: betId)
-            admin.save(<-create YesNoBet(address: member), to: betStoragePath)
-        }
-
-        priv fun getYesNoBetStoragePath(betId: String): StoragePath {
-            return /storage/betId1234YesNoBet
-            // return StoragePath(identifier: betId.concat("/YesNoBet"))
-        }
-
-        pub fun withdrawBetToken(betId: String, admin: AuthAccount, member: Address): @YesNoBet {
-            let bankCapabiliy = admin.borrow<&BetContractComposer.YesNoBetBank>(
-                from: self.getYesNoBetStoragePath(betId: betId))!
-            return <-bankCapabiliy.withdrawToken(address: member)
+        pub fun createContractComposer(betId: String, numMembers: Int): @ContractComposer {
+            return <-create ContractComposer(numMembers: numMembers)
         }
     }
 
     pub init() {
-        self.adminStoragePath = /storage/composerAdmin
+        self.adminStoragePath = /storage/BetAdmin
         let admin <-create Administrator()
         self.account.save(<-admin, to: self.adminStoragePath)
     }
 
-    pub fun getDeploymentStoragePath(betId: String): StoragePath {
-        return /storage/betId1234
-        // return StoragePath(identifier: betId)
-    }
+    // pub fun getDeploymentStoragePath(betId: String): StoragePath {
+    //     return /storage/betId1234
+    //     // return StoragePath(identifier: betId)
+    // }
 
-    pub fun getDeploymentPublicPath(betId: String): PublicPath {
-        return /public/betId1234
-        // return PublicPath(identifier: betId)
-    }
+    // pub fun getDeploymentPublicPath(betId: String): PublicPath {
+    //     return /public/betId1234
+    //     // return PublicPath(identifier: betId)
+    // }
 
 }
  
