@@ -11,12 +11,14 @@ pub contract YesNoBetLibrary {
         pub let userAddress: Address
         pub var prediction: Bool?
         pub let wager: @[FungibleToken.Vault]
+        priv var wagerBalance: UFix64
 
         init (betId: String, userAddress: Address) {
             self.betId = betId
             self.userAddress = userAddress
             self.prediction = nil
             self.wager <- []
+            self.wagerBalance = 0.0
         }
 
         pub fun makeBet(prediction: Bool, wager: @FungibleToken.Vault) {
@@ -24,11 +26,19 @@ pub contract YesNoBetLibrary {
                 self.wager.length == 0: "Bet has already been made"
             }
             self.prediction = prediction
+            self.wagerBalance = wager.balance
             self.wager.append(<-wager)
         }
 
         pub fun getVault(): @FungibleToken.Vault {
+            pre {
+                self.wager.length == 1 : "Bet has not been made"
+            }
             return <-self.wager.remove(at: 0)
+        }
+
+        pub fun getVaultBalance(): UFix64 {
+            return self.wagerBalance
         }
 
         destroy () {
@@ -103,20 +113,32 @@ pub contract YesNoBetLibrary {
         return <-create DummyYesNoBet(numMembers: numMembers)
     }
 
+    pub struct HubBet {
+        pub let address: Address
+        pub let prediction: Bool
+        pub let wager: UFix64
+
+        init (address: Address, prediction: Bool, wager: UFix64) {
+            self.address = address
+            self.prediction = prediction
+            self.wager = wager
+        }
+    }
+
     pub resource HubAndSpokeBet {
         priv let numMembers: Int
-        priv var hubBet: YesNoBetStruct?
-        priv let spokeBets: {Address: YesNoBetStruct}
-        priv var spokePot: UFix64
+        priv var hubBet: HubBet?
+        priv let madeBets: @{Address: YesNoBetToken}
+        priv var spokeBalance: UFix64
 
         init (numMembers: Int) {
             self.numMembers = numMembers
             self.hubBet = nil
-            self.spokeBets = {}
-            self.spokePot = 0.0
+            self.madeBets <- {}
+            self.spokeBalance = 0.0
         }
 
-        pub fun makeBet(bet: @AnyResource{DelphaiUsers.BetToken}): @FungibleToken.Vault {
+        pub fun makeBet(bet: @AnyResource{DelphaiUsers.BetToken}) {
             let token <- bet as! @YesNoBetToken
             if self.hubBet != nil && self.hubBet!.prediction == token.prediction {
                 panic("Must bet differently from the first bet")
@@ -129,63 +151,75 @@ pub contract YesNoBetLibrary {
             emit BetMadeEvent(status: "Bet made")
 
             let vault <- token.getVault()
-            if self.hubBet != nil && (self.spokePot + vault.balance > self.hubBet!.wager) {
+            if self.hubBet != nil && (self.spokeBalance + vault.balance > self.hubBet!.wager) {
                 panic("Bet is too large")
             }
 
             if self.hubBet == nil {
-                self.hubBet = YesNoBetStruct(
-                    userAddress: token.userAddress,
+                self.hubBet = HubBet(
+                    address: token.userAddress,
                     prediction: token.prediction!,
-                    wager: vault.balance
+                    wager: token.getVaultBalance()
                 )
             } else {
-                self.spokeBets[token.userAddress] = YesNoBetStruct(
-                    userAddress: token.userAddress,
-                    prediction: token.prediction!,
-                    wager: vault.balance
-                )
-                self.spokePot = self.spokePot + vault.balance
+                self.spokeBalance = self.spokeBalance + vault.balance
             }
-
-            destroy token
-            return <-vault
+            token.makeBet(prediction: token.prediction!, wager: <-vault)
+            self.madeBets[token.userAddress] <-! token
         }
 
-        pub fun getBet(address: Address): YesNoBetStruct {
+        // pub fun getBet(address: Address): YesNoBetStruct {
+        //     pre {
+        //         self.hubBet != nil : "No bets have been made"
+        //     }
+        //     if address == self.hubBet!.userAddress {
+        //         return self.hubBet!
+        //     }
+        //     return self.spokeBets[address]
+        //         ?? panic("Member has not made a bet")
+        // }
+
+        pub fun resolveBet(resolution: Bool) {
             pre {
                 self.hubBet != nil : "No bets have been made"
             }
-            if address == self.hubBet!.userAddress {
-                return self.hubBet!
-            }
-            return self.spokeBets[address]
-                ?? panic("Member has not made a bet")
-        }
-
-        pub fun getWinners(resolution: Bool): [WinnerStruct] {
-            pre {
-                self.hubBet != nil : "No bets have been made"
-            }
-
-            let winners: [WinnerStruct] = []
 
             if self.hubBet!.prediction == resolution {
-                winners.append(WinnerStruct(
-                    userAddress: self.hubBet!.userAddress,
-                    payout: self.spokePot + self.hubBet!.wager
-                ))
-                return winners
+                let winner <- self.madeBets.remove(key: self.hubBet!.address)!
+                let winnerVault <- winner.getVault()
+                for key in self.madeBets.keys {
+                    let loser <- self.madeBets.remove(key: key)!
+                    let loserVault <- loser.getVault()
+                    winnerVault.deposit(from: <-loserVault.withdraw(amount: loserVault.balance))
+                    loser.makeBet(prediction: loser.prediction!, wager: <-loserVault)
+                    self.madeBets[key] <-! loser
+                }
+                winner.makeBet(prediction: self.hubBet!.prediction, wager: <-winnerVault)
+                self.madeBets[self.hubBet!.address] <-! winner
+            } else {
+                let loser <- self.madeBets.remove(key: self.hubBet!.address)!
+                let loserVault <- loser.getVault()
+                for key in self.madeBets.keys {
+                    let winner <- self.madeBets.remove(key: key)!
+                    let winnerVault <- winner.getVault()
+                    winnerVault.deposit(from: <-loserVault.withdraw(amount: winnerVault.balance))
+                    winner.makeBet(prediction: winner.prediction!, wager: <-winnerVault)
+                    self.madeBets[key] <-! winner
+                }
+                loser.makeBet(prediction: self.hubBet!.prediction, wager: <-loserVault)
+                self.madeBets[self.hubBet!.address] <-! loser
             }
+        }
 
-            for spoke in self.spokeBets.values {
-                winners.append(WinnerStruct(
-                    userAddress: spoke.userAddress,
-                    payout: spoke.wager * 2.0
-                ))
+        destroy () {
+            destroy self.madeBets
+        }
+
+        priv fun min(a: UFix64, b: UFix64): UFix64 {
+            if a < b {
+                return a
             }
-            
-            return winners
+            return b
         }
     }
 

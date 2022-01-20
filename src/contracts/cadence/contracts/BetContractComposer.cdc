@@ -10,7 +10,7 @@ pub contract BetContractComposer {
     pub resource ContractComposer {
 
         priv let resolver: @AnyResource{YesNoResolverLibrary.YesNoResolver}
-        priv let bet: @YesNoBetLibrary.DummyYesNoBet
+        priv let bet: @YesNoBetLibrary.HubAndSpokeBet
         priv let potVault: @FungibleToken.Vault
 
         init (numMembers: Int) {
@@ -26,6 +26,14 @@ pub contract BetContractComposer {
 
         pub fun voteToResolve(vote: @AnyResource{DelphaiUsers.ResolutionToken}) {
             self.resolver.vote(vote: <-vote)
+            let resolution = self.resolution.getResult()
+            if resolution != nil {
+                let winners = self.bet.getWinners(resolution: resolution)
+
+                for winner in winners {
+                    
+                }
+            }
         }
 
         pub fun getResult(): Bool? {
