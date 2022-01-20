@@ -211,6 +211,15 @@ pub contract YesNoBetLibrary {
             }
         }
 
+        pub fun retrieveWinning(claimToken: @DelphaiUsers.ClaimToken): @FungibleToken.Vault {
+            let betToken <- self.madeBets.remove(key: claimToken.userAddress)
+                ?? panic("Already retrieved winning")
+            let vault <- betToken.getVault()
+            destroy claimToken
+            destroy betToken
+            return <- vault
+        }
+
         destroy () {
             destroy self.madeBets
         }

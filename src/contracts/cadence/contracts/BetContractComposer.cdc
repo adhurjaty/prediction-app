@@ -29,9 +29,13 @@ pub contract BetContractComposer {
             }
         }
 
-        pub fun getResult(): Bool? {
-            return self.resolver.getResult()
+        pub fun retrieveWinning(claimToken: @DelphaiUsers.ClaimToken): @FungibleToken.Vault {
+            return <-self.bet.retrieveWinning(claimToken: <-claimToken)
         }
+
+        // pub fun getResult(): Bool? {
+        //     return self.resolver.getResult()
+        // }
 
         destroy() {
             destroy self.resolver

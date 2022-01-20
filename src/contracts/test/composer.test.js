@@ -164,7 +164,19 @@ describe("contract-composer-tests", () => {
             expect(resTokenError).toBeNull();
         }
 
-        let balance = await getFlowBalance(hub);
-        expect(balance).toBe("62.0010000");
+        for (const member of [hub, spoke]) {
+            const [retrieveWinningResult, retrieveWinningError] = await shallResolve(
+                sendTransaction({
+                    name: "retrieveWinning",
+                    args: [delphai, "betId1234"],
+                    signers: [member],
+                    addressMap: { "delphai": delphai }
+                })
+            )
+            expect(retrieveWinningError).toBeNull();
+        }
+
+        let balance = (await getFlowBalance(hub))[0];
+        expect(balance).toBe("62.00100000");
     });
 });

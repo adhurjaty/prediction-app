@@ -5,6 +5,7 @@ import DelphaiUsers from 0xdelphai
 transaction(betId: String, receiverAddresses: [Address]) {
     let betTokenMinterRef: &YesNoBetLibrary.YesNoBetTokenMinter
     let resolutionTokenMinterRef: &YesNoResolverLibrary.YesNoResolutionTokenMinter
+    let claimTokenMinterRef: &DelphaiUsers.ClaimTokenMinter
 
     prepare(acct: AuthAccount) {
 
@@ -14,6 +15,9 @@ transaction(betId: String, receiverAddresses: [Address]) {
         self.resolutionTokenMinterRef = acct.borrow<&YesNoResolverLibrary.YesNoResolutionTokenMinter>(
             from: YesNoResolverLibrary.yesNoResolutionMinterStoragePath)
             ?? panic("Could not borrow resolution token minter")
+        self.claimTokenMinterRef = acct.borrow<&DelphaiUsers.ClaimTokenMinter>(
+            from: DelphaiUsers.claimTokenMinterStoragePath)
+            ?? panic("Could not borrow claim token minter")
     }
 
     execute {
@@ -28,6 +32,8 @@ transaction(betId: String, receiverAddresses: [Address]) {
             let resolutionToken <-self.resolutionTokenMinterRef.createToken(
                 betId: betId, address: address)
             receiver.depositResolutionToken(token: <-resolutionToken)
+            let claimToken <- self.claimTokenMinterRef.createToken(betId: betId, address: address)
+            receiver.depositClaimToken(token: <-claimToken)
         }
     }
 }
