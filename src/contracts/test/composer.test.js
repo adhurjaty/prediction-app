@@ -151,5 +151,20 @@ describe("contract-composer-tests", () => {
             })
         )
         expect(placeSpokeError).toBeNull();
+
+        for (const member of [hub, spoke]) {
+            const [sendResolutionTokenResult, resTokenError] = await shallResolve(
+                sendTransaction({
+                    name: "voteToResolve",
+                    args: [delphai, "betId1234", true],
+                    signers: [member],
+                    addressMap: { "delphai": delphai }
+                })
+            )
+            expect(resTokenError).toBeNull();
+        }
+
+        let balance = await getFlowBalance(hub);
+        expect(balance).toBe("62.0010000");
     });
 });
