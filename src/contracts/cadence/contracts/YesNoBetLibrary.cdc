@@ -179,7 +179,7 @@ pub contract YesNoBetLibrary {
         //         ?? panic("Member has not made a bet")
         // }
 
-        pub fun resolveBet(resolution: Bool) {
+        pub fun resolve(resolution: Bool) {
             pre {
                 self.hubBet != nil : "No bets have been made"
             }
@@ -221,6 +221,10 @@ pub contract YesNoBetLibrary {
             }
             return b
         }
+    }
+
+    pub fun createHubAndSpokesBet(numMembers: Int): @HubAndSpokeBet {
+        return <-create HubAndSpokeBet(numMembers: numMembers)
     }
 
     init () {

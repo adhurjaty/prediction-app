@@ -11,28 +11,21 @@ pub contract BetContractComposer {
 
         priv let resolver: @AnyResource{YesNoResolverLibrary.YesNoResolver}
         priv let bet: @YesNoBetLibrary.HubAndSpokeBet
-        priv let potVault: @FungibleToken.Vault
 
         init (numMembers: Int) {
             self.resolver <-YesNoResolverLibrary.createMajorityYesNoResolver(numMembers: numMembers)
-            self.bet <-YesNoBetLibrary.createDummyYesNoBet(numMembers: numMembers)
-            self.potVault <-FlowToken.createEmptyVault()
+            self.bet <-YesNoBetLibrary.createHubAndSpokesBet(numMembers: numMembers)
         }
 
         pub fun makeBet(bet: @AnyResource{DelphaiUsers.BetToken}) {
-            let betVault <-self.bet.makeBet(bet: <-bet)
-            self.potVault.deposit(from: <-betVault)
+            self.bet.makeBet(bet: <-bet)
         }
 
         pub fun voteToResolve(vote: @AnyResource{DelphaiUsers.ResolutionToken}) {
             self.resolver.vote(vote: <-vote)
-            let resolution = self.resolution.getResult()
+            let resolution = self.resolver.getResult()
             if resolution != nil {
-                let winners = self.bet.getWinners(resolution: resolution)
-
-                for winner in winners {
-                    
-                }
+                self.bet.resolve(resolution: resolution!)
             }
         }
 
@@ -43,7 +36,6 @@ pub contract BetContractComposer {
         destroy() {
             destroy self.resolver
             destroy self.bet
-            destroy self.potVault
         }
     }
 
