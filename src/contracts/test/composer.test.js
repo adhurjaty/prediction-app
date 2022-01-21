@@ -1,5 +1,5 @@
 import path from "path";
-import { deployContractByName, emulator, executeScript, getAccountAddress, getContractAddress, getFlowBalance, init, mintFlow, mintFUSD, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
+import { deployContractByName, emulator, executeScript, getAccountAddress, getContractAddress, getFlowBalance, getFUSDBalance, init, mintFlow, mintFUSD, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
 
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(10000);
@@ -59,33 +59,29 @@ describe("contract-composer-tests", () => {
         expect(composerError).toBeNull();
     });
 
-    test("full bet and resolution", async () => {
-        const delphai = await getAccountAddress("Delphai");
-        const [usersResult, usersError] = await deployContractByName({
+    const deployContracts = async (delphai) => {
+        await deployContractByName({
             to: delphai,
             name: "DelphaiUsers"
         });
-        expect(usersError).toBeNull();
 
-        const [betDeployResult, betError] = await deployContractByName({
+        await deployContractByName({
             to: delphai,
             name: "YesNoBetLibrary",
             addressMap: {
                 DelphaiUsers: delphai
             }
         });
-        expect(betError).toBeNull();
 
-        const [resolutionDeployResult, resolutionError] = await deployContractByName({
+        await deployContractByName({
             to: delphai,
             name: "YesNoResolverLibrary",
             addressMap: {
                 DelphaiUsers: delphai
             }
         });
-        expect(resolutionError).toBeNull();
 
-        const [composerDeployResult, composerError] = await deployContractByName({
+        await deployContractByName({
             to: delphai,
             name: "BetContractComposer",
             addressMap: {
@@ -94,7 +90,12 @@ describe("contract-composer-tests", () => {
                 YesNoResolverLibrary: delphai
             }
         });
-        expect(composerError).toBeNull();
+    }
+
+    test("full bet and resolution", async () => {
+        const delphai = await getAccountAddress("Delphai");
+        
+        await deployContracts(delphai);
 
         const hub = await getAccountAddress("hub");
         const spoke = await getAccountAddress("spoke");
@@ -178,5 +179,96 @@ describe("contract-composer-tests", () => {
 
         let balance = (await getFlowBalance(hub))[0];
         expect(balance).toBe("62.00100000");
+    });
+
+    const setupAccounts = async (delphai, members) => {
+        for (const member of members) {
+            await shallResolve(
+                sendTransaction({
+                    name: "saveDelphaiUser",
+                    signers: [member],
+                    addressMap: { "delphai": delphai }
+                })
+            );
+        }
+
+        await shallResolve(
+            sendTransaction({
+                name: "transferTokens",
+                args: ["betId1234", members],
+                signers: [delphai],
+                addressMap: { "delphai": delphai }
+            })
+        );
+    }
+
+    test("bet with FUSD", async () => {
+        const delphai = await getAccountAddress("Delphai");
+        
+        await deployContracts(delphai);
+
+        const hub = await getAccountAddress("hub");
+        const spoke = await getAccountAddress("spoke");
+        await mintFUSD(hub, "42.0");
+        await mintFUSD(spoke, "42.0");
+
+        await setupAccounts(delphai, [hub, spoke]);
+
+        const [deployComposerResult, deployComposerError] = await shallResolve(
+            sendTransaction({
+                name: "deployComposerBet",
+                args: ["betId1234", 2],
+                signers: [delphai],
+                addressMap: { "delphai": delphai }
+            })
+        )
+        expect(deployComposerError).toBeNull();
+
+        const [placeHubResult, placeHubError] = await shallResolve(
+            sendTransaction({
+                name: "placeBetComposerFUSD",
+                args: [delphai, "betId1234", true, 20],
+                signers: [hub],
+                addressMap: { "delphai": delphai }
+            })
+        )
+        expect(placeHubError).toBeNull();
+
+        const [placeSpokeResult, placeSpokeError] = await shallResolve(
+            sendTransaction({
+                name: "placeBetComposerFUSD",
+                args: [delphai, "betId1234", false, 20],
+                signers: [spoke],
+                addressMap: { "delphai": delphai }
+            })
+        )
+        expect(placeSpokeError).toBeNull();
+
+        for (const member of [hub, spoke]) {
+            const [sendResolutionTokenResult, resTokenError] = await shallResolve(
+                sendTransaction({
+                    name: "voteToResolve",
+                    args: [delphai, "betId1234", true],
+                    signers: [member],
+                    addressMap: { "delphai": delphai }
+                })
+            )
+            expect(resTokenError).toBeNull();
+        }
+
+        for (const member of [hub, spoke]) {
+            const [retrieveWinningResult, retrieveWinningError] = await shallResolve(
+                sendTransaction({
+                    name: "retrieveWinningFUSD",
+                    args: [delphai, "betId1234"],
+                    signers: [member],
+                    addressMap: { "delphai": delphai }
+                })
+            )
+            expect(retrieveWinningError).toBeNull();
+        }
+
+        let balance = (await getFUSDBalance(hub))[0];
+        expect(parseFloat(balance)).toBe(62);
     });
 });

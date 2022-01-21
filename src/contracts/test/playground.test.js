@@ -6,6 +6,7 @@ import {
     getAccountAddress,
     getContractAddress,
     getFlowBalance,
+    getFUSDBalance,
     getServiceAddress,
     init,
     mintFlow,
@@ -53,7 +54,9 @@ describe("yes-no-bets", ()=>{
 
         // expect(e).toBeNull();
 
-        await mintFUSD(delphai, "42.0");
+        const response = await mintFUSD(delphai, "42.0");
+        const balance = await getFUSDBalance(delphai);
+        console.log(balance);
         // const flowToken = await getContractAddress("FlowToken", true);
         // const fungibleToken = await getContractAddress("FungibleToken", true);
         const serviceAddress = await getServiceAddress()
