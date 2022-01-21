@@ -130,12 +130,14 @@ pub contract YesNoBetLibrary {
         priv var hubBet: HubBet?
         priv let madeBets: @{Address: YesNoBetToken}
         priv var spokeBalance: UFix64
+        priv var isResolved: Bool
 
         init (numMembers: Int) {
             self.numMembers = numMembers
             self.hubBet = nil
             self.madeBets <- {}
             self.spokeBalance = 0.0
+            self.isResolved = false
         }
 
         pub fun makeBet(bet: @AnyResource{DelphaiUsers.BetToken}) {
@@ -182,6 +184,7 @@ pub contract YesNoBetLibrary {
         pub fun resolve(resolution: Bool) {
             pre {
                 self.hubBet != nil : "No bets have been made"
+                !self.isResolved : "Bet is already resolved"
             }
 
             if self.hubBet!.prediction == resolution {
@@ -209,6 +212,7 @@ pub contract YesNoBetLibrary {
                 loser.makeBet(prediction: self.hubBet!.prediction, wager: <-loserVault)
                 self.madeBets[self.hubBet!.address] <-! loser
             }
+            self.isResolved = true
         }
 
         pub fun retrieveWinning(claimToken: @DelphaiUsers.ClaimToken): @FungibleToken.Vault {
@@ -222,13 +226,6 @@ pub contract YesNoBetLibrary {
 
         destroy () {
             destroy self.madeBets
-        }
-
-        priv fun min(a: UFix64, b: UFix64): UFix64 {
-            if a < b {
-                return a
-            }
-            return b
         }
     }
 
