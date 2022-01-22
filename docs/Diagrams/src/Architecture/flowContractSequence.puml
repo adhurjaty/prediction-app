@@ -3,74 +3,68 @@
 title Flow Contract Sequence
 
 actor "Initiator User" as init
+entity "Initiator Account" as initAcct
 actor "Member User" as member
+entity "Member Account" as memberAcct
 participant UI as ui
 participant API as api
-actor Delphai as delph
-' entities are transactions
-entity "Create Bet" as createTransaction
-entity "Place Bet" as betTransaction
-entity "Resolve Vote" as resolveTransaction
-entity "Token Vault" as tokenTransaction
-entity "Send Vault" as sendTransaction
-participant "Bets Contract" as contract
+entity "Delphai Account" as delph
+participant "Users Contract" as usersContract
+participant "Bets Contract" as betsContract
+participant "Resolver Contract" as resolverContract
+participant "Composer Contract" as composerContract
 
-delph -> contract : deploy
-contract --> delph : save Administrator\nresource
+group One time on first deployment
+    delph -> usersContract : deploy
+    usersContract --> delph : save token minter
+    delph -> betsContract : deploy
+    betsContract --> delph : save token minter
+    delph -> resolverContract : deploy
+    resolverContract --> delph : save token minter
+    delph -> composerContract : deploy
+    composerContract --> delph : save admin resource
+end
+group One time on user registration
+    initAcct -> usersContract : saveUserTransaction
+    usersContract --> initAcct : save user resource
+    memberAcct -> usersContract : saveUserTransaction
+    usersContract --> memberAcct : save user resource
+end
+
 init -> ui : create yes/no bet
 ui -> api : create bet
-api -> createTransaction : sign transaction (initiator\nand admin)
-createTransaction -> contract : create bet resource
-contract --> delph : save bet resource
-alt user has token vault
-    delph -> init : transfer bet token
-else
-    delph -> delph : cache token
-end
-alt user has token vault
-    delph -> member : transfer bet token
-else
-    delph -> delph : cache token
-end
-createTransaction --> ui : bet created event
-ui -> betTransaction : sign transaction (initiator)
-betTransaction -> init : get token
-alt user has token
-    init --> betTransaction : return token
-else
-    betTransaction --> ui : panic
-    ui -> tokenTransaction : sign transaction (initiator)
-    tokenTransaction -> contract : create vault
-    contract --> init : save vault
-    contract --> ui : vault saved event
-    ui -> api : send token request
-    api -> sendTransaction : sign transaction (admin)
-    sendTransaction -> delph : get token
-    delph --> sendTransaction : return token
-    sendTransaction -> init : transfer token
-    sendTransaction --> ui : token saved event
-    ui -> betTransaction : sign transaction (initiator)
-    betTransaction -> init : get token
-    init --> betTransaction : return token
-end
-betTransaction -> betTransaction : update token\nwith bet
-betTransaction -> contract : place bet
-contract -> delph : transfer token
-delph -> delph : record bet and\ndestroy token
-member -> ui : place bet
-ui -> betTransaction : sign transaction (member)
-betTransaction -> contract : same process as above
-contract -> contract : ...
-contract -> delph : ...
- -> delph : bet closes
- delph -> init : transfer resolution token
- delph -> member : transfer resolution token
-init -> ui : send resolution vote
-ui -> resolveTransaction : vote resolution
-resolveTransaction -> resolveTransaction : update token\nwith vote
-resolveTransaction -> delph : record vote and destory token
-member -> delph : same process as above
-delph -> delph : determine victor
-delph -> init : deposit funds
+api -> delph : transferTokens\nTransaction
+delph --> initAcct : transfer bet tokens
+delph --> memberAcct : transfer bet tokens
+delph -> delph : createBetTransaction
+api --> ui : response
+
+ui -> delph : placeBetTransaction
+initAcct --> delph : transfer bet token
+ui --> init : show result
+member -> ui : make bet
+ui -> delph : placeBetTransaction
+memberAcct --> delph : transfer bet token
+
+-> delph : bet closes
+
+init -> ui : vote to resolve
+ui -> delph : voteToResolveTransaction
+initAcct --> delph : transfer resolution token
+ui --> init : show result
+member -> ui : vote to resolve
+ui -> delph : voteToResolveTransaction
+memberAcct --> delph : transfer resolution token
+delph -> api : raise BetResolved\nevent
+ui --> member : show result
+
+init -> ui : claim pot
+ui -> delph : retrievePotTransaction
+initAcct --> delph : transfer claim token
+delph --> initAcct : transfer money
+member -> ui : claim pot
+ui -> delph : retrievePotTransaction
+memberAcct --> delph : transfer claim token
+delph --> memberAcct : transfer money
 
 @enduml

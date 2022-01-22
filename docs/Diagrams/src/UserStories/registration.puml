@@ -9,7 +9,6 @@ database "Local Store" as localstore
 participant "API Backend" as api
 database Database as db
 participant "OAuth Provider" as oauth
-participant "Testnet Faucet" as faucet
 participant Flow as flow
 
 user -> ui : Click register 
