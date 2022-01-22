@@ -3,11 +3,11 @@
 title Flow Contract Sequence
 
 actor "Initiator User" as init
-entity "Initiator Account" as initAcct
 actor "Member User" as member
-entity "Member Account" as memberAcct
 participant UI as ui
 participant API as api
+entity "Initiator Account" as initAcct
+entity "Member Account" as memberAcct
 entity "Delphai Account" as delph
 participant "Users Contract" as usersContract
 participant "Bets Contract" as betsContract
@@ -33,9 +33,9 @@ end
 
 init -> ui : create yes/no bet
 ui -> api : create bet
-api -> delph : transferTokens\nTransaction
+api -> delph : transferTokensTransaction
 delph --> initAcct : transfer bet tokens
-delph --> memberAcct : transfer bet tokens
+delph --> memberAcct : transfer bet\ntokens
 delph -> delph : createBetTransaction
 api --> ui : response
 
@@ -44,7 +44,7 @@ initAcct --> delph : transfer bet token
 ui --> init : show result
 member -> ui : make bet
 ui -> delph : placeBetTransaction
-memberAcct --> delph : transfer bet token
+memberAcct --> delph : transfer bet\ntoken
 
 -> delph : bet closes
 
@@ -54,8 +54,8 @@ initAcct --> delph : transfer resolution token
 ui --> init : show result
 member -> ui : vote to resolve
 ui -> delph : voteToResolveTransaction
-memberAcct --> delph : transfer resolution token
-delph -> api : raise BetResolved\nevent
+memberAcct --> delph : transfer resolution\ntoken
+delph -> api : raise BetResolved event
 ui --> member : show result
 
 init -> ui : claim pot
@@ -64,7 +64,7 @@ initAcct --> delph : transfer claim token
 delph --> initAcct : transfer money
 member -> ui : claim pot
 ui -> delph : retrievePotTransaction
-memberAcct --> delph : transfer claim token
+memberAcct --> delph : transfer claim\ntoken
 delph --> memberAcct : transfer money
 
 @enduml
