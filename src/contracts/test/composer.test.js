@@ -468,4 +468,34 @@ describe("contract-composer-tests", () => {
         expect(parseFloat(otherSpokeBalance)).toBe(47);
     });
 
+    test("disallow different currencies", async () => {
+        const delphai = await getAccountAddress("Delphai");
+        
+        const hub = await getAccountAddress("hub");
+        const spoke = await getAccountAddress("spoke");
+        await mintFUSD(hub, "42.0");
+        await mintFlow(spoke, "42.0");
+
+        await initBet(delphai, [hub, spoke]);
+
+        const [placeHubResult, placeHubError] = await shallResolve(
+            sendTransaction({
+                name: "placeBetComposerFUSD",
+                args: [delphai, "betId1234", true, 20],
+                signers: [hub],
+                addressMap: { "delphai": delphai }
+            })
+        )
+        expect(placeHubError).toBeNull();
+
+        const [placeSpokeResult, placeSpokeError] = await shallResolve(
+            sendTransaction({
+                name: "placeBetComposer",
+                args: [delphai, "betId1234", false, 20],
+                signers: [spoke],
+                addressMap: { "delphai": delphai }
+            })
+        )
+        expect(placeSpokeError).toContain("Cannot deposit an incompatible token type");
+    });
 });

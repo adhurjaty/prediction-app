@@ -150,6 +150,13 @@ pub contract YesNoBetLibrary {
                 panic("Must set prediction to place bet")
             }
 
+            if self.hubBet != nil {
+                let vault <- token.getVault()
+                let emptyVault <- vault.withdraw(amount: 0.0)
+                self.assertSameTokenType(emptyVault: <-emptyVault)
+                token.makeBet(prediction: token.prediction!, wager: <-vault)
+            }
+
             emit BetMadeEvent(status: "Bet made")
 
             let vault <- token.getVault()
@@ -168,6 +175,16 @@ pub contract YesNoBetLibrary {
             }
             token.makeBet(prediction: token.prediction!, wager: <-vault)
             self.madeBets[token.userAddress] <-! token
+        }
+
+        priv fun assertSameTokenType(emptyVault: @FungibleToken.Vault) {
+            let hub <- self.madeBets.remove(key: self.hubBet!.address)!
+            let hubVault <- hub.getVault()
+
+            hubVault.deposit(from: <-emptyVault)
+
+            hub.makeBet(prediction: hub.prediction!, wager: <-hubVault)
+            self.madeBets[hub.userAddress] <-! hub
         }
 
         // pub fun getBet(address: Address): YesNoBetStruct {
