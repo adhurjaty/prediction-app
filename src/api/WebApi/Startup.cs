@@ -46,7 +46,6 @@ namespace WebApi
 
             services.AddSingleton<AuthConfig>(x => googleSettings);
 
-            services.AddSingleton<IWeb3, Web3Wrapper>();
             services.AddSingleton<ContractFactory>(x => 
             {
                 string json = File.ReadAllText("./Contract/combined.json");
@@ -56,17 +55,6 @@ namespace WebApi
             });
 
             services.AddSingleton<IHttp, HttpWrapper>();
-
-            services.AddSingleton<EqualAntePropositionDeploy>(x =>
-            {
-                var factory = x.GetService<ContractFactory>();
-                var contractInfo = factory.GetContractInfo("EqualAnteProposition");
-                EqualAntePropositionDeploy.ByteCode = contractInfo.Bin;
-                return new EqualAntePropositionDeploy()
-                {
-                    Title = "Test Contract"
-                };
-            });
 
             services.AddSingleton<IGoogle, GoogleInterface>();
 

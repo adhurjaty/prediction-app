@@ -40,37 +40,12 @@ describe("yes-no-bets", ()=>{
     test("vault script", async () => {
         // emulator.setLogging(true);
         const delphai = await getAccountAddress("Delphai");
-        // const [result, error] = await sendTransaction({
-        //     name: "setupFUSDAccount",
-        //     signers: [delphai]
-        // });
-
-        // expect(error).toBeNull();
-
-        // const [r, e] = await sendTransaction({
-        //     name: "setupFUSDAccount",
-        //     signers: [delphai]
-        // });
-
-        // expect(e).toBeNull();
-
-        const response = await mintFUSD(delphai, "42.0");
-        const balance = await getFUSDBalance(delphai);
-        console.log(balance);
-        // const flowToken = await getContractAddress("FlowToken", true);
-        // const fungibleToken = await getContractAddress("FungibleToken", true);
-        const serviceAddress = await getServiceAddress()
-
-        // console.log(serviceAddress)
-
-        // const [result, error] = await getFlowBalance(delphai);
-        // console.log(result, error);
-
-        const [result2, error2] = await sendTransaction({
-            name: "exampleTokenVault",
+        
+        const [result, error] = await sendTransaction({
+            name: "storagePathExample",
             signers: [delphai]
-        })
-        expect(error2).toBeNull();
-        console.log(result2);
+        });
+
+        expect(error).toBeNull();
     });
 })
