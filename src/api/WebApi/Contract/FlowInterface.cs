@@ -19,7 +19,9 @@ namespace WebApi
 
     public interface IFlow
     {
-
+        Task<FlowSendTransactionResponse> ExecuteTransaction(string scriptName,
+            List<ICadence> arguments = default, 
+            Dictionary<string, string> addressMap = default, int gasLimit = 0);
     }
 
     public class FlowInterface : IFlow
@@ -42,7 +44,8 @@ namespace WebApi
         }
 
         public async Task<FlowSendTransactionResponse> ExecuteTransaction(
-            string scriptName, List<ICadence> arguments=default, 
+            string scriptName, List<ICadence> arguments=default,
+            Dictionary<string, string> addressMap = default, 
             int gasLimit=DEFAULT_GAS_LIMIT)
         {
             var txBody = Utilities.ReadCadenceScript(scriptName, _cadencePath);
@@ -75,7 +78,8 @@ namespace WebApi
                 {
                     _delphaiAddress
                 },
-                Arguments = arguments ?? new List<ICadence>()
+                Arguments = arguments ?? new List<ICadence>(),
+                AddressMap = addressMap
             };
             FlowTransaction.AddEnvelopeSignature(tx, _delphaiAddress, KEY_INDEX,
                 _signer);
