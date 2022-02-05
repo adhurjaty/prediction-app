@@ -46,13 +46,14 @@ namespace WebApi
 
             services.AddSingleton<AuthConfig>(x => googleSettings);
 
-            services.AddSingleton<ContractFactory>(x => 
-            {
-                string json = File.ReadAllText("./Contract/combined.json");
-                return new ContractFactory(
-                    x.GetService<BlockchainSettings>(),
-                    json);
-            });
+            services.AddSingleton<IContracts>(x =>
+                new ContractsInterface(new FlowConfig()
+                {
+                    AccountHash = "",
+                    AccountKey = "",
+                    Host = "",
+                    CadencePath = ""
+                }));
 
             services.AddSingleton<IHttp, HttpWrapper>();
 
@@ -67,8 +68,6 @@ namespace WebApi
                 var strategyFactory = new DbStrategyFactory(typeof(Startup).Assembly.GetTypes());
                 return new ModelsDatbaseInterface(dbInt, strategyFactory);
             });
-
-            services.AddSingleton<IContractDeployer, DummyContractDeployer>();
 
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(jwt => jwt.UseGoogle(googleSettings.ClientId));

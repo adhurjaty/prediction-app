@@ -967,5 +967,18 @@ namespace Infrastructure
             }
         }
 
+
+        public static async Task<Result<(A, TSuccess)>> TeeResult<A, TSuccess>(
+            this Result<(A, TSuccess)> x, Func<A, TSuccess, Task<Result>> f)
+        {
+            return await x.Bind(async result =>
+            {
+                var tee = (await f(result.Item1, result.Item2));
+                return tee.IsSuccess
+                    ? Result.Succeeded(result)
+                    : Result.Failed<(A, TSuccess)>(tee.Failure);
+            });
+        }
+
     }
 }

@@ -24,6 +24,12 @@ namespace WebApi
             _delphaiAddress = config.AccountHash;
         }
 
+        public ContractsInterface(IFlow flow, string delphaiAddress)
+        {
+            _flow = flow;
+            _delphaiAddress = delphaiAddress;
+        }
+
         public async Task<Result> TransferTokens(string betId, 
             IEnumerable<string> members)
         {

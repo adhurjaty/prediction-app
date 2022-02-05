@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Infrastructure;
@@ -20,10 +21,10 @@ namespace WebApi
     public class CreateBetCommandHandler : ICommandHandler<CreateBetCommand>
     {
         private readonly IDatabaseInterface _db;
-        private readonly IContractDeployer _contract;
+        private readonly IContracts _contract;
 
         public CreateBetCommandHandler(IDatabaseInterface db,
-            IContractDeployer contract)
+            IContracts contract)
         {
             _db = db;
             _contract = contract;
@@ -31,13 +32,21 @@ namespace WebApi
 
         public async Task<Result> Handle(CreateBetCommand cmd)
         {
-            return (await (await _contract.Deploy(cmd.BetAddress, cmd.ResolverAddress))
-                .Bind(() => _db.InsertResult(new Bet()
+            var groupResult = _db.LoadSingleById<Group>(cmd.GroupId);
+            return await (await (await (await 
+                _db.InsertResult(new Bet()
                 {
                     Title = cmd.Title,
                     Description = cmd.Description,
                     GroupId = Guid.Parse(cmd.GroupId)
-                }))).Tee(bet => cmd.BetId = bet.Id.ToString());
+                }))
+                .Tee(bet => cmd.BetId = bet.Id.ToString())
+                .TupleBind(_ => groupResult))
+                .TeeResult((bet, group) =>
+                    _contract.DeployComposerBet(bet.Id.ToString(), group.Users.Count)))
+                .TeeResult((bet, group) =>
+                    _contract.TransferTokens(bet.Id.ToString(),
+                        group.Users.Select(user => user.MainnetAddress)));
         }
 
         public Task<Result> Handle(CreateBetCommand request, CancellationToken cancellationToken)
