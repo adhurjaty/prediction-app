@@ -55,8 +55,7 @@ namespace WebApi
                 Title = request.Title,
                 Description = request.Description,
                 GroupId = request.GroupId.ToString(),
-                BetAddress = request.BetAddress,
-                ResolverAddress = request.ResolverAddress
+                Email = GetEmailFromClaims()
             };
 
             var result = await (await _mediator.Send(cmd))

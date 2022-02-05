@@ -11,8 +11,7 @@ namespace WebApi
         public string Title { get; init; }
         public string Description { get; init; }
         public string GroupId { get; init; }
-        public string BetAddress { get; set; }
-        public string ResolverAddress { get; set; }
+        public string Email { get; set; }
 
         // output property
         public string BetId { get; set; }
@@ -21,19 +20,26 @@ namespace WebApi
     public class CreateBetCommandHandler : ICommandHandler<CreateBetCommand>
     {
         private readonly IDatabaseInterface _db;
+        private readonly IMediatorResult _mediator;
         private readonly IContracts _contract;
 
         public CreateBetCommandHandler(IDatabaseInterface db,
+            IMediatorResult mediator,
             IContracts contract)
         {
             _db = db;
+            _mediator = mediator;
             _contract = contract;
         }
 
         public async Task<Result> Handle(CreateBetCommand cmd)
         {
-            var groupResult = _db.LoadSingleById<Group>(cmd.GroupId);
-            return await (await (await (await 
+            var groupResult = _mediator.Send(new GroupByIdQuery()
+            {
+                Email = cmd.Email,
+                GroupId = cmd.GroupId
+            });
+            return await (await (await
                 _db.InsertResult(new Bet()
                 {
                     Title = cmd.Title,
@@ -42,11 +48,15 @@ namespace WebApi
                 }))
                 .Tee(bet => cmd.BetId = bet.Id.ToString())
                 .TupleBind(_ => groupResult))
-                .TeeResult((bet, group) =>
-                    _contract.DeployComposerBet(bet.Id.ToString(), group.Users.Count)))
-                .TeeResult((bet, group) =>
-                    _contract.TransferTokens(bet.Id.ToString(),
-                        group.Users.Select(user => user.MainnetAddress)));
+                .TeeResult(async (bet, group) =>
+                {
+                    return await new Task<Result>[]
+                    {
+                        _contract.DeployComposerBet(bet.Id.ToString(), group.Users.Count),
+                        _contract.TransferTokens(bet.Id.ToString(),
+                            group.Users.Select(user => user.MainnetAddress))
+                    }.Aggregate();
+                });
         }
 
         public Task<Result> Handle(CreateBetCommand request, CancellationToken cancellationToken)
