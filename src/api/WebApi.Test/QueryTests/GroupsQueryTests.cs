@@ -57,19 +57,22 @@ namespace WebApi.Test
                         {
                             Id = new Guid("fad14765-0a74-42c6-9453-f68414cdac4b"),
                             Name = "Foo",
-                            Users = new List<AppUser>() { SingleUser }
+                            Users = new List<AppUser>() { SingleUser },
+                            Bets = new List<Bet>()
                         },
                         new Group()
                         {
                             Id = new Guid("c6a7c84c-ed27-409a-ae32-fa98dab9f268"),
                             Name = "Bar",
-                            Users = new List<AppUser>() { SingleUser }
+                            Users = new List<AppUser>() { SingleUser },
+                            Bets = new List<Bet>()
                         },
                         new Group()
                         {
                             Id = new Guid("96f6cdbd-1e3f-472f-a896-ac7b54c28120"),
                             Name = "Baz",
-                            Users = new List<AppUser>() { SingleUser }
+                            Users = new List<AppUser>() { SingleUser },
+                            Bets = new List<Bet>()
                         }
                     }
                 },
@@ -111,13 +114,15 @@ namespace WebApi.Test
                         {
                             Id = new Guid("fad14765-0a74-42c6-9453-f68414cdac4b"),
                             Name = "Foo",
-                            Users = new List<AppUser>() { SingleUser }
+                            Users = new List<AppUser>() { SingleUser },
+                            Bets = new List<Bet>()
                         },
                         new Group()
                         {
                             Id = new Guid("96f6cdbd-1e3f-472f-a896-ac7b54c28120"),
                             Name = "Baz",
-                            Users = new List<AppUser>() { SingleUser, OtherUser }
+                            Users = new List<AppUser>() { SingleUser, OtherUser },
+                            Bets = new List<Bet>()
                         }
                     }
                 },
@@ -176,7 +181,8 @@ namespace WebApi.Test
                         User = SingleUser,
                         GroupId = group.Id
                     }
-                }
+                },
+                Bets = new List<Bet>()
             });
         }
 

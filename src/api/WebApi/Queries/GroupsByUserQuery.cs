@@ -30,7 +30,7 @@ namespace WebApi
                 .Join<UserGroup, AppUser>((userGroup, user) => userGroup.UserId == user.Id)
                 .Where<AppUser>(user => user.Email == query.Email);
             
-            return await _db.Select(sqlQuery);
+            return await _db.LoadSelect(sqlQuery);
         }
 
         public Task<Result<List<Group>>> Handle(GroupsByUserQuery request, CancellationToken cancellationToken)

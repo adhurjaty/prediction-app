@@ -51,7 +51,8 @@ namespace WebApi.Test
                         GroupId = groupId,
                         User = SimpleUser
                     }
-                }
+                },
+                Bets = new List<Bet>()
             });
         }
 

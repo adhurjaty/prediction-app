@@ -9,6 +9,7 @@ using Flow.Net.Sdk.Models;
 using Moq;
 using System.Collections.Generic;
 using Flow.Net.Sdk.Cadence;
+using Flow.Net.Sdk.Exceptions;
 
 namespace WebApi.Test
 {
@@ -67,6 +68,54 @@ namespace WebApi.Test
                     { "Delphai", "delphai" }
                 });
         }
+
+        [Fact]
+        public async Task TransferTokensFailure()
+        {
+            var fx = new ContractTestFixture()
+                .WithTransactionException("transferTokens",
+                    new FlowException("failure!"))
+                .WithDelphaiAddress("delphai");
+
+            var sut = fx.GetContractsInterface();
+            var result = await sut.TransferTokens("betId1234", new string[]
+            {
+                "user1",
+                "user2",
+                "user3"
+            });
+
+            result.IsFailure.Should().BeTrue();
+            result.Failure.Should().Be("failure!");
+        }
+
+
+        [Fact]
+        public async Task DeployComposerBetSuccess()
+        {
+            var fx = new ContractTestFixture()
+                .WithTransactionResponse("deployComposerBet",
+                    new FlowSendTransactionResponse()
+                    {
+                        Id = "blah".FromStringToByteString()
+                    })
+                .WithDelphaiAddress("delphai");
+
+            var sut = fx.GetContractsInterface();
+            var result = await sut.DeployComposerBet("betId1234", 3);
+
+            result.IsSuccess.Should().BeTrue();
+            fx.VerifyTransactionRequest("deployComposerBet",
+                new List<ICadence>()
+                {
+                    new CadenceString("betId1234"),
+                    new CadenceNumber(CadenceNumberType.Int, "3")
+                },
+                new Dictionary<string, string>()
+                {
+                    { "Delphai", "delphai" }
+                });
+        }
     }
 
     internal class ContractTestFixture : BragDbFixture
@@ -83,6 +132,17 @@ namespace WebApi.Test
                 .ReturnsAsync(response);
             return this;
         }
+
+        public ContractTestFixture WithTransactionException(string scriptName,
+            FlowException ex)
+        {
+            _flowMock.Setup(x => x.ExecuteTransaction(scriptName,
+                It.IsAny<List<ICadence>>(), It.IsAny<Dictionary<string, string>>(),
+                It.IsAny<int>()))
+                .ThrowsAsync(ex);
+            return this;
+        }
+
 
         public ContractTestFixture WithDelphaiAddress(string address)
         {
