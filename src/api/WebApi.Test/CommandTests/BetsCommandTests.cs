@@ -69,7 +69,7 @@ namespace WebApi.Test
             {
                 "address1",
                 "address2"
-            }.Select(x => x));
+            });
         }
     }
 
