@@ -46,7 +46,6 @@ namespace WebApi.Test
             Id = new Guid("0c9213d3-9bbf-4175-9115-7414889e7ac1"),
             Title = "Test bet",
             Description = "test description 1",
-            Address = "123456",
             CloseTime = new DateTime(2022, 11, 25)
         };
 
@@ -55,7 +54,6 @@ namespace WebApi.Test
             Id = new Guid("0d85354a-bd4b-4264-93a6-30b36c09a801"),
             Title = "Test bet",
             Description = "test description 2",
-            Address = "23442",
             CloseTime = new DateTime(2022, 11, 25)
         };
 
@@ -64,7 +62,6 @@ namespace WebApi.Test
             Id = new Guid("f5b5c2c1-f6c9-4905-948f-864a02e43d01"),
             Title = "Test bet",
             Description = "test description 3",
-            Address = "988934",
             CloseTime = new DateTime(2022, 11, 25),
         };
 
@@ -73,7 +70,6 @@ namespace WebApi.Test
             Id = new Guid("d7aebdcd-a84e-4260-b9b0-ec1da73c20d1"),
             Title = "Test bet",
             Description = "test description 4",
-            Address = "808234",
             CloseTime = new DateTime(2022, 11, 25)
         };
 
@@ -82,7 +78,6 @@ namespace WebApi.Test
             Id = new Guid("3631067c-c47a-4b46-b4e8-d95276dfd8f3"),
             Title = "Test bet",
             Description = "test description",
-            Address = "123456",
             CloseTime = new DateTime(2022, 11, 25)
         };
 

@@ -35,7 +35,7 @@ namespace WebApi.Test
         [Fact]
         public async Task TransferTokensSuccess()
         {
-            var fx = new ContractTestFixture()
+            using var fx = new ContractTestFixture()
                 .WithTransactionResponse("transferTokens",
                     new FlowSendTransactionResponse()
                     {
@@ -72,7 +72,7 @@ namespace WebApi.Test
         [Fact]
         public async Task TransferTokensFailure()
         {
-            var fx = new ContractTestFixture()
+            using var fx = new ContractTestFixture()
                 .WithTransactionException("transferTokens",
                     new FlowException("failure!"))
                 .WithDelphaiAddress("delphai");
@@ -93,7 +93,7 @@ namespace WebApi.Test
         [Fact]
         public async Task DeployComposerBetSuccess()
         {
-            var fx = new ContractTestFixture()
+            using var fx = new ContractTestFixture()
                 .WithTransactionResponse("deployComposerBet",
                     new FlowSendTransactionResponse()
                     {
