@@ -1,9 +1,7 @@
 <template>
-    <div class="container">
-        <h1>Login</h1>
-        <div>
-            <button @click="login">Login</button>
-        </div>
+    <div class="container align-items-center">
+        <h1>Bragging Rights</h1>
+        <button  @click="login">Sign in with google</button>
     </div>
 </template>
 
@@ -29,6 +27,7 @@ export default class Secret extends Vue {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    padding-top: 50px;
 
     h1 {
         padding: 15px;
@@ -41,6 +40,10 @@ export default class Secret extends Vue {
 
     span {
         padding-left: 15px;
+    }
+
+    button {
+        align-self: center;
     }
 }
 

@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Infrastructure;
+using WebApi;
 
 namespace WebApi
 {
@@ -16,14 +18,17 @@ namespace WebApi
         private readonly ILogger<OauthController> _logger;
         private readonly AuthConfig _authConfig;
         private readonly IGoogle _google;
+        private readonly IMediatorResult _mediator;
 
         public OauthController(ILogger<OauthController> logger,
             AuthConfig authConfig,
-            IGoogle google)
+            IGoogle google,
+            IMediatorResult mediator)
         {
             _logger = logger;
             _authConfig = authConfig;
             _google = google;
+            _mediator = mediator;
         }
 
         [HttpPost]
@@ -39,9 +44,23 @@ namespace WebApi
 
             var response = await _google.Confirm(oauthRequest);
             var jwt = response.IdToken;
-
             var payload = await GoogleJsonWebSignature.ValidateAsync(jwt);
+            
+            var user = await _mediator.Send(new UserQuery()
+            {
+                Email = payload.Email
+            });
+            if (!user.IsSuccess) {
+                //need to create user since it's not in the database
+                var cmd = new CreateUserCommand()
+                {
+                    Email = payload.Email,
+                    DisplayName = ""
+                };
 
+                var result = await _mediator.Send(cmd);
+            }
+            
             return jwt;
         }
 
