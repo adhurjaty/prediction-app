@@ -19,7 +19,8 @@ export enum UsersMutations {
 
 export enum UsersActions {
     FETCH_USER = 'FETCH_USER',
-    FETCH_FULL_USER = 'FETCH_FULL_USER'
+    FETCH_FULL_USER = 'FETCH_FULL_USER',
+    UPDATE_USER = 'UPDATE_USER'
 }
 
 export type State = {
@@ -60,6 +61,8 @@ export interface Actions {
         ({ state, commit }: AugmentedActionContext): Promise<void>;
     [UsersActions.FETCH_FULL_USER]
         ({ state, commit }: AugmentedActionContext): Promise<void>;
+    [UsersActions.UPDATE_USER]
+        ({ state, commit }: AugmentedActionContext, user: User): Promise<void>;
 }
 
 const actions: ActionTree<State, RootState> & Actions = {
@@ -71,6 +74,11 @@ const actions: ActionTree<State, RootState> & Actions = {
     async [UsersActions.FETCH_FULL_USER]({ state, commit }) {
         const usersApi = container.get<IUsersApi>(cid.UsersApi);
         const user = await usersApi.getFull();
+        commit(UsersMutations.SET_USER, user);
+    },
+    async [UsersActions.UPDATE_USER]({ state, commit }, user: User) {
+        const usersApi = container.get<IUsersApi>(cid.UsersApi);
+        const updatedUser = await usersApi.updateUser(user);
         commit(UsersMutations.SET_USER, user);
     }
 };
