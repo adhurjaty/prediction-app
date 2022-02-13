@@ -156,6 +156,22 @@ namespace Infrastructure
             return x.IsSuccess ? await onSuccess(x) : onFailure(x);
         }
 
+        public static async Task<Result<TSuccess2>> Either<TSuccess, TSuccess2>(
+            this Result<TSuccess> x,
+            Func<Result<TSuccess>, Task<Result<TSuccess2>>> onSuccess,
+            Func<Result<TSuccess>, Task<Result<TSuccess2>>> onFailure)
+        {
+            return x.IsSuccess ? await onSuccess(x) : await onFailure(x);
+        }
+
+        public static async Task<Result> Either<TSuccess>(
+            this Result<TSuccess> x,
+            Func<Result<TSuccess>, Task<Result>> onSuccess,
+            Func<Result<TSuccess>, Task<Result>> onFailure)
+        {
+            return x.IsSuccess ? await onSuccess(x) : await onFailure(x);
+        }
+
         // Whatever x is, make it a failure.
         // The trick is that failure is an array type, can it can be made an empty array failure.
         public static Result<TSuccess, TFailure[]> ToFailure<TSuccess, TFailure>(
@@ -327,6 +343,25 @@ namespace Infrastructure
                 : Result<TSuccessNew>.Failed(x.Failure);
         }
 
+        public static Result<TSuccess> Map<TSuccess>(
+            this Result result, 
+            Func<TSuccess> f)
+        {
+            return result.IsSuccess
+                ? Result<TSuccess>.Succeeded(f())
+                : Result<TSuccess>.Failed(default);
+        }
+
+        public static async Task<Result<TSuccess>> Map<TSuccess>(
+            this Result<TSuccess> x,
+            Func<Task<TSuccess>> f)
+        {
+            return x.IsSuccess
+                ? Result<TSuccess>.Succeeded(await f())
+                : Result<TSuccess>.Failed(x.Failure);
+        }
+
+
         // Bind: functional bind
         // Monadize it!
         public static Result<TSuccessNew> Bind<TSuccess, TSuccessNew>(
@@ -441,6 +476,13 @@ namespace Infrastructure
             if(x.IsSuccess && fn(x.Success.Item1, x.Success.Item2))
                 return Result<(T, U)>.Failed(failString);
             return x;
+        }
+
+        public static T ValueOrDefault<T>(this Result<T> result, T fallback)
+        {
+            return result.IsSuccess
+                ? result.Success
+                : fallback;
         }
     }
 }

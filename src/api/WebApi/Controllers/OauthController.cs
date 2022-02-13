@@ -13,7 +13,7 @@ namespace WebApi
 {
     [ApiController]
     [Route("[controller]/[action]")]
-    public class OauthController : ControllerBase
+    public class OauthController : BragControllerBase
     {
         private readonly ILogger<OauthController> _logger;
         private readonly AuthConfig _authConfig;
@@ -32,7 +32,7 @@ namespace WebApi
         }
 
         [HttpPost]
-        public async Task<string> CodeLogin(OauthConfirmRequest request)
+        public async Task<ActionResult<string>> CodeLogin(OauthConfirmRequest request)
         {
             var oauthRequest = new GoogleCodeRequest()
             {
@@ -45,23 +45,19 @@ namespace WebApi
             var response = await _google.Confirm(oauthRequest);
             var jwt = response.IdToken;
             var payload = await GoogleJsonWebSignature.ValidateAsync(jwt);
-            
-            var user = await _mediator.Send(new UserQuery()
-            {
-                Email = payload.Email
-            });
-            if (!user.IsSuccess) {
-                //need to create user since it's not in the database
-                var cmd = new CreateUserCommand()
-                {
-                    Email = payload.Email,
-                    DisplayName = ""
-                };
 
-                var result = await _mediator.Send(cmd);
-            }
-            
-            return jwt;
+            return ToResponse((await (await _mediator.Send(new UserQuery()
+                {
+                    Email = payload.Email
+                }))
+                .Either(
+                    _ => Task.FromResult(Result.Succeeded()),
+                    _ => _mediator.Send(new CreateUserCommand()
+                    {
+                        Email = payload.Email,
+                        DisplayName = ""
+                    })))
+                .Map(() => jwt));
         }
 
         [HttpGet]
