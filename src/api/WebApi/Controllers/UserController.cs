@@ -38,5 +38,19 @@ namespace WebApi
             });
             return ToResponse(result);
         }
+
+        [HttpPut]
+        [Authorize]
+        [Route("User")]
+        public async Task<ActionResult<AppUser>> UpdateUser(AppUser user)
+        {
+            //TODO:  validate that user data coming in is same as the email from claims?
+            var result = await _mediator.Send(new UpdateUserCommand()
+                {
+                    User = user
+                });
+
+            return ToResponse(result);
+        }
     }
 }
