@@ -21,12 +21,10 @@ namespace WebApi
     public class CreateUserCommandHandler : ICommandHandler<CreateUserCommand>
     {
         private readonly IDatabaseInterface _db;
-        private readonly IMediatorResult _mediator;
 
-        public CreateUserCommandHandler(IDatabaseInterface db, IMediatorResult mediator)
+        public CreateUserCommandHandler(IDatabaseInterface db)
         {
             _db = db;
-            _mediator = mediator;
         }
 
         public async Task<Result> Handle(CreateUserCommand command)
