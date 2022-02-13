@@ -5,7 +5,8 @@ import { inject, injectable } from "inversify-props";
 
 export interface IUsersApi {
     get(): Promise<User>,
-    getFull(): Promise<User>
+    getFull(): Promise<User>,
+    updateUser(user: User): Promise<User>
 }
 
 @injectable()
@@ -18,5 +19,9 @@ export class UsersApi implements IUsersApi {
 
     async getFull(): Promise<User> {
         return await this.http.authGet<User>('/fulluser');
+    }
+
+    async updateUser(user: User): Promise<User> {
+        return await this.http.authPut<User>('/user', user);
     }
 }
