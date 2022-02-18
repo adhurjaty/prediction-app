@@ -12,6 +12,8 @@
     "test": "jest test"
   },
   "dependencies": {
+    "@onflow/fcl": "^0.0.78",
+    "@onflow/types": "^0.0.6",
     "@vue/composition-api": "^1.0.0-rc.7",
     "axios": "^0.21.1",
     "core-js": "^3.6.5",
