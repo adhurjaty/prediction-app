@@ -33,6 +33,7 @@ import { Store } from '@/app.store';
 import { Vue } from 'vue-class-component';
 import { GroupsActions } from '../groups.store';
 import { Group } from '../models';
+import { execute } from '../../contracts/flowInterface';
 
 export default class GroupPage extends Vue {
     groups: Group[] = [];
@@ -41,6 +42,7 @@ export default class GroupPage extends Vue {
         const store: Store = this.$store;
         await store.dispatch(GroupsActions.FETCH_GROUPS);
         this.groups = store.getters.getGroups;
+        execute('createBetResource');
     }
 }
 </script>

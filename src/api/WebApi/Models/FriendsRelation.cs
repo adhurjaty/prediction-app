@@ -30,5 +30,10 @@ namespace WebApi
             var model = obj as FriendsRelation;
             return model.UserId == UserId && model.FriendId == FriendId;
         }
+
+        public override int GetHashCode()
+        {
+            return $"{UserId}|{FriendId}".GetHashCode();
+        }
     }
 }
