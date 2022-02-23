@@ -1,3 +1,4 @@
+import { Group } from "@/groups/models";
 
 export interface Bet {
     id: string,
@@ -5,7 +6,8 @@ export interface Bet {
     title: string,
     description: string,
     closeDate: Date,
-    amount: number
+    amount: number,
+    Group: Group
 }
 
 export interface EventBet extends Bet {

@@ -20,7 +20,13 @@ namespace WebApi
 
         public async Task<Result<Bet>> Handle(BetByIdQuery query)
         {
-            return await _db.LoadSingleById<Bet>(query.Id);
+            return (await (await _db.LoadSingleById<Bet>(query.Id))
+                .TupleBind(bet => _db.LoadSingleById<Group>(bet.GroupId)))
+                .Map((bet, group) =>
+                {
+                    bet.Group = group;
+                    return bet;
+                });
         }
 
         public Task<Result<Bet>> Handle(BetByIdQuery request, CancellationToken cancellationToken)

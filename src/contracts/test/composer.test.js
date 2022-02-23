@@ -10,10 +10,10 @@ describe("contract-composer-tests", () => {
             // You can specify different port to parallelize execution of describe blocks
         const port = 8080; 
             // Setting logging flag to true will pipe emulator output to console
-        const logging = false;
+        const logging = true;
         
         await init(basePath, { port });
-        return emulator.start(port, logging);
+        return emulator.start(port, logging, { flags: '--contracts' });
     });
     
     // Stop emulator, so it could be restarted

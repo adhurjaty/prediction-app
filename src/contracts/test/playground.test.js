@@ -18,7 +18,7 @@ import {
 } from "flow-js-testing";
 
 // Increase timeout if your tests failing due to timeout
-jest.setTimeout(10000);
+jest.setTimeout(100000);
 
 describe("yes-no-bets", ()=>{
     beforeEach(async () => {
@@ -29,7 +29,7 @@ describe("yes-no-bets", ()=>{
         const logging = true;
         
         await init(basePath, { port });
-        return emulator.start(port, logging);
+        return emulator.start(port, logging, { flags: '--contracts' });
     });
     
     // Stop emulator, so it could be restarted

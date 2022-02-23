@@ -14,8 +14,10 @@
     "@babel/core": "^7.16.5",
     "@babel/preset-env": "^7.16.5",
     "babel-jest": "^27.4.5",
-    "flow-js-testing": "git+https://github.com/adhurjaty/flow-js-testing.git",
     "jest": "^24.9.0",
     "jest-environment-node": "^24.9.0"
+  },
+  "dependencies": {
+    "flow-js-testing": "^0.2.3-alpha.3"
   }
 }
