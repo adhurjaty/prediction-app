@@ -3,6 +3,16 @@
         <BackButton></BackButton>
         <h2>Create Custom Bet</h2>
         <form>
+            <label>Group<span class="required">*</span></label>
+            <select v-if="groups.length > 0"
+                    v-model="bet.group"
+                    required>
+                <option v-for="group in groups"
+                        :key="group.id"
+                        :value="group.name">
+                    {{group.name}}
+                </option>
+            </select>
             <label>Title<span class="required">*</span></label>
             <input type="text" 
                    placeholder="Title" 
@@ -48,6 +58,10 @@ import { Vue } from 'vue-class-component';
 import { Bet, DateBet, EventBet } from '../bets.models'
 import { Store } from '../../app.store';
 import { BetsActions } from '../bets.store';
+import User from '@/models/user';
+import { UsersActions } from '@/users/users.store';
+import { Group } from '@/groups/models';
+import { GroupsActions } from '@/groups/groups.store';
 
 class AddingBet {
     id: string;
@@ -90,8 +104,15 @@ export default class AddBet extends Vue {
         new AddingDateBet(this.baseBet)
     ];
     bet: Bet = this.possibleBets[0];
+    groups: Group[] = [];
 
-    typeOptions: Array<string> = (this.possibleBets || []).map(x => x.type);
+    typeOptions: string[] = (this.possibleBets || []).map(x => x.type);
+
+    async created() {
+        const store: Store = this.$store;
+        await store.dispatch(GroupsActions.FETCH_GROUPS);
+        this.groups = store.getters.getGroups || [];
+    }
 
     onSelectionChanged(event: Event): void {
         this.bet = this.possibleBets.find(x => 

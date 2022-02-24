@@ -22,7 +22,7 @@
             </div>
         </div>
     </div>
-    <router-link :to="{ name: 'Add Bet', params: {id: $route.params.id} }">
+    <router-link :to="{ name: 'Add Bet', params: {groupId: $route.params.id} }">
         <button>+ bet</button>
     </router-link>
     <h3>Leaderboard</h3>
@@ -50,8 +50,10 @@
     </router-link>
     <div class="bottom-buttons">
         <div>
-            <img src="../../assets/addBet.svg" />
-            <p>add bet</p>
+            <router-link :to="{ name: 'Add Bet', params: {groupId: $route.params.id} }">
+                <img src="../../assets/addBet.svg" />
+                <p>add bet</p>
+            </router-link>
         </div>
         <div>
             <img src="../../assets/addMember.svg" />

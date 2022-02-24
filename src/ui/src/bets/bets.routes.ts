@@ -8,7 +8,7 @@ export default (): RouteRecordRaw[] => {
             component: import('./views/BetsList.vue')
         },
         {
-            path: '/groups/:id/bets/add-bet',
+            path: '/bets/add-bet',
             name: 'Add Bet',
             component: import('./views/AddBet.vue')
         },

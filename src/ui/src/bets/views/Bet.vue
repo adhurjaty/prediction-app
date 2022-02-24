@@ -1,6 +1,10 @@
 <template>
 <section>
     <BackButton></BackButton>
+    <div class="group-name" v-if="bet.group">
+        <div>Group: </div>
+        <div>{{ bet.group.name }}</div>
+    </div>
     <div class="bet-name">
         <div class="bet-icon circle">
             <div class="circle-inner">
@@ -8,8 +12,8 @@
             </div>
         </div>
         <h2>{{ bet.title }}</h2>
-        <p>{{bet.description}}</p>
     </div>
+    <div>{{bet.description}}</div>
 
     <h3>Members</h3>
     <p v-if="bet.group.users.length === 0">No one is in the group!</p>
@@ -18,8 +22,8 @@
             <thead>
                 <tr>
                     <th>User</th>
-                    <th>Accuracy</th>
-                    <th>+/- Prestige</th>
+                    <th>Bet</th>
+                    <th>Resolution vote</th>
                 </tr>
             </thead>
             <tbody>
@@ -31,17 +35,12 @@
             </tbody>
         </table>
     </div>
-    <router-link :to="{ name: 'Add Members', params: {id: $route.params.id} }">
-        <button>+ members</button>
-    </router-link>
     <div class="bottom-buttons">
         <div>
-            <img src="../../assets/addBet.svg" />
-            <p>add bet</p>
-        </div>
-        <div>
-            <img src="../../assets/addMember.svg" />
-            <p>add members</p>
+            <router-link :to="{ name: 'Add Bet', params: {id: $route.params.id} }">
+                <img src="../../assets/addBet.svg" />
+                <p>add bet</p>
+            </router-link>
         </div>
     </div>
 </section>
@@ -52,6 +51,7 @@ import { Vue } from 'vue-class-component';
 import { Bet } from '../bets.models';
 import { BetsActions } from '../bets.store';
 import { Store } from '../../app.store';
+import { Group } from '@/groups/models';
 
 const defaultBet : () => Bet = () => {
     return {
@@ -60,13 +60,14 @@ const defaultBet : () => Bet = () => {
         title: '',
         description: '',
         closeDate: new Date(),
-        amount: 0
+        amount: 0,
+        group: new Group()
     }
 }
 
 export default class betInfo extends Vue {
     bet: Bet = defaultBet();
-    bets: Array<Bet> = [];
+    bets: Bet[] = [];
 
     betMade(stake: number, status: string): string {
         return stake > 0 ? `you have bet ${stake} prestige point on ${status}` : 'you have not bet';
@@ -74,7 +75,7 @@ export default class betInfo extends Vue {
 
     async created() {
         const store: Store = this.$store;
-        await store.dispatch(BetsActions.FETCH_BET, this.$route.params.id as string);
+        await store.dispatch(BetsActions.FETCH_BET, this.$route.params.betId as string);
         this.bet = store.getters.getBet || defaultBet();
     }
 }
@@ -184,5 +185,10 @@ export default class betInfo extends Vue {
             margin: 0;
             color: #3ab154;
         }
+    }
+
+    .group-name {
+        display: flex;
+        flex-direction: row;
     }
 </style>
