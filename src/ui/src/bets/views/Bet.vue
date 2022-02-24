@@ -37,7 +37,7 @@
     </div>
     <div class="bottom-buttons">
         <div>
-            <router-link :to="{ name: 'Add Bet', params: {id: $route.params.id} }">
+            <router-link :to="{ name: 'Add Bet', params: { query: { groupId: $route.params.id} } }">
                 <img src="../../assets/addBet.svg" />
                 <p>add bet</p>
             </router-link>

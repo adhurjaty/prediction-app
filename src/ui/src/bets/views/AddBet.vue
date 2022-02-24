@@ -9,7 +9,7 @@
                     required>
                 <option v-for="group in groups"
                         :key="group.id"
-                        :value="group.name">
+                        :value="group">
                     {{group.name}}
                 </option>
             </select>
@@ -58,8 +58,6 @@ import { Vue } from 'vue-class-component';
 import { Bet, DateBet, EventBet } from '../bets.models'
 import { Store } from '../../app.store';
 import { BetsActions } from '../bets.store';
-import User from '@/models/user';
-import { UsersActions } from '@/users/users.store';
 import { Group } from '@/groups/models';
 import { GroupsActions } from '@/groups/groups.store';
 
@@ -69,6 +67,7 @@ class AddingBet {
     description: string;
     closeDate: Date;
     amount: number;
+    group?: Group;
 
     constructor(bet?: AddingBet) {
         this.title = bet?.title || '';
@@ -112,6 +111,11 @@ export default class AddBet extends Vue {
         const store: Store = this.$store;
         await store.dispatch(GroupsActions.FETCH_GROUPS);
         this.groups = store.getters.getGroups || [];
+        // this.groups = groups
+        
+        const groupId = this.$route.query.groupId;
+        if(groupId)
+            this.bet.group = this.groups.find(x => x.id == groupId);
     }
 
     onSelectionChanged(event: Event): void {
