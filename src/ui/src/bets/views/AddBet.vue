@@ -46,8 +46,15 @@
             <input type="datetime-local"
                    v-model="bet.closeDate"
                    required />
-            <label>Stake</label>
-            <p>Stakes will be proposed to you by group members</p>
+            <label>Prediction<span class="required">*</span></label>
+            <select v-model="betPrediction.prediction">
+                <option :value="true">Yes</option>
+                <option :value="false">No</option>
+            </select>
+            <label>Wager<span class="required">*</span></label>
+            <input type="number" 
+                   v-model="betPrediction.wager"
+                   required />
             <button @click="addBet()">create</button>
         </form>
     </section>
@@ -96,14 +103,23 @@ class AddingDateBet extends AddingBet implements DateBet {
     }
 }
 
+interface BetPrediction {
+    prediction: boolean,
+    wager: number
+}
+
 export default class AddBet extends Vue {
     baseBet = new AddingBet();
     possibleBets: Bet[] = [
-        new AddingEventBet(this.baseBet),
-        new AddingDateBet(this.baseBet)
+        new AddingEventBet(this.baseBet)
+        // new AddingDateBet(this.baseBet)
     ];
     bet: Bet = this.possibleBets[0];
     groups: Group[] = [];
+    betPrediction: BetPrediction = {
+        prediction: true,
+        wager: 0
+    };
 
     typeOptions: string[] = (this.possibleBets || []).map(x => x.type);
 
@@ -111,7 +127,6 @@ export default class AddBet extends Vue {
         const store: Store = this.$store;
         await store.dispatch(GroupsActions.FETCH_GROUPS);
         this.groups = store.getters.getGroups || [];
-        // this.groups = groups
         
         const groupId = this.$route.query.groupId;
         if(groupId)
@@ -126,7 +141,10 @@ export default class AddBet extends Vue {
 
     async addBet(): Promise<void> {
         const store: Store = this.$store;
-        await store.dispatch(BetsActions.CREATE_BET, this.bet);
+        await store.dispatch(BetsActions.CREATE_BET, {
+            bet: this.bet, 
+            ...this.betPrediction
+        });
         const betId = store.getters.getBet?.id;
         if(betId)
             this.$router.push({ name: 'Bet', params: { id: betId }});

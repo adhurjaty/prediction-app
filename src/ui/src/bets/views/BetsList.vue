@@ -17,9 +17,9 @@
                 </router-link>
             </div>
         </div>
-        <!-- <router-link :to="{ name: 'Add Bet'}">
+        <router-link :to="{ name: 'Add Bet' }">
             <button>+ bet</button>
-        </router-link> -->
+        </router-link>
     </section>
 </template>
 

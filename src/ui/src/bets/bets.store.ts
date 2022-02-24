@@ -1,4 +1,5 @@
 import { RootState } from '@/app.store';
+import { executePlaceBetFUSD } from '@/contracts/delphaiInterface';
 import { cid, container } from 'inversify-props';
 import {
     MutationTree,
@@ -53,7 +54,7 @@ export interface Actions {
     [BetsActions.FETCH_BETS]
         ({ state, commit }: AugmentedActionContext): Promise<void>,
     [BetsActions.CREATE_BET]
-        ({ state, commit }: AugmentedActionContext, bet: Bet): Promise<void>
+        ({ state, commit }: AugmentedActionContext, { bet, prediction, wager }: { bet: Bet, prediction: boolean, wager: number }): Promise<void>
 }
 
 
@@ -90,10 +91,15 @@ const actions: ActionTree<State, RootState> & Actions = {
         const bets = await betsApi.list();
         commit(BetsMutations.SET_BETS, bets);
     },
-    async [BetsActions.CREATE_BET]({ state, commit }, bet: Bet) {
+    async [BetsActions.CREATE_BET]({ state, commit }, { bet, prediction, wager }: { bet: Bet, prediction: boolean, wager: number }) {
         const betsApi = container.get<IBetsApi>(cid.BetsApi);
         const newBet = await betsApi.create(bet);
         commit(BetsMutations.SET_BET, newBet);
+        await executePlaceBetFUSD({
+            betId: newBet.id,
+            prediction,
+            wager
+        })
     }
 }
 
