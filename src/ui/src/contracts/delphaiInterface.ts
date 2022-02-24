@@ -27,7 +27,7 @@ export async function executePlaceBetFUSD(
 
 
 export async function executeResolution(
-    { betId, resolution }: { betId: string, resolution: boolean })
+    { betId, vote }: { betId: string, vote: boolean })
     : Promise<any>
 {
     const transactionText = resolveText as string;
@@ -40,7 +40,7 @@ export async function executeResolution(
         args: [
             fcl.arg("delphai", Address),
             fcl.arg(betId, String),
-            fcl.arg(resolution, Bool)
+            fcl.arg(vote, Bool)
         ],
         limit: 50
     });

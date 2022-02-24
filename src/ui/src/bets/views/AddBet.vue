@@ -47,13 +47,13 @@
                    v-model="bet.closeDate"
                    required />
             <label>Prediction<span class="required">*</span></label>
-            <select v-model="betPrediction.prediction">
+            <select v-model="wager.prediction">
                 <option :value="true">Yes</option>
                 <option :value="false">No</option>
             </select>
             <label>Wager<span class="required">*</span></label>
             <input type="number" 
-                   v-model="betPrediction.wager"
+                   v-model="wager.wager"
                    required />
             <button @click="addBet()">create</button>
         </form>
@@ -62,7 +62,7 @@
 
 <script lang="ts">
 import { Vue } from 'vue-class-component';
-import { Bet, DateBet, EventBet } from '../bets.models'
+import { Bet, DateBet, EventBet, Wager } from '../bets.models'
 import { Store } from '../../app.store';
 import { BetsActions } from '../bets.store';
 import { Group } from '@/groups/models';
@@ -103,11 +103,6 @@ class AddingDateBet extends AddingBet implements DateBet {
     }
 }
 
-interface BetPrediction {
-    prediction: boolean,
-    wager: number
-}
-
 export default class AddBet extends Vue {
     baseBet = new AddingBet();
     possibleBets: Bet[] = [
@@ -116,7 +111,9 @@ export default class AddBet extends Vue {
     ];
     bet: Bet = this.possibleBets[0];
     groups: Group[] = [];
-    betPrediction: BetPrediction = {
+    wager: Wager = {
+        betId: '',
+        userId: '',
         prediction: true,
         wager: 0
     };
@@ -141,15 +138,22 @@ export default class AddBet extends Vue {
 
     async addBet(): Promise<void> {
         const store: Store = this.$store;
-        await store.dispatch(BetsActions.CREATE_BET, {
-            bet: this.bet, 
-            ...this.betPrediction
-        });
+        await store.dispatch(BetsActions.CREATE_BET, this.bet);
+
         const betId = store.getters.getBet?.id;
-        if(betId)
+        const userId = store.getters.getUser?.id
+        
+        if(betId && userId) {
+            this.wager = {
+                ...this.wager,
+                betId,
+                userId
+            }
+            await store.dispatch(BetsActions.PLACE_WAGER, this.wager)
             this.$router.push({ name: 'Bet', params: { id: betId }});
-        else
+        } else {
             throw new Error('Bet does not exist');
+        }
     }
 }
 </script>

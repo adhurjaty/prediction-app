@@ -43,6 +43,19 @@
             </router-link>
         </div>
     </div>
+    <form>
+        <label>Prediction<span class="required">*</span></label>
+        <select v-model="betPrediction.prediction">
+            <option :value="true">Yes</option>
+            <option :value="false">No</option>
+        </select>
+        <label>Wager<span class="required">*</span></label>
+        <input type="number" 
+               v-model="betPrediction.wager"
+               required />
+        <button @click="placeWager()">Place wager</button>
+        
+    </form>
 </section>
 </template>
 
@@ -68,6 +81,10 @@ const defaultBet : () => Bet = () => {
 export default class betInfo extends Vue {
     bet: Bet = defaultBet();
     bets: Bet[] = [];
+    betPrediction: BetPrediction = {
+        prediction: true,
+        wager: 0
+    };
 
     betMade(stake: number, status: string): string {
         return stake > 0 ? `you have bet ${stake} prestige point on ${status}` : 'you have not bet';
@@ -77,6 +94,16 @@ export default class betInfo extends Vue {
         const store: Store = this.$store;
         await store.dispatch(BetsActions.FETCH_BET, this.$route.params.betId as string);
         this.bet = store.getters.getBet || defaultBet();
+    }
+
+    async placeWager(): Promise<void> {
+        const store: Store = this.$store;
+        await store.dispatch(BetsActions.CREATE_BET, this.bet);
+        const betId = store.getters.getBet?.id;
+        if(betId)
+            this.$router.push({ name: 'Bet', params: { id: betId }});
+        else
+            throw new Error('Bet does not exist');
     }
 }
 </script>

@@ -17,3 +17,16 @@ export interface EventBet extends Bet {
 export interface DateBet extends Bet {
     resolveDate: Date
 }
+
+export interface Wager {
+    betId: string,
+    userId: string,
+    prediction: boolean,
+    wager: number
+}
+
+export interface Resolution {
+    betId: string,
+    userId: string,
+    vote: boolean
+}

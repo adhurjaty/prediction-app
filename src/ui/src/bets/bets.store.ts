@@ -1,5 +1,5 @@
 import { RootState } from '@/app.store';
-import { executePlaceBetFUSD } from '@/contracts/delphaiInterface';
+import { executePlaceBetFUSD, executeResolution } from '@/contracts/delphaiInterface';
 import { cid, container } from 'inversify-props';
 import {
     MutationTree,
@@ -12,33 +12,45 @@ import {
     GetterTree
 } from 'vuex';
 import { IBetsApi } from './bets.api';
-import { Bet } from './bets.models';
+import { Bet, Resolution, Wager } from './bets.models';
 
 export enum BetsMutations {
     SET_BET = 'SET_BET',
-    SET_BETS = 'SET_BETS'
+    SET_BETS = 'SET_BETS',
+    SET_WAGER = 'SET_WAGER',
+    SET_RESOLUTION = 'SET_RESOLUTION'
 }
 
 export enum BetsActions {
     FETCH_BETS = 'FETCH_BETS',
     FETCH_BET = 'FETCH_BET',
-    CREATE_BET = 'CREATE_BET'
+    CREATE_BET = 'CREATE_BET',
+    GET_WAGER = 'GET_WAGER',
+    PLACE_WAGER = 'PLACE_WAGER',
+    GET_RESOLUTION = 'GET_RESOLUTION',
+    RESOLVE_BET = 'RESOLVE_BET'
 }
 
 export type State = {
     bet: Bet | null,
-    bets: Bet[]
+    bets: Bet[],
+    wagers: Wager[],
+    resolutions: Resolution[]
 }
 
 export type Getters = {
     getBet(state: State): Bet | null;
-    getBets(state: State): Bet[]
+    getBets(state: State): Bet[],
+    getWagers(state: State): Wager[],
+    getResolutions(state: State): Resolution[]
 }
 
 
 type Mutations<S = State> = {
     [BetsMutations.SET_BET](state: S, bet: Bet): void
     [BetsMutations.SET_BETS](state: S, bets: Bet[]): void
+    [BetsMutations.SET_WAGER](state: S, wager: Wager): void
+    [BetsMutations.SET_RESOLUTION](state: S, resolution: Resolution): void
 }
 
 type AugmentedActionContext = {
@@ -54,18 +66,26 @@ export interface Actions {
     [BetsActions.FETCH_BETS]
         ({ state, commit }: AugmentedActionContext): Promise<void>,
     [BetsActions.CREATE_BET]
-        ({ state, commit }: AugmentedActionContext, { bet, prediction, wager }: { bet: Bet, prediction: boolean, wager: number }): Promise<void>
+        ({ state, commit }: AugmentedActionContext, bet: Bet): Promise<void>
+    [BetsActions.PLACE_WAGER]
+        ({ state, commit }: AugmentedActionContext, wager: Wager): Promise<void>
+    [BetsActions.RESOLVE_BET]
+        ({ state, commit }: AugmentedActionContext, resolution: Resolution): Promise<void>
 }
 
 
 const state: State = {
     bet: null,
-    bets: []
+    bets: [],
+    wagers: [],
+    resolutions: []
 };
 
 const getters: GetterTree<State, RootState> & Getters = {
     getBet: (state) => state.bet,
-    getBets: (state) => state.bets
+    getBets: (state) => state.bets,
+    getWagers: (state) => state.wagers,
+    getResolutions: (state) => state.resolutions
 };
 
 const mutations: MutationTree<State> & Mutations = {
@@ -74,6 +94,12 @@ const mutations: MutationTree<State> & Mutations = {
     },
     [BetsMutations.SET_BETS](state: State, bets: Bet[]) {
         state.bets = bets;
+    },
+    [BetsMutations.SET_WAGER](state: State, wager: Wager) {
+        state.wagers = state.wagers.concat([wager]);
+    },
+    [BetsMutations.SET_RESOLUTION](state: State, resolution: Resolution) {
+        state.resolutions = state.resolutions.concat([resolution]);
     }
 };
 
@@ -91,15 +117,22 @@ const actions: ActionTree<State, RootState> & Actions = {
         const bets = await betsApi.list();
         commit(BetsMutations.SET_BETS, bets);
     },
-    async [BetsActions.CREATE_BET]({ state, commit }, { bet, prediction, wager }: { bet: Bet, prediction: boolean, wager: number }) {
+    async [BetsActions.CREATE_BET]({ state, commit }, bet: Bet) {
         const betsApi = container.get<IBetsApi>(cid.BetsApi);
         const newBet = await betsApi.create(bet);
         commit(BetsMutations.SET_BET, newBet);
+    },
+    async [BetsActions.PLACE_WAGER]({ state, commit }, wager: Wager) {
         await executePlaceBetFUSD({
-            betId: newBet.id,
-            prediction,
-            wager
-        })
+            ...wager
+        });
+        commit(BetsMutations.SET_WAGER, wager);
+    },
+    async [BetsActions.RESOLVE_BET]({ state, commit }, resolution: Resolution) {
+        await executeResolution({
+            ...resolution
+        });
+        commit(BetsMutations.SET_RESOLUTION, resolution);
     }
 }
 
