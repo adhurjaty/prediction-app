@@ -44,66 +44,136 @@
         </div>
     </div>
     <form>
-        <label>Prediction<span class="required">*</span></label>
-        <select v-model="betPrediction.prediction">
-            <option :value="true">Yes</option>
-            <option :value="false">No</option>
-        </select>
-        <label>Wager<span class="required">*</span></label>
-        <input type="number" 
-               v-model="betPrediction.wager"
-               required />
-        <button @click="placeWager()">Place wager</button>
-        
+        <div v-if="existingUserWager">
+            You've already made a prediction
+        </div>
+        <div v-else-if="hasBetClosed">
+            Bet is closed
+        </div>
+        <div v-else>
+            <h3>Place Wager</h3>
+            <label>Prediction<span class="required">*</span></label>
+            <select v-model="userWager.prediction">
+                <option :value="true">Yes</option>
+                <option :value="false">No</option>
+            </select>
+            <label>Wager<span class="required">*</span></label>
+            <input type="number" 
+                v-model="userWager.wager"
+                required />
+            <button @click="placeWager()">Place wager</button>
+        </div>
+        <div v-if="existingUserResolution">
+            You've already voted to resolve
+        </div>
+        <div v-else-if="!hasBetClosed">
+            Bet is still open
+        </div>
+        <div v-else>
+            <h3>Vote to resolve</h3>
+            <label>Resolution vote<span class="required">*</span></label>
+            <select v-model="userResolution.vote">
+                <option :value="true">Yes</option>
+                <option :value="false">No</option>
+            </select>
+            <button @click="placeWager()">Place wager</button>
+        </div>
     </form>
 </section>
 </template>
 
 <script lang="ts">
 import { Vue } from 'vue-class-component';
-import { Bet } from '../bets.models';
+import { Bet, Resolution, Wager } from '../bets.models';
 import { BetsActions } from '../bets.store';
 import { Store } from '../../app.store';
 import { Group } from '@/groups/models';
+import User from '@/models/user';
+import { UsersActions } from '@/users/users.store';
 
-const defaultBet : () => Bet = () => {
-    return {
-        id: '',
-        type: '',
-        title: '',
-        description: '',
-        closeDate: new Date(),
-        amount: 0,
-        group: new Group()
-    }
+interface WagerToPlace {
+    wager: number,
+    prediction: boolean
 }
 
-export default class betInfo extends Vue {
-    bet: Bet = defaultBet();
-    bets: Bet[] = [];
-    betPrediction: BetPrediction = {
-        prediction: true,
-        wager: 0
-    };
+interface ResolutionToPlace {
+    vote: boolean
+}
 
-    betMade(stake: number, status: string): string {
-        return stake > 0 ? `you have bet ${stake} prestige point on ${status}` : 'you have not bet';
+const defaultBet: () => Bet = () => ({
+    id: '',
+    type: '',
+    title: '',
+    description: '',
+    closeDate: new Date(),
+    amount: 0,
+    group: new Group()
+});
+
+export default class betInfo extends Vue {
+    user?: User;
+    bet?: Bet;
+    existingWagers: Wager[] = [];
+    existingResolutions: Resolution[] = [];
+    userWager?: WagerToPlace;
+    userResolution?: ResolutionToPlace;
+
+    get hasBetClosed(): boolean {
+        const now = new Date();
+        return !!this.bet && this.bet?.closeDate < now;
+    }
+
+    get existingUserWager(): Wager | undefined {
+        return this.getWager(this.user?.id ?? '');
+    }
+
+    get existingUserResolution(): Resolution | undefined {
+        return this.getResolution(this.user?.id ?? '');
     }
 
     async created() {
         const store: Store = this.$store;
-        await store.dispatch(BetsActions.FETCH_BET, this.$route.params.betId as string);
-        this.bet = store.getters.getBet || defaultBet();
+        const betId = this.$route.params.betId as string;
+        await Promise.all([
+            store.dispatch(UsersActions.FETCH_USER),
+            store.dispatch(BetsActions.FETCH_BET, betId),
+            store.dispatch(BetsActions.FETCH_WAGERS, betId),
+            store.dispatch(BetsActions.FETCH_RESOLUTIONS, betId),
+        ]);
+        this.user = store.getters.getUser || undefined;
+        this.bet = store.getters.getBet || undefined;
+        this.existingWagers = store.getters.getWagers || [];
+        this.existingResolutions = store.getters.getResolutions || [];
     }
 
     async placeWager(): Promise<void> {
         const store: Store = this.$store;
-        await store.dispatch(BetsActions.CREATE_BET, this.bet);
-        const betId = store.getters.getBet?.id;
-        if(betId)
-            this.$router.push({ name: 'Bet', params: { id: betId }});
-        else
-            throw new Error('Bet does not exist');
+        const betId = this.$route.params.betId as string;
+        const wager = {
+            betId: betId,
+            userId: this.user!.id,
+            ...this.userWager!
+        }
+        await store.dispatch(BetsActions.PLACE_WAGER, wager);
+    }
+
+    async placeResolution(): Promise<void> {
+        const store: Store = this.$store;
+        const betId = this.$route.params.betId as string;
+        const resolution = {
+            betId: betId,
+            userId: this.user!.id,
+            ...this.userResolution!
+        }
+        await store.dispatch(BetsActions.RESOLVE_BET, resolution);
+    }
+
+    getWager(userId: string): Wager | undefined {
+        return this.user && this.existingWagers?.find(x => x.userId == userId);
+    }
+
+    getResolution(userId: string): Resolution | undefined {
+        return this.user && this.existingResolutions?.find(x => x.userId == userId);
     }
 }
 </script>

@@ -1,5 +1,5 @@
 import { RootState } from '@/app.store';
-import { executePlaceBetFUSD, executeResolution } from '@/contracts/delphaiInterface';
+import { executePlaceBetFUSD, executeResolution, getResolutions, getWagers } from '@/contracts/delphaiInterface';
 import { cid, container } from 'inversify-props';
 import {
     MutationTree,
@@ -18,16 +18,18 @@ export enum BetsMutations {
     SET_BET = 'SET_BET',
     SET_BETS = 'SET_BETS',
     SET_WAGER = 'SET_WAGER',
-    SET_RESOLUTION = 'SET_RESOLUTION'
+    SET_RESOLUTION = 'SET_RESOLUTION',
+    SET_WAGERS = 'SET_WAGERS',
+    SET_RESOLUTIONS = 'SET_RESOLUTIONS'
 }
 
 export enum BetsActions {
     FETCH_BETS = 'FETCH_BETS',
     FETCH_BET = 'FETCH_BET',
     CREATE_BET = 'CREATE_BET',
-    GET_WAGER = 'GET_WAGER',
+    FETCH_WAGERS = 'FETCH_WAGERS',
+    FETCH_RESOLUTIONS = 'FETCH_RESOLUTIONS',
     PLACE_WAGER = 'PLACE_WAGER',
-    GET_RESOLUTION = 'GET_RESOLUTION',
     RESOLVE_BET = 'RESOLVE_BET'
 }
 
@@ -51,6 +53,8 @@ type Mutations<S = State> = {
     [BetsMutations.SET_BETS](state: S, bets: Bet[]): void
     [BetsMutations.SET_WAGER](state: S, wager: Wager): void
     [BetsMutations.SET_RESOLUTION](state: S, resolution: Resolution): void
+    [BetsMutations.SET_WAGERS](state: S, wager: Wager[]): void
+    [BetsMutations.SET_RESOLUTIONS](state: S, resolution: Resolution[]): void
 }
 
 type AugmentedActionContext = {
@@ -62,11 +66,15 @@ type AugmentedActionContext = {
 
 export interface Actions {
     [BetsActions.FETCH_BET]
-        ({ state, commit }: AugmentedActionContext, betId: string): Promise<void>,
+        ({ state, commit }: AugmentedActionContext, betId: string): Promise<void>
     [BetsActions.FETCH_BETS]
         ({ state, commit }: AugmentedActionContext): Promise<void>,
     [BetsActions.CREATE_BET]
         ({ state, commit }: AugmentedActionContext, bet: Bet): Promise<void>
+    [BetsActions.FETCH_WAGERS]
+        ({ state, commit }: AugmentedActionContext, betId: string): Promise<void>
+    [BetsActions.FETCH_RESOLUTIONS]
+        ({ state, commit }: AugmentedActionContext, betId: string): Promise<void>
     [BetsActions.PLACE_WAGER]
         ({ state, commit }: AugmentedActionContext, wager: Wager): Promise<void>
     [BetsActions.RESOLVE_BET]
@@ -100,6 +108,12 @@ const mutations: MutationTree<State> & Mutations = {
     },
     [BetsMutations.SET_RESOLUTION](state: State, resolution: Resolution) {
         state.resolutions = state.resolutions.concat([resolution]);
+    },
+    [BetsMutations.SET_WAGERS](state: State, wagers: Wager[]) {
+        state.wagers = wagers;
+    },
+    [BetsMutations.SET_RESOLUTIONS](state: State, resolutions: Resolution[]) {
+        state.resolutions = resolutions;
     }
 };
 
@@ -121,6 +135,14 @@ const actions: ActionTree<State, RootState> & Actions = {
         const betsApi = container.get<IBetsApi>(cid.BetsApi);
         const newBet = await betsApi.create(bet);
         commit(BetsMutations.SET_BET, newBet);
+    },
+    async [BetsActions.FETCH_WAGERS]({ state, commit }, betId: string) {
+        const wagers = await getWagers(betId);
+        commit(BetsMutations.SET_WAGERS, wagers);
+    },
+    async [BetsActions.FETCH_RESOLUTIONS]({ state, commit }, betId: string) {
+        const resolutions = await getResolutions(betId);
+        commit(BetsMutations.SET_RESOLUTIONS, resolutions);
     },
     async [BetsActions.PLACE_WAGER]({ state, commit }, wager: Wager) {
         await executePlaceBetFUSD({

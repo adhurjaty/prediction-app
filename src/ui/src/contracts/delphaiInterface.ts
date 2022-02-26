@@ -1,3 +1,4 @@
+import { Resolution, Wager } from "@/bets/bets.models";
 import * as fcl from "@onflow/fcl";
 import { Address, String, Bool, UFix64 } from "@onflow/types";
 
@@ -46,3 +47,10 @@ export async function executeResolution(
     });
 }
 
+export async function getWagers(betId: string): Promise<Wager[]> {
+    
+}
+
+export async function getResolutions(betId: string): Promise<Resolution[]> {
+
+}
