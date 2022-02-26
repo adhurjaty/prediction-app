@@ -21,8 +21,5 @@ namespace WebApi
 
         [Reference]
         public List<UserBetResult> UserBetResults { get; set; } = new List<UserBetResult>();
-
-        [Ignore]
-        public Group Group { get; set; }
     }
 }

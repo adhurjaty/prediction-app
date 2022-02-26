@@ -54,7 +54,7 @@ namespace WebApi
             {
                 Title = request.Title,
                 Description = request.Description,
-                GroupId = request.GroupId.ToString(),
+                GroupId = request.GroupId,
                 Email = GetEmailFromClaims()
             };
 
@@ -69,5 +69,6 @@ namespace WebApi
     {
         public string BetAddress { get; set; }
         public string ResolverAddress { get; set; }
+        public new string GroupId { get; set; }
     }
 }
