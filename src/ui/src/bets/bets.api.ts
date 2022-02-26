@@ -6,7 +6,7 @@ import { Bet } from "./bets.models";
 export interface IBetsApi {
     get(id: string): Promise<Bet>,
     list(): Promise<Bet[]>,
-    create(bet: Bet): Promise<Bet>
+    create(bet: Bet & { groupId: string }): Promise<Bet>
     update(bet: Bet): Promise<Bet>
 }
 
@@ -22,7 +22,7 @@ export class BetsApi implements IBetsApi {
         return await this.http.authGet<Bet[]>('/bets');
     }
 
-    async create(bet: Bet): Promise<Bet> {
+    async create(bet: Bet & { groupId: string }): Promise<Bet> {
         return await this.http.authPost('/bets', bet);
     }
 

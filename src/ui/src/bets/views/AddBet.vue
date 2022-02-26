@@ -5,7 +5,7 @@
         <form>
             <label>Group<span class="required">*</span></label>
             <select v-if="groups.length > 0"
-                    v-model="bet.group"
+                    v-model="selectedGroup"
                     required>
                 <option v-for="group in groups"
                         :key="group.id"
@@ -67,6 +67,9 @@ import { Store } from '../../app.store';
 import { BetsActions } from '../bets.store';
 import { Group } from '@/groups/models';
 import { GroupsActions } from '@/groups/groups.store';
+import GroupPage from '@/groups/views/GroupsList.vue';
+import User from '@/models/user';
+import { UsersActions } from '@/users/users.store';
 
 class AddingBet {
     id: string;
@@ -74,7 +77,6 @@ class AddingBet {
     description: string;
     closeDate: Date;
     amount: number;
-    group?: Group;
 
     constructor(bet?: AddingBet) {
         this.title = bet?.title || '';
@@ -109,8 +111,10 @@ export default class AddBet extends Vue {
         new AddingEventBet(this.baseBet)
         // new AddingDateBet(this.baseBet)
     ];
+    user?: User;
     bet: Bet = this.possibleBets[0];
     groups: Group[] = [];
+    selectedGroup?: Group
     wager: Wager = {
         betId: '',
         userId: '',
@@ -122,12 +126,19 @@ export default class AddBet extends Vue {
 
     async created() {
         const store: Store = this.$store;
-        await store.dispatch(GroupsActions.FETCH_GROUPS);
+        await Promise.all([
+            store.dispatch(GroupsActions.FETCH_GROUPS),
+            store.dispatch(UsersActions.FETCH_USER)
+        ]);
         this.groups = store.getters.getGroups || [];
+        this.user = store.getters.getUser || undefined;
+
+        if(!this.user)
+            throw new Error("Error getting user");
         
         const groupId = this.$route.query.groupId;
         if(groupId)
-            this.bet.group = this.groups.find(x => x.id == groupId);
+            this.selectedGroup = this.groups.find(x => x.id == groupId);
     }
 
     onSelectionChanged(event: Event): void {
@@ -137,23 +148,32 @@ export default class AddBet extends Vue {
     }
 
     async addBet(): Promise<void> {
+        const groupId = this.selectedGroup?.id;
+
+        if(!groupId)
+            throw new Error("No group selected");
+
         const store: Store = this.$store;
-        await store.dispatch(BetsActions.CREATE_BET, this.bet);
+        await store.dispatch(BetsActions.CREATE_BET, {
+            ...this.bet,
+            groupId
+        });
 
         const betId = store.getters.getBet?.id;
-        const userId = store.getters.getUser?.id
+        const userId = store.getters.getUser?.id;
         
-        if(betId && userId) {
-            this.wager = {
-                ...this.wager,
-                betId,
-                userId
-            }
-            await store.dispatch(BetsActions.PLACE_WAGER, this.wager)
-            this.$router.push({ name: 'Bet', params: { id: betId }});
-        } else {
-            throw new Error('Bet does not exist');
-        }
+        if(!userId)
+            throw new Error("Error getting user");
+        if(!betId)
+            throw new Error("Error creating bet");
+
+        this.wager = {
+            ...this.wager,
+            betId,
+            userId
+        };
+        await store.dispatch(BetsActions.PLACE_WAGER, this.wager);
+        this.$router.push({ name: 'Bet', params: { id: groupId, betId: betId }});
     }
 }
 </script>

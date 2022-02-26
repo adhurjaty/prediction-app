@@ -70,7 +70,7 @@ export interface Actions {
     [BetsActions.FETCH_BETS]
         ({ state, commit }: AugmentedActionContext): Promise<void>,
     [BetsActions.CREATE_BET]
-        ({ state, commit }: AugmentedActionContext, bet: Bet): Promise<void>
+        ({ state, commit }: AugmentedActionContext, bet: Bet & { groupId: string }): Promise<void>
     [BetsActions.FETCH_WAGERS]
         ({ state, commit }: AugmentedActionContext, betId: string): Promise<void>
     [BetsActions.FETCH_RESOLUTIONS]
@@ -131,7 +131,7 @@ const actions: ActionTree<State, RootState> & Actions = {
         const bets = await betsApi.list();
         commit(BetsMutations.SET_BETS, bets);
     },
-    async [BetsActions.CREATE_BET]({ state, commit }, bet: Bet) {
+    async [BetsActions.CREATE_BET]({ state, commit }, bet: Bet & { groupId: string }) {
         const betsApi = container.get<IBetsApi>(cid.BetsApi);
         const newBet = await betsApi.create(bet);
         commit(BetsMutations.SET_BET, newBet);

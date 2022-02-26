@@ -16,8 +16,9 @@
     <div>{{bet.description}}</div>
 
     <h3>Members</h3>
-    <p v-if="bet.group.users.length === 0">No one is in the group!</p>
-    <div v-if="bet.group.users.length > 0">
+    <div v-if="!group">Loading...</div>
+    <div v-else-if="group.users.length === 0">No one is in the group!</div>
+    <div v-else>
         <table>
             <thead>
                 <tr>
@@ -27,7 +28,7 @@
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="member in bet.group.users" :key="member.id">
+                <tr v-for="member in group.users" :key="member.id">
                     <td>{{ member.displayName }}</td>
                     <td>{{ member.accuracy }}</td>
                     <td>{{ member.prestige }}</td>
@@ -90,6 +91,7 @@ import { Store } from '../../app.store';
 import { Group } from '@/groups/models';
 import User from '@/models/user';
 import { UsersActions } from '@/users/users.store';
+import { GroupsActions } from '@/groups/groups.store';
 
 interface WagerToPlace {
     wager: number,
@@ -100,23 +102,19 @@ interface ResolutionToPlace {
     vote: boolean
 }
 
-const defaultBet: () => Bet = () => ({
-    id: '',
-    type: '',
-    title: '',
-    description: '',
-    closeDate: new Date(),
-    amount: 0,
-    group: new Group()
-});
-
-export default class betInfo extends Vue {
+export default class BetInfo extends Vue {
     user?: User;
+    group?: Group;
     bet?: Bet;
     existingWagers: Wager[] = [];
     existingResolutions: Resolution[] = [];
-    userWager?: WagerToPlace;
-    userResolution?: ResolutionToPlace;
+    userWager: WagerToPlace = {
+        wager: 0,
+        prediction: true
+    };
+    userResolution: ResolutionToPlace = {
+        vote: true
+    };
 
     get hasBetClosed(): boolean {
         const now = new Date();
@@ -133,24 +131,33 @@ export default class betInfo extends Vue {
 
     async created() {
         const store: Store = this.$store;
+        const groupId = this.$route.params.id as string;
         const betId = this.$route.params.betId as string;
         await Promise.all([
             store.dispatch(UsersActions.FETCH_USER),
+            store.dispatch(GroupsActions.FETCH_GROUP, groupId),
             store.dispatch(BetsActions.FETCH_BET, betId),
             store.dispatch(BetsActions.FETCH_WAGERS, betId),
             store.dispatch(BetsActions.FETCH_RESOLUTIONS, betId),
         ]);
         this.user = store.getters.getUser || undefined;
+        this.group = store.getters.getGroup || undefined;
         this.bet = store.getters.getBet || undefined;
         this.existingWagers = store.getters.getWagers || [];
         this.existingResolutions = store.getters.getResolutions || [];
+
+        if(!this.user) 
+            throw new Error("Error getting user");
+        if(!this.group)
+            throw new Error("Error getting group")
+        if(!this.bet)
+            throw new Error("Error getting bet");
     }
 
     async placeWager(): Promise<void> {
         const store: Store = this.$store;
-        const betId = this.$route.params.betId as string;
         const wager = {
-            betId: betId,
+            betId: this.bet!.id,
             userId: this.user!.id,
             ...this.userWager!
         }

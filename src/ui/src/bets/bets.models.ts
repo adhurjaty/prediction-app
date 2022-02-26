@@ -6,8 +6,7 @@ export interface Bet {
     title: string,
     description: string,
     closeDate: Date,
-    amount: number,
-    group?: Group
+    amount: number
 }
 
 export interface EventBet extends Bet {
