@@ -1,5 +1,5 @@
 import { RootState } from '@/app.store';
-import { executePlaceBetFUSD, executeResolution, getResolutions, getWagers } from '@/contracts/delphaiInterface';
+import { executePlaceBetFUSD, executeResolution, getResolutionResults, getWagers, hasResolutionVote } from '@/contracts/delphaiInterface';
 import { cid, container } from 'inversify-props';
 import {
     MutationTree,
@@ -12,15 +12,15 @@ import {
     GetterTree
 } from 'vuex';
 import { IBetsApi } from './bets.api';
-import { Bet, Resolution, Wager } from './bets.models';
+import { Bet, Resolution, ResolutionResults, Wager } from './bets.models';
 
 export enum BetsMutations {
     SET_BET = 'SET_BET',
     SET_BETS = 'SET_BETS',
     SET_WAGER = 'SET_WAGER',
-    SET_RESOLUTION = 'SET_RESOLUTION',
     SET_WAGERS = 'SET_WAGERS',
-    SET_RESOLUTIONS = 'SET_RESOLUTIONS'
+    SET_RESOLUTION_RESULTS = 'SET_RESOLUTION_RESULTS',
+    SET_CAN_RESOLVE = 'SET_CAN_RESOLVE'
 }
 
 export enum BetsActions {
@@ -28,23 +28,26 @@ export enum BetsActions {
     FETCH_BET = 'FETCH_BET',
     CREATE_BET = 'CREATE_BET',
     FETCH_WAGERS = 'FETCH_WAGERS',
-    FETCH_RESOLUTIONS = 'FETCH_RESOLUTIONS',
+    FETCH_RESOLUTION_RESULTS = 'FETCH_RESOLUTION_RESULTS',
     PLACE_WAGER = 'PLACE_WAGER',
-    RESOLVE_BET = 'RESOLVE_BET'
+    RESOLVE_BET = 'RESOLVE_BET',
+    FETCH_CAN_RESOLVE = 'FETCH_CAN_RESOLVE'
 }
 
 export type State = {
     bet: Bet | null,
     bets: Bet[],
     wagers: Wager[],
-    resolutions: Resolution[]
+    resolutionResults: ResolutionResults | null,
+    canResolveBet: boolean
 }
 
 export type Getters = {
     getBet(state: State): Bet | null;
     getBets(state: State): Bet[],
     getWagers(state: State): Wager[],
-    getResolutions(state: State): Resolution[]
+    getResolutionResults(state: State): ResolutionResults | null
+    getCanResolve(state: State): boolean
 }
 
 
@@ -52,9 +55,8 @@ type Mutations<S = State> = {
     [BetsMutations.SET_BET](state: S, bet: Bet): void
     [BetsMutations.SET_BETS](state: S, bets: Bet[]): void
     [BetsMutations.SET_WAGER](state: S, wager: Wager): void
-    [BetsMutations.SET_RESOLUTION](state: S, resolution: Resolution): void
     [BetsMutations.SET_WAGERS](state: S, wager: Wager[]): void
-    [BetsMutations.SET_RESOLUTIONS](state: S, resolution: Resolution[]): void
+    [BetsMutations.SET_RESOLUTION_RESULTS](state: S, resolutionResults: ResolutionResults): void
 }
 
 type AugmentedActionContext = {
@@ -73,12 +75,14 @@ export interface Actions {
         ({ state, commit }: AugmentedActionContext, bet: Bet & { groupId: string }): Promise<void>
     [BetsActions.FETCH_WAGERS]
         ({ state, commit }: AugmentedActionContext, betId: string): Promise<void>
-    [BetsActions.FETCH_RESOLUTIONS]
+    [BetsActions.FETCH_RESOLUTION_RESULTS]
         ({ state, commit }: AugmentedActionContext, betId: string): Promise<void>
     [BetsActions.PLACE_WAGER]
         ({ state, commit }: AugmentedActionContext, wager: Wager): Promise<void>
     [BetsActions.RESOLVE_BET]
         ({ state, commit }: AugmentedActionContext, resolution: Resolution): Promise<void>
+    [BetsActions.FETCH_CAN_RESOLVE]
+        ({ state, commit }: AugmentedActionContext, betId: string): Promise<void>
 }
 
 
@@ -86,14 +90,16 @@ const state: State = {
     bet: null,
     bets: [],
     wagers: [],
-    resolutions: []
+    resolutionResults: null,
+    canResolveBet: false
 };
 
 const getters: GetterTree<State, RootState> & Getters = {
     getBet: (state) => state.bet,
     getBets: (state) => state.bets,
     getWagers: (state) => state.wagers,
-    getResolutions: (state) => state.resolutions
+    getResolutionResults: (state) => state.resolutionResults,
+    getCanResolve: (state) => state.canResolveBet
 };
 
 const mutations: MutationTree<State> & Mutations = {
@@ -106,14 +112,14 @@ const mutations: MutationTree<State> & Mutations = {
     [BetsMutations.SET_WAGER](state: State, wager: Wager) {
         state.wagers = state.wagers.concat([wager]);
     },
-    [BetsMutations.SET_RESOLUTION](state: State, resolution: Resolution) {
-        state.resolutions = state.resolutions.concat([resolution]);
-    },
     [BetsMutations.SET_WAGERS](state: State, wagers: Wager[]) {
         state.wagers = wagers;
     },
-    [BetsMutations.SET_RESOLUTIONS](state: State, resolutions: Resolution[]) {
-        state.resolutions = resolutions;
+    [BetsMutations.SET_RESOLUTION_RESULTS](state: State, resolutionResults: ResolutionResults) {
+        state.resolutionResults = resolutionResults;
+    },
+    [BetsMutations.SET_CAN_RESOLVE](state: State, canResolve: boolean) {
+        state.canResolveBet = canResolve
     }
 };
 
@@ -140,9 +146,9 @@ const actions: ActionTree<State, RootState> & Actions = {
         const wagers = await getWagers(betId);
         commit(BetsMutations.SET_WAGERS, wagers);
     },
-    async [BetsActions.FETCH_RESOLUTIONS]({ state, commit }, betId: string) {
-        const resolutions = await getResolutions(betId);
-        commit(BetsMutations.SET_RESOLUTIONS, resolutions);
+    async [BetsActions.FETCH_RESOLUTION_RESULTS]({ state, commit }, betId: string) {
+        const resolutionResults = await getResolutionResults(betId);
+        commit(BetsMutations.SET_RESOLUTION_RESULTS, resolutionResults)
     },
     async [BetsActions.PLACE_WAGER]({ state, commit }, wager: Wager) {
         await executePlaceBetFUSD({
@@ -154,7 +160,9 @@ const actions: ActionTree<State, RootState> & Actions = {
         await executeResolution({
             ...resolution
         });
-        commit(BetsMutations.SET_RESOLUTION, resolution);
+    },
+    async [BetsActions.FETCH_CAN_RESOLVE]({ state, commit }, betId: string) {
+        await hasResolutionVote(betId);
     }
 }
 

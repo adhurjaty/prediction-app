@@ -64,7 +64,7 @@
                 required />
             <button @click="placeWager()">Place wager</button>
         </div>
-        <div v-if="existingUserResolution">
+        <div v-if="hasResolutionVote">
             You've already voted to resolve
         </div>
         <div v-else-if="!hasBetClosed">
@@ -85,7 +85,7 @@
 
 <script lang="ts">
 import { Vue } from 'vue-class-component';
-import { Bet, Resolution, Wager } from '../bets.models';
+import { Bet, Resolution, ResolutionResults, Wager } from '../bets.models';
 import { BetsActions } from '../bets.store';
 import { Store } from '../../app.store';
 import { Group } from '@/groups/models';
@@ -107,7 +107,8 @@ export default class BetInfo extends Vue {
     group?: Group;
     bet?: Bet;
     existingWagers: Wager[] = [];
-    existingResolutions: Resolution[] = [];
+    resolutionResults?: ResolutionResults;
+    hasResolutionVote: boolean = false;
     userWager: WagerToPlace = {
         wager: 0,
         prediction: true
@@ -125,10 +126,6 @@ export default class BetInfo extends Vue {
         return this.getWager(this.user?.id ?? '');
     }
 
-    get existingUserResolution(): Resolution | undefined {
-        return this.getResolution(this.user?.id ?? '');
-    }
-
     async created() {
         const store: Store = this.$store;
         const groupId = this.$route.params.id as string;
@@ -138,13 +135,13 @@ export default class BetInfo extends Vue {
             store.dispatch(GroupsActions.FETCH_GROUP, groupId),
             store.dispatch(BetsActions.FETCH_BET, betId),
             store.dispatch(BetsActions.FETCH_WAGERS, betId),
-            store.dispatch(BetsActions.FETCH_RESOLUTIONS, betId),
+            store.dispatch(BetsActions.FETCH_RESOLUTION_RESULTS, betId),
         ]);
         this.user = store.getters.getUser || undefined;
         this.group = store.getters.getGroup || undefined;
         this.bet = store.getters.getBet || undefined;
         this.existingWagers = store.getters.getWagers || [];
-        this.existingResolutions = store.getters.getResolutions || [];
+        this.resolutionResults = store.getters.getResolutionResults || undefined;
 
         if(!this.user) 
             throw new Error("Error getting user");
@@ -152,6 +149,11 @@ export default class BetInfo extends Vue {
             throw new Error("Error getting group")
         if(!this.bet)
             throw new Error("Error getting bet");
+
+        if(this.hasBetClosed) {
+            await store.dispatch(BetsActions.FETCH_CAN_RESOLVE);
+            this.hasResolutionVote = store.getters.getCanResolve || false;
+        }
     }
 
     async placeWager(): Promise<void> {
@@ -177,10 +179,6 @@ export default class BetInfo extends Vue {
 
     getWager(userId: string): Wager | undefined {
         return this.user && this.existingWagers?.find(x => x.userId == userId);
-    }
-
-    getResolution(userId: string): Resolution | undefined {
-        return this.user && this.existingResolutions?.find(x => x.userId == userId);
     }
 }
 </script>

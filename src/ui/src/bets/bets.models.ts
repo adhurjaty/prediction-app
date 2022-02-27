@@ -29,3 +29,11 @@ export interface Resolution {
     userId: string,
     vote: boolean
 }
+
+export interface ResolutionResults {
+    betId: string,
+    numMembers: number,
+    numVotes: number,
+    runningDecision: boolean | null,
+    isDisputed: boolean
+}

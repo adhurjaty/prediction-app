@@ -1,12 +1,11 @@
-import { Resolution, Wager } from "@/bets/bets.models";
+import { Resolution, ResolutionResults, Wager } from "@/bets/bets.models";
 import * as fcl from "@onflow/fcl";
 import { Address, String, Bool, UFix64 } from "@onflow/types";
 
 import placeBetText from 'raw-loader!./cadence/transactions/placeBetComposerFUSD.cdc';
 import resolveText from 'raw-loader!./cadence/transactions/voteToResolve.cdc';
 
-export async function executePlaceBetFUSD(
-    { betId, prediction, wager }: { betId: string, prediction: boolean, wager: number })
+export async function executePlaceBetFUSD(wager: Wager)
     : Promise<any>
 {
     const transactionText = placeBetText as string;
@@ -18,17 +17,16 @@ export async function executePlaceBetFUSD(
         authorizations: [fcl.authz],
         args: [
             fcl.arg("delphai", Address),
-            fcl.arg(betId, String),
-            fcl.arg(prediction, Bool),
-            fcl.arg(wager, UFix64)
+            fcl.arg(wager.betId, String),
+            fcl.arg(wager.prediction, Bool),
+            fcl.arg(wager.wager, UFix64)
         ],
         limit: 50
     });
 }
 
 
-export async function executeResolution(
-    { betId, vote }: { betId: string, vote: boolean })
+export async function executeResolution(resolution: Resolution)
     : Promise<any>
 {
     const transactionText = resolveText as string;
@@ -40,8 +38,8 @@ export async function executeResolution(
         authorizations: [fcl.authz],
         args: [
             fcl.arg("delphai", Address),
-            fcl.arg(betId, String),
-            fcl.arg(vote, Bool)
+            fcl.arg(resolution.betId, String),
+            fcl.arg(resolution.vote, Bool)
         ],
         limit: 50
     });
@@ -51,6 +49,10 @@ export async function getWagers(betId: string): Promise<Wager[]> {
     
 }
 
-export async function getResolutions(betId: string): Promise<Resolution[]> {
+export async function getResolutionResults(betId: string): Promise<ResolutionResults> {
 
+}
+
+export async function hasResolutionVote(betId: string): Promise<boolean> {
+    
 }
