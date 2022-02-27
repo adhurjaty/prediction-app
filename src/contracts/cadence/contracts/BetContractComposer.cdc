@@ -33,9 +33,17 @@ pub contract BetContractComposer {
             return <-self.bet.retrieveWinning(claimToken: <-claimToken)
         }
 
-        // pub fun getResult(): Bool? {
-        //     return self.resolver.getResult()
-        // }
+        pub fun getResult(): Bool? {
+            return self.resolver.getResult()
+        }
+
+        pub fun getWagers(): [YesNoBetLibrary.YesNoBetStruct] {
+            return self.bet.getWagers()
+        }
+
+        pub fun getResolutionResults(): YesNoResolverLibrary.YesNoResolutionStruct {
+            return self.resolver.getResolutionResults()
+        }
 
         destroy() {
             destroy self.resolver

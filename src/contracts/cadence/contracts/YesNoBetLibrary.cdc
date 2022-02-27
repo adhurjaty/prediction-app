@@ -241,6 +241,19 @@ pub contract YesNoBetLibrary {
             return <- vault
         }
 
+        pub fun getWagers(): [YesNoBetStruct] {
+            let wagers: [YesNoBetStruct] = []
+            for key in self.madeBets.keys {
+                let wager <- self.madeBets.remove(key: key)!
+                wagers.append(YesNoBetStruct(
+                    userAddress: wager.userAddress,
+                    wager: wager.wager,
+                    prediction: wager.prediction))
+                self.madeBets[key] <-! wager
+            }
+            return wagers
+        }
+
         destroy () {
             destroy self.madeBets
         }

@@ -19,6 +19,20 @@ pub contract YesNoResolverLibrary {
         }
     }
 
+    pub resource YesNoResolutionStruct {
+        pub let numMembers: Int
+        pub let numVotes: Int
+        pub let runningDecision: Bool?
+        pub let isDisputed: Bool
+
+        init (numMembers: Int, numVotes: Int, runningDecision: Bool?, isDisputed: Bool) {
+            self.numMembers = numMembers
+            self.numVotes = numVotes
+            self.runningDecision = runningDecision
+            self.isDisputed = isDisputed
+        }
+    }
+
     pub resource YesNoResolutionTokenMinter {
         pub fun createToken(betId: String, address: Address): @YesNoResolutionToken {
             return <-create YesNoResolutionToken(betId: betId, userAddress: address)
@@ -28,6 +42,7 @@ pub contract YesNoResolverLibrary {
     pub resource interface YesNoResolver {
         pub fun getResult(): Bool?
         pub fun vote(vote: @AnyResource{DelphaiUsers.ResolutionToken})
+        pub fun getResolutionResults(): YesNoResolutionStruct
     }
 
     pub resource MajorityYesNoResolver : YesNoResolver {
@@ -63,6 +78,22 @@ pub contract YesNoResolverLibrary {
                 self.result = voteBool
             }
             destroy yesNoVote
+        }
+
+        pub fun getResolutionResults(): YesNoResolutionStruct {
+            var runningDecision: Bool? = nil
+            if numYeses > numVotes / 2 {
+                runningDecision = true
+            }
+            if numYeses < numVotes / 2 {
+                runningDecision = false
+            }
+            return YesNoResolutionStruct(
+                numMembers: self.numMembers,
+                numVotes: self.numVotes,
+                runningDecision: runningDecision
+                isDisputed: self.isDisputed
+            )
         }
     }
 
@@ -104,6 +135,23 @@ pub contract YesNoResolverLibrary {
                 self.result = voteBool
             }
             destroy yesNoVote
+        }
+
+        pub fun getResolutionResults(): YesNoResolutionStruct {
+            var yeses = 0
+            var nos = 0
+            if self.runningDecision != nil && self.runningDecision {
+                yeses = self.numVotes
+            }
+            else {
+                nos = self.numVotes
+            } 
+            return YesNoResolutionStruct(
+                numMembers: self.numMembers,
+                numVotes: self.numVotes,
+                runningDecision: self.runningDecision,
+                isDisputed: self.isDisputed
+            )
         }
     }
 
