@@ -42,13 +42,6 @@ export default class GroupPage extends Vue {
         const store: Store = this.$store;
         await store.dispatch(GroupsActions.FETCH_GROUPS);
         this.groups = store.getters.getGroups;
-
-        // putting this here now as a testbed. REMOVE LATER
-        executePlaceBetFUSD({
-            betId: 'betId1234',
-            prediction: true, 
-            wager: 66
-        });
     }
 }
 </script>
