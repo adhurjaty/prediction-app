@@ -18,7 +18,7 @@ export default (): RouteRecordRaw[] => {
             component: import('./views/BetsList.vue')
         },
         {
-            path: 'groups/:id/bets/:betId',
+            path: '/groups/:id/bets/:betId',
             name: 'Bet',
             component: import('./views/Bet.vue')
         },

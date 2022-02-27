@@ -67,7 +67,6 @@ import { Store } from '../../app.store';
 import { BetsActions } from '../bets.store';
 import { Group } from '@/groups/models';
 import { GroupsActions } from '@/groups/groups.store';
-import GroupPage from '@/groups/views/GroupsList.vue';
 import User from '@/models/user';
 import { UsersActions } from '@/users/users.store';
 
@@ -105,6 +104,14 @@ class AddingDateBet extends AddingBet implements DateBet {
     }
 }
 
+interface VerificationErrors {
+    group: string,
+    title: string,
+    description: string,
+    closeDate: string,
+    wager: string
+}
+
 export default class AddBet extends Vue {
     baseBet = new AddingBet();
     possibleBets: Bet[] = [
@@ -120,6 +127,14 @@ export default class AddBet extends Vue {
         userId: '',
         prediction: true,
         wager: 0
+    };
+
+    errors: VerificationErrors = {
+        group: '',
+        title: '',
+        description: '',
+        closeDate: '',
+        wager: ''
     };
 
     typeOptions: string[] = (this.possibleBets || []).map(x => x.type);
@@ -148,6 +163,10 @@ export default class AddBet extends Vue {
     }
 
     async addBet(): Promise<void> {
+        if(!this.verifyInput()) {
+            return;
+        }
+
         const groupId = this.selectedGroup?.id;
 
         if(!groupId)
@@ -174,6 +193,31 @@ export default class AddBet extends Vue {
         };
         await store.dispatch(BetsActions.PLACE_WAGER, this.wager);
         this.$router.push({ name: 'Bet', params: { id: groupId, betId: betId }});
+    }
+
+    private verifyInput(): boolean {
+        let verified = true;
+        if(!this.selectedGroup) {
+            this.errors.group = 'Must select a group';
+            verified = false;
+        }
+        if(!this.bet.title) {
+            this.errors.title = 'Must enter title';
+            verified = false;
+        }
+        if(!this.bet.description) {
+            this.errors.description = 'Must enter description';
+            verified = false;
+        }
+        if(this.bet.closeDate < new Date()) {
+            this.errors.description = 'Date must be in the future';
+            verified = false;
+        }
+        if(this.wager.wager <= 0) {
+            this.errors.wager = 'Bet amount must be greater than 0';
+            verified = false;
+        }
+        return verified;
     }
 }
 </script>
