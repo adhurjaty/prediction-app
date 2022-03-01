@@ -1,5 +1,5 @@
 import { RootState } from '@/app.store';
-import { executePlaceBetFUSD, executeResolution, getResolutionResults, getWagers, hasResolutionVote } from '@/contracts/delphaiInterface';
+import { IDelphai } from '@/contracts/delphaiInterface';
 import { cid, container } from 'inversify-props';
 import {
     MutationTree,
@@ -57,6 +57,7 @@ type Mutations<S = State> = {
     [BetsMutations.SET_WAGER](state: S, wager: Wager): void
     [BetsMutations.SET_WAGERS](state: S, wager: Wager[]): void
     [BetsMutations.SET_RESOLUTION_RESULTS](state: S, resolutionResults: ResolutionResults): void
+    [BetsMutations.SET_CAN_RESOLVE](state: S, canResolve: boolean): void
 }
 
 type AugmentedActionContext = {
@@ -143,26 +144,32 @@ const actions: ActionTree<State, RootState> & Actions = {
         commit(BetsMutations.SET_BET, newBet);
     },
     async [BetsActions.FETCH_WAGERS]({ state, commit }, betId: string) {
-        const wagers = await getWagers(betId);
+        const delphai = container.get<IDelphai>(cid.Delphai);
+        const wagers = await delphai.getWagers(betId);
         commit(BetsMutations.SET_WAGERS, wagers);
     },
     async [BetsActions.FETCH_RESOLUTION_RESULTS]({ state, commit }, betId: string) {
-        const resolutionResults = await getResolutionResults(betId);
+        const delphai = container.get<IDelphai>(cid.Delphai);
+        const resolutionResults = await delphai.getResolutionResults(betId);
         commit(BetsMutations.SET_RESOLUTION_RESULTS, resolutionResults)
     },
     async [BetsActions.PLACE_WAGER]({ state, commit }, wager: Wager) {
-        await executePlaceBetFUSD({
+        const delphai = container.get<IDelphai>(cid.Delphai);
+        await delphai.placeBet({
             ...wager
         });
         commit(BetsMutations.SET_WAGER, wager);
     },
     async [BetsActions.RESOLVE_BET]({ state, commit }, resolution: Resolution) {
-        await executeResolution({
+        const delphai = container.get<IDelphai>(cid.Delphai);
+        await delphai.voteToResolve({
             ...resolution
         });
     },
     async [BetsActions.FETCH_CAN_RESOLVE]({ state, commit }, betId: string) {
-        await hasResolutionVote(betId);
+        const delphai = container.get<IDelphai>(cid.Delphai);
+        const hasVote = await delphai.hasResolutionVote(betId);
+        commit(BetsMutations.SET_CAN_RESOLVE, hasVote);
     }
 }
 
