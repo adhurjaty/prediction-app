@@ -44,7 +44,7 @@
             <label>Close Date<span class="required">*</span></label>
             <p>No one will be able to bet on this after this date has passed</p>
             <input type="datetime-local"
-                   v-model="bet.closeDate"
+                   v-model="bet.closeTimeString"
                    required />
             <label>Prediction<span class="required">*</span></label>
             <select v-model="wager.prediction">
@@ -74,15 +74,36 @@ class AddingBet {
     id: string;
     title: string;
     description: string;
-    closeDate: Date;
+    closeTime: Date;
     amount: number;
+
+    get closeTimeString(): string {
+        // correct for timezone
+
+        var val = new Date(this.closeTime.getTime()
+            - new Date().getTimezoneOffset() * (60 * 1000))
+            .toISOString().split('.')[0];
+        return val;
+    }
+
+    set closeTimeString(dateString: string) {
+        this.closeTime = new Date(new Date(dateString+'Z').getTime() + new Date().getTimezoneOffset() * 60000);
+    }
 
     constructor(bet?: AddingBet) {
         this.title = bet?.title || '';
         this.description = bet?.description || '';
         // set default close date to 2 weeks in the future
-        this.closeDate = bet?.closeDate || new Date(new Date().getTime() + (1000 * 60 * 60 * 24 * 14));
+        this.closeTime = bet?.closeTime || this.defaultDate();
         this.amount = bet?.amount || 0;
+    }
+
+    private defaultDate(): Date {
+        var now = new Date();
+        var time = now.getTime()
+        var twoWeeks = 1000 * 60 * 60 * 24 * 14;
+        var seconds = now.getSeconds() * 1000
+        return new Date(time - seconds + twoWeeks);
     }
 }
 
@@ -108,7 +129,7 @@ interface VerificationErrors {
     group: string,
     title: string,
     description: string,
-    closeDate: string,
+    closeTime: string,
     wager: string
 }
 
@@ -133,7 +154,7 @@ export default class AddBet extends Vue {
         group: '',
         title: '',
         description: '',
-        closeDate: '',
+        closeTime: '',
         wager: ''
     };
 
@@ -166,7 +187,7 @@ export default class AddBet extends Vue {
         if(!this.verifyInput()) {
             return;
         }
-
+        debugger;
         const groupId = this.selectedGroup?.id;
 
         if(!groupId)
@@ -192,6 +213,7 @@ export default class AddBet extends Vue {
             userId
         };
         await store.dispatch(BetsActions.PLACE_WAGER, this.wager);
+        debugger;
         this.$router.push({ name: 'Bet', params: { id: groupId, betId: betId }});
     }
 
@@ -209,7 +231,7 @@ export default class AddBet extends Vue {
             this.errors.description = 'Must enter description';
             verified = false;
         }
-        if(this.bet.closeDate < new Date()) {
+        if(this.bet.closeTime < new Date()) {
             this.errors.description = 'Date must be in the future';
             verified = false;
         }

@@ -18,6 +18,6 @@
     "jest-environment-node": "^24.9.0"
   },
   "dependencies": {
-    "flow-js-testing": "^0.2.3-alpha.3"
+    "flow-js-testing": "^0.2.3-alpha.4"
   }
 }

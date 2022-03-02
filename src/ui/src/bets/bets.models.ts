@@ -5,7 +5,7 @@ export interface Bet {
     type: string,
     title: string,
     description: string,
-    closeDate: Date,
+    closeTime: Date,
     amount: number
 }
 

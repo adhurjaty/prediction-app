@@ -47,13 +47,9 @@ namespace WebApi
             services.AddSingleton<AuthConfig>(x => googleSettings);
 
             services.AddSingleton<IContracts>(x =>
-                new ContractsInterface(new FlowConfig()
-                {
-                    AccountHash = "",
-                    AccountKey = "",
-                    Host = "",
-                    CadencePath = ""
-                }));
+                new ContractsInterface(Configuration
+                    .GetSection("FlowSettings")
+                    .Get<FlowConfig>()));
 
             services.AddSingleton<IHttp, HttpWrapper>();
 

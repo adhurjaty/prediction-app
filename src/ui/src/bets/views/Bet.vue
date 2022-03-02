@@ -119,7 +119,7 @@ export default class BetInfo extends Vue {
 
     get hasBetClosed(): boolean {
         const now = new Date();
-        return !!this.bet && this.bet?.closeDate < now;
+        return !!this.bet && this.bet?.closeTime < now;
     }
 
     get existingUserWager(): Wager | undefined {

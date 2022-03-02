@@ -41,7 +41,7 @@ describe("yes-no-bets", ()=>{
         const delphai = await getAccountAddress("Delphai");
         
         const [result, error] = await sendTransaction({
-            name: "storagePathExample",
+            name: "exampleTokenVault",
             signers: [delphai]
         });
 
