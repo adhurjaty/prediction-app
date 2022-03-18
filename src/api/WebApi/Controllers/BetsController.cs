@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Infrastructure;
@@ -55,6 +56,7 @@ namespace WebApi
                 Title = request.Title,
                 Description = request.Description,
                 GroupId = request.GroupId,
+                CloseTime = request.CloseTime,
                 Email = GetEmailFromClaims()
             };
 

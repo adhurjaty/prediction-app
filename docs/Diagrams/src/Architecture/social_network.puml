@@ -1,0 +1,51 @@
+@startuml
+
+entity "User Account" as user
+entity "Mediator Account" as mAccount
+queue "Mediator Queue" as mQueue
+participant "Mediator Server" as mServer
+database IPFS as ipfs
+entity "3rd Party Account" as consumer
+participant "3rd Party Server" as cServer
+actor "App User" as appUser
+
+mServer -> mQueue : poll queue
+activate mQueue
+
+group user registration
+    user -> mAccount : register
+    mAccount -> mQueue : register message
+    mQueue --> mServer : register message
+    mServer -> mServer : generate rsa key\nfor user
+    mServer -> ipfs : save encrypted\nprivate key\nindexable by user
+    mServer -> user : send public key
+end
+group user 3rd party registration
+    user -> consumer : register
+    consumer -> user : send content token
+    user -> consumer : send access token
+end
+user -> user : create content
+user -> ipfs : save encrypted content
+group content access
+    appUser -> cServer : view content
+    cServer -> consumer : request content
+    activate cServer
+    cServer -> cServer : wait for content
+    consumer -> user : request content with access token
+    user -> mAccount : request content
+    mAccount -> mQueue : request content\nmessage
+    mQueue --> mServer : request content\nmessage
+    mServer -> ipfs : get:\nuser private key,\ncontent
+    mServer -> mServer : decrypt private key
+    mServer -> mServer : decrypt content
+    mServer -> mServer : encrypt content with\nconsumer public key
+    mServer -> user : return content
+    user -> consumer : content
+    consumer -> cServer : content
+    deactivate cServer
+    cServer -> cServer : decrypt content
+    cServer -> appUser : content
+end
+
+@enduml

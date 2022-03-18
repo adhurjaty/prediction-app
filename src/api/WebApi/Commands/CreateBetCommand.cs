@@ -12,6 +12,7 @@ namespace WebApi
         public string Description { get; init; }
         public string GroupId { get; init; }
         public string Email { get; set; }
+        public DateTime CloseTime { get; set; }
 
         // output property
         public string BetId { get; set; }
@@ -44,6 +45,7 @@ namespace WebApi
                 {
                     Title = cmd.Title,
                     Description = cmd.Description,
+                    CloseTime = cmd.CloseTime,
                     GroupId = Guid.Parse(cmd.GroupId)
                 }))
                 .Tee(bet => cmd.BetId = bet.Id.ToString())
