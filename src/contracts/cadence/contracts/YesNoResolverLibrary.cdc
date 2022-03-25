@@ -1,4 +1,4 @@
-import DelphaiUsers from 0xdelphai
+import DelphaiUsers from "./DelphaiUsers.cdc"
 
 pub contract YesNoResolverLibrary {
     pub let yesNoResolutionMinterStoragePath: StoragePath

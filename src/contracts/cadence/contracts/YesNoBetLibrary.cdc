@@ -1,5 +1,5 @@
-import DelphaiUsers from 0xDelphaiUsers
-import FungibleToken from 0xFungibleToken
+import DelphaiUsers from "./DelphaiUsers.cdc"
+import FungibleToken from "./FungibleToken.cdc"
 
 pub contract YesNoBetLibrary {
     pub let yesNoBetMinterStoragePath: StoragePath
