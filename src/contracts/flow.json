@@ -5,7 +5,15 @@
 			"serviceAccount": "delphai"
 		}
 	},
-	"contracts": {},
+	"contracts": {
+        "DelphaiUsers": {
+            "source": "./cadence/contracts/DelphaiUsers.cdc",
+            "aliases": {
+                "emulator": "f8d6e0586b0a20c7"
+            }
+        },
+        "FungibleToken": "./cadence/contracts/FungibleToken.cdc"
+    },
 	"networks": {
 		"emulator": "127.0.0.1:3569",
 		"mainnet": "access.mainnet.nodes.onflow.org:9000",
@@ -23,7 +31,7 @@
 	},
 	"deployments": {
         "emulator": {
-
+            "delphai": ["FungibleToken", "DelphaiUsers"]
         }
     }
 }

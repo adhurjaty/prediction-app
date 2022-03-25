@@ -1,4 +1,4 @@
-import FungibleToken from 0xFungibleToken
+import FungibleToken from "./FungibleToken.cdc"
 
 pub contract DelphaiUsers {
     pub let claimTokenMinterStoragePath: StoragePath
