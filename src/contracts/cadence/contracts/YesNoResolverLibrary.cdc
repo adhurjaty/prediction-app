@@ -91,7 +91,7 @@ pub contract YesNoResolverLibrary {
             return YesNoResolutionStruct(
                 numMembers: self.numMembers,
                 numVotes: self.numVotes,
-                runningDecision: runningDecision
+                runningDecision: runningDecision,
                 isDisputed: self.isDisputed
             )
         }

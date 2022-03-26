@@ -28,21 +28,20 @@
 		"delphai": {
 			"address": "f8d6e0586b0a20c7",
 			"key": "06272ec1c8367f040e3cfa7d9b11cb81bc6c0e77cf774777e5573dc4b8566aaa"
-		},
-        "FungibleToken": {
-			"address": "f8d6e0586b0a20c7",
-			"key": "06272ec1c8367f040e3cfa7d9b11cb81bc6c0e77cf774777e5573dc4b8566aaa"
 		}
 	},
 	"deployments": {
         "emulator": {
             "delphai": [
                 "FungibleToken",
-                "FlowToken",
-                "FUSD",
-                "YesNoBetLibrary",
-                "YesNoResolverLibrary",
-                "BetContractComposer" ,
+                {
+                    "name": "FlowToken",
+                    "args": {
+                        "name": "adminAccount",
+                        "type": "AuthAccount",
+                        "value": "f8d6e0586b0a20c7"
+                    }
+                },
                 "DelphaiUsers"]
         }
     }
