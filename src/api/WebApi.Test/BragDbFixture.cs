@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Infrastructure;
 using MediatR;
 using Moq;
@@ -70,6 +71,11 @@ namespace WebApi.Test
         {
             _mediatorMock.Verify(x => x.Send(It.Is<TCmd>(y =>
                 EquivalentObjects(request, y)), default), Times.Once());
+        }
+
+        public async Task<Result<T>> GetModel<T>(string id)
+        {
+            return await _db.SingleById<T>(id);
         }
 
         protected static bool EquivalentObjects<T>(T a, T b)

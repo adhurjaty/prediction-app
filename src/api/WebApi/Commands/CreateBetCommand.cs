@@ -52,12 +52,21 @@ namespace WebApi
                 .TupleBind(_ => groupResult))
                 .TeeResult(async (bet, group) =>
                 {
-                    return await new Task<Result>[]
-                    {
-                        _contract.DeployComposerBet(bet.Id.ToString(), group.Users.Count),
-                        _contract.TransferTokens(bet.Id.ToString(),
-                            group.Users.Select(user => user.MainnetAddress))
-                    }.Aggregate();
+                    return await (await new Task<Result>[]
+                        {
+                            _contract.DeployComposerBet(bet.Id.ToString(), group.Users.Count),
+                            _contract.TransferTokens(bet.Id.ToString(),
+                                group.Users.Select(user => user.MainnetAddress))
+                        }
+                        .Aggregate())
+                        .Either(
+                            x => Task.FromResult(x),
+                            async result => 
+                            {
+                                // rollback if deploy to blockchain failed
+                                await _db.Delete(bet);
+                                return Result.Failed<(Bet, Group)>("Could not deploy contract to blockchain");
+                            });
                 });
         }
 

@@ -94,14 +94,19 @@ namespace Infrastructure
         public async Task<Result<T>> SingleById<T>(Guid idValue, CancellationToken token = default)
         {
             using var db = _dbFactory.OpenDbConnection();
-            return Result.Succeeded(await db.SingleByIdAsync<T>(idValue, token: token));
+            var model = await db.SingleByIdAsync<T>(idValue, token: token);
+            return model is not null
+                ? Result.Succeeded(model)
+                : Result.Failed<T>("No matching result");
         }
 
         public async Task<Result<T>> SingleById<T>(string idValue, CancellationToken token = default)
         {
             using var db = _dbFactory.OpenDbConnection();
-            return Result.Succeeded(await db.SingleByIdAsync<T>(Guid.Parse(idValue), 
-                token: token));
+            var model = await db.SingleByIdAsync<T>(Guid.Parse(idValue), token: token);
+            return model is not null
+                ? Result.Succeeded(model)
+                : Result.Failed<T>("No matching result");
         }
 
         public async Task<Result<T>> Single<T>(Expression<Func<T, bool>> expression, CancellationToken token = default)

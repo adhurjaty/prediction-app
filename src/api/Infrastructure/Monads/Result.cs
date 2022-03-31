@@ -172,6 +172,22 @@ namespace Infrastructure
             return x.IsSuccess ? await onSuccess(x) : await onFailure(x);
         }
 
+        public static Result Either(
+            this Result x,
+            Func<Result, Result> onSuccess,
+            Func<Result, Result> onFailure)
+        {
+            return x.IsSuccess ? onSuccess(x) : onFailure(x);
+        }
+
+        public static async Task<Result> Either(
+            this Result x,
+            Func<Result, Task<Result>> onSuccess,
+            Func<Result, Task<Result>> onFailure)
+        {
+            return x.IsSuccess ? await onSuccess(x) : await onFailure(x);
+        }
+
         // Whatever x is, make it a failure.
         // The trick is that failure is an array type, can it can be made an empty array failure.
         public static Result<TSuccess, TFailure[]> ToFailure<TSuccess, TFailure>(

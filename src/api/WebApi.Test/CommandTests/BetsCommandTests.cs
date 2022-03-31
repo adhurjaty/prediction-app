@@ -59,6 +59,9 @@ namespace WebApi.Test
 
             result.IsSuccess.Should().BeTrue();
             cmd.BetId.Should().NotBeNullOrEmpty();
+            (await fx.GetModel<Bet>(cmd.BetId.ToString()))
+                .Tee(dbBet => dbBet.Should().NotBeNull())
+                .IsSuccess.Should().BeTrue();
             fx.VerifyMediator<GroupByIdQuery, Group>(new GroupByIdQuery()
             {
                 Email = "foo@bar.baz",
@@ -70,6 +73,42 @@ namespace WebApi.Test
                 "address1",
                 "address2"
             });
+        }
+
+        [Fact]
+        public async Task CreateBetFailureRollback()
+        {
+            var group = new Group()
+            {
+                Name = "SoothSayans",
+                Users = new List<AppUser>()
+                {
+                    SingleUser,
+                    OtherUser
+                }
+            };
+            using var fx = (new BetsCommandTestFixture()
+                .WithUsers(new List<AppUser>() { SingleUser, OtherUser })
+                .WithGroup(group) as BetsCommandTestFixture)
+                .WithDeployBetResult(Result.Failed("Failure"))
+                .WithTransferTokenResult(Result.Failed("Failure"))
+                .WithMediatorResult<GroupByIdQuery, Group>(Result.Succeeded(group)) 
+                    as BetsCommandTestFixture;
+
+            var sut = fx.GetCreateCommandHandler();
+            var cmd = new CreateBetCommand()
+            {
+                Title = "FooBet",
+                Description = "This is a bet",
+                GroupId = group.Id.ToString(),
+                Email = "foo@bar.baz"
+            };
+            var result = await sut.Handle(cmd);
+
+            result.IsSuccess.Should().BeFalse();
+            result.Failure.Should().Be("Could not deploy contract to blockchain");
+
+            (await fx.GetModel<Bet>(cmd.BetId.ToString())).IsSuccess.Should().BeFalse();
         }
     }
 
