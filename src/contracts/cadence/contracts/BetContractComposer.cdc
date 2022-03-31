@@ -1,8 +1,8 @@
 import YesNoBetLibrary from "./YesNoBetLibrary.cdc"
 import YesNoResolverLibrary from "./YesNoResolverLibrary.cdc"
 import DelphaiUsers from "./DelphaiUsers.cdc"
-import FungibleToken from "./FungibleToken.cdc"
-import FlowToken from "./FlowToken.cdc"
+import FungibleToken from 0xee82856bf20e2aa6
+import FlowToken from 0x0ae53cb6e3f42a79
 
 pub contract BetContractComposer {
     pub let adminStoragePath: StoragePath

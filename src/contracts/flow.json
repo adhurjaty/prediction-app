@@ -33,16 +33,9 @@
 	"deployments": {
         "emulator": {
             "delphai": [
-                "FungibleToken",
-                {
-                    "name": "FlowToken",
-                    "args": {
-                        "name": "adminAccount",
-                        "type": "AuthAccount",
-                        "value": "f8d6e0586b0a20c7"
-                    }
-                },
-                "DelphaiUsers"]
+                "DelphaiUsers",
+                "YesNoBetLibrary"
+            ]
         }
     }
 }

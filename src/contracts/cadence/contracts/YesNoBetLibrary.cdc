@@ -1,5 +1,5 @@
 import DelphaiUsers from "./DelphaiUsers.cdc"
-import FungibleToken from "./FungibleToken.cdc"
+import FungibleToken from 0xee82856bf20e2aa6
 
 pub contract YesNoBetLibrary {
     pub let yesNoBetMinterStoragePath: StoragePath
@@ -245,10 +245,12 @@ pub contract YesNoBetLibrary {
             let wagers: [YesNoBetStruct] = []
             for key in self.madeBets.keys {
                 let wager <- self.madeBets.remove(key: key)!
-                wagers.append(YesNoBetStruct(
-                    userAddress: wager.userAddress,
-                    wager: wager.wager,
-                    prediction: wager.prediction))
+                if wager.prediction != nil {
+                    wagers.append(YesNoBetStruct(
+                        userAddress: wager.userAddress,
+                        prediction: wager.prediction!,
+                        wager: wager.wager[0].balance))
+                }
                 self.madeBets[key] <-! wager
             }
             return wagers
