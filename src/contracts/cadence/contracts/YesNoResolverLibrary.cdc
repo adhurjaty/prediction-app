@@ -19,7 +19,7 @@ pub contract YesNoResolverLibrary {
         }
     }
 
-    pub resource YesNoResolutionStruct {
+    pub struct YesNoResolutionStruct {
         pub let numMembers: Int
         pub let numVotes: Int
         pub let runningDecision: Bool?
@@ -50,12 +50,14 @@ pub contract YesNoResolverLibrary {
         priv let numMembers: Int
         priv var numYeses: Int
         priv var numVotes: Int
+        priv var isDisputed: Bool
     
         init (numMembers: Int) {
             self.result = nil
             self.numMembers = numMembers
             self.numYeses = 0
             self.numVotes = 0
+            self.isDisputed = false
         }
 
         pub fun getResult(): Bool? {
@@ -82,10 +84,10 @@ pub contract YesNoResolverLibrary {
 
         pub fun getResolutionResults(): YesNoResolutionStruct {
             var runningDecision: Bool? = nil
-            if numYeses > numVotes / 2 {
+            if self.numYeses > self.numVotes / 2 {
                 runningDecision = true
             }
-            if numYeses < numVotes / 2 {
+            if self.numYeses < self.numVotes / 2 {
                 runningDecision = false
             }
             return YesNoResolutionStruct(
@@ -140,7 +142,7 @@ pub contract YesNoResolverLibrary {
         pub fun getResolutionResults(): YesNoResolutionStruct {
             var yeses = 0
             var nos = 0
-            if self.runningDecision != nil && self.runningDecision {
+            if self.runningDecision != nil && self.runningDecision! {
                 yeses = self.numVotes
             }
             else {

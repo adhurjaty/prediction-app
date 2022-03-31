@@ -34,7 +34,8 @@
         "emulator": {
             "delphai": [
                 "DelphaiUsers",
-                "YesNoBetLibrary"
+                "YesNoBetLibrary",
+                "YesNoResolverLibrary"
             ]
         }
     }
