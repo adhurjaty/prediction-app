@@ -5,6 +5,7 @@ using Flow.Net.Sdk;
 using Flow.Net.Sdk.Cadence;
 using Flow.Net.Sdk.Client;
 using Flow.Net.Sdk.Crypto;
+using Flow.Net.Sdk.Exceptions;
 using Flow.Net.Sdk.Models;
 
 namespace WebApi
@@ -19,7 +20,7 @@ namespace WebApi
 
     public interface IFlow
     {
-        Task<FlowSendTransactionResponse> ExecuteTransaction(string scriptName,
+        Task<FlowTransactionResult> ExecuteTransaction(string scriptName,
             List<ICadence> arguments = default, 
             Dictionary<string, string> addressMap = default, int gasLimit = 0);
     }
@@ -43,7 +44,7 @@ namespace WebApi
             _cadencePath = config.CadencePath;
         }
 
-        public async Task<FlowSendTransactionResponse> ExecuteTransaction(
+        public async Task<FlowTransactionResult> ExecuteTransaction(
             string scriptName, List<ICadence> arguments=default,
             Dictionary<string, string> addressMap = default, 
             int gasLimit=DEFAULT_GAS_LIMIT)
@@ -84,7 +85,11 @@ namespace WebApi
             FlowTransaction.AddEnvelopeSignature(tx, _delphaiAddress, KEY_INDEX,
                 _signer);
 
-            return await _flowClient.SendTransactionAsync(tx);
+            var rawResponse = await _flowClient.SendTransactionAsync(tx);
+            var response = await _flowClient.GetTransactionResultAsync(rawResponse.Id);
+            if(!string.IsNullOrEmpty(response.ErrorMessage))
+                throw new FlowException(response.ErrorMessage);
+            return response;
         }
     }
 }

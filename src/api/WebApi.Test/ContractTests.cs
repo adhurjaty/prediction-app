@@ -37,9 +37,9 @@ namespace WebApi.Test
         {
             using var fx = new ContractTestFixture()
                 .WithTransactionResponse("transferTokens",
-                    new FlowSendTransactionResponse()
+                    new FlowTransactionResult()
                     {
-                        Id = "blah".FromStringToByteString()
+                        Status = new Flow.Net.Sdk.Protos.entities.TransactionStatus()
                     })
                 .WithDelphaiAddress("delphai");
 
@@ -95,9 +95,9 @@ namespace WebApi.Test
         {
             using var fx = new ContractTestFixture()
                 .WithTransactionResponse("deployComposerBet",
-                    new FlowSendTransactionResponse()
+                    new FlowTransactionResult()
                     {
-                        Id = "blah".FromStringToByteString()
+                        Status = new Flow.Net.Sdk.Protos.entities.TransactionStatus()
                     })
                 .WithDelphaiAddress("delphai");
 
@@ -124,7 +124,7 @@ namespace WebApi.Test
         private string _delphaiAddress;
 
         public ContractTestFixture WithTransactionResponse(string scriptName,
-            FlowSendTransactionResponse response)
+            FlowTransactionResult response)
         {
             _flowMock.Setup(x => x.ExecuteTransaction(scriptName,
                 It.IsAny<List<ICadence>>(), It.IsAny<Dictionary<string, string>>(),

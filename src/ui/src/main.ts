@@ -32,7 +32,7 @@ export class AppModule {
         fcl.config({
             "accessNode.api": "http://127.0.0.1:3569",
             "0xdelphai": "0xf8d6e0586b0a20c7",
-            "discovery.wallet": "https://fcl-discovery.onflow.org/testnet/authn",
+            "discovery.wallet": "http://localhost:8701/fcl/authn",
             "0xFUSD": "0xf8d6e0586b0a20c7"
         });
     }

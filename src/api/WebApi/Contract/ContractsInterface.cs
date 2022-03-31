@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Flow.Net.Sdk.Cadence;
@@ -42,7 +43,7 @@ namespace WebApi
             };
             var addressMap = new Dictionary<string, string>()
             {
-                { "Delphai", _delphaiAddress }
+                { "delphai", _delphaiAddress }
             };
 
             try
@@ -66,7 +67,7 @@ namespace WebApi
             };
             var addressMap = new Dictionary<string, string>()
             {
-                { "Delphai", _delphaiAddress }
+                { "delphai", _delphaiAddress }
             };
 
             try
