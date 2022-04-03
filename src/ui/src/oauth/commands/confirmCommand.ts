@@ -1,4 +1,4 @@
-import { TOKEN_KEY, VERIFIER_KEY } from "@/util/constants";
+import { REFRESH_KEY, TOKEN_KEY, VERIFIER_KEY } from "@/util/constants";
 import { ILocalStorage } from "@/util/localStorage";
 import { ILocationBrowser } from "@/util/locationBrowser";
 import { inject, injectable } from "inversify-props";
@@ -31,12 +31,11 @@ export class ConfirmCommand implements IConfirmCommand {
         }));
 
         this.localStorage.setItem(TOKEN_KEY, response.idToken);
+        this.localStorage.setItem(REFRESH_KEY, response.refreshToken);
         if(origin) {
             this.location.go(origin);
         } else {
-            debugger;
             this.location.go('/groups');
         }
     }
-
 }

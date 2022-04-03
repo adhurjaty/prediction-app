@@ -32,7 +32,7 @@ namespace WebApi
         }
 
         [HttpPost]
-        public async Task<ActionResult<string>> CodeLogin(OauthConfirmRequest request)
+        public async Task<ActionResult<OauthConfirmResponse>> CodeLogin(OauthConfirmRequest request)
         {
             var oauthRequest = new GoogleCodeRequest()
             {
@@ -43,10 +43,10 @@ namespace WebApi
             };
 
             var response = await _google.Confirm(oauthRequest);
-            var jwt = response.IdToken;
+            var jwt = response.IdToken != "null" ? response.IdToken : "";
             var payload = await GoogleJsonWebSignature.ValidateAsync(jwt);
-
-            return ToResponse((await (await _mediator.Send(new UserQuery()
+            var refreshToken = response.RefreshToken != "null" ? response.RefreshToken : "";
+            return ToResponse<OauthConfirmResponse>((await (await _mediator.Send(new UserQuery()
                 {
                     Email = payload.Email
                 }))
@@ -57,7 +57,26 @@ namespace WebApi
                         Email = payload.Email,
                         DisplayName = ""
                     })))
-                .Map(() => jwt));
+                .Map(() => new OauthConfirmResponse() {IdToken = jwt, RefreshToken = refreshToken}));
+        }
+
+        [HttpPost]
+        public async Task<OauthConfirmResponse> Refresh(OauthRefreshRequest request)
+        {
+            var oauthRequest = new GoogleRefreshRequest()
+            {
+                ClientId = _authConfig.ClientId,
+                ClientSecret = _authConfig.ClientSecret,
+                RefreshToken = request.RefreshToken
+            };
+
+            var response = await _google.Refresh(oauthRequest);
+            var jwt = response.IdToken != "null" ? response.IdToken : "";
+            var refreshToken = response.RefreshToken != "null" ? response.RefreshToken : "";
+
+            return new OauthConfirmResponse() {
+                IdToken = jwt, RefreshToken = refreshToken
+            };
         }
 
         [HttpGet]
@@ -76,6 +95,18 @@ namespace WebApi
     public class OauthConfirmRequest
     {
         public string Code { get; set; }
+        public string Verifier { get; set; }
+    }
+
+    public class OauthConfirmResponse
+    {
+        public string IdToken { get; set; }
+        public string RefreshToken { get; set; }
+    }
+
+    public class OauthRefreshRequest
+    {
+        public string RefreshToken { get; set; }
         public string Verifier { get; set; }
     }
 }

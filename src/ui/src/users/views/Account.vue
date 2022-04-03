@@ -20,7 +20,6 @@ export default class Account extends Vue {
         const store: Store = this.$store;
         await store.dispatch(UsersActions.FETCH_FULL_USER);
         this.user = store.getters.getUser || new User();
-        console.log(this.user);
     }
 
     async saveAccount(): Promise<void> {

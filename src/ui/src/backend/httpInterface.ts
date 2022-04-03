@@ -1,10 +1,7 @@
-import { TOKEN_KEY } from '@/util/constants';
+import { TOKEN_KEY, BASE_URL } from '@/util/constants';
 import { trimStart } from '@/util/helpers';
 import axios from 'axios';
 import { injectable } from 'inversify-props';
-
-const BASE_URL = 'http://localhost:5000/';
-
 
 export interface IHttp {
     post<T>(path: string, body: T): Promise<any>;

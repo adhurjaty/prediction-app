@@ -36,8 +36,18 @@ export class OauthConfirmRequest {
     }
 }
 
+export class OauthRefreshRequest {
+    public refreshToken : string = '';
+    public verifier : string = '';
+
+    constructor(init? : Partial<OauthRefreshRequest>) {
+        Object.assign(this, init);
+    }
+}
+
 export class OauthConfirmResponse {
     public idToken : string = '';
+    public refreshToken : string = '';
 
     constructor(init? : Partial<OauthConfirmResponse>) {
         Object.assign(this, init);

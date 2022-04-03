@@ -15,7 +15,8 @@ export class OauthAPi implements IOauthApi {
     async codeLogin(request: OauthConfirmRequest): Promise<OauthConfirmResponse> {
         const response = await this.http.post('/oauth/codelogin', request);
         return new OauthConfirmResponse({
-            idToken: response.data
+            idToken: response.data.idToken,
+            refreshToken: response.data.refreshToken
         });
     }
 
