@@ -9,6 +9,8 @@ namespace WebApi
     public interface IGoogle
     {
         Task<GoogleOauthResponse> Confirm(GoogleCodeRequest request);
+        Task<GoogleOauthResponse> Refresh(GoogleRefreshRequest request);
+
     }
 
     public class GoogleInterface : IGoogle
@@ -21,6 +23,14 @@ namespace WebApi
         }
 
         public async Task<GoogleOauthResponse> Confirm(GoogleCodeRequest request)
+        {
+            var response = await _client.PostAsync("https://oauth2.googleapis.com/token", 
+                request);
+            return (await response.Content.ReadAsStringAsync())
+                .FromJson<GoogleOauthResponse>();
+        }
+
+        public async Task<GoogleOauthResponse> Refresh(GoogleRefreshRequest request)
         {
             var response = await _client.PostAsync("https://oauth2.googleapis.com/token", 
                 request);
@@ -57,6 +67,22 @@ namespace WebApi
         public string GrantType { get; set; } = "authorization_code";
         [JsonProperty("redirect_uri")]
         public string RedirectUrl { get; set; }
+        [JsonProperty("access_type")]
+        public string AccessType { get; set; } = "offline";
+        [JsonProperty("prompt")]
+        public string Prompt { get; set; } = "consent";
+    }
+
+    public class GoogleRefreshRequest
+    {
+        [JsonProperty("client_id")]
+        public string ClientId { get; set; }
+        [JsonProperty("client_secret")]
+        public string ClientSecret { get; set; }
+        [JsonProperty("refresh_token")]
+        public string RefreshToken { get; set; }
+        [JsonProperty("grant_type")]
+        public string GrantType { get; set; } = "refresh_token";
     }
 }
 
