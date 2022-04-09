@@ -82,7 +82,7 @@ namespace WebApi
                 Arguments = arguments ?? new List<ICadence>(),
                 AddressMap = addressMap
             };
-            FlowTransaction.AddEnvelopeSignature(tx, _delphaiAddress, KEY_INDEX,
+            tx = FlowTransaction.AddEnvelopeSignature(tx, _delphaiAddress, KEY_INDEX,
                 _signer);
 
             var rawResponse = await _flowClient.SendTransactionAsync(tx);
