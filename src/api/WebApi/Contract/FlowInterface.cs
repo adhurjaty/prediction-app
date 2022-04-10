@@ -82,6 +82,9 @@ namespace WebApi
                 Arguments = arguments ?? new List<ICadence>(),
                 AddressMap = addressMap
             };
+            var canonicalAuthorizationEnvelope = Rlp.EncodedCanonicalAuthorizationEnvelope(tx);
+            var message = DomainTag.AddTransactionDomainTag(canonicalAuthorizationEnvelope);
+            var signature = _signer.Sign(message);
             tx = FlowTransaction.AddEnvelopeSignature(tx, _delphaiAddress, KEY_INDEX,
                 _signer);
 

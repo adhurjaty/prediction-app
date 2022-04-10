@@ -29,12 +29,12 @@ describe("yes-no-bets", ()=>{
         const logging = true;
         
         await init(basePath, { port });
-        // return emulator.start(port, logging, { flags: '--contracts' });
+        return emulator.start(port, logging, { flags: '--contracts' });
     });
     
     // Stop emulator, so it could be restarted
     afterEach(async () => {
-        // return emulator.stop();
+        return emulator.stop();
     });
 
     test("vault script", async () => {
