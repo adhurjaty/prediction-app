@@ -116,7 +116,7 @@ namespace WebApi.Test
         public async Task Integration_DeployComposerBet()
         {
             using var fx = new BetsCommandTestFixture();
-            var sut = fx.Integration_GetContractsInterface();
+            var sut = await fx.Integration_GetContractsInterface();
 
             var result = await sut.DeployComposerBet("bet123", 3);
             result.IsSuccess.Should().BeTrue();
@@ -147,17 +147,16 @@ namespace WebApi.Test
             return new CreateBetCommandHandler(_db, _mediatorMock.Object, _contractsMock.Object);
         }
 
-        public ContractsInterface Integration_GetContractsInterface()
+        public async Task<ContractsInterface> Integration_GetContractsInterface()
         {
             var config = new FlowConfig()
             {
-                AccountHash = "f8d6e0586b0a20c7",
-                AccountKey = "06272ec1c8367f040e3cfa7d9b11cb81bc6c0e77cf774777e5573dc4b8566aaa",
                 Host = "127.0.0.1:3569",
-                CadencePath = "./Contract/Cadence/transactions"
+                CadencePath = "./Objects",
+                AccountName = "delphai"
             };
 
-            return new ContractsInterface(config);
+            return await ContractsInterface.CreateInstance(config);
         }
 
         public void VerifyDeployRequest(string betId, int numMembers)

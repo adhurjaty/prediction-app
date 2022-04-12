@@ -19,10 +19,15 @@ namespace WebApi
         private readonly IFlow _flow;
         private readonly string _delphaiAddress;
 
-        public ContractsInterface(FlowConfig config)
+        private ContractsInterface(FlowInterface flow)
         {
-            _flow = new FlowInterface(config);
-            _delphaiAddress = config.AccountHash;
+            _flow = flow;
+            _delphaiAddress = flow.AccountAddress;
+        }
+
+        public static async Task<ContractsInterface> CreateInstance(FlowConfig config)
+        {
+            return new ContractsInterface(await FlowInterface.CreateInstance(config));
         }
 
         public ContractsInterface(IFlow flow, string delphaiAddress)

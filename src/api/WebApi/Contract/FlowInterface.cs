@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Flow.Net.Sdk;
@@ -12,10 +13,9 @@ namespace WebApi
 {
     public class FlowConfig
     {
-        public string AccountHash { get; set; }
-        public string AccountKey { get; set; }
         public string Host { get; set; }
         public string CadencePath { get; set; }
+        public string AccountName { get; set; }
     }
 
     public interface IFlow
@@ -33,15 +33,33 @@ namespace WebApi
         private readonly FlowAddress _delphaiAddress;
         private readonly FlowClientAsync _flowClient;
         private readonly ISigner _signer;
-        private readonly string _cadencePath;
+        private readonly string _transactionsPath;
 
-        public FlowInterface(FlowConfig config)
+        public string AccountAddress => _delphaiAddress?.HexValue;
+
+        private FlowInterface(FlowClientAsync client, FlowAccount account, string transactionsPath)
         {
-            _delphaiAddress = new FlowAddress(config.AccountHash);
-            _signer = Flow.Net.Sdk.Crypto.Ecdsa.Utilities.CreateSigner(
-                config.AccountKey, SignatureAlgo.ECDSA_P256, HashAlgo.SHA3_256);
-            _flowClient = new FlowClientAsync(config.Host);
-            _cadencePath = config.CadencePath;
+            _delphaiAddress = account.Address;
+            _signer = account.Keys
+                .Where(x => x.Index == KEY_INDEX)
+                .Select(x => x.Signer)
+                .FirstOrDefault();
+            if(_signer is null)
+            {
+                throw new FlowException($"No key found with index {KEY_INDEX}");
+            }
+            _flowClient = client;
+            _transactionsPath = transactionsPath;
+        }
+
+        public static async Task<FlowInterface> CreateInstance(FlowConfig config)
+        {
+            var client = new FlowClientAsync(config.Host);
+            var account = await client.ReadAccountFromConfigAsync(config.AccountName,
+                configPath: config.CadencePath);
+            var transactionsPath = Path.Combine(config.CadencePath, "transactions");
+            return new FlowInterface(client, account, transactionsPath);
+
         }
 
         public async Task<FlowTransactionResult> ExecuteTransaction(
@@ -49,7 +67,7 @@ namespace WebApi
             Dictionary<string, string> addressMap = default, 
             int gasLimit=DEFAULT_GAS_LIMIT)
         {
-            var txBody = Utilities.ReadCadenceScript(scriptName, _cadencePath);
+            var txBody = Utilities.ReadCadenceScript(scriptName, _transactionsPath);
 
             // Get the latest sealed block to use as a reference block
             var latestBlock = await _flowClient.GetLatestBlockHeaderAsync();
@@ -82,9 +100,7 @@ namespace WebApi
                 Arguments = arguments ?? new List<ICadence>(),
                 AddressMap = addressMap
             };
-            var canonicalAuthorizationEnvelope = Rlp.EncodedCanonicalAuthorizationEnvelope(tx);
-            var message = DomainTag.AddTransactionDomainTag(canonicalAuthorizationEnvelope);
-            var signature = _signer.Sign(message);
+
             tx = FlowTransaction.AddEnvelopeSignature(tx, _delphaiAddress, KEY_INDEX,
                 _signer);
 

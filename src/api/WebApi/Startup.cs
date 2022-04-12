@@ -46,10 +46,11 @@ namespace WebApi
 
             services.AddSingleton<AuthConfig>(x => googleSettings);
 
-            services.AddSingleton<IContracts>(x =>
-                new ContractsInterface(Configuration
+            var contractInterface = ContractsInterface.CreateInstance(Configuration
                     .GetSection("FlowSettings")
-                    .Get<FlowConfig>()));
+                    .Get<FlowConfig>())
+                    .Result;
+            services.AddSingleton<IContracts>(x => contractInterface);
 
             services.AddSingleton<IHttp, HttpWrapper>();
 
