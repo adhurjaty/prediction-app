@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Flow.Net.Sdk.Cadence;
 using FluentAssertions;
 using Infrastructure;
 using Moq;
@@ -121,6 +122,22 @@ namespace WebApi.Test
             var result = await sut.DeployComposerBet("bet123", 3);
             result.IsSuccess.Should().BeTrue();
         }
+
+        [Fact]
+        public async Task Integration_ExecuteTransaction()
+        {
+            using var fx = new BetsCommandTestFixture();
+            var sut = await fx.Integration_GetFlowInterface();
+
+            var addressMap = new Dictionary<string, string>()
+            {
+                { "delphai", "f8d6e0586b0a20c7" }
+            };
+
+            var result = await sut.ExecuteTransaction("log-signer-address",
+                addressMap: addressMap);
+            result.ErrorMessage.Should().BeNull();
+        }
     }
 
     internal class BetsCommandTestFixture : BetsQueryTestFixture
@@ -152,11 +169,23 @@ namespace WebApi.Test
             var config = new FlowConfig()
             {
                 Host = "127.0.0.1:3569",
-                CadencePath = "./Objects",
+                CadencePath = "./Contract/Cadence",
                 AccountName = "delphai"
             };
 
             return await ContractsInterface.CreateInstance(config);
+        }
+
+        public async Task<FlowInterface> Integration_GetFlowInterface()
+        {
+            var config = new FlowConfig()
+            {
+                Host = "127.0.0.1:3569",
+                CadencePath = "./Contract/Cadence",
+                AccountName = "delphai"
+            };
+
+            return await FlowInterface.CreateInstance(config);
         }
 
         public void VerifyDeployRequest(string betId, int numMembers)

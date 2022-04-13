@@ -5,20 +5,7 @@
 			"serviceAccount": "delphai"
 		}
 	},
-	"contracts": {
-        "DelphaiUsers": {
-            "source": "./cadence/contracts/DelphaiUsers.cdc",
-            "aliases": {
-                "emulator": "f8d6e0586b0a20c7"
-            }
-        },
-        "FungibleToken": "./cadence/contracts/FungibleToken.cdc",
-        "FlowToken": "./cadence/contracts/FlowToken.cdc",
-        "FUSD": "./cadence/contracts/FUSD.cdc",
-        "YesNoBetLibrary": "./cadence/contracts/YesNoBetLibrary.cdc",
-        "YesNoResolverLibrary": "./cadence/contracts/YesNoResolverLibrary.cdc",
-        "BetContractComposer": "./cadence/contracts/BetContractComposer.cdc"
-    },
+	"contracts": {},
 	"networks": {
 		"emulator": "127.0.0.1:3569",
 		"mainnet": "access.mainnet.nodes.onflow.org:9000",
@@ -30,14 +17,5 @@
 			"key": "6a4c115ee4477dc14ea5dd6ba72739dde3d5f1e08313bfaebe08b6221e69d585"
 		}
 	},
-	"deployments": {
-        "emulator": {
-            "delphai": [
-                "DelphaiUsers",
-                "YesNoBetLibrary",
-                "YesNoResolverLibrary",
-                "BetContractComposer"
-            ]
-        }
-    }
+	"deployments": {}
 }

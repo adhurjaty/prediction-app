@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -59,7 +60,6 @@ namespace WebApi
                 configPath: config.CadencePath);
             var transactionsPath = Path.Combine(config.CadencePath, "transactions");
             return new FlowInterface(client, account, transactionsPath);
-
         }
 
         public async Task<FlowTransactionResult> ExecuteTransaction(
@@ -98,11 +98,17 @@ namespace WebApi
                     _delphaiAddress
                 },
                 Arguments = arguments ?? new List<ICadence>(),
-                AddressMap = addressMap
+                EnvelopeSigners = new List<FlowSigner>()
+                {
+                    new FlowSigner()
+                    {
+                        Address = _delphaiAddress.Value,
+                        Signer = _signer,
+                        KeyId = KEY_INDEX
+                    }
+                },
+                AddressMap = addressMap ?? new  Dictionary<string, string>()
             };
-
-            tx = FlowTransaction.AddEnvelopeSignature(tx, _delphaiAddress, KEY_INDEX,
-                _signer);
 
             var rawResponse = await _flowClient.SendTransactionAsync(tx);
             var response = await _flowClient.GetTransactionResultAsync(rawResponse.Id);
