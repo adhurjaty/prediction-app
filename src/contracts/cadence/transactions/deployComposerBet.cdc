@@ -6,9 +6,11 @@ transaction(betId: String, numMembers: Int) {
             from: /storage/BetAdmin)
             ?? panic("Could not get admin reference")
         
+        let path = StoragePath(identifier: betId)
+        let publicPath = PublicPath(identifier: betId)
         acct.save(<-adminRef.createContractComposer(numMembers: numMembers),
-            to: /storage/betId1234)
-        acct.link<&BetContractComposer.ContractComposer>(/public/betId1234,
-            target: /storage/betId1234)
+            to: path!)
+        acct.link<&BetContractComposer.ContractComposer>(publicPath!,
+            target: path!)
     }
 }

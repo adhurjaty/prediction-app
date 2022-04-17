@@ -43,7 +43,7 @@ namespace WebApi
                 new CadenceAddress(member) as ICadence);
             var arguments = new List<ICadence>()
             {
-                new CadenceString(betId),
+                new CadenceString(ToCadenceId(betId)),
                 new CadenceArray(memberArguments.ToList())
             };
             var addressMap = new Dictionary<string, string>()
@@ -67,7 +67,7 @@ namespace WebApi
         {
             var arguments = new List<ICadence>()
             {
-                new CadenceString(betId),
+                new CadenceString(ToCadenceId(betId)),
                 new CadenceNumber(CadenceNumberType.Int, numMembers.ToString())
             };
             var addressMap = new Dictionary<string, string>()
@@ -85,6 +85,11 @@ namespace WebApi
             {
                 return Result.Failed(ex.Message);
             }
+        }
+
+        private static string ToCadenceId(string id)
+        {
+            return id.Replace("-", "");
         }
     }
 }
