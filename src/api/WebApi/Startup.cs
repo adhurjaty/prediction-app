@@ -21,6 +21,9 @@ using Infrastructure;
 using ServiceStack.Data;
 using ServiceStack.OrmLite;
 using System.Reflection;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace WebApi
 {
@@ -36,6 +39,8 @@ namespace WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            IdentityModelEventSource.ShowPII = true; //Keep this set to false unless you are debugging on devbox. This enables logging more detailed authentication information for debugging, but it can also leak keys.
+            
             services.AddSingleton<BlockchainSettings>(x =>
                 Configuration.GetSection("BlockchainSettings")
                 .Get<BlockchainSettings>());
@@ -66,8 +71,37 @@ namespace WebApi
                 return new ModelsDatbaseInterface(dbInt, strategyFactory);
             });
 
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddJwtBearer(jwt => jwt.UseGoogle(googleSettings.ClientId));
+            services
+                .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    var signingKey = Configuration["JWTSigningKey"];
+                    var signingKeyBytes = Encoding.ASCII.GetBytes(signingKey);
+
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        RequireSignedTokens = true,
+
+                        ValidateIssuer = false,
+
+                        IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes),
+
+                        ValidateAudience = false,
+
+                        // Token will only be valid if not expired yet, with 5 minutes clock skew.
+                        ValidateLifetime = true,
+                        RequireExpirationTime = true,
+                        ClockSkew = new TimeSpan(0, 5, 0),
+                    };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        // Get token from NextAuth cookie, token query parameter, or Authorization Bearer header
+                        // See below
+                        OnMessageReceived = AuthUtils.ExtractToken,
+                    };
+                });
 
             RegisterCQRS(services);
 

@@ -11,7 +11,7 @@ namespace WebApi
         protected string GetEmailFromClaims()
         {
             return User.Claims
-                .Where(x => x.Type == "email")
+                .Where(x => x.Type.EndsWith("emailaddress"))
                 .Select(res => res.Value)
                 .FirstOrDefault();
         }
