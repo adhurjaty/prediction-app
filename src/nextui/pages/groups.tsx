@@ -10,11 +10,12 @@ export default function GroupsPage() {
 
     useEffect(() => {
         const fetchData = async () => {
-            const res = await fetch('/api/examples/groups');
+            const res = await fetch('/api/groups');
             const response = await res.json();
-            debugger;
         }
-        fetchData();
+        if (session) {
+            fetchData();
+        }
     }, [session]);
 
     return (

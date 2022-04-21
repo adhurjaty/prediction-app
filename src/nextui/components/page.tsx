@@ -1,8 +1,7 @@
-import Head from 'next/head'
-import Appbar from '@/components/appbar'
-import BottomNav from '@/components/bottom-nav'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
+import NoAuthPage from './noAuthPage'
+import AuthPage from './authPage'
 
 interface Props {
 	title?: string
@@ -14,35 +13,20 @@ const Page = ({ title, children }: Props) => {
     const loading = status === "loading";
     const router = useRouter();
 
-    if (!session && !loading) {
-        router.push({
-            pathname: "/api/auth/signin",
-            query: { returnUrl: router.asPath }
-        });
-        return;   
+    if (loading) {
+        return <div>Loading...</div>
     }
+
+    if (!session && !loading) {
+        return (
+            <NoAuthPage />
+        )    
+    }
+    
     return (
-        <>
-            {title ? (
-                <Head>
-                    <title>Rice Bowl | {title}</title>
-                </Head>
-            ) : null}
-
-            <Appbar />
-
-            <main
-                /**
-                 * Padding top = `appbar` height
-                 * Padding bottom = `bottom-nav` height
-                 */
-                className='mx-auto px-safe pt-20 pb-16 sm:pb-0 max-w-screen-md'
-            >
-                <div className='p-6'>{children}</div>
-            </main>
-
-            <BottomNav />
-        </>
+        <AuthPage title={title}>
+            {children}
+        </AuthPage>
     )
 };
 
