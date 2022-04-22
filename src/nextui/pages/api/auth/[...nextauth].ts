@@ -1,3 +1,4 @@
+import { NextApiRequest, NextApiResponse } from "next";
 import NextAuth from "next-auth"
 import GoogleProvider from "next-auth/providers/google"
 // import FacebookProvider from "next-auth/providers/facebook"
@@ -7,60 +8,65 @@ import GoogleProvider from "next-auth/providers/google"
 // import AppleProvider from "next-auth/providers/apple"
 // import EmailProvider from "next-auth/providers/email"
 
-console.log('ENV', process.env.GOOGLE_ID);
-
 // For more information on each option (and a full list of options) go to
 // https://next-auth.js.org/configuration/options
-export default NextAuth({
-    // https://next-auth.js.org/configuration/providers/oauth
-    providers: [
-        /* EmailProvider({
-             server: process.env.EMAIL_SERVER,
-             from: process.env.EMAIL_FROM,
-           }),
-        // Temporarily removing the Apple provider from the demo site as the
-        // callback URL for it needs updating due to Vercel changing domains
-          
-        Providers.Apple({
-          clientId: process.env.APPLE_ID,
-          clientSecret: {
-            appleId: process.env.APPLE_ID,
-            teamId: process.env.APPLE_TEAM_ID,
-            privateKey: process.env.APPLE_PRIVATE_KEY,
-            keyId: process.env.APPLE_KEY_ID,
-          },
-        }),
-        */
-        // FacebookProvider({
-        //   clientId: process.env.FACEBOOK_ID,
-        //   clientSecret: process.env.FACEBOOK_SECRET,
-        // }),
-        // GithubProvider({
-        //   clientId: process.env.GITHUB_ID,
-        //   clientSecret: process.env.GITHUB_SECRET,
-        // }),
-        GoogleProvider({
-            clientId: process.env.GOOGLE_ID,
-            clientSecret: process.env.GOOGLE_SECRET,
-        }),
-        // TwitterProvider({
-        //   clientId: process.env.TWITTER_ID,
-        //   clientSecret: process.env.TWITTER_SECRET,
-        // }),
-        // Auth0Provider({
-        //   clientId: process.env.AUTH0_ID,
-        //   clientSecret: process.env.AUTH0_SECRET,
-        //   issuer: process.env.AUTH0_ISSUER,
-        // }),
-    ],
-    theme: {
-        colorScheme: "light",
-    },
-    callbacks: {
-        async jwt({ token }) {
-            console.log("Token:", token);
-            token.userRole = "admin"
-            return token
+// eslint-disable-next-line import/no-anonymous-default-export
+export default (req: NextApiRequest, res: NextApiResponse) => {
+    console.log("Query:", req.query);
+    return NextAuth(req, res, {
+        // https://next-auth.js.org/configuration/providers/oauth
+        providers: [
+            /* EmailProvider({
+                server: process.env.EMAIL_SERVER,
+                from: process.env.EMAIL_FROM,
+            }),
+            // Temporarily removing the Apple provider from the demo site as the
+            // callback URL for it needs updating due to Vercel changing domains
+            
+            Providers.Apple({
+            clientId: process.env.APPLE_ID,
+            clientSecret: {
+                appleId: process.env.APPLE_ID,
+                teamId: process.env.APPLE_TEAM_ID,
+                privateKey: process.env.APPLE_PRIVATE_KEY,
+                keyId: process.env.APPLE_KEY_ID,
+            },
+            }),
+            */
+            // FacebookProvider({
+            //   clientId: process.env.FACEBOOK_ID,
+            //   clientSecret: process.env.FACEBOOK_SECRET,
+            // }),
+            // GithubProvider({
+            //   clientId: process.env.GITHUB_ID,
+            //   clientSecret: process.env.GITHUB_SECRET,
+            // }),
+            GoogleProvider({
+                clientId: process.env.GOOGLE_ID,
+                clientSecret: process.env.GOOGLE_SECRET,
+            }),
+            // TwitterProvider({
+            //   clientId: process.env.TWITTER_ID,
+            //   clientSecret: process.env.TWITTER_SECRET,
+            // }),
+            // Auth0Provider({
+            //   clientId: process.env.AUTH0_ID,
+            //   clientSecret: process.env.AUTH0_SECRET,
+            //   issuer: process.env.AUTH0_ISSUER,
+            // }),
+        ],
+        theme: {
+            colorScheme: "light",
         },
-    }
-})
+        pages: {
+            newUser: req.query.redirectUrl as (string | undefined) ?? "/",
+        },
+        callbacks: {
+            async jwt({ token }) {
+                token.userRole = "admin"
+                return token
+            },
+            // TODO: figure out how to redirect to the page where the user initially tried to load 
+        }
+    });
+};

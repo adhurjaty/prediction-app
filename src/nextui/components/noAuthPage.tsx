@@ -10,7 +10,7 @@ const NoAuthPage = () => {
 
     router.push({
         pathname: "/api/auth/signin",
-        query: { returnUrl: router.asPath }
+        query: { redirectUrl: router.asPath }
     });
     return (
         <></>
