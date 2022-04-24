@@ -2,8 +2,9 @@ import type { AppProps } from 'next/app'
 import { ThemeProvider } from 'next-themes'
 import { SessionProvider, useSession } from "next-auth/react"
 import Meta from '@/components/meta'
-import '@/styles/globals.css'
-import { useRouter } from 'next/router'
+import '@/styles/globals.scss'
+import '@/styles/mixins.scss'
+import '@/styles/variables.scss'
 
 const App = ({ Component, pageProps }: AppProps) => {
     
