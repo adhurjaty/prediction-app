@@ -12,7 +12,7 @@ import GoogleProvider from "next-auth/providers/google"
 // https://next-auth.js.org/configuration/options
 // eslint-disable-next-line import/no-anonymous-default-export
 export default (req: NextApiRequest, res: NextApiResponse) => {
-    console.log("Query:", req.query);
+    // console.log("Query:", req.query);
     return NextAuth(req, res, {
         // https://next-auth.js.org/configuration/providers/oauth
         providers: [
@@ -59,7 +59,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
             colorScheme: "light",
         },
         pages: {
-            newUser: req.query.redirectUrl as (string | undefined) ?? "/",
+            newUser: req.query.redirectUrl as (string | undefined) ?? "/groups",
         },
         callbacks: {
             async jwt({ token }) {

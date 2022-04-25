@@ -1,10 +1,5 @@
 import { useRouter } from 'next/router'
 
-interface Props {
-	title?: string
-	children: React.ReactNode
-}
-
 const NoAuthPage = () => {
     const router = useRouter();
 
