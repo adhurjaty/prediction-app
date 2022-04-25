@@ -35,7 +35,7 @@ namespace WebApi
 
         [HttpGet]
         [Authorize]
-        [Route("Group/{groupId}")]
+        [Route("Groups/{groupId}")]
         public async Task<ActionResult<Group>> GetGroup(string groupId)
         {
             var result = await _mediator.Send(new GroupByIdQuery()
@@ -49,7 +49,7 @@ namespace WebApi
 
         [HttpPost]
         [Authorize]
-        [Route("Group")]
+        [Route("Groups")]
         public async Task<ActionResult<Group>> CreateGroup(Group newGroup)
         {
             var command = new CreateGroupCommand()
@@ -65,7 +65,7 @@ namespace WebApi
 
         [HttpPut]
         [Authorize]
-        [Route("Group/{groupId}")]
+        [Route("Groups/{groupId}")]
         public async Task<ActionResult<Group>> UpdateGroup(string groupId, Group group)
         {
             var result = await (await _mediator.Send(new UpdateGroupCommand()
@@ -80,7 +80,7 @@ namespace WebApi
 
         [HttpDelete]
         [Authorize]
-        [Route("Group/{groupId}")]
+        [Route("Groups/{groupId}")]
         public async Task<ActionResult> DeleteGroup(string groupId)
         {
             var result = await _mediator.Send(new DeleteGroupCommand()
