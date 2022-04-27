@@ -3,6 +3,7 @@ import PrimaryPage from "@/components/primaryPage";
 import Section from "@/components/section";
 import { Circle, CircleInner, CircleSvg } from "@/components/styled"
 import { Group } from "@/models/group";
+import { fetchModel } from "@/utils/nodeInterface";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -25,12 +26,13 @@ export default function GroupsPage() {
     const { data: session, status } = useSession();
     const loading = status === "loading";
     const [groups, setGroups] = useState<Group[]>();
+    const [fetchError, setError] = useState<string>();
 
     useEffect(() => {
         const fetchData = async () => {
-            const res = await fetch('/api/groups');
-            const { result } = await res.json();
-            setGroups(result);
+            (await fetchModel<Group[]>('/api/groups'))
+                .map(val => setGroups(val))
+                .mapErr(err => setError(err));
         }
         if (session) {
             fetchData();
