@@ -35,7 +35,7 @@ export default function GroupPage() {
     };
 
     return (
-        <Page>
+        <Page title={group?.name || "Group"}> 
             <Section>
                 <LoadingSection loading={loading || !group}>
                     {(group && (<>

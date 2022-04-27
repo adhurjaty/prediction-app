@@ -38,7 +38,7 @@ export default function GroupsPage() {
     }, [session]);
 
     return (
-        <Page>
+        <Page title="Groups">
             <Section>
                 <LoadingSection loading={loading && !groups}>
                     <GroupsList>

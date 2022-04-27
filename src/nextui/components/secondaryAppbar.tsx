@@ -1,40 +1,29 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import BackButton from './backButton'
 
-const links = [
-	{ label: 'Story', href: '/story' },
-	{ label: 'Recipes', href: '/recipes' },
-]
+interface Props {
+    name?: string
+}
 
-const Appbar = () => {
+const SecondaryAppBar = ({ name }: Props) => {
 	const router = useRouter()
 
 	return (
-		<div className='pt-safe w-full bg-zinc-900 fixed top-0 left-0 z-20'>
+        <div className='pt-safe w-full bg-zinc-900 fixed top-0 left-0 z-20'>
+            <BackButton />
 			<header className='px-safe bg-zinc-100 border-b dark:bg-zinc-900 dark:border-zinc-800'>
 				<div className='mx-auto px-6 max-w-screen-md h-20 flex items-center justify-between'>
 					<Link href='/'>
 						<a>
-							<h1 className='font-medium'>Rice Bowl</h1>
+                            <h1 className='font-medium'>{name || 'Page'}</h1>
 						</a>
 					</Link>
 
 					<nav className='space-x-6 flex items-center'>
 						<div className='hidden sm:block'>
 							<div className='space-x-6 flex items-center'>
-								{links.map(({ label, href }) => (
-									<Link key={label} href={href}>
-										<a
-											className={`text-sm ${
-												router.pathname === href
-													? 'text-indigo-500 dark:text-indigo-400'
-													: 'text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50'
-											}`}
-										>
-											{label}
-										</a>
-									</Link>
-								))}
+								
 							</div>
 						</div>
 
@@ -53,4 +42,4 @@ const Appbar = () => {
 	)
 }
 
-export default Appbar
+export default SecondaryAppBar

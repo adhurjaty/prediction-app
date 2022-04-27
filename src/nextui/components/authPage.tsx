@@ -1,22 +1,22 @@
 import Head from 'next/head'
-import Appbar from '@/components/appbar'
 import BottomNav from '@/components/bottom-nav'
 
 interface Props {
 	title?: string
-	children: React.ReactNode
+    children: React.ReactNode
+    appBar: JSX.Element
 }
 
-const AuthPage = ({ title, children }: Props) => {
+const AuthPage = ({ title, children, appBar }: Props) => {
     return (
         <>
             {title ? (
                 <Head>
-                    <title>Auth Rice Bowl | {title}</title>
+                    <title>{title}</title>
                 </Head>
             ) : null}
 
-            <Appbar />
+            {appBar}
 
             <main
                 /**

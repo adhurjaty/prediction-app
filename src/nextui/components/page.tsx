@@ -11,7 +11,6 @@ interface Props {
 const Page = ({ title, children }: Props) => {
     const { data: session, status } = useSession();
     const loading = status === "loading";
-    const router = useRouter();
 
     if (loading) {
         return <div>Loading...</div>
