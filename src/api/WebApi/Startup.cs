@@ -46,10 +46,7 @@ namespace WebApi
 
             services.AddSingleton<AuthConfig>(x => googleSettings);
 
-            var contractInterface = ContractsInterface.CreateInstance(Configuration
-                    .GetSection("FlowSettings")
-                    .Get<FlowConfig>())
-                    .Result;
+            var contractInterface = CreateContractInterface();
             services.AddSingleton<IContracts>(x => contractInterface);
 
             services.AddSingleton<IHttp, HttpWrapper>();
@@ -133,6 +130,21 @@ namespace WebApi
             {
                 endpoints.MapControllers();
             });
+        }
+
+        private IContracts CreateContractInterface()
+        {
+            try
+            {
+                return ContractsInterface.CreateInstance(Configuration
+                    .GetSection("FlowSettings")
+                    .Get<FlowConfig>())
+                    .Result;   
+            }
+            catch (System.Exception)
+            {
+                return new DummyContractsInterface();
+            }
         }
     }
 
