@@ -1,5 +1,5 @@
 import LoadingSection from "@/components/loadingSection";
-import Page from "@/components/page";
+import PrimaryPage from "@/components/primaryPage";
 import Section from "@/components/section";
 import { Circle, CircleInner, CircleSvg } from "@/components/styled"
 import { Group } from "@/models/group";
@@ -38,7 +38,7 @@ export default function GroupsPage() {
     }, [session]);
 
     return (
-        <Page title="Groups">
+        <PrimaryPage title="Groups">
             <Section>
                 <LoadingSection loading={loading && !groups}>
                     <GroupsList>
@@ -63,6 +63,6 @@ export default function GroupsPage() {
                     </GroupsList>
                 </LoadingSection>
             </Section>
-        </Page>
+        </PrimaryPage>
     )
 }

@@ -5,10 +5,11 @@ import AuthPage from './authPage'
 
 interface Props {
 	title?: string
-	children: React.ReactNode
+    children: React.ReactNode
+    appBar: JSX.Element
 }
 
-const Page = ({ title, children }: Props) => {
+const Page = ({ title, children, appBar }: Props) => {
     const { data: session, status } = useSession();
     const loading = status === "loading";
 
@@ -23,7 +24,7 @@ const Page = ({ title, children }: Props) => {
     }
     
     return (
-        <AuthPage title={title}>
+        <AuthPage title={title} appBar={appBar}>
             {children}
         </AuthPage>
     )

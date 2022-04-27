@@ -1,4 +1,4 @@
-import AuthPage from "./authPage"
+import Page from "./page"
 import SecondaryAppBar from "./secondaryAppbar"
 
 interface Props {
@@ -11,9 +11,9 @@ const SecondaryPage = ({ title, children }: Props) => {
     const appBar = <SecondaryAppBar name={title} />
 
     return (
-        <AuthPage title={title} appBar={appBar}>
+        <Page title={title} appBar={appBar}>
             {children}
-        </AuthPage>
+        </Page>
     )
 }
 

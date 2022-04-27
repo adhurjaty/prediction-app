@@ -1,5 +1,5 @@
 import LoadingSection from "@/components/loadingSection";
-import Page from "@/components/page";
+import SecondaryPage from "@/components/secondaryPage";
 import Section from "@/components/section";
 import { Bet } from "@/models/bet";
 import { Group } from "@/models/group";
@@ -35,7 +35,7 @@ export default function GroupPage() {
     };
 
     return (
-        <Page title={group?.name || "Group"}> 
+        <SecondaryPage title={group?.name || "Group"}> 
             <Section>
                 <LoadingSection loading={loading || !group}>
                     {(group && (<>
@@ -108,6 +108,6 @@ export default function GroupPage() {
                     </>)) || (<></>)}
                 </LoadingSection>
             </Section>
-        </Page>
+        </SecondaryPage>
     );
 }
