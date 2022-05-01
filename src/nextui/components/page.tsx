@@ -2,14 +2,16 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/router'
 import NoAuthPage from './noAuthPage'
 import AuthPage from './authPage'
+import PrimaryNav from './primaryNav'
 
 interface Props {
 	title?: string
     children: React.ReactNode
     appBar: JSX.Element
+    bottomNav?: JSX.Element
 }
 
-const Page = ({ title, children, appBar }: Props) => {
+const Page = ({ title, children, appBar, bottomNav }: Props) => {
     const { data: session, status } = useSession();
     const loading = status === "loading";
 
@@ -24,7 +26,7 @@ const Page = ({ title, children, appBar }: Props) => {
     }
     
     return (
-        <AuthPage title={title} appBar={appBar}>
+        <AuthPage title={title} appBar={appBar} bottomNav={bottomNav ??  <PrimaryNav />}>
             {children}
         </AuthPage>
     )

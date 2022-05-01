@@ -61,6 +61,9 @@ export default function GroupsPage() {
                             </Link>
                         )))
                         ||
+                        (fetchError
+                            && <p>Error getting groups: {fetchError} </p>)
+                        ||
                         <div>No groups</div>}
                     </GroupsList>
                 </LoadingSection>

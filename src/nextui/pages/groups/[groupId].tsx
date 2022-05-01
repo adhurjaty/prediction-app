@@ -3,6 +3,7 @@ import SecondaryPage from "@/components/secondaryPage";
 import Section from "@/components/section";
 import { Bet } from "@/models/bet";
 import { Group } from "@/models/group";
+import { fetchModel } from "@/utils/nodeInterface";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -13,14 +14,32 @@ export default function GroupPage() {
     const { data: session, status } = useSession();
     const loading = status === "loading";
     const [group, setGroup] = useState<Group>();
+    const [fetchError, setError] = useState<string>();
 
     const { groupId } = router.query;
 
+    const navLinks = [
+        {
+            label: 'Add Bet',
+            href: `/bets/add-bet?groupId=${groupId}`,
+            icon: (
+                <img src="../../assets/addBet.svg" />
+            )
+        },
+        {
+            label: 'Add Member',
+            href: `/group/${groupId}/add-members`,
+            icon: (
+                <img src="../../assets/addMember.svg" />
+            )
+        }
+    ]
+
     useEffect(() => {
         const fetchData = async () => {
-            const groupResponse = await fetch(`/api/groups/${groupId}`);
-            const { result: groupResult } = await groupResponse.json();
-            setGroup(groupResult);
+            (await fetchModel<Group>(`/api/groups/${groupId}`))
+                .map(val => setGroup(val))
+                .mapErr(err => setError(err));
         }
         if (session) {
             fetchData();
@@ -30,12 +49,12 @@ export default function GroupPage() {
 
     const betMade = (stake: number, status: string) => {
         return stake > 0
-            ? `you have bet ${stake} prestige point on ${status}`
+            ? `you have bet ${stake} FUSD on ${status}`
             : 'you have not bet';
     };
 
     return (
-        <SecondaryPage title={group?.name || "Group"}> 
+        <SecondaryPage title={group?.name || "Group"} navLinks={navLinks}> 
             <Section>
                 <LoadingSection loading={loading || !group}>
                     {(group && (<>
@@ -62,11 +81,11 @@ export default function GroupPage() {
                         </div>
                     )))
                         ||
-                        <p v-if="bets.length === 0">No bets have been added</p>
+                        <p>No bets have been added</p>
                     }                    
-                    {/* <Link href={`/bets/add-bet?groupId=${group!.id}`} passHref>
+                    <Link href={`/bets/add-bet?groupId=${group!.id}`} passHref>
                         <button>+ bet</button>
-                    </Link> */}
+                    </Link>
                     <h3>Leaderboard</h3>
                         {(group?.users && group!.users.length && (
                             <div className="leaderboard-table">
@@ -95,16 +114,6 @@ export default function GroupPage() {
                     <Link href={`/group/${group!.id}/add-members`} passHref>
                         <button>+ members</button>
                     </Link>
-                    <div className="bottom-buttons">
-                        {/* <Link href={`/bets/add-bet?groupId=${group!.id}`} passHref>
-                            <img src="../../assets/addBet.svg" />
-                            <p>add bet</p>
-                        </Link> */}
-                        <div>
-                            <img src="../../assets/addMember.svg" />
-                            <p>add members</p>
-                        </div>
-                    </div>
                     </>)) || (<></>)}
                 </LoadingSection>
             </Section>

@@ -17,24 +17,33 @@ function authHeader(encodedToken: string) {
     };
 }
 
-function toResult(response: AxiosResponse): Result<any, string> {
-    if (response.status >= 200 && response.status < 300) {
-        return Ok(response.data);
-    } else {
-        return Err(response.statusText);
+async function toResult(requestFn: () => Promise<AxiosResponse>): Promise<Result<any, string>> {
+    try {
+        const response = await requestFn();
+        if (response.status >= 200 && response.status < 300) {
+            return Ok(response.data);
+        } else {
+            return Err(response.statusText);
+        }
+    } catch (err) {
+        if (err instanceof Error)
+            return Err(err.message);
+        if (typeof err === "string")
+            return Err(err)
+        return Err("Unknown fetch error");
     }
 }
 
 export async function get(url: string, req: NextApiRequest) {
     const encodedToken = await generateToken(req);
-    return toResult(await axios.get(url, {
+    return toResult(() => axios.get(url, {
         headers: authHeader(encodedToken),
     }));
 }
 
 export async function post(url: string, data: any, req: NextApiRequest) {
     const encodedToken = await generateToken(req);
-    return toResult(await axios.post(url, {
+    return toResult(() => axios.post(url, {
         headers: authHeader(encodedToken),
         body: data,
     }));

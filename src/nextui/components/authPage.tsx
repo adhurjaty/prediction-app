@@ -5,9 +5,10 @@ interface Props {
 	title?: string
     children: React.ReactNode
     appBar: JSX.Element
+    bottomNav: JSX.Element
 }
 
-const AuthPage = ({ title, children, appBar }: Props) => {
+const AuthPage = ({ title, children, appBar, bottomNav }: Props) => {
     return (
         <>
             {title ? (
@@ -28,7 +29,7 @@ const AuthPage = ({ title, children, appBar }: Props) => {
                 <div className='p-6'>{children}</div>
             </main>
 
-            <BottomNav />
+            {bottomNav}
         </>
     )
 };
