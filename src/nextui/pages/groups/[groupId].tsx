@@ -56,7 +56,7 @@ export default function GroupPage() {
     return (
         <SecondaryPage title={group?.name || "Group"} navLinks={navLinks}> 
             <Section>
-                <LoadingSection loading={loading || !group}>
+                <LoadingSection loading={loading || !group} error={fetchError}>
                     {(group && (<>
                     <div className="group-name">
                         <div className="group-icon circle">

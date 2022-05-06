@@ -42,9 +42,9 @@ export default function GroupsPage() {
     return (
         <PrimaryPage title="Groups">
             <Section>
-                <LoadingSection loading={loading && !groups}>
+                <LoadingSection loading={loading} error={fetchError}>
                     <GroupsList>
-                        {(groups && groups.length && groups.map(group => (
+                        {(groups?.length && groups.map(group => (
                             <Link key={group.id} href={`/groups/${group.id}`} passHref>
                                 <div>
                                     <Circle>
@@ -60,9 +60,6 @@ export default function GroupsPage() {
                                 </div>
                             </Link>
                         )))
-                        ||
-                        (fetchError
-                            && <p>Error getting groups: {fetchError} </p>)
                         ||
                         <div>No groups</div>}
                     </GroupsList>
