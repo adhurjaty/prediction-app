@@ -33,7 +33,7 @@ export default function BetsPage() {
                         &&
                         <div className="bets">
                             {bets.map(bet => (
-                                <Link key={bet.id} href={`/bets/${bet.id}`} passHref>
+                                <Link key={bet.id} href={`/groups/${bet.groupId}/bets/${bet.id}`} passHref>
                                     <div>
                                         <Circle>
                                             <CircleInner>

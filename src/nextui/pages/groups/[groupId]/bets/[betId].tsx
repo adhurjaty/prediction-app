@@ -71,9 +71,7 @@ export default function BetPage() {
                         <div>{bet.description}</div>
 
                         <h3>Members</h3>
-                        
-                        {/* <div v-else-if="group.users.length === 0">No one is in the group!</div>
-                        <div v-else>
+                        {group?.users?.length &&
                             <table>
                                 <thead>
                                     <tr>
@@ -83,22 +81,18 @@ export default function BetPage() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr v-for="member in group.users" :key="member.id">
-                                        <td>{{ member.displayName }}</td>
-                                        <td>{{ member.accuracy }}</td>
-                                        <td>{{ member.prestige }}</td>
-                                    </tr>
+                                    {group.users.map(member => (
+                                        <tr key={member.id}>
+                                            <td>{ member.displayName }</td>
+                                            <td>{ member.accuracy }</td>
+                                            <td>{ member.prestige }</td>
+                                        </tr>
+                                    ))}
                                 </tbody>
                             </table>
-                        </div>
-                        <div class="bottom-buttons">
-                            <div>
-                                <router-link :to="{ name: 'Add Bet', params: { query: { groupId: $route.params.id} } }">
-                                    <img src="../../assets/addBet.svg" />
-                                    <p>add bet</p>
-                                </router-link>
-                            </div>
-                        </div> */}
+                            ||
+                            <div>No one is in the group!</div>
+                        }
                         {/* <form>
                             <div v-if="existingUserWager">
                                 You've already made a prediction
