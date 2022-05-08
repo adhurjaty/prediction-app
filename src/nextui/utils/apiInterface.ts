@@ -41,11 +41,11 @@ export async function get(url: string, req: NextApiRequest) {
     }));
 }
 
-export async function post(url: string, data: any, req: NextApiRequest) {
+export async function post(url: string, req: NextApiRequest) {
     const encodedToken = await generateToken(req);
     return toResult(() => axios.post(url, {
         headers: authHeader(encodedToken),
-        body: data,
+        body: req.body,
     }));
 }
 

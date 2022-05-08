@@ -1,10 +1,11 @@
 import LoadingSection from "@/components/loadingSection";
 import SecondaryPage from "@/components/secondaryPage";
 import Section from "@/components/section";
-import { Bet } from "@/models/bet";
+import { Bet, Bet } from "@/models/bet";
 import { Group } from "@/models/group";
-import { fetchModel } from "@/utils/nodeInterface";
+import { fetchModel, postModel } from "@/utils/nodeInterface";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 class BetDate {
@@ -52,6 +53,8 @@ export default function AddBetPage() {
     const { data: session, status } = useSession();
     const loading = status === "loading";
     const [groups, setGroups] = useState<Group[]>();
+    const [fetchError, setfetchError] = useState<string>();
+    const [submitError, setSubmitError] = useState<string>();
     const [bet, setBet] = useState<BetFormData>({
         closeTime: new BetDate(defaultDate()),
         wager: 0
@@ -63,10 +66,13 @@ export default function AddBetPage() {
     const [closeTimeError, setCloseTimeError] = useState<string>();
     const [wagerError, setWagerError] = useState<string>();
 
+    const router = useRouter();
+
     useEffect(() => {
         const fetchData = async () => {
             (await fetchModel<Group[]>('/api/groups'))
-                .map(grps => setGroups(grps));
+                .map(grps => setGroups(grps))
+                .mapErr(err => setfetchError(err));
         }
         if (session) {
             fetchData();
@@ -181,7 +187,7 @@ export default function AddBetPage() {
         });
     };
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         if (bet.groupId
             && validateTitle(bet.title)
             && validateDescription(bet.description)
@@ -189,8 +195,10 @@ export default function AddBetPage() {
             && validateResolutionDescription(bet.resolutionDescription)
             && validateWager(`${bet.wager}`))
         {
-            
-            return true;
+            return (await postModel<Bet>("/api/bets", bet))
+                .map(createdBet => router.push(`/groups/${createdBet.groupId}/bets/${createdBet.id}`))
+                .mapErr(err => setSubmitError(err))
+                .isOk()
         }
         return false;
     }
