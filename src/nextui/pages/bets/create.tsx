@@ -1,41 +1,21 @@
 import LoadingSection from "@/components/loadingSection";
 import SecondaryPage from "@/components/secondaryPage";
 import Section from "@/components/section";
-import { Bet, Bet } from "@/models/bet";
+import { Bet } from "@/models/bet";
 import { Group } from "@/models/group";
 import { fetchModel, postModel } from "@/utils/nodeInterface";
+import { Form, Formik, useField, useFormikContext } from "formik";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-
-class BetDate {
-    public date: Date;
-
-    constructor(date: Date | string) {
-        if (typeof date === 'string') {
-            this.date = this.fromDateString(date);
-        } else {
-            this.date = date;
-        }
-    }
-
-    get dateString(): string {
-        // correct for timezone
-        return new Date(this.date.getTime()
-            - new Date().getTimezoneOffset() * (60 * 1000))
-            .toISOString().split('.')[0];
-    }
-
-    private fromDateString(dateString: string) {
-        return new Date(new Date(dateString+'Z').getTime() + new Date().getTimezoneOffset() * 60000);
-    }
-}
+import * as Yup from 'yup';
+import DatePicker from "react-datepicker";
 
 interface BetFormData {
     groupId?: string;
     title?: string;
     description?: string;
-    closeTime: BetDate;
+    closeTime: Date;
     amount?: number;
     resolutionDescription?: string;
     wager: number;
@@ -49,23 +29,92 @@ function defaultDate(): Date {
     return new Date(time - seconds + twoWeeks);
 }
 
+interface FieldProps {
+    id?: string,
+    label: string,
+    name: string
+}
+
+interface TextFieldProps extends FieldProps {
+    type?: string,
+    placeholder?: string
+}
+
+interface SelectFieldProps extends FieldProps {
+    children?: JSX.Element[]
+}
+
+interface DateFieldProps extends FieldProps {
+    minTime?: Date,
+    maxTime?: Date
+}
+
+const TextInput = ({ label, ...props }: TextFieldProps) => {
+    const [field, meta] = useField(props);
+    return (
+        <>
+            <label htmlFor={props.id || props.name}>{label}</label>
+            <input className="text-input" {...field} {...props} />
+            {meta.touched && meta.error
+                ? (<div className="error">{meta.error}</div>)
+                : null}
+        </>
+    );
+};
+
+const TextAreaInput = ({ label, ...props }: TextFieldProps) => {
+    const [field, meta] = useField(props);
+    return (
+        <>
+            <label htmlFor={props.id || props.name}>{label}</label>
+            <textarea className="text-input" {...field} {...props} />
+            {meta.touched && meta.error
+                ? (<div className="error">{meta.error}</div>)
+                : null}
+        </>
+    );
+};
+
+const Select = ({ label, ...props }: SelectFieldProps) => {
+    const [field, meta] = useField(props);
+    return (
+        <div>
+            <label htmlFor={props.id || props.name}>{label}</label>
+            <select {...field} {...props} />
+            {meta.touched && meta.error
+                ? (<div className="error">{meta.error}</div>)
+                : null}
+        </div>
+    );
+};
+
+const DatePickerField = ({ ...props }: DateFieldProps) => {
+    const { setFieldValue } = useFormikContext();
+    const [field, meta] = useField(props);
+    return (
+        <div>
+            <DatePicker
+                {...field}
+                {...props}
+                selected={(field.value && new Date(field.value)) || null}
+                onChange={val => {
+                    setFieldValue(field.name, val);
+                }}
+            />
+            {meta.touched && meta.error
+                ? (<div className="error">{meta.error}</div>)
+                : null}
+        </div>
+    );
+  };
+
 export default function CreateBetPage() {
     const { data: session, status } = useSession();
     const loading = status === "loading";
     const [groups, setGroups] = useState<Group[]>();
     const [fetchError, setfetchError] = useState<string>();
     const [submitError, setSubmitError] = useState<string>();
-    const [bet, setBet] = useState<BetFormData>({
-        closeTime: new BetDate(defaultDate()),
-        wager: 0
-    });
-    const [isValid, setValid] = useState<boolean>(false);
-    const [titleError, setTitleError] = useState<string>();
-    const [descriptionError, setDescriptionError] = useState<string>();
-    const [resolutionError, setResolutionError] = useState<string>();
-    const [closeTimeError, setCloseTimeError] = useState<string>();
-    const [wagerError, setWagerError] = useState<string>();
-
+    
     const router = useRouter();
     const { groupId } = router.query;
 
@@ -77,14 +126,7 @@ export default function CreateBetPage() {
     useEffect(() => {
         const fetchData = async () => {
             (await fetchModel<Group[]>('/api/groups'))
-                .map(grps => {
-                    setGroups(grps);
-                    if (groupId)
-                        setBet({
-                            ...bet,
-                            groupId: groupId as string
-                        });
-                })
+                .map(grps => setGroups(grps))
                 .mapErr(err => setfetchError(err));
         }
         if (session) {
@@ -92,189 +134,86 @@ export default function CreateBetPage() {
         }
     }, [session]); // only update on session change
 
-    const setSelectedGroup = (newGroupId: string) => {
-        setBet({
-            ...bet,
-            groupId: newGroupId
-        });
-    };
 
-    const validateTitle = (newTitle?: string) => {
-        if (!newTitle) {
-            setTitleError("Must enter a title");
-            setValid(false);
-            return false;
-        }
-        setTitleError("");
-        return true;
-    };
-    const titleChanged = (newTitle: string) => {
-        if (!validateTitle(newTitle)) return;
-
-        setBet({
-            ...bet,
-            title: newTitle
-        });
-    };
-
-    const validateDescription = (newDescrition?: string) => {
-        if (!newDescrition) {
-            setDescriptionError("Must enter a description");
-            setValid(false);
-            return false;
-        }
-        setDescriptionError("");
-        return true;
-    }
-    const descriptionChanged = (newDescription: string) => {
-        if (!validateDescription(newDescription)) return;
-
-        setBet({
-            ...bet,
-            description: newDescription
-        });
-    };
-
-    const validateResolutionDescription = (newResolutionDescription?: string) => {
-        if (!newResolutionDescription) {
-            setResolutionError("Must enter a resolution description");
-            setValid(false);
-            return false;
-        }
-        setResolutionError("");
-        return true;
-    };
-    const resolutionDescriptionChanged = (newResolutionDescription: string) => {
-        if (!validateResolutionDescription(newResolutionDescription)) return;
-
-        setBet({
-            ...bet,
-            resolutionDescription: newResolutionDescription
-        });
-    };
-
-    const validateCloseTime = (newDateString?: string) => {
-        if (!newDateString) {
-            setCloseTimeError("Must enter a close time");
-            setValid(false);
-            return false;
-        }
-        const closeTime = new BetDate(newDateString);
-        if (closeTime.date < new Date()) {
-            setCloseTimeError("Must enter a future time");
-            setValid(false);
-            return false;
-        }
-        setCloseTimeError("");
-        return true;
-    }
-    const closeTimeChanged = (newDateString: string) => {
-        if (!validateCloseTime(newDateString)) return;
-
-        setBet({
-            ...bet,
-            closeTime: new BetDate(newDateString)
-        });
-    };
-
-    const validateWager = (newWager: string) => {
-        const newWagerNumber = +newWager;
-        if (newWagerNumber === NaN) {
-            setWagerError("Wager must be a number");
-        }
-        if (newWagerNumber <= 0) {
-            setWagerError("Wager must be greater than 0");
-            setValid(false);
-            return false;
-        }
-        setWagerError("");
-        return true;
-    }
-    const setWager = (newWager: string) => {
-        if (!validateWager(newWager)) return;
-
-        const newWagerNumber = +newWager;
-        setBet({
-            ...bet,
-            wager: newWagerNumber
-        });
-    };
-
-    const handleSubmit = async () => {
-        if (bet.groupId
-            && validateTitle(bet.title)
-            && validateDescription(bet.description)
-            && validateCloseTime(bet.closeTime.dateString)
-            && validateResolutionDescription(bet.resolutionDescription)
-            && validateWager(`${bet.wager}`))
-        {
-            return (await postModel<Bet>("/api/bets", bet))
-                .map(createdBet => router.push(`/groups/${createdBet.groupId}/bets/${createdBet.id}`))
-                .mapErr(err => setSubmitError(err))
-                .isOk()
-        }
-        return false;
+    const createBet = async (bet: BetFormData) => {
+        return (await postModel<Bet>("/api/bets", bet))
+            .map(createdBet => router.push(`/groups/${createdBet.groupId}/bets/${createdBet.id}`))
+            .mapErr(err => setSubmitError(err))
+            .isOk();
     }
     
     return (
         <SecondaryPage title="Add Bet">
-            <Section>
-                <LoadingSection loading={loading}>
-                    <>
-                    <h2>Create Custom Bet</h2>
-                    <form onSubmit={e => handleSubmit()}>
-                        <label>Group<span className="required">*</span></label>
-                        <select onSelect={e => setSelectedGroup(e.target.value)}
-                                defaultValue={groupId}
-                                required>
+            <LoadingSection loading={loading} error={fetchError}>
+                <Formik
+                    initialValues={{
+                        groupId: groupId as string,
+                        title: '',
+                        description: '',
+                        resolutionEvent: '',
+                        closeTime: defaultDate(),
+                        prediction: true,
+                        wager: 0
+                    }}
+                    validationSchema={Yup.object({
+                        title: Yup.string().required("Required"),
+                        description: Yup.string().required("Required"),
+                        resolutionEvent: Yup.string().required("Required"),
+                        wager: Yup.number()
+                            .required("Required")
+                            .moreThan(0, "Must be greater than 0")
+                    })}
+                    onSubmit={async (values, { setSubmitting }) => {
+                        const result = await createBet({ ...values });
+                        setSubmitting(false);
+                        return result;
+                    }}>
+                    <Form>
+                        <h2>Create Custom Bet</h2>
+                        <Select label="Group"
+                            name="groupId"
+                        >
                             {groups && [emptyGroup].concat(groups).map(group => (
                                 <option key={group.id}
                                         value={group.id}>
                                     {group.name}
                                 </option>
                             ))}
-                        </select>
-                        <label>Title<span className="required">*</span></label>
-                        <input type="text" 
-                            placeholder="Title" 
-                            value={bet.title}
-                            onChange={e => titleChanged(e.target.value)}
-                            required />
-                        <label>Description<span className="required">*</span></label>
-                        <textarea rows={6} 
-                                placeholder="Enter description"
-                                onChange={e => descriptionChanged(e.target.value)}
-                                required>
-                            {bet.description}
-                        </textarea>
-                        <label>Resolution Event<span className="required">*</span></label>
-                        <input type="text" 
-                                placeholder="describe triggering event"
-                                value={bet.resolutionDescription}
-                                onChange={e => resolutionDescriptionChanged(e.target.value)}
-                                required />
-                        <label>Close Date<span className="required">*</span></label>
+                        </Select>
+                        <TextInput label="Title"
+                            name="title"
+                            type="text"
+                            placeholder="Title"
+                        />
+                        <TextAreaInput label="Description"
+                            name="description"
+                            type="text"
+                            placeholder="Enter a description"
+                        />
+                        <TextInput label="Resolution Description"
+                            name="resolutionEvent"
+                            placeholder="Describe triggering event"
+                        />
+                        <DatePickerField label="Close Date"
+                            name="closeTime"
+                            minTime={new Date()}
+                        />
                         <p>No one will be able to bet on this after this date has passed</p>
-                        <input type="datetime-local"
-                            value={bet.closeTime.dateString}
-                            onChange={e => closeTimeChanged(e.target.value)}
-                            required />
-                        <label>Prediction<span className="required">*</span></label>
-                        <select v-model="wager.prediction">
+                        <Select label="Prediction"
+                            name="prediction"
+                        >
                             <option value="true">Yes</option>
                             <option value="false">No</option>
-                        </select>
-                        <label>Wager<span className="required">*</span></label>
-                        <input type="number" 
-                                value={bet.wager}
-                                onChange={e => setWager(e.target.value)}
-                                required />
-                        <input type="submit"
-                                value="create" />
-                    </form >
-                    </>
-                </LoadingSection>
-            </Section>
+                        </Select>
+                        <TextInput label="Wager"
+                            name="wager"
+                            type="number"
+                        />
+                        <button type="submit">Create</button>
+                        {submitError && <div className="error">{submitError}</div>}
+                    </Form>
+                </Formik>
+            </LoadingSection>
         </SecondaryPage>
     )
 }
