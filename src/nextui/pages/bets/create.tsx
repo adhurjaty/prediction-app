@@ -1,15 +1,14 @@
+import { DatePickerInput, SelectInput, TextAreaInput, TextInput } from "@/components/formFields";
 import LoadingSection from "@/components/loadingSection";
 import SecondaryPage from "@/components/secondaryPage";
-import Section from "@/components/section";
 import { Bet } from "@/models/bet";
 import { Group } from "@/models/group";
 import { fetchModel, postModel } from "@/utils/nodeInterface";
-import { Form, Formik, useField, useFormikContext } from "formik";
+import { Form, Formik } from "formik";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import * as Yup from 'yup';
-import DatePicker from "react-datepicker";
 
 interface BetFormData {
     groupId?: string;
@@ -28,85 +27,6 @@ function defaultDate(): Date {
     var seconds = now.getSeconds() * 1000
     return new Date(time - seconds + twoWeeks);
 }
-
-interface FieldProps {
-    id?: string,
-    label: string,
-    name: string
-}
-
-interface TextFieldProps extends FieldProps {
-    type?: string,
-    placeholder?: string
-}
-
-interface SelectFieldProps extends FieldProps {
-    children?: JSX.Element[]
-}
-
-interface DateFieldProps extends FieldProps {
-    minTime?: Date,
-    maxTime?: Date
-}
-
-const TextInput = ({ label, ...props }: TextFieldProps) => {
-    const [field, meta] = useField(props);
-    return (
-        <>
-            <label htmlFor={props.id || props.name}>{label}</label>
-            <input className="text-input" {...field} {...props} />
-            {meta.touched && meta.error
-                ? (<div className="error">{meta.error}</div>)
-                : null}
-        </>
-    );
-};
-
-const TextAreaInput = ({ label, ...props }: TextFieldProps) => {
-    const [field, meta] = useField(props);
-    return (
-        <>
-            <label htmlFor={props.id || props.name}>{label}</label>
-            <textarea className="text-input" {...field} {...props} />
-            {meta.touched && meta.error
-                ? (<div className="error">{meta.error}</div>)
-                : null}
-        </>
-    );
-};
-
-const Select = ({ label, ...props }: SelectFieldProps) => {
-    const [field, meta] = useField(props);
-    return (
-        <div>
-            <label htmlFor={props.id || props.name}>{label}</label>
-            <select {...field} {...props} />
-            {meta.touched && meta.error
-                ? (<div className="error">{meta.error}</div>)
-                : null}
-        </div>
-    );
-};
-
-const DatePickerField = ({ ...props }: DateFieldProps) => {
-    const { setFieldValue } = useFormikContext();
-    const [field, meta] = useField(props);
-    return (
-        <div>
-            <DatePicker
-                {...field}
-                {...props}
-                selected={(field.value && new Date(field.value)) || null}
-                onChange={val => {
-                    setFieldValue(field.name, val);
-                }}
-            />
-            {meta.touched && meta.error
-                ? (<div className="error">{meta.error}</div>)
-                : null}
-        </div>
-    );
-  };
 
 export default function CreateBetPage() {
     const { data: session, status } = useSession();
@@ -170,7 +90,7 @@ export default function CreateBetPage() {
                     }}>
                     <Form>
                         <h2>Create Custom Bet</h2>
-                        <Select label="Group"
+                        <SelectInput label="Group"
                             name="groupId"
                         >
                             {groups && [emptyGroup].concat(groups).map(group => (
@@ -179,7 +99,7 @@ export default function CreateBetPage() {
                                     {group.name}
                                 </option>
                             ))}
-                        </Select>
+                        </SelectInput>
                         <TextInput label="Title"
                             name="title"
                             type="text"
@@ -194,17 +114,18 @@ export default function CreateBetPage() {
                             name="resolutionEvent"
                             placeholder="Describe triggering event"
                         />
-                        <DatePickerField label="Close Date"
+                        <DatePickerInput label="Close Date"
                             name="closeTime"
                             minTime={new Date()}
+                            dateFormat="yyyy-MM-dd HH:mm"
                         />
                         <p>No one will be able to bet on this after this date has passed</p>
-                        <Select label="Prediction"
+                        <SelectInput label="Prediction"
                             name="prediction"
                         >
                             <option value="true">Yes</option>
                             <option value="false">No</option>
-                        </Select>
+                        </SelectInput>
                         <TextInput label="Wager"
                             name="wager"
                             type="number"
