@@ -42,18 +42,16 @@ export default function CreateGroupPage() {
 
     return (
         <SecondaryPage title="Create new group">
-            <Section>
-                <LoadingSection loading={loading}>
-                    <form onSubmit={e => handleSubmit()}>
-                        <h2>Create New Group</h2>
-                        <input type="text"
-                                onChange={e => onGroupNameChanged(e.target.value)}
-                                placeholder="Group name" />
-                        <input type="submit"
-                                value="create" />
-                    </form>
-                </LoadingSection>
-            </Section>
+            <LoadingSection loading={loading}>
+                <form onSubmit={e => handleSubmit()}>
+                    <h2>Create New Group</h2>
+                    <input type="text"
+                            onChange={e => onGroupNameChanged(e.target.value)}
+                            placeholder="Group name" />
+                    <input type="submit"
+                            value="create" />
+                </form>
+            </LoadingSection>
         </SecondaryPage>
     )
 }

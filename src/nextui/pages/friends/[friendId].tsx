@@ -34,18 +34,16 @@ export default function FriendPage() {
 
     return (
         <SecondaryPage title={friend?.displayName || "Friend"}>
-            <Section>
-                <LoadingSection loading={loading}>
-                    {(friend
-                        &&
-                        <h3>{friend.displayName}</h3>)
-                        ||
-                        (fetchError && <div>Error: {fetchError}</div>)
-                        ||
-                        <></>
-                    }
-                </LoadingSection>
-            </Section>
+            <LoadingSection loading={loading}>
+                {(friend
+                    &&
+                    <h3>{friend.displayName}</h3>)
+                    ||
+                    (fetchError && <div>Error: {fetchError}</div>)
+                    ||
+                    <></>
+                }
+            </LoadingSection>
         </SecondaryPage>
     )
 }
