@@ -49,7 +49,7 @@ function defaultDate(): Date {
     return new Date(time - seconds + twoWeeks);
 }
 
-export default function AddBetPage() {
+export default function CreateBetPage() {
     const { data: session, status } = useSession();
     const loading = status === "loading";
     const [groups, setGroups] = useState<Group[]>();
@@ -67,17 +67,30 @@ export default function AddBetPage() {
     const [wagerError, setWagerError] = useState<string>();
 
     const router = useRouter();
+    const { groupId } = router.query;
+
+    const emptyGroup = {
+        id: '',
+        name: ''
+    };
 
     useEffect(() => {
         const fetchData = async () => {
             (await fetchModel<Group[]>('/api/groups'))
-                .map(grps => setGroups(grps))
+                .map(grps => {
+                    setGroups(grps);
+                    if (groupId)
+                        setBet({
+                            ...bet,
+                            groupId: groupId as string
+                        });
+                })
                 .mapErr(err => setfetchError(err));
         }
         if (session) {
             fetchData();
         }
-    }, [session]);
+    }, [session]); // only update on session change
 
     const setSelectedGroup = (newGroupId: string) => {
         setBet({
@@ -212,8 +225,9 @@ export default function AddBetPage() {
                     <form onSubmit={e => handleSubmit()}>
                         <label>Group<span className="required">*</span></label>
                         <select onSelect={e => setSelectedGroup(e.target.value)}
+                                defaultValue={groupId}
                                 required>
-                            {groups && groups.map(group => (
+                            {groups && [emptyGroup].concat(groups).map(group => (
                                 <option key={group.id}
                                         value={group.id}>
                                     {group.name}

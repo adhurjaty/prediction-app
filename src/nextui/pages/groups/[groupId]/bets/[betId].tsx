@@ -23,7 +23,7 @@ export default function BetPage() {
     const navLinks = [
         {
             label: 'Add Bet',
-            href: `/bets/add-bet`,
+            href: `/bets/create`,
             icon: (
                 <img src="../../assets/addBet.svg" />
             )

@@ -21,7 +21,7 @@ export default function GroupPage() {
     const navLinks = [
         {
             label: 'Add Bet',
-            href: `/bets/add-bet?groupId=${groupId}`,
+            href: `/bets/create?groupId=${groupId}`,
             icon: (
                 <img src="../../assets/addBet.svg" />
             )
@@ -83,7 +83,7 @@ export default function GroupPage() {
                         ||
                         <p>No bets have been added</p>
                     }                    
-                    <Link href={`/bets/add-bet?groupId=${group!.id}`} passHref>
+                    <Link href={`/bets/create?groupId=${group!.id}`} passHref>
                         <button>+ bet</button>
                     </Link>
                     <h3>Leaderboard</h3>

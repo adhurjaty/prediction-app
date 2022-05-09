@@ -49,7 +49,7 @@ export default function BetsPage() {
                         </div>)
                         ||
                         <h2>All bets are off here. Create one</h2>}
-                    <Link href="/bets/addBet" passHref>
+                    <Link href="/bets/create" passHref>
                         <button>+ bet</button>
                     </Link>
                 </LoadingSection>
