@@ -1,17 +1,13 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 body {
-	@apply p-safe min-h-screen text-zinc-900 bg-zinc-50 dark:text-zinc-50 dark:bg-zinc-900 antialiased select-none;
-
 	/* PWA enhancements */
 	-webkit-overflow-scrolling: touch;
 	-webkit-tap-highlight-color: transparent;
 	-webkit-touch-callout: none;
+    margin: 0px;
+    padding: 0px;
 }
 
-p {
-    color: #212121;
-    margin: 0;
-}
+// p {
+//     color: #212121;
+//     margin: 0;
+// }

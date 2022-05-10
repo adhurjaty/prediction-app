@@ -1,5 +1,9 @@
 import Head from 'next/head'
-import BottomNav from '@/components/bottom-nav'
+import styled from 'styled-components'
+
+const Main = styled.main`
+    margin: 10px;
+`;
 
 interface Props {
 	title?: string
@@ -19,15 +23,9 @@ const AuthPage = ({ title, children, appBar, bottomNav }: Props) => {
 
             {appBar}
 
-            <main
-                /**
-                 * Padding top = `appbar` height
-                 * Padding bottom = `bottom-nav` height
-                 */
-                className='mx-auto px-safe pt-20 pb-16 sm:pb-0 max-w-screen-md'
-            >
-                <div className='p-6'>{children}</div>
-            </main>
+            <Main>
+                <div>{children}</div>
+            </Main>
 
             {bottomNav}
         </>
