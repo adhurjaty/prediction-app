@@ -16,7 +16,7 @@ const PrimaryAppBar = ({ name }: Props) => {
         <Box sx={{ flexGrow: 1 }}>
             <AppBar position="static">
                 <Toolbar>
-                    <IconButton
+                    {/* <IconButton
                         size="large"
                         edge="start"
                         color="inherit"
@@ -24,7 +24,7 @@ const PrimaryAppBar = ({ name }: Props) => {
                         sx={{ mr: 2 }}
                     >
                         <MenuIcon />
-                    </IconButton>
+                    </IconButton> */}
                     <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
                         {name || "Page"}
                     </Typography>

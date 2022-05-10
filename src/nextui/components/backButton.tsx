@@ -2,14 +2,9 @@ import { useRouter } from "next/router";
 import styled from "styled-components";
 
 const ArrowButton = styled.div`
-    position: absolute;
-    top: 0;
-    left: 0;
     background: $green-button;
-    height: 52px;
-    display: grid;
-    place-content: center;
-    padding: 0px 10px;
+    align-self: center;
+    margin-right: 10px;
 `;
 
 const BackButton = () => {
