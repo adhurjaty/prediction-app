@@ -4,6 +4,7 @@ import Section from "@/components/section";
 import { Circle, CircleInner } from "@/components/styled";
 import User from "@/models/user";
 import { fetchModel } from "@/utils/nodeInterface";
+import { List } from "@mui/material";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -28,9 +29,8 @@ export default function FriendsPage() {
     return (
         <PrimaryPage title="Friends">
             <LoadingSection loading={loading && !friends} error={fetchError}>
-                {(friends
-                    &&
-                    <div className="groups">
+                {(friends?.length &&
+                    <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
                         {friends.map(friend => (
                             <Link key={friend.id} href={`/friends/${friend.id}`} passHref>
                                 <div>
@@ -45,11 +45,9 @@ export default function FriendsPage() {
                                 </div>
                             </Link>
                         ))} 
-                    </div>)
+                    </List>)
                     ||
-                    <div className="no-groups">
-                        <h2>You have no friends</h2>
-                    </div>}
+                    <h2>You have no friends</h2>}
             </LoadingSection>
         </PrimaryPage>
     )
