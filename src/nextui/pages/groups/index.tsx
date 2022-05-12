@@ -3,19 +3,13 @@ import PrimaryPage from "@/components/primaryPage";
 import { Circle, CircleInner, CircleSvg } from "@/components/styled"
 import { Group } from "@/models/group";
 import { fetchModel } from "@/utils/nodeInterface";
-import { List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
+import { List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 
-const GroupsList = styled.div`
-    @include iconWithData;
-
-    .title {
-        font-weight: bold;
-        color: #b644bd;
-    }
+const ItemContent = styled.div`
+    flex-direction: column
 `;
 
 const GroupCircleSvg = styled(CircleSvg)`
@@ -43,14 +37,14 @@ export default function GroupsPage() {
         <PrimaryPage title="Groups">
             <LoadingSection loading={loading} error={fetchError}>
                 {(groups?.length &&
-                    <List sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}>
+                    <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
                         {groups.map(group => (
                             <ListItem key={group.id}
                                 alignItems="flex-start"
-                                component={Link}
-                                href={`/groups/${group.id}`}
-                                passhref
+                                sx={{ width: '100%' }}
                             >
+                                <ListItemButton component="a"
+                                    href={`/groups/${group.id}`}>
                                 <ListItemIcon>
                                     <Circle>
                                         <CircleInner>
@@ -60,15 +54,13 @@ export default function GroupsPage() {
                                 </ListItemIcon>
                                 <ListItemText
                                     primary={group.name}
-                                    secondary={
-                                        <div className="text-info">
-                                            <p className="title">{group.name}</p>
-                                            <p>{group.accuracy}% accurate</p>
-                                            <p>{group.betsMade}/{group.betsAvailable} active bets</p>
-                                        </div>
-                                    }
                                 />
-                            </ListItem>))}
+                                <ItemContent>
+                                    <div>{group.accuracy}% accurate</div>
+                                    <div>{group.betsMade}/{group.betsAvailable} active bets</div>
+                                </ItemContent>
+                            </ListItemButton>
+                        </ListItem>))}
                     </List>)
                     ||
                     <div>No groups</div>}

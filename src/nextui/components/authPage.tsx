@@ -1,10 +1,6 @@
 import Head from 'next/head'
 import styled from 'styled-components'
 
-const Main = styled.main`
-    margin: 10px;
-`;
-
 interface Props {
 	title?: string
     children: React.ReactNode
@@ -23,9 +19,9 @@ const AuthPage = ({ title, children, appBar, bottomNav }: Props) => {
 
             {appBar}
 
-            <Main>
+            <main>
                 <div>{children}</div>
-            </Main>
+            </main>
 
             {bottomNav}
         </>
