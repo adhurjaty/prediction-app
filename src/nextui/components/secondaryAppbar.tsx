@@ -14,7 +14,7 @@ interface Props {
 
 const SecondaryAppBar = ({ name }: Props) => {
     return (
-        <Box sx={{ flexGrow: 1, "align-items": "stretch" }}>
+        <Box sx={{ flexGrow: 1, "alignItems": "stretch" }}>
             <AppBar position="static">
                 <Toolbar>
                     <BackButton />
