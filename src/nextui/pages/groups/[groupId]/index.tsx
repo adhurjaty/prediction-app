@@ -4,7 +4,7 @@ import Section from "@/components/section";
 import { Bet } from "@/models/bet";
 import { Group } from "@/models/group";
 import { fetchModel } from "@/utils/nodeInterface";
-import { Avatar, Button, Container, Grid, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography } from "@mui/material";
+import { Avatar, Button, Container, Grid, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -68,6 +68,7 @@ export default function GroupPage() {
                             marginTop={2}
                             alignItems="center"
                             justifyContent="center"
+                            columnSpacing={2}
                         >
                             <Grid item
                                 xs={4}
@@ -132,37 +133,43 @@ export default function GroupPage() {
                         </Grid>
                         <Grid item
                             xs={12}
+                            marginTop={2}
                         >
                             <Typography component="h3" variant="h5">
                                 Leaderboard
                             </Typography>
                         </Grid>
-                        {(group?.users && group!.users.length && (
-                            <div className="leaderboard-table">
-                                <table>
-                                    <thead>
-                                        <tr>
-                                            <th>User</th>
-                                            <th>Accuracy</th>
-                                            <th>+/- Prestige</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {group!.users.map(member => (
-                                            <tr key={member.id}>
-                                                <td>{ member.displayName }</td>
-                                                {/* <td>{ member.accuracy }</td>
-                                                <td>{ member.prestige }</td> */}
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>))
-                            ||
-                            (<p>You are the only one here. Add some members to get started.</p>)}
+                        <Grid item
+                            xs={12}
+                            marginTop={2}
+                        >
+                            {(group?.users && group!.users.length && (
+                                <TableContainer component={Paper}>
+                                    <Table sx={{ minWidth: 200 }}>
+                                        <TableHead>
+                                            <TableRow>
+                                                <TableCell>User</TableCell>
+                                                <TableCell>Accuracy</TableCell>
+                                                <TableCell>+/- Prestige</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {group!.users.map(member => (
+                                                <TableRow key={member.id}>
+                                                    <TableCell>{ member.displayName }</TableCell>
+                                                    <TableCell>{ member.accuracy }</TableCell>
+                                                    <TableCell>{ member.prestige }</TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>))
+                                ||
+                                (<p>You are the only one here. Add some members to get started.</p>)}
+                        </Grid>
                     
                     <Link href={`/group/${group!.id}/add-members`} passHref>
-                        <button>+ members</button>
+                        <Button variant="contained">+ members</Button>
                     </Link>
                     </>)) || (<></>)}
                 </Container>
