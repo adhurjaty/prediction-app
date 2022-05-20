@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Data;
-using System.Linq;
 using System.Threading.Tasks;
 using Infrastructure;
 using Microsoft.AspNetCore.Authorization;
@@ -43,7 +41,7 @@ namespace WebApi
                 Email = GetEmailFromClaims(),
                 GroupId = groupId
             });
-                
+
             return ToResponse(result);
         }
 

@@ -43,6 +43,8 @@ export default function GroupPage() {
 
     useEffect(() => {
         const fetchData = async () => {
+            if (!groupId)
+                return;
             (await fetchModel<Group>(`/api/groups/${groupId}`))
                 .map(val => setGroup(val))
                 .mapErr(err => setError(err));
