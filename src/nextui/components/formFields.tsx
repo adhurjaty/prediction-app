@@ -82,7 +82,6 @@ interface DateFieldProps extends FieldProps {
 }
 
 const DatePickerInput = ({ minTime, ...props }: DateFieldProps) => {
-    // const { setFieldValue } = useFormikContext();
     const [field, meta] = useField(props);
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
