@@ -1,3 +1,7 @@
+import { FormControl, FormHelperText, InputLabel, Select, TextField } from "@mui/material";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { useField, useFormikContext } from "formik";
 import DatePicker from "react-datepicker";
 
@@ -14,14 +18,34 @@ interface TextFieldProps extends FieldProps {
 
 const TextInput = ({ label, ...props }: TextFieldProps) => {
     const [field, meta] = useField(props);
+    const isError = (meta.touched && meta.error) as boolean;
     return (
-        <>
-            <label htmlFor={props.id || props.name}>{label}</label>
-            <input className="text-input" {...field} {...props} />
-            {meta.touched && meta.error
-                ? (<div className="error">{meta.error}</div>)
-                : null}
-        </>
+        <TextField
+            error={isError}
+            id={props.id || props.name}
+            label={label}
+            {...field}
+            {...props}
+            helperText={meta.error}
+            variant="filled"
+        />
+    );
+};
+
+const TextAreaInput = ({ label, ...props }: TextFieldProps) => {
+    const [field, meta] = useField(props);
+    const isError = (meta.touched && meta.error) as boolean;
+    return (
+        <TextField
+            error={isError}
+            id={props.id || props.name}
+            multiline
+            label={label}
+            {...field}
+            {...props}
+            helperText={meta.error}
+            variant="filled"
+        />
     );
 };
 
@@ -29,16 +53,25 @@ interface SelectFieldProps extends FieldProps {
     children?: JSX.Element[]
 }
 
-const TextAreaInput = ({ label, ...props }: TextFieldProps) => {
+const SelectInput = ({ label, children, ...props }: SelectFieldProps) => {
     const [field, meta] = useField(props);
+    const isError = (meta.touched && meta.error) as boolean;
+    const idName = props.id || props.name
+    const labelId = `${idName}-label`
     return (
-        <>
-            <label htmlFor={props.id || props.name}>{label}</label>
-            <textarea className="text-input" {...field} {...props} />
-            {meta.touched && meta.error
-                ? (<div className="error">{meta.error}</div>)
-                : null}
-        </>
+        <FormControl error={isError}>
+            <InputLabel id={labelId}>{label}</InputLabel>
+            <Select
+                id={props.id || props.name}
+                labelId={`${(props.id || props.name)}-label`}
+                label={label}
+                {...field}
+                {...props}
+            >
+                {children}
+            </Select>
+            <FormHelperText>{(isError && meta.error) || label}</FormHelperText>
+        </FormControl>
     );
 };
 
@@ -48,36 +81,21 @@ interface DateFieldProps extends FieldProps {
     dateFormat?: string
 }
 
-const SelectInput = ({ label, ...props }: SelectFieldProps) => {
+const DatePickerInput = ({ minTime, ...props }: DateFieldProps) => {
+    // const { setFieldValue } = useFormikContext();
     const [field, meta] = useField(props);
     return (
-        <div>
-            <label htmlFor={props.id || props.name}>{label}</label>
-            <select {...field} {...props} />
-            {meta.touched && meta.error
-                ? (<div className="error">{meta.error}</div>)
-                : null}
-        </div>
-    );
-};
-
-const DatePickerInput = ({ ...props }: DateFieldProps) => {
-    const { setFieldValue } = useFormikContext();
-    const [field, meta] = useField(props);
-    return (
-        <div>
-            <DatePicker
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DateTimePicker
+                minDateTime={minTime}
+                renderInput={params => <TextField {...params} />}
                 {...field}
                 {...props}
-                selected={(field.value && new Date(field.value)) || null}
-                onChange={val => {
-                    setFieldValue(field.name, val);
-                }}
             />
             {meta.touched && meta.error
                 ? (<div className="error">{meta.error}</div>)
                 : null}
-        </div>
+        </LocalizationProvider>
     );
 };
 

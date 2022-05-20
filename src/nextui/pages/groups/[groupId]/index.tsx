@@ -61,7 +61,7 @@ export default function GroupPage() {
 
     return (
         <SecondaryPage title={group?.name || "Group"} navLinks={navLinks}> 
-            <LoadingSection loading={loading || !group} error={fetchError}>
+            <LoadingSection loading={loading} error={fetchError}>
                 <Container>
                     {(group && (<>
                         <Grid container

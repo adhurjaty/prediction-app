@@ -9,12 +9,16 @@
 		"lint": "next lint"
 	},
 	"dependencies": {
+		"@date-io/date-fns": "^2.14.0",
 		"@emotion/react": "^11.9.0",
 		"@emotion/styled": "^11.8.1",
+		"@mui/core": "^5.0.0-alpha.54",
 		"@mui/icons-material": "^5.6.2",
 		"@mui/material": "^5.6.4",
 		"@mui/styled-engine-sc": "^5.6.1",
+		"@mui/x-date-pickers": "^5.0.0-alpha.3",
 		"@sniptt/monads": "^0.5.10",
+		"@types/date-fns": "^2.6.0",
 		"@types/jwt-encode": "^1.0.0",
 		"@types/react-datepicker": "^4.4.1",
 		"@types/styled-components": "^5.1.25",

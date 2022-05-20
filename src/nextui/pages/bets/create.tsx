@@ -4,6 +4,7 @@ import SecondaryPage from "@/components/secondaryPage";
 import { Bet } from "@/models/bet";
 import { Group } from "@/models/group";
 import { fetchModel, postModel } from "@/utils/nodeInterface";
+import { Button, Container, Grid, MenuItem, Stack, Typography } from "@mui/material";
 import { Form, Formik } from "formik";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -38,11 +39,6 @@ export default function CreateBetPage() {
     const router = useRouter();
     const { groupId } = router.query;
 
-    const emptyGroup = {
-        id: '',
-        name: ''
-    };
-
     useEffect(() => {
         const fetchData = async () => {
             (await fetchModel<Group[]>('/api/groups'))
@@ -65,75 +61,87 @@ export default function CreateBetPage() {
     return (
         <SecondaryPage title="Add Bet">
             <LoadingSection loading={loading} error={fetchError}>
-                <Formik
-                    initialValues={{
-                        groupId: groupId as string,
-                        title: '',
-                        description: '',
-                        resolutionEvent: '',
-                        closeTime: defaultDate(),
-                        prediction: true,
-                        wager: 0
-                    }}
-                    validationSchema={Yup.object({
-                        title: Yup.string().required("Required"),
-                        description: Yup.string().required("Required"),
-                        resolutionEvent: Yup.string().required("Required"),
-                        wager: Yup.number()
-                            .required("Required")
-                            .moreThan(0, "Must be greater than 0")
-                    })}
-                    onSubmit={async (values, { setSubmitting }) => {
-                        const result = await createBet({ ...values });
-                        setSubmitting(false);
-                        return result;
-                    }}>
-                    <Form>
-                        <h2>Create Custom Bet</h2>
-                        <SelectInput label="Group"
-                            name="groupId"
-                        >
-                            {groups && [emptyGroup].concat(groups).map(group => (
-                                <option key={group.id}
-                                        value={group.id}>
-                                    {group.name}
-                                </option>
-                            ))}
-                        </SelectInput>
-                        <TextInput label="Title"
-                            name="title"
-                            type="text"
-                            placeholder="Title"
-                        />
-                        <TextAreaInput label="Description"
-                            name="description"
-                            type="text"
-                            placeholder="Enter a description"
-                        />
-                        <TextInput label="Resolution Description"
-                            name="resolutionEvent"
-                            placeholder="Describe triggering event"
-                        />
-                        <DatePickerInput label="Close Date"
-                            name="closeTime"
-                            minTime={new Date()}
-                            dateFormat="yyyy-MM-dd HH:mm"
-                        />
-                        <p>No one will be able to bet on this after this date has passed</p>
-                        <SelectInput label="Prediction"
-                            name="prediction"
-                        >
-                            <option value="true">Yes</option>
-                            <option value="false">No</option>
-                        </SelectInput>
-                        <TextInput label="Wager"
-                            name="wager"
-                            type="number"
-                        />
-                        <button type="submit">Create</button>
-                        {submitError && <div className="error">{submitError}</div>}
-                    </Form>
-                </Formik>
+                <Container>
+                    <Formik
+                        initialValues={{
+                            groupId: groupId as string,
+                            title: '',
+                            description: '',
+                            resolutionEvent: '',
+                            closeTime: defaultDate(),
+                            prediction: true,
+                            wager: 0
+                        }}
+                        validationSchema={Yup.object({
+                            title: Yup.string().required("Required"),
+                            description: Yup.string().required("Required"),
+                            resolutionEvent: Yup.string().required("Required"),
+                            wager: Yup.number()
+                                .required("Required")
+                                .moreThan(0, "Must be greater than 0")
+                        })}
+                        onSubmit={async (values, { setSubmitting }) => {
+                            const result = await createBet({ ...values });
+                            setSubmitting(false);
+                            return result;
+                        }}
+                    >
+                        <Form>
+                            <Stack spacing={1} marginTop={2}>
+                                <Typography variant="h5">
+                                    Create Custom Bet
+                                </Typography>
+                                <SelectInput label="Group"
+                                    name="groupId"
+                                >
+                                    {groups && groups.map(group => (
+                                        <MenuItem key={group.id}
+                                                value={group.id}>
+                                            {group.name}
+                                        </MenuItem>
+                                    ))}
+                                </SelectInput>
+                                <TextInput label="Title"
+                                    name="title"
+                                    type="text"
+                                    placeholder="Title"
+                                />
+                                <TextAreaInput label="Description"
+                                    name="description"
+                                    type="text"
+                                    placeholder="Enter a description"
+                                />
+                                <TextInput label="Resolution Description"
+                                    name="resolutionEvent"
+                                    placeholder="Describe triggering event"
+                                />
+                                <DatePickerInput label="Close Date"
+                                    name="closeTime"
+                                    minTime={new Date()}
+                                    dateFormat="yyyy-MM-dd HH:mm"
+                                />
+                                <p>No one will be able to bet on this after this date has passed</p>
+                                <SelectInput label="Prediction"
+                                    name="prediction"
+                                >
+                                    <MenuItem value="true">Yes</MenuItem>
+                                    <MenuItem value="false">No</MenuItem>
+                                </SelectInput>
+                                <TextInput label="Wager"
+                                    name="wager"
+                                    type="number"
+                                />
+                                <Button
+                                    type="submit"
+                                    variant="contained"
+                                >
+                                    Create
+                                </Button>
+                                {submitError && <div className="error">{submitError}</div>}
+                            </Stack>
+                        </Form>
+                    </Formik>
+                </Container>
             </LoadingSection>
         </SecondaryPage>
     )
