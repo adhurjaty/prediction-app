@@ -15,7 +15,19 @@
 		"delphai": {
 			"address": "f8d6e0586b0a20c7",
 			"key": "6a4c115ee4477dc14ea5dd6ba72739dde3d5f1e08313bfaebe08b6221e69d585"
-		}
+		},
+        "dan": {
+            "address": "179b6b1cb6755e31",
+            "key": "2a7cdee6cb802f70d1837342dd462563155b936f110495a904b96993d66ab6e1"
+        },
+        "tony": {
+            "address": "f3fcd2c1a78f5eee",
+            "key": "658f8dcf443f83e33a9ed5e33179da436fd2246efc114b897cc8013e331b60df"
+        },
+        "anil": {
+            "address": "e03daebed8ca0615",
+            "key": "2ce60e2df3ab73307dc25ec2dc271957a7c043564e8d586e09ab7575853b5103"
+        }
 	},
 	"deployments": {}
 }

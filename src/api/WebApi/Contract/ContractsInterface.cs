@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Flow.Net.Sdk.Cadence;
 using Flow.Net.Sdk.Exceptions;
+using Flow.Net.Sdk.Models;
 using Infrastructure;
 
 namespace WebApi
@@ -93,16 +94,23 @@ namespace WebApi
         }
 
         // not in the interface. Should only be used for the script program
-        public async Task<Result> CreateAccount(string publicKey, string privateKey)
+        public async Task<Result<string>> CreateAccount(string publicKey, string privateKey)
         {
             try
             {
-                await _flow.CreateAccount(publicKey, privateKey);
-                return Result.Succeeded();
+                var accountResult = await _flow.CreateAccount(publicKey, privateKey);
+                return Result.Succeeded(accountResult.Events
+                    .Where(x => x.Type == "flow.AccountKeyAdded")
+                    .Select(x => x.Payload as CadenceComposite)
+                    .Select(x => x.Value.Fields
+                        .Where(y => y.Name == "address")
+                        .Select(y => (y.Value as CadenceAddress).Value)
+                        .FirstOrDefault())
+                    .FirstOrDefault());
             }
             catch (FlowException ex)
             {
-                return Result.Failed(ex.Message);
+                return Result.Failed<string>(ex.Message);
             }
         }
     }

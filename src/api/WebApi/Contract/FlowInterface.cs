@@ -43,11 +43,6 @@ namespace WebApi
             .Select(x => x.Signer)
             .FirstOrDefault() 
             ?? throw new FlowException($"No key found with index {KEY_INDEX}");
-        private ulong _sequenceNumber => _account?.Keys
-            .Where(x => x.Index == KEY_INDEX)
-            .Select(x => x.SequenceNumber)
-            .FirstOrDefault()
-            ?? throw new FlowException($"No key found with index {KEY_INDEX}");
         public string AccountAddress => _delphaiAddress?.HexValue;
 
         private FlowInterface(FlowClientAsync client, FlowAccount account, string transactionsPath)
@@ -135,13 +130,21 @@ namespace WebApi
             var tx = Account.CreateAccount(new List<FlowAccountKey> { key }, 
                 _delphaiAddress);
 
+            var delphaiAccount = await _flowClient.GetAccountAtLatestBlockAsync(
+                _delphaiAddress);
+
+            // Get the latest sequence number for this key
+            var delphaiKey = delphaiAccount.Keys.FirstOrDefault(w => 
+                w.Index == KEY_INDEX);
+            var sequenceNumber = delphaiKey.SequenceNumber;
+
             // set the transaction payer and proposal key
             tx.Payer = _delphaiAddress;
             tx.ProposalKey = new FlowProposalKey
             {
                 Address = _delphaiAddress,
                 KeyId = KEY_INDEX,
-                SequenceNumber = _sequenceNumber
+                SequenceNumber = sequenceNumber
             };
 
             // get the latest sealed block to use as a reference block

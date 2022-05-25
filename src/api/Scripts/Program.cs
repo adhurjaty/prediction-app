@@ -1,6 +1,7 @@
 ﻿using WebApi;
 using Newtonsoft.Json;
 using Infrastructure;
+using ServiceStack.OrmLite;
 
 namespace Scripts;
 
@@ -11,6 +12,14 @@ public static class Program
 
         var configFile = File.ReadAllText("../WebApi/appsettings.Development.json");
         var appSettings = JsonConvert.DeserializeObject<SettingsConfig>(configFile);
+
+        var connectionString = appSettings.DbConfig.ConnectionString();
+        var dbFactory = new OrmLiteConnectionFactory(connectionString,
+            PostgreSqlDialect.Provider);
+        var dbInt = new DatabaseInterface(dbFactory);
+        var strategyFactory = new DbStrategyFactory(typeof(Startup).Assembly.GetTypes());
+        var db = new ModelsDatbaseInterface(dbInt, strategyFactory);
+
         var config = appSettings.FlowSettings;
         config.CadencePath = "../WebApi/Contract/Cadence";
         var contracts = await ContractsInterface.CreateInstance(appSettings.FlowSettings);
@@ -36,6 +45,33 @@ public static class Program
             )
         };
 
+        var dan = new AccountInfo(
+            "Dan Mcleod",
+            "4e14e62df7e0422c8f3c13c9f55e63f7bb43fd713fbc6294955457ccfcb3aa21a3dcc6dde13685208686834dcd00e9acef032b73d4033a3f1bfac53ebdeb295a",
+            "39fef4dbb0ba50de91e3f841a2106e6a1b060a309cb6423a2b5f2d8a43406cb0");
+        var tony = new AccountInfo(
+            "Tony Wong",
+            "1f928fa6d8ed0723a8cd1f8dda5aef423453c3b6c4acbfad0f19f0d48ac7eeb7642817209c08e2c4313de516fe48c37169f47df4c9c6057c3ffe098819b2a282",
+            "c64520aad103a3f37a26f03ee7c7a13112f6c8626ac23c4b592849b61058fb97");
+        var anil = new AccountInfo(
+            "Anil Dhurjaty",
+            "47ea07ff0f8b71d3cfe669f6fb2b11a3d79e7ac900f4e0df7c9591d791408c270435655a49e550f484621da60e9b758b68c96f8087bc36c67f726e4a6e174919",
+            "e4a8c8fcdfad781bfd417b6408ff201da61406f9e56b0b2d1514e7ef7c2d801b");
+
+        foreach (var acct in new[] { dan, tony, anil })
+        {
+            var result = await (await (await contracts.CreateAccount(acct.PublicKey, acct.PrivateKey))
+                .TupleBind(address =>
+                    db.Single<AppUser>(x => x.DisplayName == acct.Name)))
+                .Bind(async (address, user) =>
+                {
+                    user.MainnetAddress = address;
+                    user.FriendsRelations = new List<FriendsRelation>();
+                    return await db.Update(user);
+                });
+
+            var a = 2;
+        }
         foreach (var bet in existingBets)
         {
             await (await contracts.DeployComposerBet(bet.BetId, bet.Addresses.Length))
@@ -49,7 +85,14 @@ public static class Program
 public record SettingsConfig
 {
     public FlowConfig FlowSettings { get; set; }
+    public DbConfig DbConfig { get; set; }
 }
+
+public record AccountInfo(
+    string Name,
+    string PublicKey,
+    string PrivateKey
+);
 
 public record BetSpec(
     string BetId,
@@ -68,5 +111,20 @@ cd0ba4b4-165d-427d-918a-07f20b95f8c4 | afewf                              | Soot
 cd0ba4b4-165d-427d-918a-07f20b95f8c4 | afewf                              | Sooth Sayans | Dan Mcleod    | 0x179b6b1cb6755e31
 cd0ba4b4-165d-427d-918a-07f20b95f8c4 | afewf                              | Sooth Sayans | Anil Dhurjaty | 0xe03daebed8ca0615
 
+"dan": {
+    "address": "01cf0e2f2f715450",
+    "publicKey": "4e14e62df7e0422c8f3c13c9f55e63f7bb43fd713fbc6294955457ccfcb3aa21a3dcc6dde13685208686834dcd00e9acef032b73d4033a3f1bfac53ebdeb295a",
+    "key": "39fef4dbb0ba50de91e3f841a2106e6a1b060a309cb6423a2b5f2d8a43406cb0"
+},
+"tony": {
+    "address": "179b6b1cb6755e31",
+    "publicKey": "1f928fa6d8ed0723a8cd1f8dda5aef423453c3b6c4acbfad0f19f0d48ac7eeb7642817209c08e2c4313de516fe48c37169f47df4c9c6057c3ffe098819b2a282",
+    "key": "c64520aad103a3f37a26f03ee7c7a13112f6c8626ac23c4b592849b61058fb97"
+},
+"anil": {
+    "address": "f3fcd2c1a78f5eee",
+    "publicKey": "47ea07ff0f8b71d3cfe669f6fb2b11a3d79e7ac900f4e0df7c9591d791408c270435655a49e550f484621da60e9b758b68c96f8087bc36c67f726e4a6e174919",
+    "key": "e4a8c8fcdfad781bfd417b6408ff201da61406f9e56b0b2d1514e7ef7c2d801b"
+}
 
 */
