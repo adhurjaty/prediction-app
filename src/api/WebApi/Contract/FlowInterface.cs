@@ -9,6 +9,7 @@ using Flow.Net.Sdk.Client;
 using Flow.Net.Sdk.Crypto;
 using Flow.Net.Sdk.Exceptions;
 using Flow.Net.Sdk.Models;
+using Flow.Net.Sdk.Templates;
 
 namespace WebApi
 {
@@ -24,6 +25,7 @@ namespace WebApi
         Task<FlowTransactionResult> ExecuteTransaction(string scriptName,
             List<ICadence> arguments = default, 
             Dictionary<string, string> addressMap = default, int gasLimit = 0);
+        Task<FlowTransactionResult> CreateAccount(string publicKey, string privateKey);
     }
 
     public class FlowInterface : IFlow
@@ -31,24 +33,26 @@ namespace WebApi
         private const int KEY_INDEX = 0;
         private const int DEFAULT_GAS_LIMIT = 10;
 
-        private readonly FlowAddress _delphaiAddress;
+        private readonly FlowAccount _account;
         private readonly FlowClientAsync _flowClient;
-        private readonly ISigner _signer;
         private readonly string _transactionsPath;
 
+        private FlowAddress _delphaiAddress => _account?.Address;
+        private ISigner _signer => _account.Keys
+            .Where(x => x.Index == KEY_INDEX)
+            .Select(x => x.Signer)
+            .FirstOrDefault() 
+            ?? throw new FlowException($"No key found with index {KEY_INDEX}");
+        private ulong _sequenceNumber => _account?.Keys
+            .Where(x => x.Index == KEY_INDEX)
+            .Select(x => x.SequenceNumber)
+            .FirstOrDefault()
+            ?? throw new FlowException($"No key found with index {KEY_INDEX}");
         public string AccountAddress => _delphaiAddress?.HexValue;
 
         private FlowInterface(FlowClientAsync client, FlowAccount account, string transactionsPath)
         {
-            _delphaiAddress = account.Address;
-            _signer = account.Keys
-                .Where(x => x.Index == KEY_INDEX)
-                .Select(x => x.Signer)
-                .FirstOrDefault();
-            if(_signer is null)
-            {
-                throw new FlowException($"No key found with index {KEY_INDEX}");
-            }
+            _account = account;
             _flowClient = client;
             _transactionsPath = transactionsPath;
         }
@@ -115,6 +119,47 @@ namespace WebApi
             if(!string.IsNullOrEmpty(response.ErrorMessage))
                 throw new FlowException(response.ErrorMessage);
             return response;
+        }
+
+        public async Task<FlowTransactionResult> CreateAccount(string publicKey, string privateKey)
+        {
+            var key = new FlowAccountKey
+            {
+                PrivateKey = privateKey,
+                PublicKey = publicKey,
+                SignatureAlgorithm = SignatureAlgo.ECDSA_P256,
+                HashAlgorithm = HashAlgo.SHA3_256,
+                Weight = 1000
+            };
+            
+            var tx = Account.CreateAccount(new List<FlowAccountKey> { key }, 
+                _delphaiAddress);
+
+            // set the transaction payer and proposal key
+            tx.Payer = _delphaiAddress;
+            tx.ProposalKey = new FlowProposalKey
+            {
+                Address = _delphaiAddress,
+                KeyId = KEY_INDEX,
+                SequenceNumber = _sequenceNumber
+            };
+
+            // get the latest sealed block to use as a reference block
+            var latestBlock = await _flowClient.GetLatestBlockAsync();
+            tx.ReferenceBlockId = latestBlock.Id;
+
+            // sign and submit the transaction
+            tx = FlowTransaction.AddEnvelopeSigner(tx, _delphaiAddress, KEY_INDEX, _signer);
+
+            var response = await _flowClient.SendTransactionAsync(tx);
+
+            // wait for seal
+            var sealedResponse = await _flowClient.WaitForSealAsync(response);
+
+            if (sealedResponse.Status != Flow.Net.Sdk.Protos.entities.TransactionStatus.Sealed)
+                return null;
+
+            return sealedResponse;
         }
     }
 }

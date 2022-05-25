@@ -23,6 +23,17 @@
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
             }
+        },
+        {
+            "name": "Scripts",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "buildScripts",
+            "program": "${workspaceFolder}/Scripts/bin/Debug/net6.0/Scripts.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/Scripts",
+            "stopAtEntry": false,
+            "console": "internalConsole"
         }
     ]
 }

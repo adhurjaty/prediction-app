@@ -91,5 +91,19 @@ namespace WebApi
         {
             return id.Replace("-", "");
         }
+
+        // not in the interface. Should only be used for the script program
+        public async Task<Result> CreateAccount(string publicKey, string privateKey)
+        {
+            try
+            {
+                await _flow.CreateAccount(publicKey, privateKey);
+                return Result.Succeeded();
+            }
+            catch (FlowException ex)
+            {
+                return Result.Failed(ex.Message);
+            }
+        }
     }
 }
