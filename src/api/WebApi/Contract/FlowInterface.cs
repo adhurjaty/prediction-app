@@ -61,52 +61,32 @@ namespace WebApi
         }
 
         public async Task<FlowTransactionResult> ExecuteTransaction(
-            string scriptName, List<ICadence> arguments=default,
-            Dictionary<string, string> addressMap = default, 
-            int gasLimit=DEFAULT_GAS_LIMIT)
+            string scriptName, List<ICadence> arguments = default,
+            Dictionary<string, string> addressMap = default,
+            int gasLimit = DEFAULT_GAS_LIMIT)
         {
-            // Get the latest account info for this address
-            var delphaiAccount = await _flowClient.GetAccountAtLatestBlockAsync(
-                _delphaiAddress);
-            var key = _account.Keys.FirstOrDefault(x => x.Index == KEY_INDEX)
-                ?? throw new FlowException($"No key found with index {KEY_INDEX}");
-            delphaiAccount.Keys = FlowAccountKey.UpdateFlowAccountKeys(new List<FlowAccountKey> { key },
-                delphaiAccount.Keys);
-
-            return await ExecuteTransaction(scriptName, delphaiAccount, arguments,
+            return await ExecuteTransaction(scriptName, _account, arguments,
                 addressMap, gasLimit);
         }
 
-        // only exposed for script or testing -- not in the interface
         public async Task<FlowTransactionResult> ExecuteTransaction(
-            string scriptName, FlowAddress address, FlowAccountKey key,
-            List<ICadence> arguments=default,
+            string scriptName, FlowAccount account, List<ICadence> arguments=default,
             Dictionary<string, string> addressMap = default, 
             int gasLimit=DEFAULT_GAS_LIMIT)
         {
             // Get the latest account info for this address
-            var account = await _flowClient.GetAccountAtLatestBlockAsync(address);
-            account.Keys = FlowAccountKey.UpdateFlowAccountKeys(new List<FlowAccountKey> { key },
-                _account.Keys);
+            var latestAccount = await _flowClient.GetAccountAtLatestBlockAsync(
+                account.Address);
 
-            return await ExecuteTransaction(scriptName, account, arguments,
-                addressMap, gasLimit);
-        }
-
-        private async Task<FlowTransactionResult> ExecuteTransaction(
-            string scriptName, FlowAccount account, 
-            List<ICadence> arguments=default,
-            Dictionary<string, string> addressMap = default, 
-            int gasLimit=DEFAULT_GAS_LIMIT)
-        {
             var txBody = Utilities.ReadCadenceScript(scriptName, _transactionsPath);
 
             // Get the latest sealed block to use as a reference block
             var latestBlock = await _flowClient.GetLatestBlockHeaderAsync();
 
-            var key = account.Keys.FirstOrDefault(x => x.Index == KEY_INDEX)
-                ?? throw new FlowException($"No key found with index {KEY_INDEX}");;
-            var sequenceNumber = key.SequenceNumber;
+            // Get the latest sequence number for this key
+            var delphaiKey = latestAccount.Keys.FirstOrDefault(w => 
+                w.Index == KEY_INDEX);
+            var sequenceNumber = delphaiKey.SequenceNumber;
 
             var tx = new FlowTransaction
             {
@@ -130,15 +110,11 @@ namespace WebApi
                     new FlowSigner()
                     {
                         Address = account.Address.Value,
-                        Signer = key.Signer,
+                        Signer = GetSigner(account),
                         KeyId = KEY_INDEX
                     }
                 },
-                AddressMap = addressMap ?? new Dictionary<string, string>()
-                    .Merge(new Dictionary<string, string>()
-                    {
-                        { "delphai", _delphaiAddress.HexValue }
-                    })
+                AddressMap = addressMap ?? new  Dictionary<string, string>()
             };
 
             var rawResponse = await _flowClient.SendTransactionAsync(tx);
@@ -148,7 +124,16 @@ namespace WebApi
             return response;
         }
 
-        public async Task<FlowTransactionResult> CreateAccount(FlowAccountKey key)
+        private ISigner GetSigner(FlowAccount account)
+        {
+            return account.Keys
+                .Where(x => x.Index == KEY_INDEX)
+                .Select(x => x.Signer)
+                .FirstOrDefault() 
+                ?? throw new FlowException($"No key found with index {KEY_INDEX}");
+        }
+
+        public async Task<FlowAccount> CreateAccount(FlowAccountKey key)
         {
             var tx = Account.CreateAccount(new List<FlowAccountKey> { key }, 
                 _delphaiAddress);
@@ -185,7 +170,13 @@ namespace WebApi
             if (sealedResponse.Status != Flow.Net.Sdk.Protos.entities.TransactionStatus.Sealed)
                 return null;
 
-            return sealedResponse;
+            var newAccountAddress = sealedResponse.Events.AccountCreatedAddress();
+
+            // get new account details
+            var newAccount = await _flowClient.GetAccountAtLatestBlockAsync(newAccountAddress);
+            newAccount.Keys = FlowAccountKey.UpdateFlowAccountKeys(
+                new List<FlowAccountKey> { key }, newAccount.Keys);
+            return newAccount;
         }
     }
 }

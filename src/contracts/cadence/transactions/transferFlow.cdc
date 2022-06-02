@@ -8,7 +8,7 @@ transaction(receiverAddress: Address, amount: UFix64) {
     prepare(acct: AuthAccount) {
         // withdraw tokens from your vault by borrowing a reference to it
         // and calling the withdraw function with that reference
-        let vaultRef = acct.borrow<&FungibleToken.Vault>(from: /storage/FlowTokenVault)
+        let vaultRef = acct.borrow<&FungibleToken.Vault>(from: /storage/flowTokenVault)
             ?? panic("Could not borrow a reference to the owner's vault")
 
         self.temporaryVault <- vaultRef.withdraw(amount: amount) as! @FlowToken.Vault
@@ -20,8 +20,8 @@ transaction(receiverAddress: Address, amount: UFix64) {
 
         // get the recipient's Receiver reference to their Vault
         // by borrowing the reference from the public capability
-        let receiverRef = recipient.getCapability(/public/FlowTokenReceiver)
-                        .borrow<&FungibleToken.Vault{FungibleToken.Receiver}>()
+        let receiverRef = recipient.getCapability(/public/flowTokenReceiver)
+                        .borrow<&FlowToken.Vault{FungibleToken.Receiver}>()
                         ?? panic("Could not borrow a reference to the receiver")
 
         // deposit your tokens to their Vault

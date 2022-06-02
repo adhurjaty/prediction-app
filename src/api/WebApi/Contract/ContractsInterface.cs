@@ -94,27 +94,33 @@ namespace WebApi
         }
 
         // not in the interface. Should only be used in script or testing
-        public async Task<Result<FlowAddress>> CreateAccount(FlowAccountKey key)
+        public async Task<Result<FlowAccount>> CreateAccount(FlowAccountKey key)
         {
             try
             {
                 var flow = _flow as FlowInterface;
-                var accountResult = await flow.CreateAccount(key);
-                return Result.Succeeded(accountResult.Events.AccountCreatedAddress());
+                var account = await flow.CreateAccount(key);
+                var setupFlowTokenResult = await flow.ExecuteTransaction("setupFlowAccount",
+                    account);
+                return Result.Succeeded(account);
             }
             catch (FlowException ex)
             {
-                return Result.Failed<FlowAddress>(ex.Message);
+                return Result.Failed<FlowAccount>(ex.Message);
             }
         }
 
         // not in the interface. Should only be used for the script program
-        public async Task<Result> SaveDelphaiUser(FlowAddress address, FlowAccountKey key)
+        public async Task<Result> SaveDelphaiUser(FlowAccount account)
         {
             try
             {
                 var flow = _flow as FlowInterface;
-                await flow.ExecuteTransaction("saveDelphaiUser", address, key);
+                await flow.ExecuteTransaction("saveDelphaiUser", account, 
+                    addressMap: new Dictionary<string, string>()
+                    {
+                        { "delphai", _delphaiAddress }
+                    });
                 return Result.Succeeded();
             }
             catch (FlowException ex)
@@ -131,7 +137,7 @@ namespace WebApi
                 await _flow.ExecuteTransaction("transferFlow", new List<ICadence>()
                 {
                     new CadenceAddress(receiver.HexValue),
-                    new CadenceNumber(CadenceNumberType.UFix64, amount.ToString())
+                    new CadenceNumber(CadenceNumberType.UFix64, amount.ToString("0.0"))
                 });
                 return Result.Succeeded();
             }

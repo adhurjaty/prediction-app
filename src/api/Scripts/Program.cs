@@ -67,19 +67,19 @@ public static class Program
             
             // create accounts and update their flow addresses
             await (await (await (await contracts.CreateAccount(key))
-                .TupleBind(accountResult =>
+                .TupleBind(account =>
                     db.Single<AppUser>(x => x.DisplayName == acct.Name)))
-                .TupleBind(async (address, user) =>
+                .TupleBind(async (account, user) =>
                 {
-                    user.MainnetAddress = address.HexValue;
+                    user.MainnetAddress = account.Address.HexValue;
                     // hack to get update to work
                     user.FriendsRelations = new List<FriendsRelation>();
                     return await db.Update(user);
                 }))
-                .Map(async (address, _, __) => 
+                .Map(async (account, _, __) => 
                 {
-                    return (await contracts.TransferFlow(address, 20))
-                        .Bind(() => contracts.SaveDelphaiUser(address, key));
+                    return (await contracts.TransferFlow(account.Address, 20))
+                        .Bind(() => contracts.SaveDelphaiUser(account));
                 });
                 // run saveDelphaiUser transaction
         }
