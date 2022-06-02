@@ -93,24 +93,51 @@ namespace WebApi
             return id.Replace("-", "");
         }
 
-        // not in the interface. Should only be used for the script program
-        public async Task<Result<string>> CreateAccount(string publicKey, string privateKey)
+        // not in the interface. Should only be used in script or testing
+        public async Task<Result<FlowAddress>> CreateAccount(FlowAccountKey key)
         {
             try
             {
-                var accountResult = await _flow.CreateAccount(publicKey, privateKey);
-                return Result.Succeeded(accountResult.Events
-                    .Where(x => x.Type == "flow.AccountKeyAdded")
-                    .Select(x => x.Payload as CadenceComposite)
-                    .Select(x => x.Value.Fields
-                        .Where(y => y.Name == "address")
-                        .Select(y => (y.Value as CadenceAddress).Value)
-                        .FirstOrDefault())
-                    .FirstOrDefault());
+                var flow = _flow as FlowInterface;
+                var accountResult = await flow.CreateAccount(key);
+                return Result.Succeeded(accountResult.Events.AccountCreatedAddress());
             }
             catch (FlowException ex)
             {
-                return Result.Failed<string>(ex.Message);
+                return Result.Failed<FlowAddress>(ex.Message);
+            }
+        }
+
+        // not in the interface. Should only be used for the script program
+        public async Task<Result> SaveDelphaiUser(FlowAddress address, FlowAccountKey key)
+        {
+            try
+            {
+                var flow = _flow as FlowInterface;
+                await flow.ExecuteTransaction("saveDelphaiUser", address, key);
+                return Result.Succeeded();
+            }
+            catch (FlowException ex)
+            {
+                return Result.Failed(ex.Message);
+            }
+        }
+
+        // not in the interface. Should only be used for the script program
+        public async Task<Result> TransferFlow(FlowAddress receiver, decimal amount)
+        {
+            try
+            {
+                await _flow.ExecuteTransaction("transferFlow", new List<ICadence>()
+                {
+                    new CadenceAddress(receiver.HexValue),
+                    new CadenceNumber(CadenceNumberType.UFix64, amount.ToString())
+                });
+                return Result.Succeeded();
+            }
+            catch (FlowException ex)
+            {
+                return Result.Failed(ex.Message);
             }
         }
     }

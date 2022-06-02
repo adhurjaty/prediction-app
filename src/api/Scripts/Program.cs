@@ -2,6 +2,8 @@
 using Newtonsoft.Json;
 using Infrastructure;
 using ServiceStack.OrmLite;
+using Flow.Net.Sdk.Models;
+using Flow.Net.Sdk;
 
 namespace Scripts;
 
@@ -45,6 +47,7 @@ public static class Program
             )
         };
 
+        // seed user accounts
         var dan = new AccountInfo(
             "Dan Mcleod",
             "4e14e62df7e0422c8f3c13c9f55e63f7bb43fd713fbc6294955457ccfcb3aa21a3dcc6dde13685208686834dcd00e9acef032b73d4033a3f1bfac53ebdeb295a",
@@ -60,18 +63,27 @@ public static class Program
 
         foreach (var acct in new[] { dan, tony, anil })
         {
-            var result = await (await (await contracts.CreateAccount(acct.PublicKey, acct.PrivateKey))
-                .TupleBind(address =>
+            var key = FlowAccountKey.GenerateRandomEcdsaKey(SignatureAlgo.ECDSA_P256, HashAlgo.SHA3_256, 1000);
+            
+            // create accounts and update their flow addresses
+            await (await (await (await contracts.CreateAccount(key))
+                .TupleBind(accountResult =>
                     db.Single<AppUser>(x => x.DisplayName == acct.Name)))
-                .Bind(async (address, user) =>
+                .TupleBind(async (address, user) =>
                 {
-                    user.MainnetAddress = address;
+                    user.MainnetAddress = address.HexValue;
+                    // hack to get update to work
                     user.FriendsRelations = new List<FriendsRelation>();
                     return await db.Update(user);
+                }))
+                .Map(async (address, _, __) => 
+                {
+                    return (await contracts.TransferFlow(address, 20))
+                        .Bind(() => contracts.SaveDelphaiUser(address, key));
                 });
-
-            var a = 2;
+                // run saveDelphaiUser transaction
         }
+
         foreach (var bet in existingBets)
         {
             await (await contracts.DeployComposerBet(bet.BetId, bet.Addresses.Length))
@@ -84,7 +96,7 @@ public static class Program
 
 public record SettingsConfig
 {
-    public FlowConfig FlowSettings { get; set; }
+    public WebApi.FlowConfig FlowSettings { get; set; }
     public DbConfig DbConfig { get; set; }
 }
 
