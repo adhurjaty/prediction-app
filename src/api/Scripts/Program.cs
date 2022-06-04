@@ -84,6 +84,21 @@ public static class Program
                 // run saveDelphaiUser transaction
         }
 
+        (await db.Select<AppUser>(u => Sql.In(u.DisplayName, new[] { dan, tony, anil }.Select(x => x.Name))))
+            .Tee(users =>
+            {
+                var orderedUsers = users.OrderBy(x => x.DisplayName).ToArray();
+                var (anil, dan, tony) = (orderedUsers[0], orderedUsers[1], orderedUsers[2]);
+                existingBets[0] = existingBets[0] with
+                {
+                    Addresses = orderedUsers.Select(x => x.MainnetAddress).ToArray()
+                };
+                existingBets[1] = existingBets[1] with
+                {
+                    Addresses = new[] { anil, dan }.Select(x => x.MainnetAddress).ToArray()
+                };
+            });
+
         foreach (var bet in existingBets)
         {
             await (await contracts.DeployComposerBet(bet.BetId, bet.Addresses.Length))

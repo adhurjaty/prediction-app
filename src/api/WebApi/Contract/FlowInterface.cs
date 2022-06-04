@@ -30,7 +30,7 @@ namespace WebApi
     public class FlowInterface : IFlow
     {
         private const int KEY_INDEX = 0;
-        private const int DEFAULT_GAS_LIMIT = 10;
+        private const int DEFAULT_GAS_LIMIT = 100;
 
         private readonly FlowAccount _account;
         private readonly FlowClientAsync _flowClient;

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Flow.Net.Sdk.Cadence;
 using Flow.Net.Sdk.Exceptions;
@@ -90,7 +91,7 @@ namespace WebApi
 
         private static string ToCadenceId(string id)
         {
-            return id.Replace("-", "");
+            return Regex.Replace(id.Replace("-", ""), @"^\d+", "");
         }
 
         // not in the interface. Should only be used in script or testing
