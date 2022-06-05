@@ -17,6 +17,8 @@
 		"@mui/material": "^5.6.4",
 		"@mui/styled-engine-sc": "^5.6.1",
 		"@mui/x-date-pickers": "^5.0.0-alpha.3",
+		"@onflow/fcl": "^1.0.2",
+		"@onflow/types": "^1.0.1",
 		"@sniptt/monads": "^0.5.10",
 		"@types/date-fns": "^2.6.0",
 		"@types/jwt-encode": "^1.0.0",

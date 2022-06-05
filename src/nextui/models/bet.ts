@@ -1,4 +1,4 @@
-export interface Bet {
+export default interface Bet {
     id: string,
     groupId: string,
     type: string,
