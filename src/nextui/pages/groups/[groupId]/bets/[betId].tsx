@@ -2,11 +2,15 @@ import LoadingSection from "@/components/loadingSection";
 import SecondaryPage from "@/components/secondaryPage";
 import Section from "@/components/section";
 import { CircleInner } from "@/components/styled";
-import { Bet } from "@/models/bet";
-import { Group } from "@/models/group";
+import DelphaiInterface from "@/contracts/delphaiInterface";
+import Bet from "@/models/bet";
+import Group from "@/models/group";
+import User from "@/models/user";
+import Wager from "@/models/wager";
 import { fetchModel } from "@/utils/nodeInterface";
 import { Avatar, Container, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { Err, Ok } from "@sniptt/monads/build";
+import { Form } from "formik";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -17,6 +21,7 @@ export default function BetPage() {
     const loading = status === "loading";
     const [bet, setBet] = useState<Bet>();
     const [group, setGroup] = useState<Group>();
+    const [wagers, setWagers] = useState<Wager[]>();
     const [fetchError, setError] = useState<string>();
 
     const { groupId, betId } = router.query;
@@ -44,6 +49,15 @@ export default function BetPage() {
                     return Err(`Could not find bet ${betId} in group ${groupId}`);
                 })
                 .mapErr(err => setError(err));
+            (await fetchModel<User>('/api/fullUser'))
+                .map(user => {
+                    const delphai = new DelphaiInterface(user.mainnetAddress, "f8d6e0586b0a20c7");
+                    delphai.getWagers(betId as string)
+                        .then(res => res.map(ws => {
+                            debugger;
+                            ws && setWagers(ws)
+                        }));
+                });
         }
         if (session) {
             fetchData();
@@ -101,7 +115,11 @@ export default function BetPage() {
                                 <Typography variant="body2">
                                     No one is in the group!
                                 </Typography>}
+                            <Form>
+                                <Stack spacing={1}>
 
+                                </Stack>
+                            </Form>
                         {/* <form>
                             <div v-if="existingUserWager">
                                 You've already made a prediction

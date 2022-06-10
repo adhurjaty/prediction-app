@@ -1,7 +1,7 @@
 import LoadingSection from "@/components/loadingSection";
 import PrimaryPage from "@/components/primaryPage";
 import { Circle, CircleInner, CircleSvg } from "@/components/styled"
-import { Group } from "@/models/group";
+import Group from "@/models/group";
 import { fetchModel } from "@/utils/nodeInterface";
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText } from "@mui/material";
 import { useSession } from "next-auth/react";

@@ -1,8 +1,8 @@
 import LoadingSection from "@/components/loadingSection";
 import SecondaryPage from "@/components/secondaryPage";
 import Section from "@/components/section";
-import { Bet } from "@/models/bet";
-import { Group } from "@/models/group";
+import Bet from "@/models/bet";
+import Group from "@/models/group";
 import { fetchModel } from "@/utils/nodeInterface";
 import { Avatar, Button, Container, Grid, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { useSession } from "next-auth/react";
