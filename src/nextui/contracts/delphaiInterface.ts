@@ -15,12 +15,9 @@ import { Result } from '@sniptt/monads/build';
 
 
 export default class DelphaiInterface {
-    private address: string = '';
-    private delphaiAddress: string = '';
+    private delphaiAddress: string = '0xf8d6e0586b0a20c7';
 
-    constructor(address: string, delphaiAddress: string) {
-        this.address = `0x${address}`;
-        this.delphaiAddress = `0x${delphaiAddress}`;
+    constructor() {
         fcl.config()
             .put("accessNode.api", "http://127.0.0.1:8888")
             .put("0xdelphai", "0xf8d6e0586b0a20c7")
@@ -32,14 +29,13 @@ export default class DelphaiInterface {
 
     async placeBet(wager: Wager): Promise<Result<any, string>> {
         const transactionText = placeBetText as string;
-        debugger;
         return await flow.mutate<any>({
             cadence: transactionText,
             payer: fcl.authz,
             proposer: fcl.authz,
             authorizations: [fcl.authz],
             args: (arg, t) => [
-                arg(this.address, t.Address),
+                arg(this.delphaiAddress, t.Address),
                 arg(wager.betId, t.String),
                 arg(wager.prediction, t.Bool),
                 arg(wager.wager, t.UFix64)
@@ -57,7 +53,7 @@ export default class DelphaiInterface {
             proposer: fcl.authz,
             authorizations: [fcl.authz],
             args: (arg, t) => [
-                arg(this.address, t.Address),
+                arg(this.delphaiAddress, t.Address),
                 arg(resolution.betId, t.String),
                 arg(resolution.vote, t.Bool)
             ],
@@ -67,7 +63,6 @@ export default class DelphaiInterface {
 
     async getWagers(betId: string): Promise<Result<Wager[], string>> {
         const scriptText = getWagersText as string;
-        debugger;
         return await flow.query<Wager[]>({
             cadence: scriptText,
             args: (arg, t) => [
