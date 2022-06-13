@@ -13,7 +13,7 @@ import { Err, Ok } from "@sniptt/monads/build";
 import { Form } from "formik";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function BetPage() {
     const router = useRouter();
@@ -36,8 +36,11 @@ export default function BetPage() {
         }
     ];
 
+    const unmounted = useRef(false);
     useEffect(() => {
+
         const fetchData = async () => {
+
             (await fetchModel<Group>(`/api/groups/${groupId}`))
                 .andThen(val => {
                     setGroup(val);
@@ -49,19 +52,16 @@ export default function BetPage() {
                     return Err(`Could not find bet ${betId} in group ${groupId}`);
                 })
                 .mapErr(err => setError(err));
-            (await fetchModel<User>('/api/fullUser'))
-                .map(user => {
-                    const delphai = new DelphaiInterface(user.mainnetAddress, "f8d6e0586b0a20c7");
-                    delphai.getWagers(betId as string)
-                        .then(res => res.map(ws => {
-                            debugger;
-                            ws && setWagers(ws)
-                        }));
-                });
+            
+            const delphai = new DelphaiInterface();
+            (await delphai.getWagers(betId as string))
+                .map(ws => ws && setWagers(ws));
         }
-        if (session) {
+        if (session && !unmounted.current) {
             fetchData();
         }
+
+        return () => { unmounted.current = true }
     }, [session, groupId, betId]);
 
     return (
