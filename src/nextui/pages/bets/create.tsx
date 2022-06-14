@@ -1,8 +1,8 @@
 import { DatePickerInput, SelectInput, TextAreaInput, TextInput } from "@/components/formFields";
 import LoadingSection from "@/components/loadingSection";
 import SecondaryPage from "@/components/secondaryPage";
-import { Bet } from "@/models/bet";
-import { Group } from "@/models/group";
+import Bet from "@/models/bet";
+import Group from "@/models/group";
 import { fetchModel, postModel } from "@/utils/nodeInterface";
 import { Button, Container, Grid, MenuItem, Stack, Typography } from "@mui/material";
 import { Form, Formik } from "formik";

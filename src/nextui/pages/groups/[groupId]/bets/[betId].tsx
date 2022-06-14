@@ -1,3 +1,4 @@
+import { TextInput } from "@/components/formFields";
 import LoadingSection from "@/components/loadingSection";
 import SecondaryPage from "@/components/secondaryPage";
 import DelphaiInterface from "@/contracts/delphaiInterface";
@@ -6,12 +7,13 @@ import Group from "@/models/group";
 import User from "@/models/user";
 import Wager from "@/models/wager";
 import { fetchModel } from "@/utils/nodeInterface";
-import { Avatar, Container, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Avatar, Button, Container, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { Err, Ok } from "@sniptt/monads/build";
-import { Form } from "formik";
+import { Form, Formik } from "formik";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useRef, useState } from "react";
+import * as Yup from 'yup';
 
 export default function BetPage() {
     const router = useRouter();
@@ -20,9 +22,8 @@ export default function BetPage() {
     const [bet, setBet] = useState<Bet>();
     const [group, setGroup] = useState<Group>();
     const [wagers, setWagers] = useState<Wager[]>();
+    const [user, setUser] = useState<User>();
     const [fetchError, setError] = useState<string>();
-
-    // const delphai = useContext(FclContext);
 
     const { groupId, betId } = router.query;
 
@@ -35,6 +36,11 @@ export default function BetPage() {
             )
         }
     ];
+
+    const wagerState = {
+        hasMadeWager: !!wagers?.find(w => w.userId === user?.id),
+        isBetClosed: !!bet && bet.closeTime.getTime() < Date.now()
+    };
 
     useEffect(() => {
         const abortController = new AbortController();
@@ -53,8 +59,11 @@ export default function BetPage() {
                 .mapErr(err => setError(err));
                 
             const delphai = new DelphaiInterface();
-            delphai && !abortController.signal.aborted && (await delphai.getWagers(betId as string))
+            !abortController.signal.aborted && (await delphai.getWagers(betId as string))
                 .map(ws => ws && setWagers(ws));
+            
+            (await fetchModel<User>('/api/fullUser', abortController.signal))
+                .map(u => setUser(u));
         })().catch(err => {
             if (err.name !== 'AbortError') return;
             throw err;
@@ -114,11 +123,6 @@ export default function BetPage() {
                                 <Typography variant="body2">
                                     No one is in the group!
                                 </Typography>}
-                            <Form>
-                                <Stack spacing={1}>
-
-                                </Stack>
-                            </Form>
                         {/* <form>
                             <div v-if="existingUserWager">
                                 You've already made a prediction
