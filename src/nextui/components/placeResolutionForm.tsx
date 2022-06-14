@@ -5,7 +5,7 @@ import { SelectInput, TextInput } from "./formFields";
 
 interface Props {
     onSubmit: (values: any) => Promise<boolean>;
-    submitError: string;
+    submitError?: string;
 }
 
 export default function PlaceResolutionForm({ onSubmit, submitError }: Props) {

@@ -1,9 +1,12 @@
 import { TextInput } from "@/components/formFields";
 import LoadingSection from "@/components/loadingSection";
+import PlaceResolutionForm from "@/components/placeResolutionForm";
+import PlaceWagerForm from "@/components/placeWagerForm";
 import SecondaryPage from "@/components/secondaryPage";
 import DelphaiInterface from "@/contracts/delphaiInterface";
 import Bet from "@/models/bet";
 import Group from "@/models/group";
+import Resolution from "@/models/resolution";
 import User from "@/models/user";
 import Wager from "@/models/wager";
 import { fetchModel } from "@/utils/nodeInterface";
@@ -24,6 +27,8 @@ export default function BetPage() {
     const [wagers, setWagers] = useState<Wager[]>();
     const [user, setUser] = useState<User>();
     const [fetchError, setError] = useState<string>();
+    const [submitWagerError, setSubmitWagerError] = useState<string>();
+    const [submitResolutionError, setSubmitResolutionError] = useState<string>();
 
     const { groupId, betId } = router.query;
 
@@ -37,10 +42,13 @@ export default function BetPage() {
         }
     ];
 
-    const wagerState = {
-        hasMadeWager: !!wagers?.find(w => w.userId === user?.id),
-        isBetClosed: !!bet && bet.closeTime.getTime() < Date.now()
-    };
+    const onSubmitWager = async (wager: Wager) => {
+        return true;
+    }
+
+    const onSubmitResolution = async (resolution: Resolution) => {
+        return true;
+    }
 
     useEffect(() => {
         const abortController = new AbortController();
@@ -51,6 +59,8 @@ export default function BetPage() {
                     setGroup(val);
                     const groupBet = val.bets.find(x => x.id === betId);
                     if (groupBet) {
+                        debugger;
+                        groupBet.closeTime = new Date(groupBet.closeTime);
                         setBet(groupBet);
                         return Ok(groupBet);
                     }
@@ -71,6 +81,43 @@ export default function BetPage() {
 
         return () => abortController.abort();
     }, [session, groupId, betId]);
+
+    const isBetClosed = !!bet && bet.closeTime.getTime() < Date.now();
+
+    const wagerSection = () => {
+        const hasMadeWager = !!wagers?.find(w => w.userId === user?.id);
+        
+        if (isBetClosed) {
+            return (
+                <Typography variant="h6">
+                    Bet is closed
+                </Typography>
+            );
+        }
+        if (hasMadeWager) {
+            return (
+                <Typography variant="h6">
+                    You have already made a wager for this bet
+                </Typography>
+            );
+        }
+        return <PlaceWagerForm onSubmit={onSubmitWager} submitError={submitWagerError} />;
+    }
+
+    const resolutionSection = () => {
+        if (!isBetClosed) {
+            return (
+                <Typography variant="h6">
+                    Bet is not closed yet
+                </Typography>
+            );
+        }
+        
+        return <PlaceResolutionForm
+            onSubmit={onSubmitResolution}
+            submitError={submitResolutionError}
+        />
+    }
 
     return (
         <SecondaryPage title={bet?.title ?? "Bet"} navLinks={navLinks}>
@@ -123,6 +170,8 @@ export default function BetPage() {
                                 <Typography variant="body2">
                                     No one is in the group!
                                 </Typography>}
+                            {wagerSection()}
+                            {resolutionSection()}
                         {/* <form>
                             <div v-if="existingUserWager">
                                 You've already made a prediction
