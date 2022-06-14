@@ -3,6 +3,9 @@ import { useRouter } from 'next/router'
 import NoAuthPage from './noAuthPage'
 import AuthPage from './authPage'
 import PrimaryNav from './primaryNav'
+import { createContext } from 'vm'
+import DelphaiInterface from '@/contracts/delphaiInterface'
+import FclContext from './FclContext'
 
 interface Props {
 	title?: string
@@ -10,6 +13,7 @@ interface Props {
     appBar: JSX.Element
     bottomNav?: JSX.Element
 }
+
 
 const Page = ({ title, children, appBar, bottomNav }: Props) => {
     const { data: session, status } = useSession();
@@ -24,11 +28,13 @@ const Page = ({ title, children, appBar, bottomNav }: Props) => {
             <NoAuthPage />
         )    
     }
-    
+
     return (
-        <AuthPage title={title} appBar={appBar} bottomNav={bottomNav ??  <PrimaryNav />}>
-            {children}
-        </AuthPage>
+        <FclContext.Provider value={new DelphaiInterface()}>
+            <AuthPage title={title} appBar={appBar} bottomNav={bottomNav ??  <PrimaryNav />}>
+                {children}
+            </AuthPage>
+        </FclContext.Provider>
     )
 };
 

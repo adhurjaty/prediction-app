@@ -1,3 +1,4 @@
+import FclContext from "@/components/FclContext";
 import LoadingSection from "@/components/loadingSection";
 import SecondaryPage from "@/components/secondaryPage";
 import Section from "@/components/section";
@@ -13,7 +14,7 @@ import { Err, Ok } from "@sniptt/monads/build";
 import { Form } from "formik";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 export default function BetPage() {
     const router = useRouter();
@@ -36,12 +37,13 @@ export default function BetPage() {
         }
     ];
 
-    const unmounted = useRef(false);
+    const delphai = useContext(FclContext);
+    
     useEffect(() => {
-
-        const fetchData = async () => {
-
-            (await fetchModel<Group>(`/api/groups/${groupId}`))
+        const abortController = new AbortController();
+        
+        session && (async () => {
+            (await fetchModel<Group>(`/api/groups/${groupId}`, abortController.signal))
                 .andThen(val => {
                     setGroup(val);
                     const groupBet = val.bets.find(x => x.id === betId);
@@ -52,17 +54,16 @@ export default function BetPage() {
                     return Err(`Could not find bet ${betId} in group ${groupId}`);
                 })
                 .mapErr(err => setError(err));
-            
-            const delphai = new DelphaiInterface();
-            (await delphai.getWagers(betId as string))
+                
+            delphai && (await delphai.getWagers(betId as string))
                 .map(ws => ws && setWagers(ws));
-        }
-        if (session && !unmounted.current) {
-            fetchData();
-        }
+        })().catch(err => {
+            if (err.name !== 'AbortError') return;
+            throw err;
+        })
 
-        return () => { unmounted.current = true }
-    }, [session, groupId, betId]);
+        return () => abortController.abort();
+    }, [session, groupId, betId, delphai]);
 
     return (
         <SecondaryPage title={bet?.title ?? "Bet"} navLinks={navLinks}>
