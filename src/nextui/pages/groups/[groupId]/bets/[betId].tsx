@@ -1,8 +1,5 @@
-import FclContext from "@/components/FclContext";
 import LoadingSection from "@/components/loadingSection";
 import SecondaryPage from "@/components/secondaryPage";
-import Section from "@/components/section";
-import { CircleInner } from "@/components/styled";
 import DelphaiInterface from "@/contracts/delphaiInterface";
 import Bet from "@/models/bet";
 import Group from "@/models/group";
@@ -25,6 +22,8 @@ export default function BetPage() {
     const [wagers, setWagers] = useState<Wager[]>();
     const [fetchError, setError] = useState<string>();
 
+    // const delphai = useContext(FclContext);
+
     const { groupId, betId } = router.query;
 
     const navLinks = [
@@ -37,8 +36,6 @@ export default function BetPage() {
         }
     ];
 
-    const delphai = useContext(FclContext);
-    
     useEffect(() => {
         const abortController = new AbortController();
         
@@ -55,7 +52,8 @@ export default function BetPage() {
                 })
                 .mapErr(err => setError(err));
                 
-            delphai && (await delphai.getWagers(betId as string))
+            const delphai = new DelphaiInterface();
+            delphai && !abortController.signal.aborted && (await delphai.getWagers(betId as string))
                 .map(ws => ws && setWagers(ws));
         })().catch(err => {
             if (err.name !== 'AbortError') return;
@@ -63,7 +61,7 @@ export default function BetPage() {
         })
 
         return () => abortController.abort();
-    }, [session, groupId, betId, delphai]);
+    }, [session, groupId, betId]);
 
     return (
         <SecondaryPage title={bet?.title ?? "Bet"} navLinks={navLinks}>
