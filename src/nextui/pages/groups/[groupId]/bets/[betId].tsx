@@ -27,8 +27,7 @@ export default function BetPage() {
     const [wagers, setWagers] = useState<Wager[]>();
     const [user, setUser] = useState<User>();
     const [fetchError, setError] = useState<string>();
-    const [submitWagerError, setSubmitWagerError] = useState<string>();
-    const [submitResolutionError, setSubmitResolutionError] = useState<string>();
+    const [delphai, _] = useState<DelphaiInterface>(new DelphaiInterface());
 
     const { groupId, betId } = router.query;
 
@@ -42,14 +41,6 @@ export default function BetPage() {
         }
     ];
 
-    const onSubmitWager = async (wager: Wager) => {
-        return true;
-    }
-
-    const onSubmitResolution = async (resolution: Resolution) => {
-        return true;
-    }
-
     useEffect(() => {
         const abortController = new AbortController();
         
@@ -59,7 +50,6 @@ export default function BetPage() {
                     setGroup(val);
                     const groupBet = val.bets.find(x => x.id === betId);
                     if (groupBet) {
-                        debugger;
                         groupBet.closeTime = new Date(groupBet.closeTime);
                         setBet(groupBet);
                         return Ok(groupBet);
@@ -68,7 +58,7 @@ export default function BetPage() {
                 })
                 .mapErr(err => setError(err));
                 
-            const delphai = new DelphaiInterface();
+            // const delphai = new DelphaiInterface();
             !abortController.signal.aborted && (await delphai.getWagers(betId as string))
                 .map(ws => ws && setWagers(ws));
             
@@ -80,11 +70,10 @@ export default function BetPage() {
         })
 
         return () => abortController.abort();
-    }, [session, groupId, betId]);
-
-    const isBetClosed = !!bet && bet.closeTime.getTime() < Date.now();
+    }, [session, groupId, betId, delphai]);
 
     const wagerSection = () => {
+        const isBetClosed = !!bet && bet.closeTime.getTime() < Date.now();
         const hasMadeWager = !!wagers?.find(w => w.userId === user?.id);
         
         if (isBetClosed) {
@@ -101,10 +90,15 @@ export default function BetPage() {
                 </Typography>
             );
         }
-        return <PlaceWagerForm onSubmit={onSubmitWager} submitError={submitWagerError} />;
+        return <PlaceWagerForm
+            delphai={delphai}
+            betId={bet?.id || ''}
+            userId={user?.id || ''}
+        />;
     }
 
     const resolutionSection = () => {
+        const isBetClosed = !!bet && bet.closeTime.getTime() < Date.now();
         if (!isBetClosed) {
             return (
                 <Typography variant="h6">
@@ -114,8 +108,9 @@ export default function BetPage() {
         }
         
         return <PlaceResolutionForm
-            onSubmit={onSubmitResolution}
-            submitError={submitResolutionError}
+            delphai={delphai}
+            betId={bet?.id || ''}
+            userId={user?.id || ''}
         />
     }
 
@@ -172,42 +167,6 @@ export default function BetPage() {
                                 </Typography>}
                             {wagerSection()}
                             {resolutionSection()}
-                        {/* <form>
-                            <div v-if="existingUserWager">
-                                You've already made a prediction
-                            </div>
-                            <div v-else-if="hasBetClosed">
-                                Bet is closed
-                            </div>
-                            <div v-else>
-                                <h3>Place Wager</h3>
-                                <label>Prediction<span class="required">*</span></label>
-                                <select v-model="userWager.prediction">
-                                    <option :value="true">Yes</option>
-                                    <option :value="false">No</option>
-                                </select>
-                                <label>Wager<span class="required">*</span></label>
-                                <input type="number" 
-                                    v-model="userWager.wager"
-                                    required />
-                                <button @click="placeWager()">Place wager</button>
-                            </div>
-                            <div v-if="hasResolutionVote">
-                                You've already voted to resolve
-                            </div>
-                            <div v-else-if="!hasBetClosed">
-                                Bet is still open
-                            </div>
-                            <div v-else>
-                                <h3>Vote to resolve</h3>
-                                <label>Resolution vote<span class="required">*</span></label>
-                                <select v-model="userResolution.vote">
-                                    <option :value="true">Yes</option>
-                                    <option :value="false">No</option>
-                                </select>
-                                <button @click="placeWager()">Place wager</button>
-                            </div>
-                        </form > */}
                     </Stack>)}
                 </Container>
             </LoadingSection>

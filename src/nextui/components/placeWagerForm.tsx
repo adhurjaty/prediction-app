@@ -1,15 +1,25 @@
+import DelphaiInterface from "@/contracts/delphaiInterface";
+import Wager from "@/models/wager";
 import { Button, MenuItem, Stack, Typography } from "@mui/material";
 import { Form, Formik } from "formik";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { SelectInput, TextInput } from "./formFields";
 
 interface Props {
-    onSubmit: (values: any) => Promise<boolean>;
-    submitError?: string;
+    delphai: DelphaiInterface;
+    betId: string;
+    userId: string;
 }
 
-export default function PlaceWagerForm({ onSubmit, submitError }: Props) {
+export default function PlaceWagerForm({ delphai, betId, userId }: Props) {
+    const [submitError, setSubmitError] = useState<string>();
     
+    const onSubmit = async (wager: Wager) => {
+        return (await delphai.placeBet(wager))
+            .mapErr(err => setSubmitError(err))
+            .isOk();
+    }
+
     return (
         <Formik
             initialValues={{
@@ -17,7 +27,12 @@ export default function PlaceWagerForm({ onSubmit, submitError }: Props) {
                 wager: 0
             }}
             onSubmit={async (values, { setSubmitting }) => {
-                var result = await onSubmit(values);
+                var result = await onSubmit({
+                    ...values,
+                    prediction: values.prediction === "true",
+                    betId,
+                    userId
+                });
                 setSubmitting(false);
                 return result;
             }}
@@ -44,6 +59,7 @@ export default function PlaceWagerForm({ onSubmit, submitError }: Props) {
                     <Button
                         type="submit"
                         variant="contained"
+                        
                     >
                         Place Wager
                     </Button>
