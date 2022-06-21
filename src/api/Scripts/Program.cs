@@ -64,7 +64,8 @@ public static class Program
         foreach (var acct in new[] { dan, tony, anil })
         {
             var key = FlowAccountKey.GenerateRandomEcdsaKey(SignatureAlgo.ECDSA_P256, HashAlgo.SHA3_256, 1000);
-            
+            var address = "";
+
             // create accounts and update their flow addresses
             await (await (await (await contracts.CreateAccount(key))
                 .TupleBind(account =>
@@ -74,6 +75,7 @@ public static class Program
                     user.MainnetAddress = account.Address.HexValue;
                     // hack to get update to work
                     user.FriendsRelations = new List<FriendsRelation>();
+                    address = user.MainnetAddress;
                     return await db.Update(user);
                 }))
                 .Map(async (account, _, __) => 
@@ -81,7 +83,14 @@ public static class Program
                     return (await contracts.TransferFlow(account.Address, 20))
                         .Bind(() => contracts.SaveDelphaiUser(account));
                 });
-                // run saveDelphaiUser transaction
+                
+                if(acct == anil)
+                {
+                    var template = File.ReadAllText("wallet.sh.template");
+                    var sh = string.Format(template, key.PrivateKey, key.PublicKey, 
+                        $"0x{address}");
+                    File.WriteAllText("../../contracts/wallet.sh", sh);
+                }
         }
 
         (await db.Select<AppUser>(u => Sql.In(u.DisplayName, new[] { dan, tony, anil }.Select(x => x.Name))))

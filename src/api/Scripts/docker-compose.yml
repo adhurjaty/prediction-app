@@ -1,0 +1,31 @@
+version: "3"
+services:
+  wallet:
+    build: .
+    ports:
+      - "8701:8701"
+    environment:
+      - PORT=8701
+      - BASE_URL=http://localhost:8701
+      - FLOW_ACCESS_NODE=http://emulator:8888
+      - FLOW_ACCOUNT_KEY_ID=0
+      - FLOW_ACCOUNT_PRIVATE_KEY=77aa00d02e734a929bbe70b990cb53286582087707c85555746ad9b797d8135d
+      - FLOW_ACCOUNT_PUBLIC_KEY=8e4afadf0b1b55bf804b0d8a66dcc0ff5e4a48ab3e192b516ed6723f2743b62f9311ddea1f72f1ac62810c52eec52efb1074dce864c6cc1e415deb57f65bb464
+      - FLOW_INIT_ACCOUNTS=0
+      - FLOW_ACCOUNT_ADDRESS=0xf3fcd2c1a78f5eee
+      - FLOW_AVATAR_URL=https://avatars.onflow.org/avatar/
+      - CONTRACT_FUNGIBLE_TOKEN=0xee82856bf20e2aa6
+      - CONTRACT_FLOW_TOKEN=0x0ae53cb6e3f42a79
+      - CONTRACT_FUSD=0xf8d6e0586b0a20c7
+      - CONTRACT_FCL_CRYPTO=0xf8d6e0586b0a20c7
+      - TOKEN_AMOUNT_FLOW=100.0
+      - TOKEN_AMOUNT_FUSD=100.0
+  emulator:
+    image: gcr.io/flow-container-registry/emulator:0.20.2
+    ports:
+      - "8888:8888"
+      - "3569:3569"
+    environment:
+      - FLOW_SERVICEPRIVATEKEY=84f82df6790f07b281adb5bbc848bd6298a2de67f94bdfac7a400d5a1b893de5
+      - FLOW_SERVICEKEYSIGALGO=ECDSA_P256
+      - FLOW_SERVICEKEYHASHALGO=SHA3_256
