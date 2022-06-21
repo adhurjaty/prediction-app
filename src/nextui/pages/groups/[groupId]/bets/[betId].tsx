@@ -1,4 +1,3 @@
-import { TextInput } from "@/components/formFields";
 import LoadingSection from "@/components/loadingSection";
 import PlaceResolutionForm from "@/components/placeResolutionForm";
 import PlaceWagerForm from "@/components/placeWagerForm";
@@ -6,17 +5,14 @@ import SecondaryPage from "@/components/secondaryPage";
 import DelphaiInterface from "@/contracts/delphaiInterface";
 import Bet from "@/models/bet";
 import Group from "@/models/group";
-import Resolution from "@/models/resolution";
 import User from "@/models/user";
 import Wager from "@/models/wager";
 import { fetchModel } from "@/utils/nodeInterface";
-import { Avatar, Button, Container, Grid, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Avatar, Container, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { Err, Ok } from "@sniptt/monads/build";
-import { Form, Formik } from "formik";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useContext, useEffect, useRef, useState } from "react";
-import * as Yup from 'yup';
+import { useEffect, useState } from "react";
 
 export default function BetPage() {
     const router = useRouter();
@@ -58,7 +54,6 @@ export default function BetPage() {
                 })
                 .mapErr(err => setError(err));
                 
-            // const delphai = new DelphaiInterface();
             !abortController.signal.aborted && (await delphai.getWagers(betId as string))
                 .map(ws => ws && setWagers(ws));
             

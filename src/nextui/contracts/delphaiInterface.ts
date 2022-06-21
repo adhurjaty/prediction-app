@@ -20,10 +20,11 @@ export default class DelphaiInterface {
     constructor() {
         fcl.config()
             .put("accessNode.api", "http://127.0.0.1:8888")
-            .put("0xdelphai", "0xf8d6e0586b0a20c7")
+            .put("0xdelphai", this.delphaiAddress)
             .put("discovery.wallet", "http://localhost:8701/fcl/authn")
+            .put("challenge.handshake", "http://localhost:8701/fcl/authn")
             // .put("sdk.transport", grpcSend)
-            .put("0xFUSD", "0xf8d6e0586b0a20c7");
+            .put("0xFUSD", this.delphaiAddress);
         fcl.authenticate();
     }
 
@@ -38,7 +39,7 @@ export default class DelphaiInterface {
                 arg(this.delphaiAddress, t.Address),
                 arg(wager.betId, t.String),
                 arg(wager.prediction, t.Bool),
-                arg(wager.wager, t.UFix64)
+                arg(wager.wager.toString(), t.UFix64)
             ],
             limit: 50
         });
