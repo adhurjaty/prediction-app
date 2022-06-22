@@ -86,10 +86,11 @@ public static class Program
                 
                 if(acct == anil)
                 {
-                    var template = File.ReadAllText("wallet.sh.template");
-                    var sh = string.Format(template, key.PrivateKey, key.PublicKey, 
-                        $"0x{address}");
-                    File.WriteAllText("../../contracts/wallet.sh", sh);
+                    var template = File.ReadAllText("wallet_flow.json.template");
+                    var json = template
+                        .Replace("$key$", key.PrivateKey)
+                        .Replace("$address$", address);
+                    File.WriteAllText("../../contracts/wallet_flow.json", json);
                 }
         }
 
