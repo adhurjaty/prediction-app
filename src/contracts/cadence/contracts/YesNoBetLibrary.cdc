@@ -256,6 +256,10 @@ pub contract YesNoBetLibrary {
             return wagers
         }
 
+        pub fun getHubBet(): HubBet? {
+            return self.hubBet
+        }
+
         destroy () {
             destroy self.madeBets
         }

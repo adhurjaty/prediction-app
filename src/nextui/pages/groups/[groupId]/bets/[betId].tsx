@@ -4,9 +4,9 @@ import PlaceWagerForm from "@/components/placeWagerForm";
 import SecondaryPage from "@/components/secondaryPage";
 import DelphaiInterface from "@/contracts/delphaiInterface";
 import Bet from "@/models/bet";
+import BetState from "@/models/betState";
 import Group from "@/models/group";
 import User from "@/models/user";
-import Wager from "@/models/wager";
 import { fetchModel } from "@/utils/nodeInterface";
 import { Avatar, Container, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { Err, Ok } from "@sniptt/monads/build";
@@ -20,7 +20,7 @@ export default function BetPage() {
     const loading = status === "loading";
     const [bet, setBet] = useState<Bet>();
     const [group, setGroup] = useState<Group>();
-    const [wagers, setWagers] = useState<Wager[]>();
+    const [betState, setBetState] = useState<BetState>();
     const [user, setUser] = useState<User>();
     const [fetchError, setError] = useState<string>();
     const [delphai, _] = useState<DelphaiInterface>(new DelphaiInterface());
@@ -54,8 +54,8 @@ export default function BetPage() {
                 })
                 .mapErr(err => setError(err));
                 
-            !abortController.signal.aborted && (await delphai.getWagers(betId as string))
-                .map(ws => ws && setWagers(ws));
+            !abortController.signal.aborted && (await delphai.getBetState(betId as string))
+                .map(state => state && setBetState(state));
             
             (await fetchModel<User>('/api/fullUser', abortController.signal))
                 .map(u => setUser(u));
@@ -69,7 +69,7 @@ export default function BetPage() {
 
     const wagerSection = () => {
         const isBetClosed = !!bet && bet.closeTime.getTime() < Date.now();
-        const hasMadeWager = !!wagers?.find(w => w.userId === user?.id);
+        const hasMadeWager = !!betState?.wagers.find(w => w.userId === user?.id);
         
         if (isBetClosed) {
             return (

@@ -7,6 +7,24 @@ import FlowToken from 0x0ae53cb6e3f42a79
 pub contract BetContractComposer {
     pub let adminStoragePath: StoragePath
 
+    pub struct ComposerState {
+        pub let wagers: [YesNoBetLibrary.YesNoBetStruct]
+        pub let resolutions: YesNoResolverLibrary.YesNoResolutionStruct
+        pub let hubPrediction: Bool?
+        pub let result: Bool?
+
+        init (wagers: [YesNoBetLibrary.YesNoBetStruct],
+            resolutions: YesNoResolverLibrary.YesNoResolutionStruct,
+            hubPrediction: Bool?,
+            result: Bool?) 
+        {
+            self.wagers = wagers
+            self.resolutions = resolutions
+            self.hubPrediction = hubPrediction
+            self.result = result
+        }
+    }
+
     pub resource ContractComposer {
 
         priv let resolver: @AnyResource{YesNoResolverLibrary.YesNoResolver}
@@ -33,16 +51,14 @@ pub contract BetContractComposer {
             return <-self.bet.retrieveWinning(claimToken: <-claimToken)
         }
 
-        pub fun getResult(): Bool? {
-            return self.resolver.getResult()
-        }
-
-        pub fun getWagers(): [YesNoBetLibrary.YesNoBetStruct] {
-            return self.bet.getWagers()
-        }
-
-        pub fun getResolutionResults(): YesNoResolverLibrary.YesNoResolutionStruct {
-            return self.resolver.getResolutionResults()
+        pub fun getState(): ComposerState {
+            let hubBet = self.bet.getHubBet()
+            return ComposerState(
+                wagers: self.bet.getWagers(),
+                resolutions: self.resolver.getResolutionResults(),
+                hubPrediction: hubBet != nil ? hubBet!.prediction : nil,
+                result: self.resolver.getResult()
+            )
         }
 
         destroy() {

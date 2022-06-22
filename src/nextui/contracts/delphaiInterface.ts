@@ -8,10 +8,11 @@ import ResolutionResults from '@/models/resolutionResults';
 
 import placeBetText from 'raw-loader!./cadence/transactions/placeBetComposerFUSD.cdc';
 import resolveText from 'raw-loader!./cadence/transactions/voteToResolve.cdc';
-import getWagersText from 'raw-loader!./cadence/scripts/getWagers.cdc';
+import getBetState from 'raw-loader!./cadence/scripts/getBetState.cdc';
 import getResolutionResultsText from 'raw-loader!./cadence/scripts/getResolutionResults.cdc';
 import borrowResolutionTokenText from 'raw-loader!./cadence/transactions/borrowResolutionToken.cdc';
 import { Result } from '@sniptt/monads/build';
+import BetState from '@/models/betState';
 
 
 export default class DelphaiInterface {
@@ -62,20 +63,9 @@ export default class DelphaiInterface {
         });
     }
 
-    async getWagers(betId: string): Promise<Result<Wager[], string>> {
-        const scriptText = getWagersText as string;
-        return await flow.query<Wager[]>({
-            cadence: scriptText,
-            args: (arg, t) => [
-                arg(this.delphaiAddress, t.Address),
-                arg(this.toBetId(betId), t.String)
-            ]
-        });
-    }
-
-    async getResolutionResults(betId: string): Promise<Result<ResolutionResults, string>> {
-        const scriptText = getResolutionResultsText as string;
-        return await flow.query<ResolutionResults>({
+    async getBetState(betId: string): Promise<Result<BetState, string>> {
+        const scriptText = getBetState as string;
+        return await flow.query<BetState>({
             cadence: scriptText,
             args: (arg, t) => [
                 arg(this.delphaiAddress, t.Address),
