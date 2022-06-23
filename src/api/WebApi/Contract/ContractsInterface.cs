@@ -99,8 +99,12 @@ namespace WebApi
             {
                 var flow = _flow as FlowInterface;
                 var account = await flow.CreateAccount(key);
-                var setupFlowTokenResult = await flow.ExecuteTransaction("setupFlowAccount",
-                    account);
+                await flow.ExecuteTransaction("setupFlowAccount", account);
+                await flow.ExecuteTransaction("setupFUSDAccount", account,
+                    addressMap: new Dictionary<string, string>()
+                    {
+                        { "FUSD", _delphaiAddress }
+                    });
                 return Result.Succeeded(account);
             }
             catch (FlowException ex)
@@ -138,6 +142,25 @@ namespace WebApi
                     new CadenceAddress(receiver.HexValue),
                     new CadenceNumber(CadenceNumberType.UFix64, amount.ToString("0.0"))
                 });
+                return Result.Succeeded();
+            }
+            catch (FlowException ex)
+            {
+                return Result.Failed(ex.Message);
+            }
+        }
+
+        // not in the interface. Should only be used for the script program
+        public async Task<Result> MintFUSD()
+        {
+            var addressMap = new Dictionary<string, string>()
+            {
+                { "FUSD", _delphaiAddress }
+            };
+            try
+            {
+                await _flow.ExecuteTransaction("setupFUSDAccount", addressMap: addressMap);
+                await _flow.ExecuteTransaction("mintFUSD", addressMap: addressMap);
                 return Result.Succeeded();
             }
             catch (FlowException ex)

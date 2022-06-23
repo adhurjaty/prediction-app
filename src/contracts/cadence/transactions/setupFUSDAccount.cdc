@@ -20,6 +20,11 @@ transaction {
         // Create a public Receiver capability to the Vault
         let ReceiverRef = acct.link<&FUSD.Vault{FungibleToken.Receiver}>(
             /public/fusdReceiver, target: /storage/fusdVault)
+
+        acct.link<&FUSD.Vault{FungibleToken.Balance}>(
+            /public/fusdBalance,
+            target: /storage/fusdVault
+        )
     }
 
 }

@@ -61,6 +61,10 @@ public static class Program
             "47ea07ff0f8b71d3cfe669f6fb2b11a3d79e7ac900f4e0df7c9591d791408c270435655a49e550f484621da60e9b758b68c96f8087bc36c67f726e4a6e174919",
             "e4a8c8fcdfad781bfd417b6408ff201da61406f9e56b0b2d1514e7ef7c2d801b");
 
+        (await contracts.MintFUSD())
+            .Either(res => res, res => throw new Exception(res.Failure));
+
+
         foreach (var acct in new[] { dan, tony, anil })
         {
             var key = FlowAccountKey.GenerateRandomEcdsaKey(SignatureAlgo.ECDSA_P256, HashAlgo.SHA3_256, 1000);
