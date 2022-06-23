@@ -84,8 +84,9 @@ public static class Program
                 }))
                 .Map(async (account, _, __) => 
                 {
-                    return (await contracts.TransferFlow(account.Address, 20))
-                        .Bind(() => contracts.SaveDelphaiUser(account));
+                    return await (await (await contracts.TransferFlow(account.Address, 20))
+                        .Bind(() => contracts.SaveDelphaiUser(account)))
+                        .Bind(() => contracts.TransferFUSD(account.Address, 20));
                 });
                 
                 if(acct == anil)

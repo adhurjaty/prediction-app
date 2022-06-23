@@ -135,13 +135,29 @@ namespace WebApi
         // not in the interface. Should only be used for the script program
         public async Task<Result> TransferFlow(FlowAddress receiver, decimal amount)
         {
+            return await TransferTokens("Flow", receiver, amount);
+        }
+
+        // not in the interface. Should only be used for the script program
+        public async Task<Result> TransferFUSD(FlowAddress receiver, decimal amount)
+        {
+            return await TransferTokens("FUSD", receiver, amount,
+                new Dictionary<string, string>()
+                {
+                    { "FUSD", _delphaiAddress }
+                });
+        }
+
+        private async Task<Result> TransferTokens(string tokenName, FlowAddress receiver, 
+            decimal amount, Dictionary<string, string> addressMap = null)
+        {
             try
             {
-                await _flow.ExecuteTransaction("transferFlow", new List<ICadence>()
+                await _flow.ExecuteTransaction($"transfer{tokenName}", new List<ICadence>()
                 {
                     new CadenceAddress(receiver.HexValue),
                     new CadenceNumber(CadenceNumberType.UFix64, amount.ToString("0.0"))
-                });
+                }, addressMap: addressMap);
                 return Result.Succeeded();
             }
             catch (FlowException ex)
