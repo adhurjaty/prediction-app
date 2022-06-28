@@ -6,7 +6,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { SelectInput, TextInput } from "./formFields";
 
 interface Props {
-    delphai: DelphaiInterface;
+    delphai?: DelphaiInterface;
     betId: string;
     userId: string;
 }
@@ -15,6 +15,8 @@ export default function PlaceResolutionForm({ delphai, betId, userId }: Props) {
     const [submitError, setSubmitError] = useState<string>();
     
     const onSubmit = async (resolution: Resolution) => {
+        if (!delphai)
+            return false;
         return (await delphai.voteToResolve(resolution))
             .mapErr(err => setSubmitError(err))
             .isOk();

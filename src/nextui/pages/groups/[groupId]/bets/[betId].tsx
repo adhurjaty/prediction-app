@@ -23,7 +23,7 @@ export default function BetPage() {
     const [betState, setBetState] = useState<BetState>();
     const [user, setUser] = useState<User>();
     const [fetchError, setError] = useState<string>();
-    const [delphai, _] = useState<DelphaiInterface>(new DelphaiInterface());
+    const [delphai, setDelphai] = useState<DelphaiInterface>();
 
     const { groupId, betId } = router.query;
 
@@ -36,6 +36,10 @@ export default function BetPage() {
             )
         }
     ];
+
+    useEffect(() => {
+        setDelphai(new DelphaiInterface());
+    }, [])
 
     useEffect(() => {
         const abortController = new AbortController();
@@ -54,7 +58,8 @@ export default function BetPage() {
                 })
                 .mapErr(err => setError(err));
                 
-            !abortController.signal.aborted && (await delphai.getBetState(betId as string))
+            !abortController.signal.aborted && delphai
+                && (await delphai.getBetState(betId as string))
                 .map(state => state && setBetState(state));
             
             (await fetchModel<User>('/api/fullUser', abortController.signal))

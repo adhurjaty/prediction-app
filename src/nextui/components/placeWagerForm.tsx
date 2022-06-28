@@ -6,7 +6,7 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { SelectInput, TextInput } from "./formFields";
 
 interface Props {
-    delphai: DelphaiInterface;
+    delphai?: DelphaiInterface;
     betId: string;
     userId: string;
 }
@@ -15,6 +15,9 @@ export default function PlaceWagerForm({ delphai, betId, userId }: Props) {
     const [submitError, setSubmitError] = useState<string>();
     
     const onSubmit = async (wager: Wager) => {
+        if (!delphai)
+            return false;
+        
         return (await delphai.placeBet(wager))
             .mapErr(err => setSubmitError(err))
             .isOk();
@@ -59,7 +62,7 @@ export default function PlaceWagerForm({ delphai, betId, userId }: Props) {
                     <Button
                         type="submit"
                         variant="contained"
-                        
+
                     >
                         Place Wager
                     </Button>
