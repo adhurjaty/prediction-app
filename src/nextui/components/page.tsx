@@ -1,6 +1,6 @@
 import { useSession } from 'next-auth/react'
 import NoAuthPage from './noAuthPage'
-import AuthPage from './authPage'
+import NavPage from './navPage'
 import PrimaryNav from './primaryNav'
 
 interface Props {
@@ -26,9 +26,9 @@ const Page = ({ title, children, appBar, bottomNav }: Props) => {
     }
 
     return (
-        <AuthPage title={title} appBar={appBar} bottomNav={bottomNav ??  <PrimaryNav />}>
+        <NavPage title={title} appBar={appBar} bottomNav={bottomNav ??  <PrimaryNav />}>
             {children}
-        </AuthPage>
+        </NavPage>
     )
 };
 

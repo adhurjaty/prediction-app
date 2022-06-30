@@ -1,7 +1,7 @@
 import { BottomNavigation, BottomNavigationAction } from '@mui/material';
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 
 interface NavLink {
     label: string;
@@ -13,10 +13,14 @@ interface Props {
 }
 
 const BottomNav = ({ links }: Props) => {
-    const pathname = window.location.pathname; // in case user visits the path directly. The BottomNavBar is able to follow suit.
-    const [value, setValue] = useState(pathname);
-
-	// const router = useRouter()
+    // const pathname = window.location.pathname; // in case user visits the path directly. The BottomNavBar is able to follow suit.
+    const [value, setValue] = useState<string>();
+    const router = useRouter();
+    
+    useEffect(() => {
+        const pathname = router.pathname;
+        setValue(pathname);
+    }, [router]);
 
     return (
         <BottomNavigation

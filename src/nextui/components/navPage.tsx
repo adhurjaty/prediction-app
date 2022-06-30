@@ -7,7 +7,7 @@ interface Props {
     bottomNav: JSX.Element
 }
 
-const AuthPage = ({ title, children, appBar, bottomNav }: Props) => {
+const NavPage = ({ title, children, appBar, bottomNav }: Props) => {
     return (
         <>
             {title ? (
@@ -27,4 +27,4 @@ const AuthPage = ({ title, children, appBar, bottomNav }: Props) => {
     )
 };
 
-export default AuthPage
+export default NavPage

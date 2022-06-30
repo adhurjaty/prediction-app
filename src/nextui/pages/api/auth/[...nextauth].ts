@@ -59,6 +59,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
             colorScheme: "light",
         },
         pages: {
+            signIn: '/auth/signin',
             newUser: req.query.redirectUrl as (string | undefined) ?? "/groups",
         },
         callbacks: {
