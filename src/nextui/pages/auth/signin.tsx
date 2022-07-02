@@ -2,8 +2,12 @@ import BottomNav from "@/components/bottom-nav";
 import NavPage from "@/components/navPage";
 import PrimaryAppBar from "@/components/primaryAppbar";
 import { Button, Container, Stack, Typography } from "@mui/material";
+import { CtxOrReq } from "next-auth/client/_utils";
+import { Provider } from "next-auth/providers";
+import { getCsrfToken, getProviders, signIn } from "next-auth/react";
+import { useRouter } from "next/router";
 
-export default function SigninPage() {
+export default function SignIn({ providers }: { providers: Provider[] }) {
     const navLinks = [
         {
             label: "Signin",
@@ -20,6 +24,9 @@ export default function SigninPage() {
     const appBar = <PrimaryAppBar name="Signup" />
     const bottomNav = <BottomNav links={navLinks} />
 
+    const router = useRouter();
+    const callbackUrl = (router.query.redirectUrl as string) ?? "/groups"
+
     return (
         <NavPage title={"Signup"}
             appBar={appBar}
@@ -31,9 +38,30 @@ export default function SigninPage() {
                     <Typography>
                         Welcome to Delphai! Sign In here
                     </Typography>
-                    <Button variant="contained">Sign In</Button>
+                    {Object.values(providers).map((provider) => (
+                        <Container key={provider.name}>
+                            <Button variant="contained"
+                                onClick={() => signIn(provider.id, {
+                                    callbackUrl
+                                })}
+                            >
+                                Sign in with {provider.name}
+                            </Button>
+                        </Container>
+                    ))}
                 </Stack>
             </Container>
         </NavPage>
     )
+}
+
+export async function getServerSideProps(context: CtxOrReq) {
+    const providers = await getProviders()
+    const csrfToken = await getCsrfToken(context)
+    return {
+        props: {
+            providers,
+            csrfToken
+        },
+    }
 }

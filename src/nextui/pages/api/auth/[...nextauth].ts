@@ -12,7 +12,9 @@ import GoogleProvider from "next-auth/providers/google"
 // https://next-auth.js.org/configuration/options
 // eslint-disable-next-line import/no-anonymous-default-export
 export default (req: NextApiRequest, res: NextApiResponse) => {
-    // console.log("Query:", req.query);
+    const signInUrl = `/auth/signin?redirectUrl=${encodeURIComponent((req.query.redirectUrl as string) ?? "")}`;
+
+    debugger;
     return NextAuth(req, res, {
         // https://next-auth.js.org/configuration/providers/oauth
         providers: [
@@ -43,7 +45,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
             // }),
             GoogleProvider({
                 clientId: process.env.GOOGLE_ID,
-                clientSecret: process.env.GOOGLE_SECRET,
+                clientSecret: process.env.GOOGLE_SECRET
             }),
             // TwitterProvider({
             //   clientId: process.env.TWITTER_ID,
@@ -59,7 +61,7 @@ export default (req: NextApiRequest, res: NextApiResponse) => {
             colorScheme: "light",
         },
         pages: {
-            signIn: '/auth/signin',
+            signIn: signInUrl,
             newUser: req.query.redirectUrl as (string | undefined) ?? "/groups",
         },
         callbacks: {
