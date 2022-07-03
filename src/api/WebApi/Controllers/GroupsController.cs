@@ -22,7 +22,7 @@ namespace WebApi
         [Route("Groups")]
         public async Task<ActionResult<List<Group>>> GetGroups()
         {
-            var result = await (await GetUserFromClaims())
+            var result = await GetUserFromClaims()
                 .Bind(user => _mediator.Send(new GroupsByUserQuery()
                 {
                     User = user
@@ -36,7 +36,7 @@ namespace WebApi
         [Route("Groups/{groupId}")]
         public async Task<ActionResult<Group>> GetGroup(string groupId)
         {
-            var result = await (await GetUserFromClaims())
+            var result = await GetUserFromClaims()
                 .Bind(user => _mediator.Send(new GroupByIdQuery()
                 {
                     User = user,
@@ -51,7 +51,7 @@ namespace WebApi
         [Route("Groups")]
         public async Task<ActionResult<Group>> CreateGroup(Group newGroup)
         {
-            var result = await (await (await GetUserFromClaims())
+            var result = await (await GetUserFromClaims()
                 .Map(user => new CreateGroupCommand()
                 {
                     Name = newGroup.Name,
@@ -68,7 +68,7 @@ namespace WebApi
         [Route("Groups/{groupId}")]
         public async Task<ActionResult<Group>> UpdateGroup(string groupId, Group group)
         {
-            var result = await (await (await GetUserFromClaims())
+            var result = await (await GetUserFromClaims()
                 .Bind(user => _mediator.Send(new UpdateGroupCommand()
                 {
                     User = user,
@@ -84,7 +84,7 @@ namespace WebApi
         [Route("Groups/{groupId}")]
         public async Task<ActionResult> DeleteGroup(string groupId)
         {
-            var result = await (await GetUserFromClaims())
+            var result = await GetUserFromClaims()
                 .Bind(user => _mediator.Send(new DeleteGroupCommand()
                 {
                     User = user,

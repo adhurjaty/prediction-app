@@ -17,7 +17,7 @@ namespace WebApi
         [Route("User")]
         public async Task<ActionResult<AppUser>> GetAppUser()
         {
-            var result = await GetUserFromClaims();
+            var result = await Task.FromResult(GetUserFromClaims());
             return ToResponse(result);
         }
 
@@ -26,7 +26,7 @@ namespace WebApi
         [Route("FullUser")]
         public async Task<ActionResult<AppUser>> GetFullUser()
         {
-            var result = await (await GetUserFromClaims())
+            var result = await GetUserFromClaims()
                 .Bind(user => _mediator.Send(new UserEagerQuery
                 {
                     User = user

@@ -14,17 +14,10 @@ namespace WebApi
             _mediator = mediator;
         }
 
-        protected async Task<Result<AppUser>> GetUserFromClaims()
+        protected Result<AppUser> GetUserFromClaims()
         {
-            return await User.Claims
-                .Where(x => x.Type.EndsWith("emailaddress"))
-                .Select(res => res.Value)
-                .Select(email => _mediator.Send(new UserQuery()
-                {
-                    Email = email
-                }))
-                .FirstOrDefault()
-                ?? Result.Failed<AppUser>($"No email address claims exist");
+            return (HttpContext.Items.GetValueOrDefault("UserResult") as Result<AppUser>)
+                ?? Result.Failed<AppUser>("User from claims middleware failed");
         }
 
         protected ActionResult<T> ToResponse<T>(Result<T> result)

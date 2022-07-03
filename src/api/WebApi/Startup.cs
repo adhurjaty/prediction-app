@@ -160,6 +160,9 @@ namespace WebApi
             app.UseAuthentication();
             app.UseAuthorization();
 
+            // Middleware
+            app.UseMiddleware<UserFromClaimsMiddleware>();
+
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();

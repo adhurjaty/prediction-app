@@ -24,7 +24,7 @@ namespace WebApi
         [Route("Bets")]
         public async Task<ActionResult<List<Bet>>> GetBets()
         {
-            var result = await (await GetUserFromClaims())
+            var result = await GetUserFromClaims()
                 .Bind(user => _mediator.Send(new BetsByUserQuery()
                 {
                     User = user
@@ -51,7 +51,7 @@ namespace WebApi
         [Route("Bets")]
         public async Task<ActionResult<Bet>> CreateBet(CreateBetRequest request)
         {
-            var result = await (await (await GetUserFromClaims())
+            var result = await (await GetUserFromClaims()
                 .Map(user => new CreateBetCommand()
                 {
                     Title = request.Title,
