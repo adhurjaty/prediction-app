@@ -36,7 +36,7 @@ export default class DelphaiInterface {
                 arg(this.delphaiAddress, t.Address),
                 arg(wager.betId, t.String),
                 arg(wager.prediction, t.Bool),
-                arg(wager.wager.toString(), t.UFix64)
+                arg(wager.wager.toFixed(2), t.UFix64)
             ],
             limit: 50
         });
