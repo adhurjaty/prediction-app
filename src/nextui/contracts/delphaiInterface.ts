@@ -1,15 +1,11 @@
 import * as fcl from '@onflow/fcl';
-import {send as grpcSend} from "@onflow/transport-grpc"
 import * as flow from '@/contracts/flowInterface';
-import { Address, String, Bool, UFix64 } from "@onflow/types";
 import Wager from '@/models/wager';
 import Resolution from '@/models/resolution';
-import ResolutionResults from '@/models/resolutionResults';
 
 import placeBetText from 'raw-loader!./cadence/transactions/placeBetComposerFUSD.cdc';
 import resolveText from 'raw-loader!./cadence/transactions/voteToResolve.cdc';
 import getBetState from 'raw-loader!./cadence/scripts/getBetState.cdc';
-import getResolutionResultsText from 'raw-loader!./cadence/scripts/getResolutionResults.cdc';
 import borrowResolutionTokenText from 'raw-loader!./cadence/transactions/borrowResolutionToken.cdc';
 import { Result } from '@sniptt/monads/build';
 import BetState from '@/models/betState';
