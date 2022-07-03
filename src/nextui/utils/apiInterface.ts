@@ -1,5 +1,5 @@
 import { Err, Ok, Result } from "@sniptt/monads/build";
-import axios, { AxiosResponse } from "axios";
+import axios, { AxiosResponse, AxiosError } from "axios";
 import sign from "jwt-encode";
 import { NextApiRequest } from "next";
 import { getToken } from "next-auth/jwt";
@@ -26,10 +26,15 @@ async function toResult(requestFn: () => Promise<AxiosResponse>): Promise<Result
             return Err(response.statusText);
         }
     } catch (err) {
-        if (err instanceof Error)
+        if ((err as AxiosError).isAxiosError) {
+            return Err((err as AxiosError).response?.data ?? "Missing axios error data");
+        }
+        if (err instanceof Error) {
             return Err(err.message);
-        if (typeof err === "string")
-            return Err(err)
+        }
+        if (typeof err === "string") {
+            return Err(err);
+        }
         return Err("Unknown fetch error");
     }
 }

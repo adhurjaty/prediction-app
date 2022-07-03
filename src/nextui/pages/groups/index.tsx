@@ -26,7 +26,9 @@ export default function GroupsPage() {
         const fetchData = async () => {
             (await fetchModel<Group[]>('/api/groups'))
                 .map(val => setGroups(val))
-                .mapErr(err => setError(err));
+                .mapErr(err => {
+                    setError(err);
+                });
         }
         if (session) {
             fetchData();

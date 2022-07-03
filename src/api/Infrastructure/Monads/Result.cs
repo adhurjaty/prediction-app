@@ -164,6 +164,14 @@ namespace Infrastructure
             return x.IsSuccess ? await onSuccess(x) : await onFailure(x);
         }
 
+        public static Result<TSuccess2> Either<TSuccess, TSuccess2>(
+            this Result<TSuccess> x,
+            Func<Result<TSuccess>, Result<TSuccess2>> onSuccess,
+            Func<Result<TSuccess>, Result<TSuccess2>> onFailure)
+        {
+            return x.IsSuccess ? onSuccess(x) : onFailure(x);
+        }
+
         public static async Task<Result> Either<TSuccess>(
             this Result<TSuccess> x,
             Func<Result<TSuccess>, Task<Result>> onSuccess,

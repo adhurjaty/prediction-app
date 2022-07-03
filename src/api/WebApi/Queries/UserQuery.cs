@@ -20,7 +20,9 @@ namespace WebApi
 
         public async Task<Result<AppUser>> Handle(UserQuery query)
         {
-            return await _db.Single<AppUser>(x => x.Email == query.Email);
+            return (await _db.Single<AppUser>(x => x.Email == query.Email))
+                .Either(success => success,
+                    failure => Result.Failed<AppUser>("User not registered"));
         }
 
         public Task<Result<AppUser>> Handle(UserQuery request, CancellationToken cancellationToken)
