@@ -24,14 +24,14 @@ namespace WebApi
         {
             return result.IsSuccess
                 ? Ok(result.Success)
-                : UnprocessableEntity(result.Failure) as ActionResult<T>;
+                : UnprocessableEntity(result.Failure);
         }
 
         protected ActionResult ToResponse(Result result)
         {
             return result.IsSuccess
                 ? Ok()
-                : UnprocessableEntity(result.Failure) as ActionResult;
+                : UnprocessableEntity(result.Failure);
         }
     }
 }
