@@ -8,12 +8,20 @@ namespace WebApi
 {
     public abstract class BragControllerBase : ControllerBase
     {
-        protected string GetEmailFromClaims()
+        protected readonly IDatabaseInterface _db;
+
+        public BragControllerBase(IDatabaseInterface db) {
+            _db = db;
+        }
+
+        protected async Task<Result<AppUser>> GetUserFromClaims()
         {
-            return User.Claims
+            return await User.Claims
                 .Where(x => x.Type.EndsWith("emailaddress"))
                 .Select(res => res.Value)
-                .FirstOrDefault();
+                .Select(email => _db.Single<AppUser>(x => x.Email == email))
+                .FirstOrDefault()
+                ?? Result.Failed<AppUser>($"No email address claims exist");
         }
 
         protected ActionResult<T> ToResponse<T>(Result<T> result)
