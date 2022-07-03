@@ -8,22 +8,16 @@ namespace WebApi
     [ApiController]
     public class UserController : BragControllerBase
     {
-        private readonly IMediatorResult _mediator;
 
-        public UserController(IMediatorResult mediator) 
-        {
-            _mediator = mediator;
-        }
+        public UserController(IMediatorResult mediator)
+            : base(mediator) {}
 
         [HttpGet]
         [Authorize]
         [Route("User")]
         public async Task<ActionResult<AppUser>> GetAppUser()
         {
-            var result = await _mediator.Send(new UserQuery
-            {
-                Email = GetUserFromClaims()
-            });
+            var result = await GetUserFromClaims();
             return ToResponse(result);
         }
 
@@ -32,10 +26,11 @@ namespace WebApi
         [Route("FullUser")]
         public async Task<ActionResult<AppUser>> GetFullUser()
         {
-            var result = await _mediator.Send(new UserEagerQuery
-            {
-                Email = GetUserFromClaims()
-            });
+            var result = await (await GetUserFromClaims())
+                .Bind(user => _mediator.Send(new UserEagerQuery
+                {
+                    User = user
+                }));
             return ToResponse(result);
         }
 

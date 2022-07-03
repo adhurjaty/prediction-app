@@ -11,7 +11,7 @@ namespace WebApi
         public string Title { get; init; }
         public string Description { get; init; }
         public string GroupId { get; init; }
-        public string Email { get; set; }
+        public AppUser User { get; set; }
         public DateTime CloseTime { get; set; }
 
         // output property
@@ -37,7 +37,7 @@ namespace WebApi
         {
             var groupResult = _mediator.Send(new GroupByIdQuery()
             {
-                Email = cmd.Email,
+                User = cmd.User,
                 GroupId = cmd.GroupId
             });
             return await (await (await

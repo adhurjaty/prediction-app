@@ -8,10 +8,10 @@ namespace WebApi
 {
     public abstract class BragControllerBase : ControllerBase
     {
-        protected readonly IDatabaseInterface _db;
+        protected readonly IMediatorResult _mediator;
 
-        public BragControllerBase(IDatabaseInterface db) {
-            _db = db;
+        public BragControllerBase(IMediatorResult mediator) {
+            _mediator = mediator;
         }
 
         protected async Task<Result<AppUser>> GetUserFromClaims()
@@ -19,7 +19,10 @@ namespace WebApi
             return await User.Claims
                 .Where(x => x.Type.EndsWith("emailaddress"))
                 .Select(res => res.Value)
-                .Select(email => _db.Single<AppUser>(x => x.Email == email))
+                .Select(email => _mediator.Send(new UserQuery()
+                {
+                    Email = email
+                }))
                 .FirstOrDefault()
                 ?? Result.Failed<AppUser>($"No email address claims exist");
         }

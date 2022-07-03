@@ -9,12 +9,12 @@ namespace WebApi
     [ApiController]
     public class GroupsController : BragControllerBase
     {
-        private readonly IMediatorResult _mediator;
+        private readonly IDatabaseInterface _db;
 
         public GroupsController(IDatabaseInterface db, IMediatorResult mediator)
-            : base(db)
+            : base(mediator)
         {
-            _mediator = mediator;
+            _db = db;
         }
 
         [HttpGet]

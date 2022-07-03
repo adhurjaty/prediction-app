@@ -24,6 +24,7 @@ namespace WebApi
             AuthConfig authConfig,
             IGoogle google,
             IMediatorResult mediator)
+            : base(null)
         {
             _logger = logger;
             _authConfig = authConfig;

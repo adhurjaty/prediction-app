@@ -7,7 +7,7 @@ namespace WebApi
 {
     public class UserEagerQuery : AbstractQuery<UserEagerQuery, AppUser>
     {
-        public string Email { get; init; }
+        public AppUser User { get; init; }
     }
 
     public class UserEagerQueryHandler : IQueryHandler<UserEagerQuery, AppUser>
@@ -21,8 +21,7 @@ namespace WebApi
 
         public async Task<Result<AppUser>> Handle(UserEagerQuery query)
         {
-            return (await _db.LoadSelect<AppUser>(x => x.Email == query.Email))
-                .Map(x => x.FirstOrDefault());
+            return await _db.LoadSingleById<AppUser>(query.User.Id);
         }
 
         public Task<Result<AppUser>> Handle(UserEagerQuery request, CancellationToken cancellationToken)

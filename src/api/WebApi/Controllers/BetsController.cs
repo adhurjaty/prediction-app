@@ -10,12 +10,12 @@ namespace WebApi
     [ApiController]
     public class BetsController : BragControllerBase
     {
-        private readonly IMediatorResult _mediator;
+        private readonly IDatabaseInterface _db;
 
         public BetsController(IDatabaseInterface db, IMediatorResult mediator)
-            : base(db)
+            : base(mediator)
         {
-            _mediator = mediator;
+            _db = db;
         }
 
 
@@ -24,10 +24,11 @@ namespace WebApi
         [Route("Bets")]
         public async Task<ActionResult<List<Bet>>> GetBets()
         {
-            var result = await _mediator.Send(new BetsByUserQuery()
-            {
-                Email = GetUserFromClaims()
-            });
+            var result = await (await GetUserFromClaims())
+                .Bind(user => _mediator.Send(new BetsByUserQuery()
+                {
+                    User = user
+                }));
 
             return ToResponse(result);
         }
@@ -50,17 +51,17 @@ namespace WebApi
         [Route("Bets")]
         public async Task<ActionResult<Bet>> CreateBet(CreateBetRequest request)
         {
-            var cmd = new CreateBetCommand()
-            {
-                Title = request.Title,
-                Description = request.Description,
-                GroupId = request.GroupId,
-                CloseTime = request.CloseTime,
-                Email = GetUserFromClaims()
-            };
-
-            var result = await (await _mediator.Send(cmd))
-                .Bind(() => _db.LoadSingleById<Bet>(cmd.BetId));
+            var result = await (await (await GetUserFromClaims())
+                .Map(user => new CreateBetCommand()
+                {
+                    Title = request.Title,
+                    Description = request.Description,
+                    GroupId = request.GroupId,
+                    CloseTime = request.CloseTime,
+                    User = user
+                })
+                .TeeResult(cmd => _mediator.Send(cmd)))
+                .Bind(cmd => _db.LoadSingleById<Bet>(cmd.BetId));
 
             return ToResponse(result);
         }
