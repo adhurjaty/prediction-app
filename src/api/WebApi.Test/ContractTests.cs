@@ -64,7 +64,7 @@ namespace WebApi.Test
                 },
                 new Dictionary<string, string>()
                 {
-                    { "Delphai", "delphai" }
+                    { "delphai", "delphai" }
                 });
         }
 
@@ -112,7 +112,7 @@ namespace WebApi.Test
                 },
                 new Dictionary<string, string>()
                 {
-                    { "Delphai", "delphai" }
+                    { "delphai", "delphai" }
                 });
         }
     }

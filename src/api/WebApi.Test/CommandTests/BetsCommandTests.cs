@@ -28,6 +28,12 @@ namespace WebApi.Test
             MainnetAddress = "address2"
         };
 
+        private static AppUser FooUser = new AppUser()
+        {
+            Id = new Guid("4063ee41-ee40-41a9-9178-dd0b732031e9"),
+            Email = "foo@bar.baz",
+        };
+
         [Fact]
         public async Task CreateBetSuccess()
         {
@@ -54,7 +60,7 @@ namespace WebApi.Test
                 Title = "FooBet",
                 Description = "This is a bet",
                 GroupId = group.Id.ToString(),
-                Email = "foo@bar.baz"
+                User = FooUser
             };
             var result = await sut.Handle(cmd);
 
@@ -65,7 +71,7 @@ namespace WebApi.Test
                 .IsSuccess.Should().BeTrue();
             fx.VerifyMediator<GroupByIdQuery, Group>(new GroupByIdQuery()
             {
-                Email = "foo@bar.baz",
+                User = FooUser,
                 GroupId = group.Id.ToString()
             });
             fx.VerifyDeployRequest(cmd.BetId, 2);
@@ -102,7 +108,7 @@ namespace WebApi.Test
                 Title = "FooBet",
                 Description = "This is a bet",
                 GroupId = group.Id.ToString(),
-                Email = "foo@bar.baz"
+                User = FooUser
             };
             var result = await sut.Handle(cmd);
 

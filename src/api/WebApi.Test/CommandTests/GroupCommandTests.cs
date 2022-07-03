@@ -28,7 +28,7 @@ namespace WebApi.Test
             var handler = fx.GetCreateGroupHandler();
             var result = await handler.Handle(new CreateGroupCommand()
             {
-                Email = SimpleUser.Email,
+                User = SimpleUser,
                 Name = "Test Group"
             });
 
@@ -99,7 +99,7 @@ namespace WebApi.Test
             var handler = fx.GetUpdateGroupHandler();
             var result = await handler.Handle(new UpdateGroupCommand()
             {
-                Email = BarUser.Email,
+                User = BarUser,
                 Group = updatedGroup
             });
 
@@ -176,7 +176,7 @@ namespace WebApi.Test
             var handler = fx.GetUpdateGroupHandler();
             var result = await handler.Handle(new UpdateGroupCommand()
             {
-                Email = FooUser.Email,
+                User = FooUser,
                 Group = updatedGroup
             });
 
@@ -229,7 +229,7 @@ namespace WebApi.Test
             var handler = fx.GetDeleteGroupHandler();
             var result = await handler.Handle(new DeleteGroupCommand()
             {
-                Email = SimpleUser.Email,
+                User = SimpleUser,
                 GroupId = group.Id.ToString()
             });
 
@@ -238,7 +238,7 @@ namespace WebApi.Test
             var getGroupsHandler = fx.GetGroupsByUserHandler();
             var groups = await getGroupsHandler.Handle(new GroupsByUserQuery()
             {
-                Email = SimpleUser.Email
+                User = SimpleUser
             });
 
             groups.Success.Should().BeEmpty();
@@ -260,7 +260,8 @@ namespace WebApi.Test
             var handler = fx.GetDeleteGroupHandler();
             var result = await handler.Handle(new DeleteGroupCommand()
             {
-                GroupId = "c54bb7a4-0390-4743-a81b-3ebce09fbe3f"
+                GroupId = "c54bb7a4-0390-4743-a81b-3ebce09fbe3f",
+                User = SimpleUser
             });
 
             result.IsFailure.Should().BeTrue();

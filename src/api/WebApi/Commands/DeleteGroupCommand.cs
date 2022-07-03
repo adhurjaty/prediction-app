@@ -25,7 +25,7 @@ namespace WebApi
 
             return await (await _db.LoadSingleById<Group>(cmd.GroupId))
                 .FailIf(group => 
-                    group.Users.FirstOrDefault(x => x.Email == cmd.User.Email) is null,
+                    group.Users.FirstOrDefault(x => x.Id == cmd.User.Id) is null,
                     $"User {cmd.User.Email} is not in group")
                 .Bind(group => _db.Delete(group)); 
         }

@@ -146,7 +146,7 @@ namespace WebApi.Test
             var sut = fx.GetBetsByUserHandler();
             var result = await sut.Handle(new BetsByUserQuery()
             {
-                Email = "other@example.com"
+                User = OtherUser
             });
 
             result.IsSuccess.Should().BeTrue();

@@ -66,7 +66,7 @@ namespace WebApi.Test
             var handler = fx.GetUserEagerQueryHandler();
             var result = await handler.Handle(new UserEagerQuery()
             {
-                Email = SingleUser.Email
+                User = SingleUser
             });
 
             result.IsSuccess.Should().BeTrue();

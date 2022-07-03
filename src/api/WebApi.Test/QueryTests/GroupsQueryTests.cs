@@ -140,7 +140,7 @@ namespace WebApi.Test
             var handler = fx.GetGroupsByUserHandler();
             var result = await handler.Handle(new GroupsByUserQuery()
             {
-                Email = user.Email
+                User = user
             });
 
             result.IsSuccess.Should().BeTrue();
@@ -164,7 +164,7 @@ namespace WebApi.Test
             var handler = fx.GetGroupByIdHandler();
             var result = await handler.Handle(new GroupByIdQuery()
             {
-                Email = SingleUser.Email,
+                User = SingleUser,
                 GroupId = group.Id.ToString()
             });
 
@@ -203,16 +203,12 @@ namespace WebApi.Test
             var handler = fx.GetGroupByIdHandler();
             var result = await handler.Handle(new GroupByIdQuery()
             {
-                Email = OtherUser.Email,
+                User = OtherUser,
                 GroupId = group.Id.ToString()
             });
 
             result.IsSuccess.Should().BeFalse();
             result.Failure.Should().BeEquivalentTo($"User {OtherUser.Email} is not in group");
-            fx.VerifyMediator<UserQuery, AppUser>(new UserQuery()
-            {
-                Email = OtherUser.Email
-            });
         }
     }
 
