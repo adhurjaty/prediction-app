@@ -1,5 +1,6 @@
 import BottomNav from "@/components/bottom-nav";
 import NavPage from "@/components/navPage";
+import NoAuthNav from "@/components/noAuthNav";
 import PrimaryAppBar from "@/components/primaryAppbar";
 import { Button, Container, Stack, Typography } from "@mui/material";
 import { CtxOrReq } from "next-auth/client/_utils";
@@ -8,21 +9,8 @@ import { getCsrfToken, getProviders, signIn } from "next-auth/react";
 import { useRouter } from "next/router";
 
 export default function SignIn({ providers }: { providers: Provider[] }) {
-    const navLinks = [
-        {
-            label: "Signin",
-            href: "/auth/signin",
-            icon: (<div>Signin</div>)
-        },
-        {
-            label: "About",
-            href: "/about",
-            icon: (<div>About</div>)
-        }
-    ];
-
     const appBar = <PrimaryAppBar name="Signup" />
-    const bottomNav = <BottomNav links={navLinks} />
+    const bottomNav = <NoAuthNav />
 
     const router = useRouter();
     const callbackUrl = (router.query.redirectUrl as string) ?? "/groups"
@@ -34,9 +22,10 @@ export default function SignIn({ providers }: { providers: Provider[] }) {
         >
             <Container>
                 <Stack spacing={1}
-                    marginTop={1}>
+                    marginTop={1}
+                >
                     <Typography>
-                        Welcome to Delphai! Sign In here
+                        Welcome to Delphai! Sign in or register here
                     </Typography>
                     {Object.values(providers).map((provider) => (
                         <Container key={provider.name}>
@@ -45,7 +34,7 @@ export default function SignIn({ providers }: { providers: Provider[] }) {
                                     callbackUrl
                                 })}
                             >
-                                Sign in with {provider.name}
+                                Continue with {provider.name}
                             </Button>
                         </Container>
                     ))}
