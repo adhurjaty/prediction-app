@@ -267,6 +267,31 @@ namespace WebApi.Test
             result.IsFailure.Should().BeTrue();
             result.Failure.Should().Be("No matching result");
         }
+
+        [Fact]
+        public async Task DeleteGroupWrongUserFailure()
+        {
+            var group = new Group()
+            {
+                Id = new Guid("c54bb7a4-0390-4743-a81b-3ebce09fbe3f"),
+                Name = "Test",
+                Users = new List<AppUser>() { SimpleUser }
+            };
+
+            using var fx = new GroupCommandTestFixture()
+                .WithUser(SimpleUser)
+                .WithGroup(group);
+
+            var handler = fx.GetDeleteGroupHandler();
+            var result = await handler.Handle(new DeleteGroupCommand()
+            {
+                GroupId = "c54bb7a4-0390-4743-a81b-3ebce09fbe3f",
+                User = FooUser
+            });
+
+            result.IsFailure.Should().BeTrue();
+            result.Failure.Should().Be("User asdf@me.com is not in group");
+        }
     }
 
     internal class GroupCommandTestFixture : BragDbFixture
