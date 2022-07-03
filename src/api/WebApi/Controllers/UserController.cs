@@ -22,7 +22,7 @@ namespace WebApi
         {
             var result = await _mediator.Send(new UserQuery
             {
-                Email = GetEmailFromClaims()
+                Email = GetUserFromClaims()
             });
             return ToResponse(result);
         }
@@ -34,7 +34,7 @@ namespace WebApi
         {
             var result = await _mediator.Send(new UserEagerQuery
             {
-                Email = GetEmailFromClaims()
+                Email = GetUserFromClaims()
             });
             return ToResponse(result);
         }

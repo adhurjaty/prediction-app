@@ -8,7 +8,7 @@ namespace WebApi
 {
     public class UpdateGroupCommand : AbstractCommand<UpdateGroupCommand>
     {
-        public string Email { get; init; }
+        public AppUser User { get; init; }
         public Group Group { get; init; }
     }
 
@@ -30,12 +30,12 @@ namespace WebApi
 
             return await (await (await _mediator.Send(new GroupByIdQuery()
                 {
-                    Email = cmd.Email,
+                    User = cmd.User,
                     GroupId = cmd.Group.Id.ToString()
                 }))
                 .FailIf(group => 
-                    group.Users.FirstOrDefault(x => x.Email == cmd.Email) is null,
-                    $"User {cmd.Email} is not in group")
+                    group.Users.FirstOrDefault(x => x.Email == cmd.User.Email) is null,
+                    $"User {cmd.User.Email} is not in group")
                 .Map(_ => cmd.Group.Users.Clique())
                 .Bind(userGroups => userGroups.Select(users => _mediator.Send(new AddFriendsCommand()
                     {

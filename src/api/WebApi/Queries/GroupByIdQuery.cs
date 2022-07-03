@@ -11,7 +11,7 @@ namespace WebApi
 {
     public class GroupByIdQuery : AbstractQuery<GroupByIdQuery, Group>
     {
-        public string Email { get; set; }
+        public AppUser User { get; set; }
         public string GroupId { get; set; }
     }
 
@@ -28,14 +28,9 @@ namespace WebApi
 
         public async Task<Result<Group>> Handle(GroupByIdQuery query)
         {
-            return (await (await _db.LoadSingleById<Group>(query.GroupId))
-                .TupleBind(_ => _mediator.Send(new UserQuery()
-                {
-                    Email = query.Email
-                })))
-                .FailIf((group, user) => !group.Users.Any(y => y.Id.Equals(user.Id)), 
-                    $"User {query.Email} is not in group")
-                .Map(x => x.Item1);
+            return (await _db.LoadSingleById<Group>(query.GroupId))
+                .FailIf(group => !group.Users.Any(y => y.Id.Equals(query.User.Id)),
+                    $"User {query.User.Email} is not in group");
         }
 
         public Task<Result<Group>> Handle(GroupByIdQuery request, CancellationToken cancellationToken)

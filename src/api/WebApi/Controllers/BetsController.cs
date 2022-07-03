@@ -10,12 +10,11 @@ namespace WebApi
     [ApiController]
     public class BetsController : BragControllerBase
     {
-        private readonly IDatabaseInterface _db;
         private readonly IMediatorResult _mediator;
 
         public BetsController(IDatabaseInterface db, IMediatorResult mediator)
+            : base(db)
         {
-            _db = db;
             _mediator = mediator;
         }
 
@@ -27,7 +26,7 @@ namespace WebApi
         {
             var result = await _mediator.Send(new BetsByUserQuery()
             {
-                Email = GetEmailFromClaims()
+                Email = GetUserFromClaims()
             });
 
             return ToResponse(result);
@@ -57,7 +56,7 @@ namespace WebApi
                 Description = request.Description,
                 GroupId = request.GroupId,
                 CloseTime = request.CloseTime,
-                Email = GetEmailFromClaims()
+                Email = GetUserFromClaims()
             };
 
             var result = await (await _mediator.Send(cmd))

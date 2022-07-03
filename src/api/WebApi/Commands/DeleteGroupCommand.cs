@@ -7,7 +7,7 @@ namespace WebApi
 {
     public class DeleteGroupCommand : AbstractCommand<DeleteGroupCommand>
     {
-        public string Email { get; init; }
+        public AppUser User { get; init; }
         public string GroupId { get; init; }
     }
 
@@ -25,8 +25,8 @@ namespace WebApi
 
             return await (await _db.LoadSingleById<Group>(cmd.GroupId))
                 .FailIf(group => 
-                    group.Users.FirstOrDefault(x => x.Email == cmd.Email) is null,
-                    $"User {cmd.Email} is not in group")
+                    group.Users.FirstOrDefault(x => x.Email == cmd.User.Email) is null,
+                    $"User {cmd.User.Email} is not in group")
                 .Bind(group => _db.Delete(group)); 
         }
 

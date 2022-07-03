@@ -8,7 +8,7 @@ namespace WebApi
 {
     public class BetsByUserQuery : AbstractQuery<BetsByUserQuery, List<Bet>>
     {
-        public string Email { get; init; }
+        public AppUser User { get; init; }
     }
 
     public class BetsByUserQueryHandler : IQueryHandler<BetsByUserQuery, List<Bet>>
@@ -28,14 +28,14 @@ namespace WebApi
             var sqlQuery = _db.From<Bet>()
                 .Join<Bet, UserBetResult>((b, ubr) => ubr.BetId == b.Id)
                 .Join<UserBetResult, AppUser>((ubr, u) => ubr.UserId == u.Id)
-                .Where<AppUser>(u => u.Email == query.Email);
+                .Where<AppUser>(u => u.Id == query.User.Id);
 
             var resolvedBetsResultTask = _db.LoadSelect<Bet>(sqlQuery);
 
             // get open bets from user's groups
             return (await (await (await _mediator.Send(new GroupsByUserQuery()
             {
-                Email = query.Email
+                User = query.User
             }))
                 .Bind(groups => groups.Select(group => _mediator.Send(new BetsByGroupQuery()
                 {
