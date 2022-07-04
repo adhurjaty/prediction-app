@@ -1,7 +1,7 @@
 import LoadingSection from "@/components/loadingSection";
 import SecondaryPage from "@/components/secondaryPage";
 import Section from "@/components/section";
-import { Group } from "@/models/group";
+import Group from "@/models/group";
 import { postModel } from "@/utils/nodeInterface";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -40,6 +40,7 @@ export default function CreateGroupPage() {
             .isOk();
     }
 
+    // TODO: use Formik form
     return (
         <SecondaryPage title="Create new group">
             <LoadingSection loading={loading}>
