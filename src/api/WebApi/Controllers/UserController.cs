@@ -47,5 +47,25 @@ namespace WebApi
 
             return ToResponse(result);
         }
+
+        [HttpPost]
+        [Authorize]
+        [Route("User")]
+        public async Task<ActionResult<AppUser>> CreateUser(CreateUserRequest request)
+        {
+            var result = await _mediator.Send(new CreateUserCommand()
+            {
+                Email = GetEmailFromClaims(),
+                DisplayName = request.DisplayName,
+                FlowAddress = request.FlowAddress
+            });
+            return ToResponse(result);
+        }
+    }
+
+    public class CreateUserRequest
+    {
+        public string DisplayName { get; set; }
+        public string FlowAddress { get; set; }
     }
 }

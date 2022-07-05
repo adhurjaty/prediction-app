@@ -27,7 +27,7 @@ async function toResult(requestFn: () => Promise<AxiosResponse>): Promise<Result
         }
     } catch (err) {
         if ((err as AxiosError).isAxiosError) {
-            return Err((err as AxiosError).response?.data ?? "Missing axios error data");
+            return Err((err as AxiosError).response?.data || "Missing axios error data");
         }
         if (err instanceof Error) {
             return Err(err.message);
@@ -48,9 +48,8 @@ export async function get(url: string, req: NextApiRequest) {
 
 export async function post(url: string, req: NextApiRequest) {
     const encodedToken = await generateToken(req);
-    return toResult(() => axios.post(url, {
+    return toResult(() => axios.post(url, req.body, {
         headers: authHeader(encodedToken),
-        body: req.body,
     }));
 }
 

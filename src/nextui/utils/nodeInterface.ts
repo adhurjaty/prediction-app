@@ -13,7 +13,6 @@ export async function postModel<T>(url: string, model: any): Promise<Result<T, s
             "Content-Type": "application/json",
         },
         body: JSON.stringify(model),
-
     });
     const { result, error } = await res.json();
     return error ? Err(error as string) : Ok(result as T);

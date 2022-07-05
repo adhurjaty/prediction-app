@@ -14,6 +14,13 @@ namespace WebApi
             _mediator = mediator;
         }
 
+        protected string GetEmailFromClaims()
+        {
+            return User.Claims
+                .FirstOrDefault(x => x.Type.EndsWith("emailaddress"))
+                ?.Value;
+        }
+
         protected Result<AppUser> GetUserFromClaims()
         {
             return (HttpContext.Items.GetValueOrDefault("UserResult") as Result<AppUser>)

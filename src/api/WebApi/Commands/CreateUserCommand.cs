@@ -13,6 +13,7 @@ namespace WebApi
     {
         public string Email { get; set; }
         public string DisplayName { get; set; }
+        public string FlowAddress { get; set; }
 
         // output properties
         public Guid UserId { get; set; }

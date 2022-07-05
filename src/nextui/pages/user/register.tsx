@@ -33,7 +33,7 @@ export default function Register() {
 
 
     const createUser = async (user: UserFormData) => {
-        return (await postModel<User>("/api/users", user))
+        return (await postModel<User>("/api/user", user))
             .map(_ => router.push("/groups"))
             .mapErr(err => setSubmitError(err))
             .isOk();
