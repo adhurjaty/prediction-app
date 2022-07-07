@@ -33,7 +33,8 @@ namespace WebApi
             return await _db.InsertResult(new AppUser()
                 {
                     Email = command.Email,
-                    DisplayName = command.DisplayName
+                    DisplayName = command.DisplayName,
+                    MainnetAddress = command.FlowAddress
                 });
         }
 

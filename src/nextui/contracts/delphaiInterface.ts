@@ -19,19 +19,19 @@ export default class DelphaiInterface {
             .put("accessNode.api", "http://127.0.0.1:8888")
             .put("0xdelphai", this.delphaiAddress)
             .put("discovery.wallet", "http://localhost:8701/fcl/authn")
+            .put("discovery.authn.endpont", "http://localhost:8701/api/authn")
             .put("challenge.handshake", "http://localhost:8701/fcl/authn")
             // .put("sdk.transport", grpcSend)
             .put("0xFUSD", this.delphaiAddress);
-        fcl.authenticate();
     }
 
     async placeBet(wager: Wager): Promise<Result<any, string>> {
         const transactionText = placeBetText as string;
         return await flow.mutate<any>({
             cadence: transactionText,
-            payer: fcl.authz,
-            proposer: fcl.authz,
-            authorizations: [fcl.authz],
+            // payer: fcl.authz,
+            // proposer: fcl.authz,
+            // authorizations: [fcl.authz],
             args: (arg, t) => [
                 arg(this.delphaiAddress, t.Address),
                 arg(wager.betId, t.String),

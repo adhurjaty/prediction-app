@@ -27,7 +27,9 @@ async function toResult(requestFn: () => Promise<AxiosResponse>): Promise<Result
         }
     } catch (err) {
         if ((err as AxiosError).isAxiosError) {
-            return Err((err as AxiosError).response?.data || "Missing axios error data");
+            return Err((err as AxiosError).response?.data
+                || (err as Error).message
+                || "Missing axios error data");
         }
         if (err instanceof Error) {
             return Err(err.message);
@@ -56,7 +58,7 @@ export async function post(url: string, req: NextApiRequest) {
 export function toResponse(result: Result<any, string>): { result: any } | { error: string } {
     return result.match({
         ok: data => ({ result: data }),
-        err: err => ({ error: err })
+        err: err => ({ result: null, error: err })
     });
 }
 
