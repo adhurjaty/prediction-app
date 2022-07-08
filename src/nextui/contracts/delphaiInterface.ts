@@ -19,9 +19,7 @@ export default class DelphaiInterface {
             .put("accessNode.api", "http://127.0.0.1:8888")
             .put("0xdelphai", this.delphaiAddress)
             .put("discovery.wallet", "http://localhost:8701/fcl/authn")
-            .put("discovery.authn.endpont", "http://localhost:8701/api/authn")
             .put("challenge.handshake", "http://localhost:8701/fcl/authn")
-            // .put("sdk.transport", grpcSend)
             .put("0xFUSD", this.delphaiAddress);
     }
 
@@ -29,12 +27,12 @@ export default class DelphaiInterface {
         const transactionText = placeBetText as string;
         return await flow.mutate<any>({
             cadence: transactionText,
-            // payer: fcl.authz,
-            // proposer: fcl.authz,
-            // authorizations: [fcl.authz],
+            payer: fcl.authz,
+            proposer: fcl.authz,
+            authorizations: [fcl.authz],
             args: (arg, t) => [
                 arg(this.delphaiAddress, t.Address),
-                arg(wager.betId, t.String),
+                arg(this.toBetId(wager.betId), t.String),
                 arg(wager.prediction, t.Bool),
                 arg(wager.wager.toFixed(2), t.UFix64)
             ],
@@ -44,7 +42,6 @@ export default class DelphaiInterface {
 
     async voteToResolve(resolution: Resolution): Promise<Result<any, string>> {
         const transactionText = resolveText as string;
-        debugger;
         return await flow.mutate<any>({
             cadence: transactionText,
             payer: fcl.authz,
@@ -52,7 +49,7 @@ export default class DelphaiInterface {
             authorizations: [fcl.authz],
             args: (arg, t) => [
                 arg(this.delphaiAddress, t.Address),
-                arg(resolution.betId, t.String),
+                arg(this.toBetId(resolution.betId), t.String),
                 arg(resolution.vote, t.Bool)
             ],
             limit: 50

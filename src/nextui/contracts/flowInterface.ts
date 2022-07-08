@@ -13,7 +13,14 @@ interface FclInput {
 
 export async function mutate<T>(input: FclInput): Promise<Result<T, string>> {
     try {
-        return Ok(await fcl.mutate(input) as T);
+        const status = await (fcl.mutate(input) as Promise<string>)
+            .then(txId => fcl.send([
+                fcl.getTransactionStatus(txId)
+            ]))
+            .then(fcl.decode);
+        return status.errorMessage
+            ? Err(status.errorMessage)
+            : Ok(status.events)
     } catch (err) {
         var error = err as Error;
         debugger;

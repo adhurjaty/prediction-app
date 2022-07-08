@@ -66,7 +66,17 @@ export default function PlaceWagerForm({ delphai, betId, userId }: Props) {
                     >
                         Place Wager
                     </Button>
-                    {submitError && <div className="error">{submitError}</div>}
+                    {submitError &&
+                        <Typography
+                            variant="subtitle1"
+                            color="error"
+                            sx={{
+                                wordWrap: "break-word"
+                            }}
+                        >
+                            {submitError}
+                        </Typography>
+                    }
                 </Stack>
             </Form>
         </Formik>
