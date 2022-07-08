@@ -8,10 +8,10 @@ import { SelectInput, TextInput } from "./formFields";
 interface Props {
     delphai?: DelphaiInterface;
     betId: string;
-    userId: string;
+    userAddress: string;
 }
 
-export default function PlaceWagerForm({ delphai, betId, userId }: Props) {
+export default function PlaceWagerForm({ delphai, betId, userAddress }: Props) {
     const [submitError, setSubmitError] = useState<string>();
     
     const onSubmit = async (wager: Wager) => {
@@ -34,7 +34,7 @@ export default function PlaceWagerForm({ delphai, betId, userId }: Props) {
                     ...values,
                     prediction: values.prediction === "true",
                     betId,
-                    userId
+                    userAddress
                 });
                 setSubmitting(false);
                 return result;

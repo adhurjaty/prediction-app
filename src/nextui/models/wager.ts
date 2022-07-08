@@ -1,6 +1,6 @@
 export default interface Wager {
     betId: string,
-    userId: string,
+    userAddress: string,
     prediction: boolean,
     wager: number
 }

@@ -74,7 +74,10 @@ export default function BetPage() {
 
     const wagerSection = () => {
         const isBetClosed = !!bet && bet.closeTime.getTime() < Date.now();
-        const hasMadeWager = !!betState?.wagers.find(w => w.userId === user?.id);
+        const hasMadeWager = !!betState?.wagers.find(w =>
+            w.userAddress === user?.mainnetAddress
+            || w.userAddress === `0x${user?.mainnetAddress}`);
+        debugger;
         
         if (isBetClosed) {
             return (
@@ -93,7 +96,7 @@ export default function BetPage() {
         return <PlaceWagerForm
             delphai={delphai}
             betId={bet?.id || ''}
-            userId={user?.id || ''}
+            userAddress={user?.mainnetAddress || ''}
         />;
     }
 

@@ -21,6 +21,7 @@ export default class DelphaiInterface {
             .put("discovery.wallet", "http://localhost:8701/fcl/authn")
             .put("challenge.handshake", "http://localhost:8701/fcl/authn")
             .put("0xFUSD", this.delphaiAddress);
+        fcl.unauthenticate();
     }
 
     async placeBet(wager: Wager): Promise<Result<any, string>> {
@@ -36,7 +37,7 @@ export default class DelphaiInterface {
                 arg(wager.prediction, t.Bool),
                 arg(wager.wager.toFixed(2), t.UFix64)
             ],
-            limit: 50
+            limit: 100
         });
     }
 
@@ -52,7 +53,7 @@ export default class DelphaiInterface {
                 arg(this.toBetId(resolution.betId), t.String),
                 arg(resolution.vote, t.Bool)
             ],
-            limit: 50
+            limit: 100
         });
     }
 
