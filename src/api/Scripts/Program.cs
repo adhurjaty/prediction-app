@@ -48,24 +48,17 @@ public static class Program
         };
 
         // seed user accounts
-        var dan = new AccountInfo(
-            "Dan Mcleod",
-            "4e14e62df7e0422c8f3c13c9f55e63f7bb43fd713fbc6294955457ccfcb3aa21a3dcc6dde13685208686834dcd00e9acef032b73d4033a3f1bfac53ebdeb295a",
-            "39fef4dbb0ba50de91e3f841a2106e6a1b060a309cb6423a2b5f2d8a43406cb0");
-        var tony = new AccountInfo(
-            "Tony Wong",
-            "1f928fa6d8ed0723a8cd1f8dda5aef423453c3b6c4acbfad0f19f0d48ac7eeb7642817209c08e2c4313de516fe48c37169f47df4c9c6057c3ffe098819b2a282",
-            "c64520aad103a3f37a26f03ee7c7a13112f6c8626ac23c4b592849b61058fb97");
-        var anil = new AccountInfo(
-            "Anil Dhurjaty",
-            "47ea07ff0f8b71d3cfe669f6fb2b11a3d79e7ac900f4e0df7c9591d791408c270435655a49e550f484621da60e9b758b68c96f8087bc36c67f726e4a6e174919",
-            "e4a8c8fcdfad781bfd417b6408ff201da61406f9e56b0b2d1514e7ef7c2d801b");
+        var dan = "Dan Mcleod";
+        var tony = "Tony Wong";
+        var anil = "Anil Dhurjaty";
+        var tester = "Tester";
 
         (await contracts.MintFUSD())
             .Either(res => res, res => throw new Exception(res.Failure));
 
+        var accountList = new List<AccountInfo>();
 
-        foreach (var acct in new[] { dan, tony, anil })
+        foreach (var acct in new[] { dan, tony, anil, tester })
         {
             var key = FlowAccountKey.GenerateRandomEcdsaKey(SignatureAlgo.ECDSA_P256, HashAlgo.SHA3_256, 1000);
             var address = "";
@@ -73,7 +66,7 @@ public static class Program
             // create accounts and update their flow addresses
             await (await (await (await contracts.CreateAccount(key))
                 .TupleBind(account =>
-                    db.Single<AppUser>(x => x.DisplayName == acct.Name)))
+                    db.Single<AppUser>(x => x.DisplayName == acct)))
                 .TupleBind(async (account, user) =>
                 {
                     user.MainnetAddress = account.Address.HexValue;
@@ -89,17 +82,16 @@ public static class Program
                         .Bind(() => contracts.TransferFUSD(account.Address, 20));
                 });
                 
-                if(acct == anil)
-                {
-                    var template = File.ReadAllText("wallet_flow.json.template");
-                    var json = template
-                        .Replace("$key$", key.PrivateKey)
-                        .Replace("$address$", address);
-                    File.WriteAllText("../../contracts/wallet_flow.json", json);
-                }
+                var firstName = acct.Split(' ').FirstOrDefault(acct).ToLower();
+                accountList.Add(new AccountInfo(firstName, address, key.PrivateKey));
         }
 
-        (await db.Select<AppUser>(u => Sql.In(u.DisplayName, new[] { dan, tony, anil }.Select(x => x.Name))))
+        var template = File.ReadAllText("wallet_flow.json.template");
+        var accountsString = string.Join(",\n", accountList.Select(x => x.Serialize()));
+        var json = template.Replace("$accounts$", accountsString);
+        File.WriteAllText("../../contracts/wallet_flow.json", json);
+
+        (await db.Select<AppUser>(u => Sql.In(u.DisplayName, new[] { dan, tony, anil })))
             .Tee(users =>
             {
                 var orderedUsers = users.OrderBy(x => x.DisplayName).ToArray();
@@ -132,9 +124,15 @@ public record SettingsConfig
 
 public record AccountInfo(
     string Name,
-    string PublicKey,
+    string Address,
     string PrivateKey
-);
+)
+{
+    public string Serialize()
+    {
+        return $"\"{Name}\": {{ \"address\": \"{Address}\", \"key\": \"{PrivateKey}\" }}";
+    }
+}
 
 public record BetSpec(
     string BetId,

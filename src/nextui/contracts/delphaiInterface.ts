@@ -21,6 +21,8 @@ export default class DelphaiInterface {
             .put("discovery.wallet", "http://localhost:8701/fcl/authn")
             .put("challenge.handshake", "http://localhost:8701/fcl/authn")
             .put("0xFUSD", this.delphaiAddress);
+        
+        // TODO: figure out whether to authenticate or how to deal with this
         fcl.unauthenticate();
     }
 

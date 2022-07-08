@@ -77,7 +77,6 @@ export default function BetPage() {
         const hasMadeWager = !!betState?.wagers.find(w =>
             w.userAddress === user?.mainnetAddress
             || w.userAddress === `0x${user?.mainnetAddress}`);
-        debugger;
         
         if (isBetClosed) {
             return (
