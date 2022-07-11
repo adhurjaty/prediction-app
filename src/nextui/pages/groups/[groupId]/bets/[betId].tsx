@@ -14,6 +14,11 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
+interface UserState extends User {
+    prediction: boolean,
+    wager: number
+}
+
 export default function BetPage() {
     const router = useRouter();
     const { data: session, status } = useSession();
@@ -24,6 +29,7 @@ export default function BetPage() {
     const [user, setUser] = useState<User>();
     const [fetchError, setError] = useState<string>();
     const [delphai, setDelphai] = useState<DelphaiInterface>();
+    const [userStates, setUserStates] = useState<UserState[]>();
 
     const { groupId, betId } = router.query;
 
@@ -71,6 +77,17 @@ export default function BetPage() {
 
         return () => abortController.abort();
     }, [session, groupId, betId, delphai]);
+
+    useEffect(() => {
+        if (!group?.users || !betState)
+            return;
+        const states = group.users
+            .map(u => ({
+                ...u,
+                ...betState.wagers.find(w => w.userAddress === `0x${u.mainnetAddress}`)!
+            }));
+        setUserStates(states)
+    }, [betState, group]);
 
     const wagerSection = () => {
         const isBetClosed = !!bet && bet.closeTime.getTime() < Date.now();
@@ -150,17 +167,19 @@ export default function BetPage() {
                                             <TableRow>
                                                 <TableCell>User</TableCell>
                                                 <TableCell>Bet</TableCell>
-                                                <TableCell>Resolution vote</TableCell>
+                                                <TableCell>Wager</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {group.users.map(member => (
-                                                <TableRow key={member.id}>
-                                                    <TableCell>{member.displayName}</TableCell>
-                                                    <TableCell>{member.accuracy}</TableCell>
-                                                    <TableCell>{member.prestige}</TableCell>
-                                                </TableRow>
-                                            ))}
+                                            {userStates && userStates.map(member => {
+                                                return (
+                                                    <TableRow key={member.id}>
+                                                        <TableCell>{member.displayName}</TableCell>
+                                                        <TableCell>{member.prediction ? "Yes" : "No"}</TableCell>
+                                                        <TableCell>{member.wager}</TableCell>
+                                                    </TableRow>
+                                                )
+                                            })}
                                         </TableBody>
                                     </Table>
                                 </TableContainer>
