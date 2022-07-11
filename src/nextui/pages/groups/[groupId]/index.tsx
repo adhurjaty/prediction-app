@@ -170,7 +170,7 @@ export default function GroupPage() {
                                 (<p>You are the only one here. Add some members to get started.</p>)}
                         </Grid>
                     
-                    <Link href={`/group/${group!.id}/add-members`} passHref>
+                    <Link href={`/groups/${group!.id}/addMembers`} passHref>
                         <Button variant="contained">+ members</Button>
                     </Link>
                     </>)) || (<></>)}
