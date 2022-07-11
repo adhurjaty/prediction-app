@@ -55,6 +55,13 @@ export async function post(url: string, req: NextApiRequest) {
     }));
 }
 
+export async function put(url: string, req: NextApiRequest) {
+    const encodedToken = await generateToken(req);
+    return toResult(() => axios.put(url, req.body, {
+        headers: authHeader(encodedToken),
+    }));
+}
+
 export function toResponse(result: Result<any, string>): { result: any } | { error: string } {
     return result.match({
         ok: data => ({ result: data }),

@@ -13,6 +13,16 @@ namespace WebApi
     [Alias("groups")]
     public class Group : DbModel
     {
+        public new Guid Id 
+        { 
+            get => base.Id;
+            set
+            {
+                UserGroups?.ForEach(x => x.GroupId = value);
+                base.Id = value;
+            }
+        }
+
         public string Name { get; set; }
 
         [Reference]

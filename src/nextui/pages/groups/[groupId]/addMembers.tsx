@@ -36,24 +36,21 @@ export default function AddMembers() {
         const abortController = new AbortController();
 
         const emailParam = encodeURI(address);
-        (await fetchModel<User>(`/api/user?email=${emailParam}`, abortController.signal))
+        return (await fetchModel<User>(`/api/user?email=${emailParam}`, abortController.signal))
             .map(user => setGroup({
                 ...group!,
                 users: [user, ...group!.users]
             }))
             .mapErr(err => setSubmitError(err))
             .isOk();
-
-        return () => abortController.abort();
     };
 
     const updateGroup = async () => {
-        return (await putModel<Group>(`/api/group/${groupId}`, {
+        return (await putModel<Group>(`/api/groups/${groupId}`, {
             group,
         }))
-            .map(group => router.push(`/groups/${group.id}`))
-            .mapErr(err => setSubmitError(err))
-            .isOk();
+            .map(_ => router.push(`/groups/${groupId}`))
+            .mapErr(err => setSubmitError(err));
     }
 
     return (
@@ -68,13 +65,14 @@ export default function AddMembers() {
                             initialValues={{
                                 address: ""
                             }}
-                            onSubmit={async (values, { setSubmitting }) => {
+                            onSubmit={async (values, { setSubmitting, resetForm }) => {
                                 const result = await addMember(values.address);
                                 setSubmitting(false);
+                                if (result) resetForm({ values: { address: "" } });
                                 return result;
                             }}
                         >
-                            <Form>
+                            <Form onChange={(_) => setSubmitError(undefined)}>
                                 <Stack direction="row">
                                     <TextInput label="Member Address"
                                         name="address"
@@ -113,6 +111,9 @@ export default function AddMembers() {
                                 </ListItem>
                             ))}
                         </List>
+                        <Button variant="contained" onClick={updateGroup}>
+                            Save
+                        </Button>
                     </Stack>
                 </Container>
             </LoadingSection>

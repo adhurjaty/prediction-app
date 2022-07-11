@@ -66,13 +66,13 @@ namespace WebApi
         [HttpPut]
         [Authorize]
         [Route("Groups/{groupId}")]
-        public async Task<ActionResult<Group>> UpdateGroup(string groupId, Group group)
+        public async Task<ActionResult<Group>> UpdateGroup(string groupId, [FromBody] UpdateGroupRequest request)
         {
             var result = await (await GetUserFromClaims()
                 .Bind(user => _mediator.Send(new UpdateGroupCommand()
                 {
                     User = user,
-                    Group = group
+                    Group = request.Group
                 })))
                 .Bind(() => _db.LoadSingleById<Group>(groupId));
 
@@ -93,5 +93,10 @@ namespace WebApi
 
             return ToResponse(result);
         }
+    }
+
+    public class UpdateGroupRequest
+    {
+        public Group Group { get; set; }
     }
 }

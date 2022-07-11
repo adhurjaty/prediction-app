@@ -17,8 +17,24 @@ namespace WebApi
         [Route("User")]
         public async Task<ActionResult<AppUser>> GetAppUser()
         {
-            var result = await Task.FromResult(GetUserFromClaims());
+            string email = Request.Query["email"];
+            var result = !string.IsNullOrEmpty(email)
+                ? await GetUserFromEmail(email)
+                : await Task.FromResult(GetUserFromClaims());
             return ToResponse(result);
+        }
+
+        private async Task<Result<AppUser>> GetUserFromEmail(string email)
+        {
+            return (await _mediator.Send(new UserQuery()
+            {
+                Email = email
+            }))
+            .Tee(user => 
+            {
+                // remove private data
+                user.FriendsRelations = null;
+            });
         }
 
         [HttpGet]

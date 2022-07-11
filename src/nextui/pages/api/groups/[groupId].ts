@@ -1,10 +1,21 @@
 import type { NextApiRequest, NextApiResponse } from "next"
-import { get, toResponse } from "@/utils/apiInterface"
+import { get, put, toResponse } from "@/utils/apiInterface"
 
-const Group = async (req: NextApiRequest, res: NextApiResponse) => {
+const GetGroup = async (req: NextApiRequest, res: NextApiResponse) => {
     const { groupId } = req.query;
     const response = toResponse(await get(`http://localhost:5000/groups/${groupId}`, req));
     res.send(response);
+}
+
+const UpdateGroup = async (req: NextApiRequest, res: NextApiResponse) => {
+    const { groupId } = req.query;
+    const response = toResponse(await put(`http://localhost:5000/groups/${groupId}`, req));
+    res.send(response);
+}
+
+const Group = async (req: NextApiRequest, res: NextApiResponse) => {
+    if (req.method == "PUT") await UpdateGroup(req, res);
+    if (req.method === "GET") await GetGroup(req, res);
 }
 
 export default Group;
