@@ -96,6 +96,7 @@ export default function BetPage() {
             delphai={delphai}
             betId={bet?.id || ''}
             userAddress={user?.mainnetAddress || ''}
+            betState={betState}
         />;
     }
 

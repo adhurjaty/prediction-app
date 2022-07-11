@@ -39,7 +39,7 @@ export default class DelphaiInterface {
                 arg(wager.prediction, t.Bool),
                 arg(wager.wager.toFixed(2), t.UFix64)
             ],
-            limit: 100
+            limit: 200
         });
     }
 

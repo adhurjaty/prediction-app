@@ -1,19 +1,42 @@
 import DelphaiInterface from "@/contracts/delphaiInterface";
+import BetState from "@/models/betState";
 import Wager from "@/models/wager";
 import { Button, MenuItem, Stack, Typography } from "@mui/material";
 import { Form, Formik } from "formik";
-import { Dispatch, SetStateAction, useState } from "react";
+import { useState } from "react";
 import { SelectInput, TextInput } from "./formFields";
 
 interface Props {
     delphai?: DelphaiInterface;
     betId: string;
     userAddress: string;
+    betState?: BetState;
 }
 
-export default function PlaceWagerForm({ delphai, betId, userAddress }: Props) {
+const initPredictionOptions = [
+    {
+        value: true,
+        label: "Yes"
+    },
+    {
+        value: false,
+        label: "No"
+    }
+];
+
+export default function PlaceWagerForm({ delphai, betId, userAddress, betState }: Props) {
     const [submitError, setSubmitError] = useState<string>();
-    
+
+    const getMaxWager = () => {
+        if (betState?.hubPrediction !== undefined) {
+            const hubWager = betState.wagers
+                .find(w => w.prediction === betState.hubPrediction);
+            return hubWager!.wager - betState.wagers
+                .filter(w => w.prediction != betState.hubPrediction)
+                .reduce((sum, w) => sum + w.wager, 0);
+        }
+    };
+
     const onSubmit = async (wager: Wager) => {
         if (!delphai)
             return false;
@@ -25,9 +48,23 @@ export default function PlaceWagerForm({ delphai, betId, userAddress }: Props) {
 
     return (
         <Formik
+            enableReinitialize={true}
             initialValues={{
-                prediction: "true",
+                prediction: (!betState?.hubPrediction ?? true).toString(),
                 wager: 0
+            }}
+            validate={(values) => {
+                const maxWager = getMaxWager();
+                if (!values.wager.toFixed) {
+                    return {
+                        wager: "Wager must be a number"
+                    }
+                }
+                if (maxWager && maxWager < values.wager) {
+                    return {
+                        wager: `Wager must be less than ${maxWager}`
+                    };
+                }
             }}
             onSubmit={async (values, { setSubmitting }) => {
                 var result = await onSubmit({
@@ -45,15 +82,26 @@ export default function PlaceWagerForm({ delphai, betId, userAddress }: Props) {
                     <Typography variant="h5">
                         Place Wager
                     </Typography>
+                    {betState?.hubPrediction !== undefined &&
+                        <>
+                        <Typography variant="subtitle1">
+                            Hub bet: {betState.hubPrediction ? "Yes" : "No"}
+                        </Typography>
+                        <Typography variant="subtitle2">
+                            Max wager: {getMaxWager()}
+                        </Typography>
+                        </>
+                    }
                     <SelectInput label="Prediction"
                         name="prediction"
                     >
-                        <MenuItem value="true">
-                            Yes
-                        </MenuItem>
-                        <MenuItem value="false">
-                            No
-                        </MenuItem>
+                        {initPredictionOptions
+                            .filter(x => x.value !== betState?.hubPrediction)
+                            .map((x, i) => (
+                            <MenuItem value={x.value.toString()} key={i}>
+                                {x.label}
+                            </MenuItem>
+                        ))}
                     </SelectInput>
                     <TextInput label="Wager"
                         name="wager"
