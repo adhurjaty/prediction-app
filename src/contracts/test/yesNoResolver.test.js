@@ -4,6 +4,50 @@ import { deployContractByName, emulator, executeScript, getAccountAddress, getFl
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(10000);
 
+const deployContracts = async (delphai) => {
+    await deployContractByName({
+        to: delphai,
+        name: "DelphaiUsers"
+    });
+
+    await deployContractByName({
+        to: delphai,
+        name: "YesNoBetLibrary",
+        addressMap: {
+            DelphaiUsers: delphai
+        }
+    });
+
+    await deployContractByName({
+        to: delphai,
+        name: "YesNoResolverLibrary",
+        addressMap: {
+            DelphaiUsers: delphai
+        }
+    });
+};
+
+const setupAccounts = async (delphai, members) => {
+    for (const member of members) {
+        await shallResolve(
+            sendTransaction({
+                name: "saveDelphaiUser",
+                signers: [member],
+                addressMap: { "delphai": delphai }
+            })
+        );
+    }
+
+    await shallResolve(
+        sendTransaction({
+            name: "transferTokens",
+            args: ["betId1234", members],
+            signers: [delphai],
+            addressMap: { "delphai": delphai }
+        })
+    );
+};
+
 describe("yes-no-resolver", ()=>{
     beforeEach(async () => {
         const basePath = path.resolve(__dirname, "../cadence"); 
@@ -77,5 +121,45 @@ describe("yes-no-resolver", ()=>{
             })
         )
         expect(error3).toBeNull();
+    });
+
+    test("check has resolution token true", async () => {
+        const delphai = await getAccountAddress("Delphai");
+        const alice = await getAccountAddress("alice");
+        
+        await deployContracts(delphai);
+        await setupAccounts(delphai, [alice]);
+
+        const [result, error] = await shallResolve(
+            executeScript({
+                name: "hasResolutionToken",
+                args: [alice, "betId1234"],
+                signers: [alice],
+                addressMap: { "delphai": delphai }
+            })
+        );
+
+        expect(error).toBeNull();
+        expect(result).toBe(true);
+    });
+
+    test("check has resolution token false", async () => {
+        const delphai = await getAccountAddress("Delphai");
+        const alice = await getAccountAddress("alice");
+        
+        await deployContracts(delphai);
+        await setupAccounts(delphai, [alice]);
+
+        const [result, error] = await shallResolve(
+            executeScript({
+                name: "hasResolutionToken",
+                args: [alice, "otherBetId"],
+                signers: [alice],
+                addressMap: { "delphai": delphai }
+            })
+        );
+
+        expect(error).toBeNull();
+        expect(result).toBe(false);
     });
 })

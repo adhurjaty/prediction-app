@@ -57,6 +57,10 @@ pub contract DelphaiUsers {
                 ?? panic("No resolution token for betId: ".concat(betId)))
         }
 
+        pub fun hasToken(betId: String): Bool {
+            return self.tokens.containsKey(betId)
+        }
+
         destroy () {
             destroy self.tokens
         }
