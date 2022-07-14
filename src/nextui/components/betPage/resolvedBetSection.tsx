@@ -5,9 +5,10 @@ interface Props {
     result: boolean;
     delphai: DelphaiInterface;
     betId: string;
+    returnAmount: number;
 }
 
-export default function ResolvedBetSection({ result, delphai, betId }: Props) {
+export default function ResolvedBetSection({ result, delphai, betId, returnAmount }: Props) {
     const claimWinnings = async () => {
         return (await delphai.retrieveWinning(betId))
             .map(() => true)
@@ -20,13 +21,13 @@ export default function ResolvedBetSection({ result, delphai, betId }: Props) {
             <Typography variant="h6">
                 Bet is resolved: {result ? "Yes" : "No"}
             </Typography>
-            <Button
+            {returnAmount > 0 && <Button
                 variant="contained"
                 color="primary"
                 onClick={claimWinnings}
             >
                 Claim Winnings
-            </Button>
+            </Button>}
         </>
     )
 }

@@ -3,7 +3,8 @@ import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 
 interface UserState extends User {
     prediction?: boolean,
-    wager: number
+    wager: number,
+    returnAmount: number
 }
 
 interface Props {
@@ -18,6 +19,10 @@ export default function ResolvedBetStatusTable({ userStates, result }: Props) {
             return "";
         }
         return prediction === result ? "Winner" : "Loser";
+    }
+
+    const displayMoney = (amount: number) => {
+        return Math.round(amount * 100) / 100;
     }
     
     return (
@@ -36,7 +41,7 @@ export default function ResolvedBetStatusTable({ userStates, result }: Props) {
                             <TableRow key={member.id}>
                                 <TableCell>{member.displayName}</TableCell>
                                 <TableCell>{displayStatus(member.prediction)}</TableCell>
-                                <TableCell>{member.wager}</TableCell>
+                                <TableCell>{displayMoney(member.returnAmount)}</TableCell>
                             </TableRow>
                         )
                     })}

@@ -19,7 +19,8 @@ import ResolvedBetSection from "@/components/betPage/resolvedBetSection";
 
 interface UserState extends User {
     prediction?: boolean,
-    wager: number
+    wager: number,
+    returnAmount: number
 }
 
 export default function BetPage() {
@@ -192,6 +193,7 @@ export default function BetPage() {
                                     result={betState!.result}
                                     delphai={delphai}
                                     betId={betId as string}
+                                    returnAmount={userStates?.find(x => x.id === user?.id)?.returnAmount ?? 0}
                                 />)
                                 ||
                                 <>

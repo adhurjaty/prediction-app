@@ -11,14 +11,14 @@ pub contract YesNoBetLibrary {
         pub let userAddress: Address
         pub var prediction: Bool?
         pub let wager: @[FungibleToken.Vault]
-        priv var wagerBalance: UFix64
+        priv var betAmount: UFix64
 
         init (betId: String, userAddress: Address) {
             self.betId = betId
             self.userAddress = userAddress
             self.prediction = nil
             self.wager <- []
-            self.wagerBalance = 0.0
+            self.betAmount = 0.0
         }
 
         pub fun makeBet(prediction: Bool, wager: @FungibleToken.Vault) {
@@ -26,7 +26,7 @@ pub contract YesNoBetLibrary {
                 self.wager.length == 0: "Bet has already been made"
             }
             self.prediction = prediction
-            self.wagerBalance = wager.balance
+            self.betAmount = wager.balance
             self.wager.append(<-wager)
         }
 
@@ -34,12 +34,19 @@ pub contract YesNoBetLibrary {
             pre {
                 self.wager.length == 1 : "Bet has not been made"
             }
-            self.wagerBalance = 0.0
             return <-self.wager.remove(at: 0)
         }
 
         pub fun getVaultBalance(): UFix64 {
-            return self.wagerBalance
+            if self.wager.length == 0 {
+                return 0.0
+            } else {
+                return self.wager[0].balance
+            }
+        }
+
+        pub fun getBetAmount(): UFix64 {
+            return self.betAmount
         }
 
         destroy () {
@@ -51,11 +58,13 @@ pub contract YesNoBetLibrary {
         pub let userAddress: Address
         pub let prediction: Bool
         pub let wager: UFix64
+        pub let returnAmount: UFix64
 
-        init (userAddress: Address, prediction: Bool, wager: UFix64) {
+        init (userAddress: Address, prediction: Bool, wager: UFix64, returnAmount: UFix64) {
             self.userAddress = userAddress
             self.prediction = prediction
             self.wager = wager
+            self.returnAmount = returnAmount
         }
     }
 
@@ -97,7 +106,8 @@ pub contract YesNoBetLibrary {
             self.madeBets[token.userAddress] = YesNoBetStruct(
                 userAddress: token.userAddress,
                 prediction: token.prediction!,
-                wager: vault.balance
+                wager: vault.balance,
+                returnAmount: 0.0
             )
 
             destroy token
@@ -169,7 +179,7 @@ pub contract YesNoBetLibrary {
                 self.hubBet = HubBet(
                     address: token.userAddress,
                     prediction: token.prediction!,
-                    wager: token.getVaultBalance()
+                    wager: token.getBetAmount()
                 )
             } else {
                 self.spokeBalance = self.spokeBalance + vault.balance
@@ -250,7 +260,8 @@ pub contract YesNoBetLibrary {
                     wagers.append(YesNoBetStruct(
                         userAddress: wager.userAddress,
                         prediction: wager.prediction!,
-                        wager: wager.wager[0].balance))
+                        wager: wager.getBetAmount(),
+                        returnAmount: wager.getVaultBalance()))
                 }
                 self.madeBets[key] <-! wager
             }
