@@ -34,6 +34,7 @@ pub contract YesNoBetLibrary {
             pre {
                 self.wager.length == 1 : "Bet has not been made"
             }
+            self.wagerBalance = 0.0
             return <-self.wager.remove(at: 0)
         }
 
@@ -236,8 +237,8 @@ pub contract YesNoBetLibrary {
             let betToken <- self.madeBets.remove(key: claimToken.userAddress)
                 ?? panic("Already retrieved winning")
             let vault <- betToken.getVault()
+            self.madeBets[claimToken.userAddress] <-! betToken
             destroy claimToken
-            destroy betToken
             return <- vault
         }
 
