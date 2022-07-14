@@ -28,7 +28,7 @@ export default function PlaceWagerForm({ delphai, betId, userAddress, betState }
     const [submitError, setSubmitError] = useState<string>();
 
     const getMaxWager = () => {
-        if (betState?.hubPrediction !== undefined) {
+        if (betState?.hubPrediction !== undefined && betState?.hubPrediction !== null) {
             const hubWager = betState.wagers
                 .find(w => w.prediction === betState.hubPrediction);
             return hubWager!.wager - betState.wagers

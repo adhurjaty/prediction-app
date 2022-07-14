@@ -1,7 +1,7 @@
 import LoadingSection from "@/components/loadingSection";
 import PrimaryPage from "@/components/primaryPage";
 import { Circle, CircleInner } from "@/components/styled";
-import { Bet } from "@/models/bet";
+import Bet from "@/models/bet";
 import { fetchModel } from "@/utils/nodeInterface";
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Stack, Button } from "@mui/material";
 import { useSession } from "next-auth/react";

@@ -6,7 +6,7 @@ import Resolution from '@/models/resolution';
 import placeBetText from 'raw-loader!./cadence/transactions/placeBetComposerFUSD.cdc';
 import resolveText from 'raw-loader!./cadence/transactions/voteToResolve.cdc';
 import getBetState from 'raw-loader!./cadence/scripts/getBetState.cdc';
-import borrowResolutionTokenText from 'raw-loader!./cadence/transactions/borrowResolutionToken.cdc';
+import hasResolutionTokenText from 'raw-loader!./cadence/scripts/hasResolutionToken.cdc';
 import { Result } from '@sniptt/monads/build';
 import BetState from '@/models/betState';
 
@@ -71,10 +71,12 @@ export default class DelphaiInterface {
     }
 
     async hasResolutionVote(betId: string): Promise<Result<boolean, string>> {
-        const transactionText = borrowResolutionTokenText as string;
-        return (await flow.mutate({
-            cadence: transactionText,
+        const scriptText = hasResolutionTokenText as string;
+        return (await flow.query<boolean>({
+            cadence: scriptText,
+            authorizations: [fcl.authz],
             args: (arg, t) => [
+                arg(fcl.authz, t.Address),
                 arg(this.toBetId(betId), t.String)
             ]
         })).map(() => true);
