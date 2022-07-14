@@ -14,6 +14,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import OpenBetStatusTable from "@/components/betPage/openBetStatusTable";
+import ResolvedBetStatusTable from "@/components/betPage/resolvedBetStatusTable";
 
 interface UserState extends User {
     prediction?: boolean,
@@ -178,7 +179,9 @@ export default function BetPage() {
                                 Members
                             </Typography>
                             {userStates &&
-                                <OpenBetStatusTable userStates={userStates} />
+                                (betState?.result !== undefined
+                                    && <ResolvedBetStatusTable userStates={userStates} result={betState!.result} />
+                                    || <OpenBetStatusTable userStates={userStates} />)
                                 ||
                                 <Typography variant="body2">
                                     No one is in the group!
