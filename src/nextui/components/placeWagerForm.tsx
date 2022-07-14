@@ -11,6 +11,7 @@ interface Props {
     betId: string;
     userAddress: string;
     betState?: BetState;
+    onSubmit?: () => void;
 }
 
 const initPredictionOptions = [
@@ -24,7 +25,7 @@ const initPredictionOptions = [
     }
 ];
 
-export default function PlaceWagerForm({ delphai, betId, userAddress, betState }: Props) {
+export default function PlaceWagerForm({ delphai, betId, userAddress, betState, onSubmit }: Props) {
     const [submitError, setSubmitError] = useState<string>();
 
     const getMaxWager = () => {
@@ -37,11 +38,12 @@ export default function PlaceWagerForm({ delphai, betId, userAddress, betState }
         }
     };
 
-    const onSubmit = async (wager: Wager) => {
+    const onFormSubmit = async (wager: Wager) => {
         if (!delphai)
             return false;
         
         return (await delphai.placeBet(wager))
+            .map(() => onSubmit && onSubmit())
             .mapErr(err => setSubmitError(err))
             .isOk();
     }
@@ -67,7 +69,7 @@ export default function PlaceWagerForm({ delphai, betId, userAddress, betState }
                 }
             }}
             onSubmit={async (values, { setSubmitting }) => {
-                var result = await onSubmit({
+                var result = await onFormSubmit({
                     ...values,
                     prediction: values.prediction === "true",
                     betId,

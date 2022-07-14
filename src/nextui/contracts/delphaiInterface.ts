@@ -86,14 +86,14 @@ export default class DelphaiInterface {
     async hasResolutionVote(betId: string): Promise<Result<boolean, string>> {
         const scriptText = hasResolutionTokenText as string;
         const user = await this.getCurrentUser();
-        return (await flow.query<boolean>({
+        return await flow.query<boolean>({
             cadence: scriptText,
             authorizations: [fcl.authz],
             args: (arg, t) => [
                 arg(user.addr, t.Address),
                 arg(this.toBetId(betId), t.String)
             ]
-        })).map(() => true);
+        });
     }
 
     async getCurrentUser(): Promise<FclUser> {

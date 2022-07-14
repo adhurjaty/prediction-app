@@ -9,15 +9,17 @@ interface Props {
     delphai?: DelphaiInterface;
     betId: string;
     userId: string;
+    onSubmit?: () => void;
 }
 
-export default function PlaceResolutionForm({ delphai, betId, userId }: Props) {
+export default function PlaceResolutionForm({ delphai, betId, userId, onSubmit: afterSubmit }: Props) {
     const [submitError, setSubmitError] = useState<string>();
     
     const onSubmit = async (resolution: Resolution) => {
         if (!delphai)
             return false;
         return (await delphai.voteToResolve(resolution))
+            .map(() => afterSubmit && afterSubmit())
             .mapErr(err => setSubmitError(err))
             .isOk();
     }

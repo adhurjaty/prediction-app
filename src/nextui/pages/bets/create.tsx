@@ -20,7 +20,7 @@ interface BetFormData {
     amount?: number;
     resolutionDescription?: string;
     wager: number;
-    prediction: boolean;
+    prediction: string;
 }
 
 function defaultDate(): Date {
@@ -66,7 +66,7 @@ export default function CreateBetPage() {
                     betId: createdBet.id,
                     userAddress: user.addr,
                     wager: bet.wager,
-                    prediction: bet.prediction
+                    prediction: bet.prediction === "true"
                 });
                 return createdBet;
             })
@@ -89,7 +89,7 @@ export default function CreateBetPage() {
                             description: '',
                             resolutionEvent: '',
                             closeTime: defaultDate(),
-                            prediction: true,
+                            prediction: "true",
                             wager: 0
                         }}
                         validationSchema={Yup.object({

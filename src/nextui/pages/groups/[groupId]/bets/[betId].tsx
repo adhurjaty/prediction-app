@@ -120,6 +120,7 @@ export default function BetPage() {
             betId={bet?.id || ''}
             userAddress={user?.mainnetAddress || ''}
             betState={betState}
+            onSubmit={() => router.reload()}
         />;
     }
 
@@ -132,11 +133,20 @@ export default function BetPage() {
                 </Typography>
             );
         }
+
+        if (!hasResolutionToken) {
+            return (
+                <Typography variant="h6">
+                    You have already voted to resolve this bet
+                </Typography>
+            )
+        }
         
         return <PlaceResolutionForm
             delphai={delphai}
             betId={bet?.id || ''}
             userId={user?.id || ''}
+            onSubmit={() => router.reload()}
         />
     }
 
