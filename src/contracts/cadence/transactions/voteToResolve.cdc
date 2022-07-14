@@ -17,9 +17,9 @@ transaction(delphai: Address, betId: String, prediction: Bool) {
 
         resolutionToken.vote(resolution: prediction)
 
+        let betPath = PublicPath(identifier: betId)
         let composerRef = getAccount(delphai)
-            .getCapability<&BetContractComposer.ContractComposer>(
-                /public/betId1234)!
+            .getCapability<&BetContractComposer.ContractComposer>(betPath!)!
             .borrow()
             ?? panic("Could not get bet composer")
         composerRef.voteToResolve(vote: <-resolutionToken)

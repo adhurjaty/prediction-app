@@ -25,9 +25,9 @@ transaction(delphai: Address, betId: String, prediction: Bool, wager: UFix64) {
 
         betToken.makeBet(prediction: prediction, wager: <-flowTokenVault)
 
+        let betPath = PublicPath(identifier: betId)
         let composerRef = getAccount(delphai)
-            .getCapability<&BetContractComposer.ContractComposer>(
-                /public/betId1234)!
+            .getCapability<&BetContractComposer.ContractComposer>(betPath!)!
             .borrow()
             ?? panic("Could not get bet composer")
         composerRef.makeBet(bet: <-betToken)

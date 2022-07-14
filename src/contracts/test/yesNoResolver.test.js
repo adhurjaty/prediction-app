@@ -1,5 +1,5 @@
 import path from "path";
-import { deployContractByName, emulator, executeScript, getAccountAddress, getFlowBalance, init, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
+import { deployContractByName, emulator, executeScript, getAccountAddress, getFlowBalance, init, sendTransaction, shallPass, shallResolve, mintFlow } from "flow-js-testing";
 
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(10000);
@@ -23,6 +23,16 @@ const deployContracts = async (delphai) => {
         name: "YesNoResolverLibrary",
         addressMap: {
             DelphaiUsers: delphai
+        }
+    });
+
+    await deployContractByName({
+        to: delphai,
+        name: "BetContractComposer",
+        addressMap: {
+            DelphaiUsers: delphai,
+            YesNoBetLibrary: delphai,
+            YesNoResolverLibrary: delphai
         }
     });
 };
@@ -161,5 +171,79 @@ describe("yes-no-resolver", ()=>{
 
         expect(error).toBeNull();
         expect(result).toBe(false);
+    });
+
+    test("check has resolution token after voting", async () => {
+        const delphai = await getAccountAddress("Delphai");
+        const alice = await getAccountAddress("alice");
+        const bob = await getAccountAddress("bob");
+        
+        await deployContracts(delphai);
+        await setupAccounts(delphai, [alice, bob]);
+        await shallResolve(
+            sendTransaction({
+                name: "deployComposerBet",
+                args: ["betId1234", 2],
+                signers: [delphai],
+                addressMap: { "delphai": delphai }
+            })
+        )
+
+        await mintFlow(alice, "42.0");
+        await mintFlow(bob, "42.0");
+
+        const [placeHubResult, placeHubError] = await shallResolve(
+            sendTransaction({
+                name: "placeBetComposer",
+                args: [delphai, "betId1234", true, 20],
+                signers: [alice],
+                addressMap: { "delphai": delphai }
+            })
+        )
+        expect(placeHubError).toBeNull();
+
+        const [placeSpokeResult, placeSpokeError] = await shallResolve(
+            sendTransaction({
+                name: "placeBetComposer",
+                args: [delphai, "betId1234", false, 20],
+                signers: [bob],
+                addressMap: { "delphai": delphai }
+            })
+        )
+        expect(placeSpokeError).toBeNull();
+
+        const [hasTokenResult, hasTokenError] = await shallResolve(
+            executeScript({
+                name: "hasResolutionToken",
+                args: [alice, "betId1234"],
+                signers: [alice],
+                addressMap: { "delphai": delphai }
+            })
+        );
+
+        expect(hasTokenError).toBeNull();
+        expect(hasTokenResult).toBe(true);
+
+        const [sendResolutionTokenResult, resTokenError] = await shallResolve(
+            sendTransaction({
+                name: "voteToResolve",
+                args: [delphai, "betId1234", true],
+                signers: [alice],
+                addressMap: { "delphai": delphai }
+            })
+        )
+        expect(resTokenError).toBeNull();
+
+        const [hasTokenResult2, hasTokenError2] = await shallResolve(
+            executeScript({
+                name: "hasResolutionToken",
+                args: [alice, "betId1234"],
+                signers: [alice],
+                addressMap: { "delphai": delphai }
+            })
+        );
+
+        expect(hasTokenError2).toBeNull();
+        expect(hasTokenResult2).toBe(false);
     });
 })
