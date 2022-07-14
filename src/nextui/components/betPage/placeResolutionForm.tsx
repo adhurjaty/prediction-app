@@ -3,7 +3,7 @@ import Resolution from "@/models/resolution";
 import { Button, MenuItem, Stack, Typography } from "@mui/material";
 import { Form, Formik } from "formik";
 import { Dispatch, SetStateAction, useState } from "react";
-import { SelectInput, TextInput } from "./formFields";
+import { SelectInput, TextInput } from "../formFields";
 
 interface Props {
     delphai?: DelphaiInterface;

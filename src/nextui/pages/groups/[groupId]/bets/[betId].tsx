@@ -1,6 +1,6 @@
 import LoadingSection from "@/components/loadingSection";
-import PlaceResolutionForm from "@/components/placeResolutionForm";
-import PlaceWagerForm from "@/components/placeWagerForm";
+import PlaceResolutionForm from "@/components/betPage/placeResolutionForm";
+import PlaceWagerForm from "@/components/betPage/placeWagerForm";
 import SecondaryPage from "@/components/secondaryPage";
 import DelphaiInterface from "@/contracts/delphaiInterface";
 import Bet from "@/models/bet";
@@ -8,11 +8,12 @@ import BetState from "@/models/betState";
 import Group from "@/models/group";
 import User from "@/models/user";
 import { fetchModel } from "@/utils/nodeInterface";
-import { Avatar, Container, Paper, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Avatar, Container, Stack, Typography } from "@mui/material";
 import { Err, Ok } from "@sniptt/monads/build";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
+import OpenBetStatusTable from "@/components/betPage/openBetStatusTable";
 
 interface UserState extends User {
     prediction?: boolean,
@@ -150,13 +151,6 @@ export default function BetPage() {
         />
     }
 
-    const displayPrediction = (prediction: boolean | undefined) => {
-        if (prediction === undefined) {
-            return "";
-        }
-        return prediction ? "Yes" : "No";
-    }
-
     return (
         <SecondaryPage title={bet?.title ?? "Bet"} navLinks={navLinks}>
             <LoadingSection loading={loading} error={fetchError}>
@@ -183,36 +177,22 @@ export default function BetPage() {
                             <Typography variant="h6">
                                 Members
                             </Typography>
-                            {group?.users?.length &&
-                                <TableContainer component={Paper}>
-                                    <Table>
-                                        <TableHead>
-                                            <TableRow>
-                                                <TableCell>User</TableCell>
-                                                <TableCell>Bet</TableCell>
-                                                <TableCell>Wager</TableCell>
-                                            </TableRow>
-                                        </TableHead>
-                                        <TableBody>
-                                            {userStates && userStates.map(member => {
-
-                                                return (
-                                                    <TableRow key={member.id}>
-                                                        <TableCell>{member.displayName}</TableCell>
-                                                        <TableCell>{displayPrediction(member.prediction)}</TableCell>
-                                                        <TableCell>{member.wager}</TableCell>
-                                                    </TableRow>
-                                                )
-                                            })}
-                                        </TableBody>
-                                    </Table>
-                                </TableContainer>
+                            {userStates &&
+                                <OpenBetStatusTable userStates={userStates} />
                                 ||
                                 <Typography variant="body2">
                                     No one is in the group!
                                 </Typography>}
-                            {wagerSection()}
-                            {resolutionSection()}
+                            {(betState?.result != undefined 
+                                && <Typography variant="h6">
+                                        Bet is resolved: {betState.result ? "Yes" : "No"}
+                                   </Typography>)
+                                ||
+                                <>
+                                {wagerSection()}
+                                {resolutionSection()}
+                                </>
+                            }
                     </Stack>)}
                 </Container>
             </LoadingSection>
