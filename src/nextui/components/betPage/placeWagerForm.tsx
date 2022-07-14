@@ -84,7 +84,7 @@ export default function PlaceWagerForm({ delphai, betId, userAddress, betState, 
                     <Typography variant="h5">
                         Place Wager
                     </Typography>
-                    {betState?.hubPrediction !== undefined &&
+                    {betState?.hubPrediction != undefined &&
                         <>
                         <Typography variant="subtitle1">
                             Hub bet: {betState.hubPrediction ? "Yes" : "No"}

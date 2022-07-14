@@ -19,9 +19,9 @@ transaction(delphai: Address, betId: String) {
     execute {
         let claimToken <- self.delphaiUser.claimTokenVault.withdraw(betId: betId)
 
+        let betPath = PublicPath(identifier: betId)
         let composerRef = getAccount(delphai)
-            .getCapability<&BetContractComposer.ContractComposer>(
-                /public/betId1234)!
+            .getCapability<&BetContractComposer.ContractComposer>(betPath!)!
             .borrow()
             ?? panic("Could not get bet composer")
 

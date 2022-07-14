@@ -15,6 +15,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import OpenBetStatusTable from "@/components/betPage/openBetStatusTable";
 import ResolvedBetStatusTable from "@/components/betPage/resolvedBetStatusTable";
+import ResolvedBetSection from "@/components/betPage/resolvedBetSection";
 
 interface UserState extends User {
     prediction?: boolean,
@@ -179,17 +180,19 @@ export default function BetPage() {
                                 Members
                             </Typography>
                             {userStates &&
-                                (betState?.result !== undefined
+                                (betState?.result != undefined
                                     && <ResolvedBetStatusTable userStates={userStates} result={betState!.result} />
                                     || <OpenBetStatusTable userStates={userStates} />)
                                 ||
                                 <Typography variant="body2">
                                     No one is in the group!
                                 </Typography>}
-                            {(betState?.result != undefined 
-                                && <Typography variant="h6">
-                                        Bet is resolved: {betState.result ? "Yes" : "No"}
-                                   </Typography>)
+                            {(betState?.result != undefined && delphai
+                                && <ResolvedBetSection
+                                    result={betState!.result}
+                                    delphai={delphai}
+                                    betId={betId as string}
+                                />)
                                 ||
                                 <>
                                 {wagerSection()}

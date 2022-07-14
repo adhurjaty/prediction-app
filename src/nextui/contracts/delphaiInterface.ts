@@ -7,6 +7,7 @@ import placeBetText from 'raw-loader!./cadence/transactions/placeBetComposerFUSD
 import resolveText from 'raw-loader!./cadence/transactions/voteToResolve.cdc';
 import getBetState from 'raw-loader!./cadence/scripts/getBetState.cdc';
 import hasResolutionTokenText from 'raw-loader!./cadence/scripts/hasResolutionToken.cdc';
+import retrieveWinningFUSDText from 'raw-loader!./cadence/transactions/retrieveWinningFUSD.cdc';
 import { Result } from '@sniptt/monads/build';
 import BetState from '@/models/betState';
 
@@ -93,6 +94,21 @@ export default class DelphaiInterface {
                 arg(user.addr, t.Address),
                 arg(this.toBetId(betId), t.String)
             ]
+        });
+    }
+
+    async retrieveWinning(betId: string): Promise<Result<any, string>> {
+        const transactionText = retrieveWinningFUSDText as string;
+        return await flow.mutate<any>({
+            cadence: transactionText,
+            payer: fcl.authz,
+            proposer: fcl.authz,
+            authorizations: [fcl.authz],
+            args: (arg, t) => [
+                arg(this.delphaiAddress, t.Address),
+                arg(this.toBetId(betId), t.String)
+            ],
+            limit: 200
         });
     }
 
