@@ -11,19 +11,32 @@ import { Result } from '@sniptt/monads/build';
 import BetState from '@/models/betState';
 
 
+interface FclUser {
+    addr: string,
+    loggedIn: boolean,
+    cid: string
+}
+
 export default class DelphaiInterface {
     private delphaiAddress: string = '0xf8d6e0586b0a20c7';
 
     constructor() {
+        
         fcl.config()
             .put("accessNode.api", "http://127.0.0.1:8888")
             .put("0xdelphai", this.delphaiAddress)
             .put("discovery.wallet", "http://localhost:8701/fcl/authn")
             .put("challenge.handshake", "http://localhost:8701/fcl/authn")
             .put("0xFUSD", this.delphaiAddress);
+        fcl.currentUser.snapshot()
+            .then((user: any) => {
+                if (!user.loggedIn) {
+                    fcl.authenticate();
+                }
+            })
         
         // TODO: figure out whether to authenticate or how to deal with this
-        fcl.unauthenticate();
+        // fcl.unauthenticate();
     }
 
     async placeBet(wager: Wager): Promise<Result<any, string>> {
@@ -72,14 +85,19 @@ export default class DelphaiInterface {
 
     async hasResolutionVote(betId: string): Promise<Result<boolean, string>> {
         const scriptText = hasResolutionTokenText as string;
+        const user = await this.getCurrentUser();
         return (await flow.query<boolean>({
             cadence: scriptText,
             authorizations: [fcl.authz],
             args: (arg, t) => [
-                arg(fcl.authz, t.Address),
+                arg(user.addr, t.Address),
                 arg(this.toBetId(betId), t.String)
             ]
         })).map(() => true);
+    }
+
+    async getCurrentUser(): Promise<FclUser> {
+        return await fcl.currentUser.snapshot();
     }
 
     private toBetId(betId: string): string {

@@ -15,7 +15,7 @@ import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
 interface UserState extends User {
-    prediction: boolean,
+    prediction?: boolean,
     wager: number
 }
 
@@ -67,11 +67,11 @@ export default function BetPage() {
                 
             !abortController.signal.aborted && delphai
                 && (await delphai.getBetState(betId as string))
-                .map(state => { debugger; state && setBetState(state) });
+                .map(state => state && setBetState(state));
             
             !abortController.signal.aborted && delphai
                 && (await delphai.hasResolutionVote(betId as string))
-                .map(hasToken => { debugger; setHasResolutionToken(hasToken) });
+                .map(hasToken => setHasResolutionToken(hasToken));
             
             (await fetchModel<User>('/api/fullUser', abortController.signal))
                 .map(u => setUser(u));
@@ -140,6 +140,13 @@ export default function BetPage() {
         />
     }
 
+    const displayPrediction = (prediction: boolean | undefined) => {
+        if (prediction === undefined) {
+            return "";
+        }
+        return prediction ? "Yes" : "No";
+    }
+
     return (
         <SecondaryPage title={bet?.title ?? "Bet"} navLinks={navLinks}>
             <LoadingSection loading={loading} error={fetchError}>
@@ -178,10 +185,11 @@ export default function BetPage() {
                                         </TableHead>
                                         <TableBody>
                                             {userStates && userStates.map(member => {
+
                                                 return (
                                                     <TableRow key={member.id}>
                                                         <TableCell>{member.displayName}</TableCell>
-                                                        <TableCell>{member.prediction ? "Yes" : "No"}</TableCell>
+                                                        <TableCell>{displayPrediction(member.prediction)}</TableCell>
                                                         <TableCell>{member.wager}</TableCell>
                                                     </TableRow>
                                                 )

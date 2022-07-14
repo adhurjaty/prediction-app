@@ -1,6 +1,7 @@
 import { DatePickerInput, SelectInput, TextAreaInput, TextInput } from "@/components/formFields";
 import LoadingSection from "@/components/loadingSection";
 import SecondaryPage from "@/components/secondaryPage";
+import DelphaiInterface from "@/contracts/delphaiInterface";
 import Bet from "@/models/bet";
 import Group from "@/models/group";
 import { fetchModel, postModel } from "@/utils/nodeInterface";
@@ -19,6 +20,7 @@ interface BetFormData {
     amount?: number;
     resolutionDescription?: string;
     wager: number;
+    prediction: boolean;
 }
 
 function defaultDate(): Date {
@@ -35,9 +37,14 @@ export default function CreateBetPage() {
     const [groups, setGroups] = useState<Group[]>();
     const [fetchError, setfetchError] = useState<string>();
     const [submitError, setSubmitError] = useState<string>();
+    const [delphai, setDelphai] = useState<DelphaiInterface>();
     
     const router = useRouter();
     const { groupId } = router.query;
+
+    useEffect(() => {
+        setDelphai(new DelphaiInterface());
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -53,7 +60,20 @@ export default function CreateBetPage() {
 
     const createBet = async (bet: BetFormData) => {
         return (await postModel<Bet>("/api/bets", bet))
-            .map(createdBet => router.push(`/groups/${createdBet.groupId}/bets/${createdBet.id}`))
+            .map(async createdBet => {
+                const user = await delphai!.getCurrentUser();
+                await delphai?.placeBet({
+                    betId: createdBet.id,
+                    userAddress: user.addr,
+                    wager: bet.wager,
+                    prediction: bet.prediction
+                });
+                return createdBet;
+            })
+            .map(async createdBetPromise => {
+                const createdBet = await createdBetPromise;
+                router.push(`/groups/${createdBet.groupId}/bets/${createdBet.id}`)
+            })
             .mapErr(err => setSubmitError(err))
             .isOk();
     }
