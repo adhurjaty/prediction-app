@@ -58,6 +58,7 @@ export default function BetPage() {
         session && (async () => {
             (await fetchModel<Group>(`/api/groups/${groupId}`, abortController.signal))
                 .andThen(val => {
+                    debugger;
                     setGroup(val);
                     const groupBet = val.bets.find(x => x.id === betId);
                     if (groupBet) {

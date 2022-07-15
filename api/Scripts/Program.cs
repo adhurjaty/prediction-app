@@ -29,7 +29,7 @@ public static class Program
         var existingBets = new List<BetSpec>()
         {
             new BetSpec(
-                "b4a6dfd6-58a0-46fa-9f9f-9be17ead0c9c",
+                "4850db70-d90f-40de-9752-e7d29f5757c9",
                 new string[]
                 {
                     "0xf3fcd2c1a78f5eee",
@@ -38,7 +38,7 @@ public static class Program
                 }
             ),
             new BetSpec(
-                "052ef31c-7d3e-408d-8bc6-e778d2cd5644",
+                "39dda227-c031-4167-a620-86dc7b217d85",
                 new string[]
                 {
                     "0x179b6b1cb6755e31",
@@ -51,14 +51,14 @@ public static class Program
         var dan = "Dan Mcleod";
         var tony = "Tony Wong";
         var anil = "Anil Dhurjaty";
-        var tester = "Tester";
+        var tester = "Tester"; // used when I added another user via the UI
 
         (await contracts.MintFUSD())
             .Either(res => res, res => throw new Exception(res.Failure));
 
         var accountList = new List<AccountInfo>();
 
-        foreach (var acct in new[] { dan, tony, anil, tester })
+        foreach (var acct in new[] { dan, tony, anil })
         {
             var key = FlowAccountKey.GenerateRandomEcdsaKey(SignatureAlgo.ECDSA_P256, HashAlgo.SHA3_256, 1000);
             var address = "";
