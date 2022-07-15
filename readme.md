@@ -21,8 +21,7 @@ This application consists of 4 components:
   - Handles all the monetary transactions
 - Postgres Database
 
-![Architecture](./docs/Diagrams/out/Architecture/architecture.png)
-![Smart Contracts](./docs/Diagrams/out/Architecture/Propositions%20and%20Resolutions.png)
+![Architecture](./docs/Diagrams/out/Architecture/highLevel.png)
 
 ### Use cases
 

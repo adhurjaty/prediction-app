@@ -1,0 +1,49 @@
+@startuml highLevel
+
+title High Level Architecture
+
+actor User as user
+
+frame Browser {
+    node Wallet as wallet
+    node Client as client
+}
+
+frame CloudHosted {
+    frame UI {
+        node NextjsFrontend as frontend
+        node NextjsBackend as backend
+    }
+    frame API {
+        node "ASP.Net Core" as api
+    }
+    frame Database {
+        database Postgres as db
+    }
+}
+
+frame FlowBlockchain {
+    node Contracts as contracts
+    node Transactions as transactions
+    node Scripts as scripts
+}
+
+frame AuthProviders {
+    node Google as google
+}
+
+user -->> client
+user -->> wallet
+client -->> frontend
+frontend -->> wallet
+frontend -->> backend
+backend -->> google
+backend -->> api
+api -->> db
+frontend -->> transactions
+frontend -->> scripts
+api -->> transactions
+transactions -->> contracts
+scripts -->> contracts
+
+@enduml
