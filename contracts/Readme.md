@@ -1,7 +1,9 @@
 # Bet contracts
 
-## Class diagram
+## To Run
 
-![class hierarchy](../../docs/Diagrams/out/Architecture/inheritanceDiagram.png)
+1. Start the database (if not already running)
+1. Open a terminal and run `flow emulator --contracts`
+1. Open another terminal and run `./emulator_init.sh`
 
-I think this is as simple as we can make it. Each bet contract creates 2 classes: the bet and the resolver. We pass in the resolver type as an argument and the bet contract creates the resolver contract.
+Note: Ensure your flow CLI >= v0.37.3
