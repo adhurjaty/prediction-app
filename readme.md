@@ -27,10 +27,11 @@ This application consists of 4 components:
 
 ![Registration](./docs/Diagrams/out/UserStories/Registration%20Sequence.png)
 ![Create group](./docs/Diagrams/out/UserStories/Create%20Group.png)
-![Add 3rd party proposition](./docs/Diagrams/out/UserStories/Add%203rd%20Party%20Proposition.png)
+
+Note: the plan for adding members will include the member to consent to being added, but we are not implementing that now for the sake of simplicity
+
 ![Add custom proposition](./docs/Diagrams/out/UserStories/Add%20Custom%20Proposition.png)
 ![Bet on proposition](./docs/Diagrams/out/UserStories/Bet%20on%20Proposition.png)
-![3rd party proposition resolved](./docs/Diagrams/out/UserStories/3rd%20Party%20Proposition%20Resolved.png)
 ![Custom proposition resolved](./docs/Diagrams/out/UserStories/Resolve%20Custom%20Proposition.png)
 ![View Scoreboard](./docs/Diagrams/out/UserStories/View%20Scoreboard.png)
 

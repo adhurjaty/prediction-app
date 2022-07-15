@@ -6,27 +6,21 @@ actor User as user
 participant UI as ui
 participant "API Backend" as api
 database Database as db
-participant Email as email
-participant "Push Notification" as pn
 
-user -> ui : View groups
-ui -> api : Get groups for user
-api -> db : Select groups
-db -> api : Groups
-api -> ui : Groups
-user -> ui : Click create group
+user -> ui : Fill out "create\ngroup" form
 ui -> api : Create group
 api -> db : Insert group
-ui -> ui : Show friend \nselection page 
-ui -> api : Search users
-api -> db : Select users
-db -> api : Return users
-api -> ui : Return friend(s)
-user -> ui : Confirm friend request
-ui -> api : Add desired member\nto group
-api -> email : Email person (if not user)
-api -> db : Insert temp user\n(if not user)
-api -> pn : Notify user (if user)
-api -> db : Update group with\ntentative members
+ui -> ui : Redirect to\ngroup page
+user -> ui : Select add members
+ui -> ui : Add members page
+user -> ui : Enter email address
+ui -> api : Get user
+api --> ui : Add tentative\nmember
+user -> ui : Enter email address
+ui -> api : Get user
+api --> ui : Add tentative\nmember
+user -> ui : Save
+ui -> api : Update group
+api -> db : Update group
 
 @enduml

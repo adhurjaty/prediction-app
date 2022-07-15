@@ -5,7 +5,6 @@ title Registration Sequence
 actor User as user
 participant "User Flow Storage" as storage
 participant UI as ui
-database "Local Store" as localstore
 participant "API Backend" as api
 database Database as db
 participant "OAuth Provider" as oauth
@@ -13,30 +12,29 @@ participant Flow as flow
 
 user -> ui : Click register 
 
-group OAuth
-    ui -> api : Create user endpoint
-    api -> oauth : Register user
-    oauth -> api : Return user info
-    api -> db : Insert user
-    api -> ui : Report oauth success/failure
+ui -> oauth : OAuth prompt
+oauth --> ui : OAuth response
+ui -> api : Get user
+api -> db : Get user
+db --> api : No user found
+api -> db : Insert user
+api --> ui : User created
+ui -> ui : Redirect to\nuser config
+alt existing Flow account
+    user -> ui : Enter flow address
+    ui -> api : Update user
+    api -> db : Update user
+else no existing Flow account
+    user -> ui : Select "create\nnew Flow account"
+    ui -> api : Create new\nFlow account
+    api -> flow : Create new Flow account
+    flow --> api : New address
+    api -> db : Update user
+    api --> ui : New address
+    ui --> user : Display new address\nand keys
 end
-
-group Flow
-    ui --> user : prompt for Flow wallet info
-    alt user has wallet
-        user -> ui : enter wallet info
-    else
-        user -> ui : click setup flow button
-        ui -> ui : redirect to flow instructions
-        user -> ui : enter wallet info
-    end
-
-    ui -> api : update user with wallet address
-    api -> db : update user
-    ui -> flow : create Delphai user
-    flow --> storage : save user resource
-end
-
+ui -> flow : create Delphai user
+flow --> storage : save user resource
 ui --> user : show registration complete
 
 @enduml
