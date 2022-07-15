@@ -1,8 +1,0 @@
-{
-    "cSpell.enabled": false,
-
-    "plantuml.diagramsRoot": "docs/Diagrams/src",
-    "plantuml.exportOutDir": "docs/Diagrams/out",
-    "plantuml.exportSubFolder": false,
-    "plantuml.exportFormat": "png"
-}
