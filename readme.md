@@ -1,14 +1,25 @@
-# Betting with Friends App
+# Delphai
 
-I'd like to use the readme file as a place to show diagrams and share links. Tony, please add links to the talks you watched.
+## Summary
 
-## Communication
-
-How do we want to do communication? We can use Github issues for specific software issues. [Github projects](https://github.com/adhurjaty/prediction-app/projects/1) is a good Kanban board for communicating current state of tasks. Google calendars works for everyone for scheduling meetings? How do we want to do day-to-day communication. I prefer texting -- I'm not usually that responsive to email and I often forget about emails. We could start a Whatsapp group? What do you guys prefer?
+Delphai is a person-to-person betting app. Users belong to groups and users can create bets where anyone/everyone in the group can make a wagered bet. Once the bet is closed, the participants in the bet set the resolution (did the predicted outcome happen or not?). Once a resolution is reached, the participants can withdraw their winnings.
 
 ## Diagrams
 
 ### Architecture
+
+This application consists of 4 components:
+
+- UI
+  - Written in Nextjs (Typescript)
+  - Comes with a Node backend (used for OAuth and passing API calls along to the REST API)
+- REST API
+  - Written in ASP.NET Core C#
+  - Authentication using JWT tokens
+- Flow contracts
+  - Written in Cadence
+  - Handles all the monetary transactions
+- Postgres Database
 
 ![Architecture](./docs/Diagrams/out/Architecture/architecture.png)
 ![Smart Contracts](./docs/Diagrams/out/Architecture/Propositions%20and%20Resolutions.png)
@@ -50,13 +61,14 @@ If you want to edit the Figma diagram, open your own instance of Figma and impor
 
 ### Global Domain
 
-- **Bet**: Item up for making a wager on. A bet **resolves** to yes or no (for now) **outcome** upon some resolution condition
+- **Bet**
+  - Item up for making a wager on. A bet **resolves** to yes or no (for now) **outcome** upon some resolution condition
+  - A User's **wagered** amount on a predicted Outcome (also called a wagered bet)
 - **Resolution**: The point when the bet has an outcome
 - **Resolution Event**: The real world event that should trigger a resolution of the bet
 - **App Outcome**: The status of the resolved bet
 - **True Outcome**: The real world status of the resolution event
 - **Prediction**: A user's prediction of the app outcome
-- **Bet**: A User's **wagered** amount on a predicted Outcome
 - **Wager**: The amount of ether, USD, or prestige points in a bet per person
 
 ### Database
