@@ -26,6 +26,9 @@ This application consists of 4 components:
 ### Use cases
 
 ![Registration](./docs/Diagrams/out/UserStories/Registration%20Sequence.png)
+
+Note: We are only handling the case where the user already has a Flow address for now
+
 ![Create group](./docs/Diagrams/out/UserStories/Create%20Group.png)
 
 Note: the plan for adding members will include the member to consent to being added, but we are not implementing that now for the sake of simplicity
