@@ -26,10 +26,12 @@ public static class Program
         config.CadencePath = "../WebApi/Contract/Cadence";
         var contracts = await ContractsInterface.CreateInstance(appSettings.FlowSettings);
 
+        var bets = (await db.Select<Bet>()).ValueOrDefault(new List<Bet>());
+
         var existingBets = new List<BetSpec>()
         {
             new BetSpec(
-                "4850db70-d90f-40de-9752-e7d29f5757c9",
+                bets.First(x => x.Title.Contains("Lebron")).Id.ToString(),
                 new string[]
                 {
                     "0xf3fcd2c1a78f5eee",
@@ -38,7 +40,7 @@ public static class Program
                 }
             ),
             new BetSpec(
-                "39dda227-c031-4167-a620-86dc7b217d85",
+                bets.First(x => x.Title.Contains("Ari")).Id.ToString(),
                 new string[]
                 {
                     "0x179b6b1cb6755e31",
