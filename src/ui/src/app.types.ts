@@ -1,6 +1,0 @@
-
-export const TYPES = {
-    LOCAL_STORAGE: 'LOCAL_STORAGE',
-    LOCATION_BROWSER: 'LOCATION_BROWSER',
-    HTTP: 'HTTP'
-}
