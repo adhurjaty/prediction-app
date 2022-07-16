@@ -15,7 +15,7 @@ services:
   db:
     image: braggingrights/postgres:latest
     build:
-      dockerfile: dockerfiles/Dockerfile.db
+      dockerfile: ./Dockerfile.db
       context: .
     environment:
       POSTGRES_PASSWORD: igotbraggingrights
@@ -25,7 +25,7 @@ services:
   alembic:
     image: braggingrights/alembic:latest
     build:
-      dockerfile: dockerfiles/Dockerfile.alembic
+      dockerfile: alembic/Dockerfile
       context: .
     deploy:
       restart_policy:
@@ -44,17 +44,17 @@ services:
   webapp:
     image: braggingrights/webapp:latest
     build: 
-      dockerfile: dockerfiles/Dockerfile.webapp
+      dockerfile: ui/Dockerfile
       context: .
     environment:
       - NODE_ENV=production
     ports:
-      - 8080:8080 # ui
+      - 3000:3000 # ui
 
   api:
     image: braggingrights/api:latest
     build:
-      dockerfile: dockerfiles/Dockerfile.api
+      dockerfile: api/Dockerfile
       context: .
     environment: 
       ASPNETCORE_ENVIRONMENT: Release
