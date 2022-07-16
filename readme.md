@@ -33,10 +33,7 @@ Note: We are only handling the case where the user already has a Flow address fo
 
 Note: the plan for adding members will include the member to consent to being added, but we are not implementing that now for the sake of simplicity
 
-![Add custom proposition](./docs/Diagrams/out/UserStories/Add%20Custom%20Proposition.png)
-![Bet on proposition](./docs/Diagrams/out/UserStories/Bet%20on%20Proposition.png)
-![Custom proposition resolved](./docs/Diagrams/out/UserStories/Resolve%20Custom%20Proposition.png)
-![View Scoreboard](./docs/Diagrams/out/UserStories/View%20Scoreboard.png)
+![Bet lifecycle](./docs/Diagrams/out/UserStories/betLifecycle.png)
 
 ### Database
 

@@ -1,0 +1,55 @@
+@startuml betLifecycle
+
+title Bet Lifecycle
+
+actor Creator as creator
+participant "Creator Storage" as cStore
+actor "Group Members" as member
+participant "Members' Storage" as mStore
+participant UI as ui
+participant API as api
+database Database as db
+participant Flow as bc
+
+group Bet Creation
+    creator -> ui : Create bet with wager
+    ui -> api : Create bet
+    api -> db : Insert bet
+    db --> api : Bet ID
+    api -> bc : Deploy bet resource
+    api -> bc : Transfer bet tokens
+    bc --> cStore : Bet tokens
+    bc --> mStore : Bet tokens
+    api --> ui : Bet ID
+    ui -> bc : Place wager
+    cStore --> bc : Transfer wager token
+end
+
+group Other members' bets
+    member -> ui : Place wager
+    ui -> bc : Place wager
+    mStore --> bc : Transfer wager token
+end
+
+member -> member : wait for bettting\nto close
+
+group Resoluion
+    member -> ui : Resolve bet
+    ui -> bc : vote to resolve
+    mStore --> bc : Transfer resolution token
+    creator -> ui : Resolve bet
+    ui -> bc : vote to resolve
+    cStore --> bc : Transfer resolution token
+    bc -> bc : allocate winnings
+end
+
+group Claim Returns
+    creator -> ui : Claim winnings/unmatched bet funds
+    ui -> bc : Retrieve returns
+    cStore --> bc : Returns token
+    member -> ui : Claim winnings
+    ui -> bc : Retrieve returns
+    mStore --> bc : Returns token
+end
+
+@enduml

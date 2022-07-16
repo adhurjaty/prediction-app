@@ -38,7 +38,7 @@ export default class DelphaiInterface {
             })
         
         // TODO: figure out whether to authenticate or how to deal with this
-        fcl.unauthenticate();
+        // fcl.unauthenticate();
     }
 
     async saveDelphaiUser(): Promise<Result<any, string>> {
