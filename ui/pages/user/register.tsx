@@ -39,15 +39,16 @@ export default function Register() {
 
 
     const createUser = async (user: UserFormData) => {
-        return await (await postModel<User>("/api/user", user))
+        const result = await (await postModel<User>("/api/user", user))
+            .mapErr(err => setSubmitError(err))
             .map(async _ => {
                 if (!delphai) return false;
                 return (await delphai.saveDelphaiUser())
                     .map(_ => router.push("/groups"))
                     .mapErr(err => setSubmitError(err))
                     .isOk();
-            })
-            .unwrap();
+            });
+        return result.isOk() && result.unwrap();
     }
 
     return (
