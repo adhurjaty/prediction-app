@@ -3,6 +3,7 @@ import * as flow from '@/contracts/flowInterface';
 import Wager from '@/models/wager';
 import Resolution from '@/models/resolution';
 
+import saveDelphaiUserText from 'raw-loader!./cadence/transactions/saveDelphaiUser.cdc';
 import placeBetText from 'raw-loader!./cadence/transactions/placeBetComposerFUSD.cdc';
 import resolveText from 'raw-loader!./cadence/transactions/voteToResolve.cdc';
 import getBetState from 'raw-loader!./cadence/scripts/getBetState.cdc';
@@ -37,7 +38,18 @@ export default class DelphaiInterface {
             })
         
         // TODO: figure out whether to authenticate or how to deal with this
-        // fcl.unauthenticate();
+        fcl.unauthenticate();
+    }
+
+    async saveDelphaiUser(): Promise<Result<any, string>> {
+        const transactionText = saveDelphaiUserText as string;
+        return await flow.mutate<any>({
+            cadence: transactionText,
+            payer: fcl.authz,
+            proposer: fcl.authz,
+            authorizations: [fcl.authz],
+            limit: 200
+        });
     }
 
     async placeBet(wager: Wager): Promise<Result<any, string>> {

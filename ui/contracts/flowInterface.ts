@@ -4,7 +4,7 @@ import { Err, Ok, Result } from "@sniptt/monads/build";
 
 interface FclInput {
     cadence: string,
-    args: (arg: (val: any, t: any) => any, t: any) => any[],
+    args?: (arg: (val: any, t: any) => any, t: any) => any[],
     payer?: any,
     proposer?: any,
     authorizations?: any[],

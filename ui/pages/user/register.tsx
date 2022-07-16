@@ -7,8 +7,9 @@ import User from "@/models/user";
 import * as Yup from 'yup';
 import { postModel } from '@/utils/nodeInterface';
 import { useRouter } from 'next/router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TextInput } from '@/components/formFields';
+import DelphaiInterface from '@/contracts/delphaiInterface';
 
 interface UserFormData {
     displayName: string;
@@ -16,8 +17,13 @@ interface UserFormData {
 }
 
 export default function Register() {
-    const [submitError, setSubmitError] = useState<string>();
     const router = useRouter();
+    const [submitError, setSubmitError] = useState<string>();
+    const [delphai, setDelphai] = useState<DelphaiInterface>();
+
+    useEffect(() => {
+        setDelphai(new DelphaiInterface());
+    }, []);
     
     const appBar = <PrimaryAppBar name="Register" />
     const navLinks = [
@@ -33,10 +39,15 @@ export default function Register() {
 
 
     const createUser = async (user: UserFormData) => {
-        return (await postModel<User>("/api/user", user))
-            .map(_ => router.push("/groups"))
-            .mapErr(err => setSubmitError(err))
-            .isOk();
+        return await (await postModel<User>("/api/user", user))
+            .map(async _ => {
+                if (!delphai) return false;
+                return (await delphai.saveDelphaiUser())
+                    .map(_ => router.push("/groups"))
+                    .mapErr(err => setSubmitError(err))
+                    .isOk();
+            })
+            .unwrap();
     }
 
     return (

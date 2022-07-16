@@ -60,32 +60,33 @@ public static class Program
 
         var accountList = new List<AccountInfo>();
 
-        foreach (var acct in new[] { dan, tony, anil })
+        foreach (var acct in new[] { dan, tony, anil, tester })
         {
             var key = FlowAccountKey.GenerateRandomEcdsaKey(SignatureAlgo.ECDSA_P256, HashAlgo.SHA3_256, 1000);
             var address = "";
 
             // create accounts and update their flow addresses
             await (await (await (await contracts.CreateAccount(key))
+                .Tee(account => address = account.Address.HexValue)
+                .TeeResult(async account => 
+                {
+                    return await (await contracts.TransferFlow(account.Address, 20))
+                        .Bind(() => contracts.TransferFUSD(account.Address, 20));
+                }))
                 .TupleBind(account =>
                     db.Single<AppUser>(x => x.DisplayName == acct)))
-                .TupleBind(async (account, user) =>
+                .TeeResult(async (account, user) =>
                 {
                     user.MainnetAddress = account.Address.HexValue;
                     // hack to get update to work
                     user.FriendsRelations = new List<FriendsRelation>();
-                    address = user.MainnetAddress;
-                    return await db.Update(user);
-                }))
-                .Map(async (account, _, __) => 
-                {
-                    return await (await (await contracts.TransferFlow(account.Address, 20))
-                        .Bind(() => contracts.SaveDelphaiUser(account)))
-                        .Bind(() => contracts.TransferFUSD(account.Address, 20));
+                    return await (await db.Update(user))
+                        .Bind(() => contracts.SaveDelphaiUser(account));
+
                 });
                 
-                var firstName = acct.Split(' ').FirstOrDefault(acct).ToLower();
-                accountList.Add(new AccountInfo(firstName, address, key.PrivateKey));
+            var firstName = acct.Split(' ').FirstOrDefault(acct).ToLower();
+            accountList.Add(new AccountInfo(firstName, address, key.PrivateKey));
         }
 
         var template = File.ReadAllText("wallet_flow.json.template");

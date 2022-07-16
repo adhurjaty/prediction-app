@@ -2,7 +2,7 @@
 	"emulators": {
 		"default": {
 			"port": 3569,
-			"serviceAccount": "anil"
+			"serviceAccount": "tester"
 		}
 	},
 	"contracts": {},
@@ -12,9 +12,10 @@
 		"testnet": "access.devnet.nodes.onflow.org:9000"
 	},
 	"accounts": {
-        "dan": { "address": "01cf0e2f2f715450", "key": "c14ad1f279f21a9f639b4342edc8b48894a47843ade3cea2f458f17aabdd13c8" },
-"tony": { "address": "179b6b1cb6755e31", "key": "8c5efd6061c9b68452f7ed7ade024aeaaa24f05e6c6dc1244f912bfd382b4fc9" },
-"anil": { "address": "f3fcd2c1a78f5eee", "key": "5f2c35e902af83630ac18f65695a097b176afd00bb468ffa7e71ff7f92044c9a" }
+        "dan": { "address": "01cf0e2f2f715450", "key": "932a350b1916fa975695d1de980c167fdb677dcbe143e1b13607f163fa2baf87" },
+"tony": { "address": "179b6b1cb6755e31", "key": "edbe0dddc7a749b6a14917928e37e187597d855e473c879b12b8de8908889845" },
+"anil": { "address": "f3fcd2c1a78f5eee", "key": "0e4c09612f3ef234d442de56a11c6a350697d48ecb6a652cf929ed552ae4faf8" },
+"tester": { "address": "e03daebed8ca0615", "key": "cdb6bbb131c8605d3a756904748351d27cbe88495238f0b559db40afec9ab01a" }
 	},
 	"deployments": {}
 }
