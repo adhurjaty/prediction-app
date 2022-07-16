@@ -48,10 +48,17 @@ namespace Infrastructure
         public async Task<Result<long>> Insert<T>(T model, CancellationToken token = default)
         {
             using var db = _dbFactory.OpenDbConnection();
-            var id = await db.InsertAsync(model, token: token);
-            return id > 0
-                ? Result.Succeeded(id)
-                : Result.Failed<long>("Failure inserting model");
+            try
+            {
+                var id = await db.InsertAsync(model, token: token);
+                return id > 0
+                    ? Result.Succeeded(id)
+                    : Result.Failed<long>("Failure inserting model");
+            }
+            catch (Exception e)
+            {
+                return Result.Failed<long>(e.Message);
+            }
         }
 
         public async Task<Result> LoadReferences<T>(T model, CancellationToken token = default)
