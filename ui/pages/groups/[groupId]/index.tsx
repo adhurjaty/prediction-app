@@ -159,8 +159,8 @@ export default function GroupPage() {
                                             {group!.users.map(member => (
                                                 <TableRow key={member.id}>
                                                     <TableCell>{ member.displayName }</TableCell>
-                                                    <TableCell>{ member.accuracy }</TableCell>
-                                                    <TableCell>{ member.prestige }</TableCell>
+                                                    <TableCell></TableCell>
+                                                    <TableCell></TableCell>
                                                 </TableRow>
                                             ))}
                                         </TableBody>

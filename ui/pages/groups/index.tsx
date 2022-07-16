@@ -60,7 +60,7 @@ export default function GroupsPage() {
                                     />
                                     <ItemContent>
                                         <div>{group.accuracy}% accurate</div>
-                                        <div>{group.betsMade}/{group.betsAvailable} active bets</div>
+                                        {/* <div>{group.betsMade}/{group.betsAvailable} active bets</div> */}
                                     </ItemContent>
                                 </ListItemButton>
                             </ListItem>))}

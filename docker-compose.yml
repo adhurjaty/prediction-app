@@ -2,20 +2,20 @@ version: "3.9"
 
 services:
 
-  blockchain:
-    image: braggingrights/hardhat-server:latest
-    build:
-      dockerfile: dockerfiles/Dockerfile.hardhat.server
-      context: .
-      args:
-        - DISABLE_TEST_FAILURES=0
-    ports:
-      - 8545:8545
+  # blockchain:
+  #   image: braggingrights/hardhat-server:latest
+  #   build:
+  #     dockerfile: dockerfiles/Dockerfile.hardhat.server
+  #     context: .
+  #     args:
+  #       - DISABLE_TEST_FAILURES=0
+  #   ports:
+  #     - 8545:8545
 
   db:
     image: braggingrights/postgres:latest
     build:
-      dockerfile: ./Dockerfile.db
+      dockerfile: dockerfiles/Dockerfile.db
       context: .
     environment:
       POSTGRES_PASSWORD: igotbraggingrights
@@ -25,7 +25,7 @@ services:
   alembic:
     image: braggingrights/alembic:latest
     build:
-      dockerfile: alembic/Dockerfile
+      dockerfile: dockerfiles/Dockerfile.alembic
       context: .
     deploy:
       restart_policy:
@@ -41,10 +41,10 @@ services:
     ports:
       - 8001:8080
 
-  webapp:
-    image: braggingrights/webapp:latest
+  ui:
+    image: braggingrights/ui:latest
     build: 
-      dockerfile: ui/Dockerfile
+      dockerfile: dockerfiles/Dockerfile.ui
       context: .
     environment:
       - NODE_ENV=production
@@ -54,7 +54,7 @@ services:
   api:
     image: braggingrights/api:latest
     build:
-      dockerfile: api/Dockerfile
+      dockerfile: dockerfiles/Dockerfile.api
       context: .
     environment: 
       ASPNETCORE_ENVIRONMENT: Release
