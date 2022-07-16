@@ -6,8 +6,10 @@ FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
 WORKDIR /src
 
 COPY ./api .
+COPY ./contracts/cadence ./WebApi/Contract/Cadence
 
-RUN dotnet build -c Release -o /app/build
+RUN dotnet nuget add source /src/nuget -n local \
+    && dotnet build -c Release -o /app/build
 
 # commented out because dotnet test returns a failure even if all the tests pass individually
 # need to figure out how to fix this

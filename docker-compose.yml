@@ -46,8 +46,8 @@ services:
     build: 
       dockerfile: dockerfiles/Dockerfile.ui
       context: .
-    environment:
-      - NODE_ENV=production
+    env_file:
+      - ui/.env.prod
     ports:
       - 3000:3000 # ui
 

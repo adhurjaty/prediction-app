@@ -6,7 +6,7 @@ WORKDIR /opt/alembic
 
 RUN pip install alembic psycopg2
 
-COPY ./alembic /opt/alembic/
+COPY ./alembic /opt/alembic
 
 ENTRYPOINT ["alembic"]
 CMD ["upgrade", "head"]
