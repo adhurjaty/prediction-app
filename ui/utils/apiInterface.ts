@@ -5,6 +5,7 @@ import { NextApiRequest } from "next";
 import { getToken } from "next-auth/jwt";
 
 const secret = process.env.NEXTAUTH_SECRET;
+const API_DOMAIN = process.env.API_DOMAIN || "http://localhost:5000";
 
 async function generateToken(req: NextApiRequest) {
     const token = await getToken({ req, secret });
@@ -41,25 +42,32 @@ async function toResult(requestFn: () => Promise<AxiosResponse>): Promise<Result
     }
 }
 
-export async function get(url: string, req: NextApiRequest) {
+export async function get(path: string, req: NextApiRequest) {
     const encodedToken = await generateToken(req);
+    const url = createUrl(path);
     return toResult(() => axios.get(url, {
         headers: authHeader(encodedToken),
     }));
 }
 
-export async function post(url: string, req: NextApiRequest) {
+export async function post(path: string, req: NextApiRequest) {
     const encodedToken = await generateToken(req);
+    const url = createUrl(path);
     return toResult(() => axios.post(url, req.body, {
         headers: authHeader(encodedToken),
     }));
 }
 
-export async function put(url: string, req: NextApiRequest) {
+export async function put(path: string, req: NextApiRequest) {
     const encodedToken = await generateToken(req);
+    const url = createUrl(path);
     return toResult(() => axios.put(url, req.body, {
         headers: authHeader(encodedToken),
     }));
+}
+
+function createUrl(path: string) {
+    return `${API_DOMAIN}${path}`;
 }
 
 export function toResponse(result: Result<any, string>): { result: any } | { error: string } {

@@ -3,13 +3,13 @@ import { get, put, toResponse } from "@/utils/apiInterface"
 
 const GetGroup = async (req: NextApiRequest, res: NextApiResponse) => {
     const { groupId } = req.query;
-    const response = toResponse(await get(`http://localhost:5000/groups/${groupId}`, req));
+    const response = toResponse(await get(`/groups/${groupId}`, req));
     res.send(response);
 }
 
 const UpdateGroup = async (req: NextApiRequest, res: NextApiResponse) => {
     const { groupId } = req.query;
-    const response = toResponse(await put(`http://localhost:5000/groups/${groupId}`, req));
+    const response = toResponse(await put(`/groups/${groupId}`, req));
     res.send(response);
 }
 

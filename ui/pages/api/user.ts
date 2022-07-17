@@ -3,12 +3,12 @@ import { toResponse, post, get } from "@/utils/apiInterface";
 
 const GetUser = async (req: NextApiRequest, res: NextApiResponse) => {
     const emailParam = encodeURI(req.query.email as string);
-    const response = toResponse(await get(`http://localhost:5000/user?email=${emailParam}`, req));
+    const response = toResponse(await get(`/user?email=${emailParam}`, req));
     res.send(response);
 }
 
 const CreateUser = async (req: NextApiRequest, res: NextApiResponse) => {
-    const response = toResponse(await post(`http://localhost:5000/user`, req));
+    const response = toResponse(await post(`/user`, req));
     res.send(response);
 }
 

@@ -3,12 +3,12 @@ import { get, post, toResponse } from "@/utils/apiInterface"
 
 
 const GetBets = async (req: NextApiRequest, res: NextApiResponse) => {
-    const response = toResponse(await get(`http://localhost:5000/bets`, req));
+    const response = toResponse(await get(`/bets`, req));
     res.send(response);
 }
 
 const CreateBet = async (req: NextApiRequest, res: NextApiResponse) => {
-    const response = toResponse(await post(`http://localhost:5000/bets`, req));
+    const response = toResponse(await post(`/bets`, req));
     res.send(response);
 }
 
