@@ -11,6 +11,7 @@ import hasResolutionTokenText from 'raw-loader!./cadence/scripts/hasResolutionTo
 import retrieveWinningFUSDText from 'raw-loader!./cadence/transactions/retrieveWinningFUSD.cdc';
 import { Result } from '@sniptt/monads/build';
 import BetState from '@/models/betState';
+import config from '@/appConfig';
 
 
 interface FclUser {
@@ -20,15 +21,16 @@ interface FclUser {
 }
 
 export default class DelphaiInterface {
-    private delphaiAddress: string = '0xf8d6e0586b0a20c7';
+    private delphaiAddress: string;
 
     constructor() {
-        
+        const flowConfig = config.flow;
+        this.delphaiAddress = flowConfig.delphaiAddress;
         fcl.config()
-            .put("accessNode.api", "http://127.0.0.1:8888")
+            .put("accessNode.api", flowConfig.accessNode)
             .put("0xdelphai", this.delphaiAddress)
-            .put("discovery.wallet", "http://localhost:8701/fcl/authn")
-            .put("challenge.handshake", "http://localhost:8701/fcl/authn")
+            .put("discovery.wallet", flowConfig.discoveryWallet)
+            .put("challenge.handshake", flowConfig.discoveryWallet)
             .put("0xFUSD", this.delphaiAddress);
         fcl.currentUser.snapshot()
             .then((user: any) => {
