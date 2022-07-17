@@ -11,3 +11,4 @@ appsettings.*.json
 **/public/workbox**
 **/public/sw**
 venv/
+contracts/testnet/flow.json

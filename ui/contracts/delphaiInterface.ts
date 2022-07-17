@@ -30,7 +30,7 @@ export default class DelphaiInterface {
             .put("accessNode.api", flowConfig.accessNode)
             .put("0xdelphai", this.delphaiAddress)
             .put("discovery.wallet", flowConfig.discoveryWallet)
-            .put("challenge.handshake", flowConfig.discoveryWallet)
+            // .put("challenge.handshake", flowConfig.discoveryWallet)
             .put("0xFUSD", this.delphaiAddress);
         fcl.currentUser.snapshot()
             .then((user: any) => {
