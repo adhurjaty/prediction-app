@@ -4,9 +4,10 @@ RUN mkdir /opt/alembic
 ADD alembic /opt/alembic/.
 WORKDIR /opt/alembic
 
-RUN pip install alembic psycopg2
-
 COPY ./alembic /opt/alembic
+COPY wait-for-it.sh wait-for-it.sh
 
-ENTRYPOINT ["alembic"]
-CMD ["upgrade", "head"]
+RUN pip install alembic psycopg2 && chmod +x wait-for-it.sh
+
+ENTRYPOINT [ "/bin/bash", "-c" ]
+CMD ["./wait-for-it.sh db:5432 -- alembic upgrade head"]
