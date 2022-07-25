@@ -13,17 +13,25 @@ services:
   #     - 8545:8545
 
   db:
-    image: braggingrights/postgres:latest
+    image: 064103530588.dkr.ecr.us-west-2.amazonaws.com/postgres:latest
     build:
       dockerfile: dockerfiles/Dockerfile.db
       context: .
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       cpus: '0.5'
+    #       memory: 512M
+    #     limits:
+    #       cpus: '0.5'
+    #       memory: 512M
     environment:
       POSTGRES_PASSWORD: igotbraggingrights
     ports:
       - 5432:5432
 
   alembic:
-    image: braggingrights/alembic:latest
+    image: 064103530588.dkr.ecr.us-west-2.amazonaws.com/alembic:latest
     build:
       dockerfile: dockerfiles/Dockerfile.alembic
       context: .
@@ -33,32 +41,55 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
+      # resources:
+      #   reservations:
+      #     cpus: '0.5'
+      #     memory: 512M
+      #   limits:
+      #     cpus: '0.5'
+      #     memory: 512M
     depends_on:
       - "db"
 
-  adminer:
-    image: adminer
-    ports:
-      - 8001:8080
+  # adminer:
+  #   image: adminer
+  #   ports:
+  #     - 8001:8080
 
   ui:
-    image: braggingrights/ui:latest
+    image: 064103530588.dkr.ecr.us-west-2.amazonaws.com/ui:latest
     build: 
       dockerfile: dockerfiles/Dockerfile.ui
       context: .
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       cpus: '1'
+    #       memory: 1G
+    #     limits:
+    #       cpus: '1'
+    #       memory: 1G
     env_file:
       - ui/.env.prod
     ports:
       - 3000:3000 # ui
 
   api:
-    image: braggingrights/api:latest
+    image: 064103530588.dkr.ecr.us-west-2.amazonaws.com/api:latest
     build:
       dockerfile: dockerfiles/Dockerfile.api
       context: .
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       cpus: '1'
+    #       memory: 1G
+    #     limits:
+    #       cpus: '1'
+    #       memory: 1G
     environment: 
       ASPNETCORE_ENVIRONMENT: Release
     ports:
-      - 5000:80 # api
+      - 5000:5000 # api
     depends_on:
       - "db"

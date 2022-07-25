@@ -1,6 +1,6 @@
 FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
 WORKDIR /app
-EXPOSE 80
+EXPOSE 5000
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
 WORKDIR /src
@@ -21,4 +21,4 @@ RUN dotnet publish "WebApi/WebApi.csproj" --no-restore -c Release -o /app/publis
 FROM base as final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT [ "dotnet", "WebApi.dll" ]
+ENTRYPOINT [ "dotnet", "WebApi.dll", "--urls", "http://0.0.0.0:5000" ]
