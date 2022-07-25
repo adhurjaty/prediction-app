@@ -16,6 +16,10 @@
 			"address": "f8d6e0586b0a20c7",
 			"key": "6a4c115ee4477dc14ea5dd6ba72739dde3d5f1e08313bfaebe08b6221e69d585"
 		},
+        "delphai-testnet": {
+			"address": "3871abce31babb60",
+			"key": "769a32c9c0cf78a7d9b051428698c07cba19024e218e7e7a5c17d8af481b0f57"
+		},
         "dan": {
             "address": "179b6b1cb6755e31",
             "key": "2a7cdee6cb802f70d1837342dd462563155b936f110495a904b96993d66ab6e1"

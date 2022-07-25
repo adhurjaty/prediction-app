@@ -41,6 +41,8 @@ namespace WebApi
             return (await (await (await db.LoadSingleById<AppUser>(model.Id))
                 .Bind(async dbUser =>
                 {
+                    if (model.FriendsRelations == null)
+                        return Result.Succeeded<FriendsRelation[]>(new FriendsRelation[] {});
                     var listIntersection = model.FriendsRelations.IncludeExclude(
                         dbUser.FriendsRelations);
                     var toDelete = listIntersection.RightExcluded;

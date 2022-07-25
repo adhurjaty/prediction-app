@@ -18,7 +18,7 @@ namespace WebApi
         public async Task<ActionResult<AppUser>> GetAppUser()
         {
             string email = Request.Query["email"];
-            var result = !string.IsNullOrEmpty(email)
+            var result = !string.IsNullOrEmpty(email) && email != "undefined"
                 ? await GetUserFromEmail(email)
                 : await Task.FromResult(GetUserFromClaims());
             return ToResponse(result);
