@@ -63,8 +63,9 @@ namespace WebApi
         public async Task<FlowTransactionResult> ExecuteTransaction(
             string scriptName, List<ICadence> arguments = default,
             Dictionary<string, string> addressMap = default,
-            int gasLimit = DEFAULT_GAS_LIMIT)
+            int gasLimit=0)
         {
+            if (gasLimit == 0) gasLimit = DEFAULT_GAS_LIMIT;
             return await ExecuteTransaction(scriptName, _account, arguments,
                 addressMap, gasLimit);
         }
@@ -72,8 +73,9 @@ namespace WebApi
         public async Task<FlowTransactionResult> ExecuteTransaction(
             string scriptName, FlowAccount account, List<ICadence> arguments=default,
             Dictionary<string, string> addressMap = default, 
-            int gasLimit=DEFAULT_GAS_LIMIT)
+            int gasLimit=0)
         {
+            if (gasLimit == 0) gasLimit = DEFAULT_GAS_LIMIT;
             // Get the latest account info for this address
             var latestAccount = await _flowClient.GetAccountAtLatestBlockAsync(
                 account.Address);
