@@ -7,9 +7,17 @@ interface Props {
     initialValues?: { displayName: string, flowAddress: string };
     onSubmit: (values: { displayName: string, flowAddress: string }) => Promise<boolean>;
     submitError?: string;
+    titleText: string;
+    buttonText: string;
 }
 
-export default function UserValuesForm({ initialValues, onSubmit, submitError }: Props) {
+export default function UserValuesForm({
+    initialValues,
+    onSubmit,
+    submitError,
+    buttonText,
+    titleText
+}: Props) {
     return (
         <Formik
             initialValues={initialValues ?? {
@@ -31,7 +39,7 @@ export default function UserValuesForm({ initialValues, onSubmit, submitError }:
             <Form>
                 <Stack spacing={1} marginTop={2}>
                     <Typography variant="h5">
-                        User Registration
+                        {titleText}
                     </Typography>
                     <TextInput label="Display Name"
                         name="displayName"
@@ -46,7 +54,7 @@ export default function UserValuesForm({ initialValues, onSubmit, submitError }:
                     <Button type="submit"
                         variant="contained"
                     >
-                        Register
+                        {buttonText}
                     </Button>
                     {submitError && <div className="error">{submitError}</div>}
                 </Stack>

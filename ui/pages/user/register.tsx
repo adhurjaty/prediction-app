@@ -57,6 +57,8 @@ export default function Register() {
                 <UserValuesForm
                     onSubmit={createUser}
                     submitError={submitError}
+                    titleText="User Registration"
+                    buttonText="Register"
                 />
             </Container>
         </NavPage>
