@@ -8,6 +8,7 @@ Create Date: 2021-10-22 21:29:38.778564
 from alembic import op
 import sqlalchemy as sa
 from itertools import permutations
+from os import environ
 
 
 # revision identifiers, used by Alembic.
@@ -18,6 +19,8 @@ depends_on = None
 
 
 def upgrade():
+    if environ.get('ENV') == 'Production':
+        return
     meta = sa.MetaData(bind=op.get_bind())
     meta.reflect(only=('users', 'friends_bridge'))
     friends_bridge = sa.Table('friends_bridge', meta)
@@ -34,4 +37,6 @@ def upgrade():
 
 
 def downgrade():
+    if environ.get('ENV') == 'Production':
+        return
     op.execute('DELETE FROM friends_bridge')

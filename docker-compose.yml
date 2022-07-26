@@ -48,6 +48,8 @@ services:
       #   limits:
       #     cpus: '0.5'
       #     memory: 512M
+    environment:
+      - ENV=Production
     depends_on:
       - "db"
 

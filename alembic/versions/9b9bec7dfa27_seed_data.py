@@ -8,6 +8,7 @@ Create Date: 2021-05-12 19:40:03.376329
 from alembic import op
 import sqlalchemy as sa
 from uuid import uuid4
+from os import environ
 
 
 # revision identifiers, used by Alembic.
@@ -18,6 +19,8 @@ depends_on = None
 
 
 def upgrade():
+    if environ.get('ENV') == 'Production':
+        return
     meta = sa.MetaData(bind=op.get_bind())
     meta.reflect(only=('groups', 'propositions', 'user_group_bridge', 'users', 'votes'))
     groups = sa.Table('groups', meta)
@@ -132,6 +135,8 @@ def upgrade():
     ])
 
 def downgrade():
+    if environ.get('ENV') == 'Production':
+        return
     op.execute('TRUNCATE TABLE groups')
     op.execute('TRUNCATE TABLE propositions')
     op.execute('TRUNCATE TABLE user_group_bridge')
