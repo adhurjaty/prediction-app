@@ -10,7 +10,7 @@ const App = ({ Component, pageProps }: AppProps) => {
         <SessionProvider session={pageProps.session} refetchInterval={0}>
             <ThemeProvider
                 attribute='class'
-                defaultTheme='system'
+                defaultTheme='light'
                 disableTransitionOnChange
             >
                 <Meta />
