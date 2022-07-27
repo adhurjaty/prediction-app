@@ -1,7 +1,7 @@
 import NavPage from '../../components/navPage'
 import PrimaryAppBar from '../../components/primaryAppbar'
 import BottomNav from '../../components/bottom-nav'
-import { Container} from '@mui/material'
+import { Container, Stack, Typography} from '@mui/material'
 import User from "@/models/user";
 import { postModel } from '@/utils/nodeInterface';
 import { useRouter } from 'next/router';
@@ -54,12 +54,40 @@ export default function Register() {
             bottomNav={bottomNav}
         >
             <Container>
-                <UserValuesForm
-                    onSubmit={createUser}
-                    submitError={submitError}
-                    titleText="User Registration"
-                    buttonText="Register"
-                />
+                <Stack
+                    spacing={1}
+                    direction="column"
+                >
+                    <UserValuesForm
+                        onSubmit={createUser}
+                        submitError={submitError}
+                        titleText="User Registration"
+                        buttonText="Register"
+                    />
+                    <>
+                        <Typography variant="body1">
+                            How to create a Flow account
+                        </Typography>
+                        <ol>
+                            <li>Get a <a href="https://portto.com/">Blocto Wallet</a> &#40;must do this on mobile&#41;</li>
+                            <li>Go to the <a href="https://flow-port-staging.vercel.app/">Testnet Flow Port</a></li>
+                            <li>Click Sign In. You should be prompted with a Blocto modal to sign into Blocto</li>
+                            <li>Follow the steps to sign into Blocto</li>
+                            <li>Once you&lsquo;ve signed into Blocto you should be presented with your Flow testnet address. Copy this and paste it above</li>
+                            <li>Before you click &lsquo;Register&lsquo;, you will need currency to use the app. Follow the instructions below</li>
+                        </ol>
+                        <Typography variant="body1">
+                            Getting Flow and FUSD
+                        </Typography>
+                        <ol>
+                            <li>Go to the <a href="https://testnet-faucet.onflow.org/fund-account">testnet faucet</a></li>
+                            <li>Enter in your Flow testnet address</li>
+                            <li>Select Testnet FLOW in the dropdown</li>
+                            <li>Click Fund Account</li>
+                            <li>Refresh the page and repeat steps 2 - 4, but for step 3, change the dropdown option to FUSD</li>
+                        </ol>
+                    </>
+                </Stack>
             </Container>
         </NavPage>
     )
