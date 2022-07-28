@@ -1,30 +1,11 @@
 version: "3.9"
 
 services:
-
-  # blockchain:
-  #   image: braggingrights/hardhat-server:latest
-  #   build:
-  #     dockerfile: dockerfiles/Dockerfile.hardhat.server
-  #     context: .
-  #     args:
-  #       - DISABLE_TEST_FAILURES=0
-  #   ports:
-  #     - 8545:8545
-
   db:
     image: 064103530588.dkr.ecr.us-west-2.amazonaws.com/postgres:latest
     build:
       dockerfile: dockerfiles/Dockerfile.db
       context: .
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       cpus: '0.5'
-    #       memory: 512M
-    #     limits:
-    #       cpus: '0.5'
-    #       memory: 512M
     environment:
       POSTGRES_PASSWORD: igotbraggingrights
     ports:
@@ -41,13 +22,6 @@ services:
         delay: 5s
         max_attempts: 3
         window: 120s
-      # resources:
-      #   reservations:
-      #     cpus: '0.5'
-      #     memory: 512M
-      #   limits:
-      #     cpus: '0.5'
-      #     memory: 512M
     environment:
       - ENV=Production
     depends_on:
@@ -63,14 +37,6 @@ services:
     build: 
       dockerfile: dockerfiles/Dockerfile.ui
       context: .
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       cpus: '1'
-    #       memory: 1G
-    #     limits:
-    #       cpus: '1'
-    #       memory: 1G
     env_file:
       - ui/.env.prod
     ports:
@@ -81,14 +47,6 @@ services:
     build:
       dockerfile: dockerfiles/Dockerfile.api
       context: .
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       cpus: '1'
-    #       memory: 1G
-    #     limits:
-    #       cpus: '1'
-    #       memory: 1G
     environment: 
       ASPNETCORE_ENVIRONMENT: Release
     ports:
