@@ -12,3 +12,4 @@ appsettings.*.json
 **/public/sw**
 venv/
 contracts/testnet/flow.json
+aws_connect_to_db.sh
