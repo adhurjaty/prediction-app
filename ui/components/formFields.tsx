@@ -8,12 +8,14 @@ import DatePicker from "react-datepicker";
 interface FieldProps {
     id?: string,
     label: string,
-    name: string
+    name: string,
+    InputProps?: any,
 }
 
 interface TextFieldProps extends FieldProps {
     type?: string,
-    placeholder?: string
+    placeholder?: string,
+    value?: string
 }
 
 const TextInput = ({ label, ...props }: TextFieldProps) => {

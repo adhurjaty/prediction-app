@@ -16,11 +16,16 @@ interface UserFormData {
 export default function EditUser() {
     const { data: session, status } = useSession();
     const loading = status === "loading";
+    const [delphai, setDelphai] = useState<DelphaiInterface>();
     const [user, setUser] = useState<User>();
     const [fusdBalance, setFusdBalance] = useState<number>();
     const [fetchError, setFetchUserError] = useState<string>();
     const [fetchFusdError, setFetchFusdError] = useState<string>();
     const [submitError, setSubmitError] = useState<string>();
+
+    useEffect(() => {
+        setDelphai(new DelphaiInterface());
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -34,7 +39,8 @@ export default function EditUser() {
     }, [session]);
 
     useEffect(() => {
-        const delphai = new DelphaiInterface();
+        if (!delphai) return;
+
         const abortController = new AbortController();
 
         (async () => {
@@ -45,7 +51,7 @@ export default function EditUser() {
         })();
 
         return () => abortController.abort();
-    }, []);
+    }, [delphai]);
 
     const updateUser = async (userValues: UserFormData) => {
         return (await putModel<User>("/api/user", {
@@ -66,9 +72,9 @@ export default function EditUser() {
                         spacing={1}
                     >
                         {user && <UserValuesForm
-                            initialValues={{
+                            initialState={{
                                 displayName: user.displayName,
-                                flowAddress: user.mainnetAddress ?? ""
+                                delphai: delphai
                             }}
                             onSubmit={updateUser}
                             submitError={submitError}

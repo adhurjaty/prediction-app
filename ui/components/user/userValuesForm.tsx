@@ -1,10 +1,12 @@
+import DelphaiInterface from "@/contracts/delphaiInterface";
 import { Button, Stack, Typography } from "@mui/material";
 import { Form, Formik } from "formik";
+import { useEffect, useState } from "react";
 import * as Yup from 'yup';
 import { TextInput } from "../formFields";
 
 interface Props {
-    initialValues?: { displayName: string, flowAddress: string };
+    initialState?: { displayName: string, delphai?: DelphaiInterface };
     onSubmit: (values: { displayName: string, flowAddress: string }) => Promise<boolean>;
     submitError?: string;
     titleText: string;
@@ -12,26 +14,40 @@ interface Props {
 }
 
 export default function UserValuesForm({
-    initialValues,
+    initialState,
     onSubmit,
     submitError,
     buttonText,
     titleText
 }: Props) {
+    const [address, setAddress] = useState<string>();
+
+    const connectAccount = async (delphai?: DelphaiInterface) => {
+        delphai = delphai ?? new DelphaiInterface();
+        const flowUser = await delphai.getCurrentUser();
+        setAddress(flowUser.addr);
+    };
+
+    useEffect(() => {
+        if (!(initialState?.delphai)) return;
+
+        connectAccount(initialState.delphai);
+    }, [initialState]);
+
     return (
         <Formik
-            initialValues={initialValues ?? {
-                displayName: "",
-                flowAddress: ""
+            initialValues={{
+                displayName: initialState?.displayName ?? ""
             }}
             validationSchema={Yup.object({
-                displayName: Yup.string().required("Required"),
-                flowAddress: Yup.string()
-                    .required("Required")
-                    .matches(/(?:0x)?[0-9a-hA-H]{16}/, "Must be a valid Flow address")
+                displayName: Yup.string().required("Required")
             })}
             onSubmit={async (values, { setSubmitting }) => {
-                const result = await onSubmit({ ...values });
+                if (!address) return false;
+                const result = await onSubmit({ 
+                    displayName: values.displayName,
+                    flowAddress: address
+                 });
                 setSubmitting(false);
                 return result;
             }}
@@ -46,13 +62,31 @@ export default function UserValuesForm({
                         type="text"
                         placeholder="Display Name"
                     />
-                    <TextInput label="Flow Address"
-                        name="flowAddress"
-                        type="text"
-                        placeholder="Flow Address"
-                    />
-                    <Button type="submit"
+                    
+                    {
+                        address && 
+                        <TextInput
+                            label="Flow Address"
+                            name="flowAddress"
+                            type="text"
+                            placeholder="Flow Address"
+                            value={address}
+                            InputProps={{
+                                readOnly: true
+                            }}
+                        />
+                        ||
+                        <Button
+                            variant="contained"
+                            onClick={async () => await connectAccount()}
+                        >
+                            Connect Flow Account
+                        </Button>
+                    }               
+                    <Button
+                        type="submit"
                         variant="contained"
+                        disabled={!address}
                     >
                         {buttonText}
                     </Button>
