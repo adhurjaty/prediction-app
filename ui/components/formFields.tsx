@@ -1,9 +1,10 @@
 import { FormControl, FormHelperText, InputLabel, Select, TextField } from "@mui/material";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
-import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
+import { DateTimePicker } from "@mui/x-date-pickers";
 import { useField, useFormikContext } from "formik";
 import DatePicker from "react-datepicker";
+import { ChangeEvent } from "react";
 
 interface FieldProps {
     id?: string,
@@ -84,13 +85,18 @@ interface DateFieldProps extends FieldProps {
 }
 
 const DatePickerInput = ({ minTime, ...props }: DateFieldProps) => {
+    const formik = useFormikContext();
     const [field, meta] = useField(props);
     return (
         <LocalizationProvider dateAdapter={AdapterDateFns}>
             <DateTimePicker
                 minDateTime={minTime}
                 renderInput={params => <TextField {...params} />}
-                {...field}
+                value={field.value}
+                // onBlur={field.onBlur}
+                onChange={(date: Date | null) => {
+                    formik.setFieldValue(field.name, date);
+                }}
                 {...props}
             />
             {meta.touched && meta.error

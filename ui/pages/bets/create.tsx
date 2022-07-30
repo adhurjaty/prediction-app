@@ -84,7 +84,7 @@ export default function CreateBetPage() {
                 <Container>
                     <Formik
                         initialValues={{
-                            groupId: groupId as string,
+                            groupId: (groupId ?? '') as string,
                             title: '',
                             description: '',
                             resolutionEvent: '',
