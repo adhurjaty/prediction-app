@@ -33,16 +33,22 @@ end
 
 init -> ui : create yes/no bet
 ui -> api : create bet
-api -> delph : transferTokensTransaction
-delph --> initAcct : transfer bet tokens
-delph --> memberAcct : transfer bet\ntokens
-delph -> delph : createBetTransaction
+api -> delph : createBetTransaction
+delph -> delph : save bet resource
 api --> ui : response
 
+ui -> api : place bet
+api -> delph : transferTokensTransaction
+delph --> initAcct : transfer bet tokens
+delph -> delph : log user transfer
 ui -> delph : placeBetTransaction
 initAcct --> delph : transfer bet token
 ui --> init : show result
 member -> ui : make bet
+ui -> api : place bet
+api -> delph : transferTokensTransaction
+delph --> memberAcct : transfer bet\ntokens
+delph -> delph : log member\ntransfer
 ui -> delph : placeBetTransaction
 memberAcct --> delph : transfer bet\ntoken
 
