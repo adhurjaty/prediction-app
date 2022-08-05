@@ -61,7 +61,7 @@ namespace WebApi
                             {
                                 // rollback if deploy to blockchain failed
                                 await _db.Delete(bet);
-                                return Result.Failed<(Bet, Group)>("Could not deploy contract to blockchain");
+                                return Result.Failed<(Bet, Group)>($"Could not deploy contract to blockchain: {result.Failure}");
                             });
                 });
         }
