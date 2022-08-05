@@ -51,6 +51,7 @@ pub contract YesNoResolverLibrary {
         priv var numYeses: Int
         priv var numVotes: Int
         priv var isDisputed: Bool
+        priv let userResolvedLog: {String: Bool}
     
         init (numMembers: Int) {
             self.result = nil
@@ -58,6 +59,7 @@ pub contract YesNoResolverLibrary {
             self.numYeses = 0
             self.numVotes = 0
             self.isDisputed = false
+            self.userResolvedLog = {}
         }
 
         pub fun getResult(): Bool? {
@@ -65,6 +67,9 @@ pub contract YesNoResolverLibrary {
         }
 
         pub fun vote(vote: @AnyResource{DelphaiUsers.ResolutionToken}) {
+            if self.userResolvedLog[vote.userAddress.toString()] == true {
+                panic("User has already voted")
+            }
             let yesNoVote <- vote as! @YesNoResolutionToken
             self.numVotes = self.numVotes + 1
             var numYesNoVotes: Int = 0
@@ -79,6 +84,7 @@ pub contract YesNoResolverLibrary {
             if numYesNoVotes > (self.numMembers / 2) {
                 self.result = voteBool
             }
+            self.userResolvedLog[yesNoVote.userAddress.toString()] = true
             destroy yesNoVote
         }
 

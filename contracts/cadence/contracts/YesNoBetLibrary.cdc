@@ -161,6 +161,10 @@ pub contract YesNoBetLibrary {
                 panic("Must set prediction to place bet")
             }
 
+            if self.madeBets.containsKey(token.userAddress) {
+                panic("Member has already made a bet")
+            }
+
             if self.hubBet != nil {
                 let vault <- token.getVault()
                 let emptyVault <- vault.withdraw(amount: 0.0)
