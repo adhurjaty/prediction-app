@@ -52,9 +52,7 @@ namespace WebApi
                 .TupleBind(_ => groupResult))
                 .TeeResult(async (bet, group) =>
                 {
-                    return await (await (await _contract.DeployComposerBet(bet.Id.ToString(), group.Users.Count))
-                        .Bind(() => _contract.TransferTokens(bet.Id.ToString(),
-                                group.Users.Select(user => user.MainnetAddress))))
+                    return await (await _contract.DeployComposerBet(bet.Id.ToString(), group.Users.Count))
                         .Either(
                             x => Task.FromResult(x),
                             async result => 
