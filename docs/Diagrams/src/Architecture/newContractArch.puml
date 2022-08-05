@@ -1,0 +1,79 @@
+@startuml newContractArch
+
+title Proposed New Contracts Architecture
+
+namespace DelphaiStorage {
+    entity BetResource {
+        path: Bet<betId>
+    }
+    entity ResolverResource {
+        path: Resolver<betId>
+    }
+    entity PayoutResource {
+        path: Payout<betId>
+    }
+}
+
+namespace DelphaiUser {
+    interface AccessToken {
+        userAddress: Address
+        betId: string
+    }
+}
+
+namespace YesNoBetContract {
+    class Wager {
+        address: Address
+        bet: bool
+        wager: UFi64
+    }
+
+    class WagerToken {
+        userAddress: Address
+        betId: string
+        bet: bool
+        wager: FUSDVault
+    }
+
+    class BetResultToken {
+        
+    }
+
+    class BetResource {
+        - wagers: Wager[]
+        
+        placeBet(token: WagerToken)
+        resolveBet(token: BetResultToken)
+    }
+}
+
+namespace YesNoResolverContract {
+    
+}
+
+namespace PayoutContract {
+    class BetResult {
+        winners: BetStructs::Wager[]
+    }
+
+    class PayoutResource {
+        - betResult: PayoutContract::BetResult
+        +balance: UFix64
+        deposit(from: @Vault)
+
+    }
+}
+
+namespace FungibleToken {
+    interface Receiver {
+        deposit(from: @Vault)
+    }
+    interface Balance {
+        +balance: UFix64
+    }
+}
+
+PayoutContract.PayoutResource --|> FungibleToken.Receiver
+PayoutContract.PayoutResource --|> FungibleToken.Balance
+
+@enduml

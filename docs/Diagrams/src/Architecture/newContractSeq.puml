@@ -1,0 +1,31 @@
+@startuml newContractSeq
+
+title Proposed New Contracts Sequence
+
+actor User as user
+participant API as api
+participant BetResource as br
+participant ResolverResource as rr
+participant PayoutResource as pr
+
+user -> api : create bet
+api -> br : create bet
+api -> rr : create resolver
+api -> pr : create payout
+br -> rr : send resolution\nresult token
+pr -> br : send bet result token
+user -> br : place bet
+br -> br : capture bet
+br -> pr : send money
+user -> rr : vote to resolve
+user -> api : vote event
+api -> rr : check resolved
+rr -> rr : determine result
+rr -> br : send resolution\nresult token
+br -> br : determine winners
+br -> pr : send bet result token
+pr -> pr : determine payout
+user -> br : see result
+user -> pr : retrieve payout
+
+@enduml

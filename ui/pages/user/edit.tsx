@@ -4,7 +4,7 @@ import UserValuesForm from "@/components/user/userValuesForm";
 import DelphaiInterface from "@/contracts/delphaiInterface";
 import User from "@/models/user";
 import { fetchModel, putModel } from "@/utils/nodeInterface";
-import { Container, Stack, Typography } from "@mui/material";
+import { Button, Container, Stack, Typography } from "@mui/material";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
@@ -63,6 +63,14 @@ export default function EditUser() {
             .isOk();
     };
 
+    const testFunction = async () => {
+        if (!delphai) return;
+     
+        // const result = await delphai.saveDelphaiUser();
+        const result = await delphai.hasResolutionVote("asdfe");
+        debugger;
+    }
+
     return (
         <PrimaryPage title="Account">
             <LoadingSection loading={loading} error={fetchError}>
@@ -103,6 +111,13 @@ export default function EditUser() {
                                 )
                             }
                         </>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={testFunction}
+                        >
+                            Test
+                        </Button>
                     </Stack>
                 </Container>
             </LoadingSection>
