@@ -1,5 +1,5 @@
 import config from "@/appConfig";
-import { Err, Ok, Result } from "@sniptt/monads/build";
+import { err, Err, ok, Ok, Result } from "neverthrow";
 import axios, { AxiosResponse, AxiosError } from "axios";
 import sign from "jwt-encode";
 import { NextApiRequest } from "next";
@@ -23,23 +23,23 @@ async function toResult(requestFn: () => Promise<AxiosResponse>): Promise<Result
     try {
         const response = await requestFn();
         if (response.status >= 200 && response.status < 300) {
-            return Ok(response.data);
+            return ok(response.data);
         } else {
-            return Err(response.statusText);
+            return err(response.statusText);
         }
-    } catch (err) {
-        if ((err as AxiosError).isAxiosError) {
-            return Err((err as AxiosError).response?.data
-                || (err as Error).message
+    } catch (error) {
+        if ((error as AxiosError).isAxiosError) {
+            return err((error as AxiosError).response?.data
+                || (error as Error).message
                 || "Missing axios error data");
         }
-        if (err instanceof Error) {
-            return Err(err.message);
+        if (error instanceof Error) {
+            return err(error.message);
         }
-        if (typeof err === "string") {
-            return Err(err);
+        if (typeof error === "string") {
+            return err(error);
         }
-        return Err("Unknown fetch error");
+        return err("Unknown fetch error");
     }
 }
 
@@ -72,9 +72,7 @@ function createUrl(path: string) {
 }
 
 export function toResponse(result: Result<any, string>): { result: any } | { error: string } {
-    return result.match({
-        ok: data => ({ result: data }),
-        err: err => ({ result: null, error: err })
-    });
+    return result.match(data => ({ result: data }),
+        err => ({ result: null, error: err }));
 }
 

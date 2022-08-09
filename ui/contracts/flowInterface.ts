@@ -1,5 +1,5 @@
 import * as fcl from '@onflow/fcl';
-import { Err, Ok, Result } from "@sniptt/monads/build";
+import { err, Err, ok, Ok, Result } from "neverthrow";
 
 
 interface FclInput {
@@ -19,21 +19,21 @@ export async function mutate<T>(input: FclInput): Promise<Result<T, string>> {
             ]))
             .then(fcl.decode);
         return status.errorMessage
-            ? Err(status.errorMessage)
-            : Ok(status.events)
-    } catch (err) {
-        var error = err as Error;
+            ? err(status.errorMessage)
+            : ok(status.events)
+    } catch (e) {
+        var error = e as Error;
         debugger;
-        return Err((error).message);
+        return err((error).message);
     }
 }
 
 export async function query<T>(input: FclInput): Promise<Result<T, string>> {
     try {
-        return Ok(await fcl.query(input) as T);
-    } catch (err) {
-        var error = err as Error;
+        return ok(await fcl.query(input) as T);
+    } catch (e) {
+        var error = e as Error;
         debugger;
-        return Err((error as Error).message);
+        return err((error as Error).message);
     }
 }

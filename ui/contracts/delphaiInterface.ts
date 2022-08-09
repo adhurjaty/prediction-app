@@ -10,7 +10,7 @@ import getBetState from 'raw-loader!./cadence/scripts/getBetState.cdc';
 import getFUSDBalance from 'raw-loader!./cadence/scripts/getFUSDBalance.cdc';
 import hasResolutionTokenText from 'raw-loader!./cadence/scripts/hasResolutionToken.cdc';
 import retrieveWinningFUSDText from 'raw-loader!./cadence/transactions/retrieveWinningFUSD.cdc';
-import { Result } from '@sniptt/monads/build';
+import { Result } from 'neverthrow';
 import BetState from '@/models/betState';
 import config from '@/appConfig';
 

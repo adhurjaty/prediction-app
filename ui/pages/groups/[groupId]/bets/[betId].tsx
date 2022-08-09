@@ -9,7 +9,7 @@ import Group from "@/models/group";
 import User from "@/models/user";
 import { fetchModel } from "@/utils/nodeInterface";
 import { Avatar, Container, Stack, Typography } from "@mui/material";
-import { Err, Ok } from "@sniptt/monads/build";
+import { err, Err, ok, Ok } from "neverthrow";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
@@ -63,9 +63,9 @@ export default function BetPage() {
                     if (groupBet) {
                         groupBet.closeTime = new Date(groupBet.closeTime);
                         setBet(groupBet);
-                        return Ok(groupBet);
+                        return ok(groupBet);
                     }
-                    return Err(`Could not find bet ${betId} in group ${groupId}`);
+                    return err(`Could not find bet ${betId} in group ${groupId}`);
                 })
                 .mapErr(err => setError(err));
                 
