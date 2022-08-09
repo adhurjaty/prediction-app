@@ -24,8 +24,8 @@ export default function UserValuesForm({
 
     const connectAccount = async (delphai?: DelphaiInterface) => {
         delphai = delphai ?? new DelphaiInterface();
-        const flowUser = await delphai.getCurrentUser();
-        setAddress(flowUser.addr);
+        await delphai.getCurrentUser()
+            .map(flowUser => setAddress(flowUser.addr));
     };
 
     useEffect(() => {

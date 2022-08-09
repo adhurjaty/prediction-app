@@ -4,6 +4,7 @@ import SecondaryPage from "@/components/secondaryPage";
 import DelphaiInterface from "@/contracts/delphaiInterface";
 import Bet from "@/models/bet";
 import Group from "@/models/group";
+import BetsInterface from "@/utils/betsInterface";
 import { fetchModel, postModel } from "@/utils/nodeInterface";
 import { Button, Container, Grid, MenuItem, Stack, Typography } from "@mui/material";
 import { Form, Formik } from "formik";
@@ -38,12 +39,15 @@ export default function CreateBetPage() {
     const [fetchError, setfetchError] = useState<string>();
     const [submitError, setSubmitError] = useState<string>();
     const [delphai, setDelphai] = useState<DelphaiInterface>();
+    const [betsInterface, setBetsInterface] = useState<BetsInterface>();
     
     const router = useRouter();
     const { groupId } = router.query;
 
     useEffect(() => {
-        setDelphai(new DelphaiInterface());
+        const delph = new DelphaiInterface()
+        setDelphai(delph);
+        setBetsInterface(new BetsInterface(delph));
     }, []);
 
     useEffect(() => {
@@ -59,22 +63,21 @@ export default function CreateBetPage() {
 
 
     const createBet = async (bet: BetFormData) => {
-        return (await postModel<Bet>("/api/bets", bet))
-            .map(async createdBet => {
-                const user = await delphai!.getCurrentUser();
-                await delphai?.placeBet({
-                    betId: createdBet.id,
-                    userAddress: user.addr,
-                    wager: bet.wager,
-                    prediction: bet.prediction === "true"
-                });
-                return createdBet;
+        return (await postModel<Bet>("/api/bets", bet)
+            .andThen(createdBet => {
+                return delphai!.getCurrentUser()
+                    .andThen(user => betsInterface!.placeBet({
+                        betId: createdBet.id,
+                        userAddress: user.addr,
+                        wager: bet.wager,
+                        prediction: bet.prediction === "true"
+                    }))
+                    .map(() => createdBet);
             })
-            .map(async createdBetPromise => {
-                const createdBet = await createdBetPromise;
+            .map(createdBet => {
                 router.push(`/groups/${createdBet.groupId}/bets/${createdBet.id}`)
             })
-            .mapErr(err => setSubmitError(err))
+            .mapErr(err => setSubmitError(err)))
             .isOk();
     }
     

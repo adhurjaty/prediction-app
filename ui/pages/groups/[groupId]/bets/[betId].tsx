@@ -56,7 +56,7 @@ export default function BetPage() {
         const abortController = new AbortController();
         
         session && (async () => {
-            (await fetchModel<Group>(`/api/groups/${groupId}`, abortController.signal))
+            await fetchModel<Group>(`/api/groups/${groupId}`, abortController.signal)
                 .andThen(val => {
                     setGroup(val);
                     const groupBet = val.bets.find(x => x.id === betId);
@@ -70,14 +70,14 @@ export default function BetPage() {
                 .mapErr(err => setError(err));
                 
             !abortController.signal.aborted && delphai
-                && (await delphai.getBetState(betId as string))
+                && await delphai.getBetState(betId as string)
                 .map(state => state && setBetState(state));
             
             !abortController.signal.aborted && delphai
-                && (await delphai.hasResolutionVote(betId as string))
+                && await delphai.hasResolutionVote(betId as string)
                 .map(hasToken => setHasResolutionToken(hasToken));
             
-            (await fetchModel<User>('/api/fullUser', abortController.signal))
+            await fetchModel<User>('/api/fullUser', abortController.signal)
                 .map(u => setUser(u));
 
         })().catch(err => {

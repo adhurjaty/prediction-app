@@ -10,7 +10,7 @@ import getBetState from 'raw-loader!./cadence/scripts/getBetState.cdc';
 import getFUSDBalance from 'raw-loader!./cadence/scripts/getFUSDBalance.cdc';
 import hasResolutionTokenText from 'raw-loader!./cadence/scripts/hasResolutionToken.cdc';
 import retrieveWinningFUSDText from 'raw-loader!./cadence/transactions/retrieveWinningFUSD.cdc';
-import { Result } from 'neverthrow';
+import { ResultAsync } from 'neverthrow';
 import BetState from '@/models/betState';
 import config from '@/appConfig';
 
@@ -45,9 +45,9 @@ export default class DelphaiInterface {
         // fcl.unauthenticate();
     }
 
-    async saveDelphaiUser(): Promise<Result<any, string>> {
+    saveDelphaiUser(): ResultAsync<any, string> {
         const transactionText = saveDelphaiUserText as string;
-        return await flow.mutate<any>({
+        return flow.mutate<any>({
             cadence: transactionText,
             payer: fcl.authz,
             proposer: fcl.authz,
@@ -56,9 +56,9 @@ export default class DelphaiInterface {
         });
     }
 
-    async placeBet(wager: Wager): Promise<Result<any, string>> {
+    placeBet(wager: Wager): ResultAsync<any, string> {
         const transactionText = placeBetText as string;
-        return await flow.mutate<any>({
+        return flow.mutate<any>({
             cadence: transactionText,
             payer: fcl.authz,
             proposer: fcl.authz,
@@ -73,9 +73,9 @@ export default class DelphaiInterface {
         });
     }
 
-    async voteToResolve(resolution: Resolution): Promise<Result<any, string>> {
+    voteToResolve(resolution: Resolution): ResultAsync<any, string> {
         const transactionText = resolveText as string;
-        return await flow.mutate<any>({
+        return flow.mutate<any>({
             cadence: transactionText,
             payer: fcl.authz,
             proposer: fcl.authz,
@@ -89,9 +89,9 @@ export default class DelphaiInterface {
         });
     }
 
-    async getBetState(betId: string): Promise<Result<BetState, string>> {
+    getBetState(betId: string): ResultAsync<BetState, string> {
         const scriptText = getBetState as string;
-        return await flow.query<BetState>({
+        return flow.query<BetState>({
             cadence: scriptText,
             args: (arg, t) => [
                 arg(this.delphaiAddress, t.Address),
@@ -100,22 +100,22 @@ export default class DelphaiInterface {
         });
     }
 
-    async hasResolutionVote(betId: string): Promise<Result<boolean, string>> {
+    hasResolutionVote(betId: string): ResultAsync<boolean, string> {
         const scriptText = hasResolutionTokenText as string;
-        const user = await this.getCurrentUser();
-        return await flow.query<boolean>({
-            cadence: scriptText,
-            authorizations: [fcl.authz],
-            args: (arg, t) => [
-                arg(user.addr, t.Address),
-                arg(this.toBetId(betId), t.String)
-            ]
-        });
+        return this.getCurrentUser()
+            .andThen(user => flow.query<boolean>({
+                cadence: scriptText,
+                authorizations: [fcl.authz],
+                args: (arg, t) => [
+                    arg(user.addr, t.Address),
+                    arg(this.toBetId(betId), t.String)
+                ]
+            }));
     }
 
-    async retrieveWinning(betId: string): Promise<Result<any, string>> {
+    retrieveWinning(betId: string): ResultAsync<any, string> {
         const transactionText = retrieveWinningFUSDText as string;
-        return await flow.mutate<any>({
+        return flow.mutate<any>({
             cadence: transactionText,
             payer: fcl.authz,
             proposer: fcl.authz,
@@ -128,21 +128,21 @@ export default class DelphaiInterface {
         });
     }
 
-    async getCurrentUser(): Promise<FclUser> {
-        return await fcl.currentUser.snapshot();
+    getCurrentUser(): ResultAsync<FclUser, string> {
+        return ResultAsync.fromSafePromise(fcl.currentUser.snapshot());
     }
 
-    async getFUSDBalance(): Promise<Result<number, string>> {
+    getFUSDBalance(): ResultAsync<number, string> {
         const scriptText = getFUSDBalance as string;
-        const user = await this.getCurrentUser();
-        return await flow.query<number>({
-            cadence: scriptText,
-            payer: fcl.authz,
-            authorizations: [fcl.authz],
-            args: (arg, t) => [
-                arg(user.addr, t.Address)
-            ]
-        })
+        return this.getCurrentUser()
+            .andThen(user => flow.query<number>({
+                cadence: scriptText,
+                payer: fcl.authz,
+                authorizations: [fcl.authz],
+                args: (arg, t) => [
+                    arg(user.addr, t.Address)
+                ]
+            }));
     }
 
     private toBetId(betId: string): string {
