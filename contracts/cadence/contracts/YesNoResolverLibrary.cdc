@@ -22,6 +22,7 @@ pub contract YesNoResolverLibrary {
     pub struct YesNoResolutionStruct {
         pub let numMembers: Int
         pub let numVotes: Int
+        pub let usersVoted: [String]
         pub let runningDecision: Bool?
         pub let isDisputed: Bool
 
@@ -99,6 +100,7 @@ pub contract YesNoResolverLibrary {
             return YesNoResolutionStruct(
                 numMembers: self.numMembers,
                 numVotes: self.numVotes,
+                usersVoted: self.userResolvedLog.keys,
                 runningDecision: runningDecision,
                 isDisputed: self.isDisputed
             )
@@ -157,6 +159,7 @@ pub contract YesNoResolverLibrary {
             return YesNoResolutionStruct(
                 numMembers: self.numMembers,
                 numVotes: self.numVotes,
+                usersVoted: [],
                 runningDecision: self.runningDecision,
                 isDisputed: self.isDisputed
             )

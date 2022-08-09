@@ -34,7 +34,6 @@ export default function BetPage() {
     const [fetchError, setError] = useState<string>();
     const [delphai, setDelphai] = useState<DelphaiInterface>();
     const [userStates, setUserStates] = useState<UserState[]>();
-    const [hasResolutionToken, setHasResolutionToken] = useState<boolean>();
 
     const { groupId, betId } = router.query;
 
@@ -72,11 +71,7 @@ export default function BetPage() {
             !abortController.signal.aborted && delphai
                 && await delphai.getBetState(betId as string)
                 .map(state => state && setBetState(state));
-            
-            !abortController.signal.aborted && delphai
-                && await delphai.hasResolutionVote(betId as string)
-                .map(hasToken => setHasResolutionToken(hasToken));
-            
+
             await fetchModel<User>('/api/fullUser', abortController.signal)
                 .map(u => setUser(u));
 
@@ -138,7 +133,10 @@ export default function BetPage() {
             );
         }
 
-        if (!hasResolutionToken) {
+        const hasVoted = !!betState?.resolutions?.usersVoted
+            .find(addr => user?.mainnetAddress === addr);
+
+        if (hasVoted) {
             return (
                 <Typography variant="h6">
                     You have already voted to resolve this bet

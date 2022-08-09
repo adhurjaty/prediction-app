@@ -63,14 +63,6 @@ export default function EditUser() {
             .isOk();
     };
 
-    const testFunction = async () => {
-        if (!delphai) return;
-     
-        // const result = await delphai.saveDelphaiUser();
-        const result = await delphai.hasResolutionVote("asdfe");
-        debugger;
-    }
-
     return (
         <PrimaryPage title="Account">
             <LoadingSection loading={loading} error={fetchError}>
@@ -111,13 +103,6 @@ export default function EditUser() {
                                 )
                             }
                         </>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={testFunction}
-                        >
-                            Test
-                        </Button>
                     </Stack>
                 </Container>
             </LoadingSection>
