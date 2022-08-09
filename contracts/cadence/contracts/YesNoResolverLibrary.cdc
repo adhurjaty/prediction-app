@@ -26,9 +26,10 @@ pub contract YesNoResolverLibrary {
         pub let runningDecision: Bool?
         pub let isDisputed: Bool
 
-        init (numMembers: Int, numVotes: Int, runningDecision: Bool?, isDisputed: Bool) {
+        init (numMembers: Int, numVotes: Int, usersVoted: [String], runningDecision: Bool?, isDisputed: Bool) {
             self.numMembers = numMembers
             self.numVotes = numVotes
+            self.usersVoted = usersVoted
             self.runningDecision = runningDecision
             self.isDisputed = isDisputed
         }

@@ -9,11 +9,24 @@
         "DelphaiUsers": {
             "source": "./cadence/contracts/DelphaiUsers.cdc",
             "aliases": {
-                "emulator": "f8d6e0586b0a20c7"
+                "emulator": "f8d6e0586b0a20c7",
+                "testnet": "6d894a3a7456250d"
             }
         },
-        "FungibleToken": "./cadence/contracts/FungibleToken.cdc",
-        "FlowToken": "./cadence/contracts/FlowToken.cdc",
+        "FungibleToken": {
+            "source": "./cadence/contracts/FungibleToken.cdc",
+            "aliases": {
+                "emulator": "0xee82856bf20e2aa6",
+                "testnet": "0x9a0766d93b6608b7"
+            }
+        },
+        "FlowToken": {
+            "source": "./cadence/contracts/FlowToken.cdc",
+            "aliases": {
+                "emulator": "0x0ae53cb6e3f42a79",
+                "testnet": "0x7e60df042a9c0868"
+            }
+        },
         "FUSD": "./cadence/contracts/FUSD.cdc",
         "YesNoBetLibrary": "./cadence/contracts/YesNoBetLibrary.cdc",
         "YesNoResolverLibrary": "./cadence/contracts/YesNoResolverLibrary.cdc",
@@ -28,6 +41,10 @@
 		"delphai": {
 			"address": "f8d6e0586b0a20c7",
 			"key": "6a4c115ee4477dc14ea5dd6ba72739dde3d5f1e08313bfaebe08b6221e69d585"
+		},
+        "delphai-testnet": {
+			"address": "6d894a3a7456250d",
+			"key": "82443c6fe2be1f71b1ec1cef28ea37bdcb696e49fca491a94a959f70ff4347b6"
 		},
         "dan": {
             "address": "179b6b1cb6755e31",
@@ -45,6 +62,14 @@
 	"deployments": {
         "emulator": {
             "delphai": [
+                "DelphaiUsers",
+                "YesNoBetLibrary",
+                "YesNoResolverLibrary",
+                "BetContractComposer"
+            ]
+        },
+        "testnet": {
+            "delphai-testnet": [
                 "DelphaiUsers",
                 "YesNoBetLibrary",
                 "YesNoResolverLibrary",
