@@ -1,6 +1,7 @@
 import DelphaiInterface from "@/contracts/delphaiInterface";
 import BetState from "@/models/betState";
 import Wager from "@/models/wager";
+import BetsInterface from "@/utils/betsInterface";
 import { Button, MenuItem, Stack, Typography } from "@mui/material";
 import { Form, Formik } from "formik";
 import { useState } from "react";
@@ -28,6 +29,7 @@ const initPredictionOptions = [
 export default function PlaceWagerForm({ delphai, betId, userAddress, betState, onSubmit }: Props) {
     const [submitError, setSubmitError] = useState<string>();
 
+    const betsInterface = delphai && new BetsInterface(delphai);
     const getMaxWager = () => {
         if (betState?.hubPrediction !== undefined && betState?.hubPrediction !== null) {
             const hubWager = betState.wagers
@@ -39,12 +41,12 @@ export default function PlaceWagerForm({ delphai, betId, userAddress, betState, 
     };
 
     const onFormSubmit = async (wager: Wager) => {
-        if (!delphai)
+        if (!betsInterface)
             return false;
         
-        return (await delphai.placeBet(wager))
+        return (await betsInterface.placeBet(wager)
             .map(() => onSubmit && onSubmit())
-            .mapErr(err => setSubmitError(err))
+            .mapErr(err => setSubmitError(err)))
             .isOk();
     }
 
