@@ -1,5 +1,5 @@
 import * as fcl from '@onflow/fcl';
-import { err, Err, ok, Ok, Result } from "neverthrow";
+import { err, Err, ok, Ok, Result, ResultAsync } from "neverthrow";
 
 
 interface FclInput {
@@ -11,29 +11,21 @@ interface FclInput {
     limit?: number
 }
 
-export async function mutate<T>(input: FclInput): Promise<Result<T, string>> {
-    try {
-        const status = await (fcl.mutate(input) as Promise<string>)
-            .then(txId => fcl.send([
-                fcl.getTransactionStatus(txId)
-            ]))
-            .then(fcl.decode);
-        return status.errorMessage
-            ? err(status.errorMessage)
-            : ok(status.events)
-    } catch (e) {
-        var error = e as Error;
-        debugger;
-        return err((error).message);
-    }
+export function mutate<T>(input: FclInput): ResultAsync<T, string> {
+    return ResultAsync.fromPromise((fcl.mutate(input) as Promise<string>)
+        .then(txId => fcl.send([
+            fcl.getTransactionStatus(txId)
+        ]))
+        .then(fcl.decode)
+        .then(status => {
+            if (status.errorMessage)
+                throw new Error(status.errorMessage);
+            return status.events
+        }),
+        e => (e as Error).message);
 }
 
-export async function query<T>(input: FclInput): Promise<Result<T, string>> {
-    try {
-        return ok(await fcl.query(input) as T);
-    } catch (e) {
-        var error = e as Error;
-        debugger;
-        return err((error as Error).message);
-    }
+export function query<T>(input: FclInput): ResultAsync<T, string> {
+    return ResultAsync.fromPromise(fcl.query(input).then((res: any) => res as T),
+        e => (e as Error).message);
 }
