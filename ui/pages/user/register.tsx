@@ -8,6 +8,7 @@ import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import DelphaiInterface from '@/contracts/delphaiInterface';
 import UserValuesForm from '@/components/user/userValuesForm';
+import { errAsync } from 'neverthrow';
 
 interface UserFormData {
     displayName: string;
@@ -36,16 +37,15 @@ export default function Register() {
     const bottomNav = <BottomNav links={navLinks} />
 
     const createUser = async (user: UserFormData) => {
-        const result = (await postModel<User>("/api/user", user))
+        return (await postModel<User>("/api/user", user)
             .mapErr(err => setSubmitError(err))
-            .map(async _ => {
-                if (!delphai) return false;
-                return (await delphai.saveDelphaiUser())
+            .andThen(_ => {
+                if (!delphai) return errAsync("Could not initialize Delphai");
+                return delphai.saveDelphaiUser()
                     .map(_ => router.push("/groups"))
                     .mapErr(err => setSubmitError(err))
-                    .isOk();
-            });
-        return result.isOk() && result.unwrap();
+            }))
+            .isOk();
     }
 
     return (
