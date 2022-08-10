@@ -8,6 +8,7 @@ import placeBetText from 'raw-loader!./cadence/transactions/placeBetComposerFUSD
 import resolveText from 'raw-loader!./cadence/transactions/voteToResolve.cdc';
 import getBetState from 'raw-loader!./cadence/scripts/getBetState.cdc';
 import getFUSDBalance from 'raw-loader!./cadence/scripts/getFUSDBalance.cdc';
+import getFlowBalance from 'raw-loader!./cadence/scripts/getFlowBalance.cdc';
 import hasResolutionTokenText from 'raw-loader!./cadence/scripts/hasResolutionToken.cdc';
 import retrieveWinningFUSDText from 'raw-loader!./cadence/transactions/retrieveWinningFUSD.cdc';
 import { ResultAsync } from 'neverthrow';
@@ -33,7 +34,8 @@ export default class DelphaiInterface {
             .put("discovery.wallet", flowConfig.discoveryWallet)
             // .put("challenge.handshake", flowConfig.discoveryWallet)
             .put("0xFUSD", flowConfig.fusd)
-            .put("0xFungibleToken", flowConfig.fungibleToken);
+            .put("0xFungibleToken", flowConfig.fungibleToken)
+            .put("0xFlowToken", flowConfig.flowToken);
         fcl.currentUser.snapshot()
             .then((user: any) => {
                 if (!user.loggedIn) {
@@ -134,6 +136,19 @@ export default class DelphaiInterface {
 
     getFUSDBalance(): ResultAsync<number, string> {
         const scriptText = getFUSDBalance as string;
+        return this.getCurrentUser()
+            .andThen(user => flow.query<number>({
+                cadence: scriptText,
+                payer: fcl.authz,
+                authorizations: [fcl.authz],
+                args: (arg, t) => [
+                    arg(user.addr, t.Address)
+                ]
+            }));
+    }
+
+    getFlowBalance(): ResultAsync<number, string> {
+        const scriptText = getFlowBalance as string;
         return this.getCurrentUser()
             .andThen(user => flow.query<number>({
                 cadence: scriptText,
