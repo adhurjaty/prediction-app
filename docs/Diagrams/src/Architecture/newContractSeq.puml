@@ -9,23 +9,32 @@ participant ResolverResource as rr
 participant PayoutResource as pr
 
 user -> api : create bet
-api -> br : create bet
-api -> rr : create resolver
 api -> pr : create payout
-br -> rr : send resolution\nresult token
-pr -> br : send bet result token
-user -> br : place bet
+pr --> api : bet result token
+api -> br : create bet\n(with token)
+br --> api : resolution\nresult token
+api -> rr : create resolver (with token)
+api -> br : get bet\ntoken
+br --> api : bet token
+api -> rr : get vote token
+rr --> api : vote token
+api -> pr : get payout token
+pr --> api : payout token
+api --> user : tokens
+user -> br : place bet (with token)
 br -> br : capture bet
 br -> pr : send money
-user -> rr : vote to resolve
+user -> rr : vote to resolve (with token)
 user -> api : vote event
 api -> rr : check resolved
 rr -> rr : determine result
-rr -> br : send resolution\nresult token
+rr --> api : return result token if resolved
+api -> br : send result\ntoken
 br -> br : determine winners
-br -> pr : send bet result token
+br --> api : return bet\nresult token
+api -> pr : send bet result token
 pr -> pr : determine payout
 user -> br : see result
-user -> pr : retrieve payout
+user -> pr : retrieve payout (with token)
 
 @enduml
