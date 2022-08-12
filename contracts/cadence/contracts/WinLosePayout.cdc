@@ -1,5 +1,5 @@
 import FungibleToken from "./FungibleToken.cdc"
-import PayoutInterfaces from "./PayoutInterfaces"
+import PayoutInterfaces from "./PayoutInterfaces.cdc"
 
 pub contract WinLosePayout {
     pub struct Bettor {
@@ -102,8 +102,9 @@ pub contract WinLosePayout {
 
             var depth = 0.0
             var winnersAmount = totalLosersAmount - losersAmount
-            i = 0
+            i = -1
             while i < betResultsToken.losers.length && winnersAmount > 0.0 {
+                i = i + 1
                 let loser = betResultsToken.losers[i]
 
                 var depthToAdd = winnersAmount / UFix64(betResultsToken.losers.length - i)
@@ -113,7 +114,10 @@ pub contract WinLosePayout {
 
                 depth = depth + depthToAdd
                 winnersAmount = winnersAmount - depthToAdd * UFix64(betResultsToken.losers.length - i)
-                i = i + 1
+            }
+
+            if winnersAmount > 0.0 {
+                panic("Could not allocate all funds")
             }
 
             while i < betResultsToken.losers.length {
@@ -122,12 +126,15 @@ pub contract WinLosePayout {
                 self.poolVault.deposit(from: <-loserReturn)
                 i = i + 1
             }
+
+            destroy betResultsToken
         }
 
         pub fun withdraw(token: @PayoutInterfaces.Token): @FungibleToken.Vault {
             let vault <- self.allocatedVaults.remove(key: token.address.toString()) 
                 ?? panic("No vault for address")
             self.balance = self.balance - vault.balance
+            destroy token
             return <-vault
         }
 
@@ -138,5 +145,27 @@ pub contract WinLosePayout {
             destroy self.poolVault
             destroy self.allocatedVaults
         }
+    }
+
+    pub resource BetResultsTokenMinter {
+        pub fun mint(betId: String, winners: [Bettor], losers: [Bettor]): @BetResults {
+            return <-create BetResults(betId: betId, winners: winners, losers: losers)
+        }
+    }
+
+    pub resource BetResultsTokenMinterMinter {
+        pub fun mint(): @BetResultsTokenMinter {
+            return <-create BetResultsTokenMinter()
+        }
+    }
+
+    pub let BetResultsMinterMinterStoragePath: StoragePath
+    init () {
+        self.BetResultsMinterMinterStoragePath = /storage/BetResultsTokenMinterMinter
+        self.account.save(<-create BetResultsTokenMinterMinter(), to: self.BetResultsMinterMinterStoragePath)
+    }
+
+    pub fun create(betId: String, emptyVault: @FungibleToken.Vault): @Payout {
+        return <-create Payout(betId: self.account.address.toString(), emptyVault: <-emptyVault)
     }
 }

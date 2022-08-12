@@ -43,4 +43,16 @@ pub contract PayoutInterfaces {
             }
         }
     }
+
+    pub resource TokenMinter {
+        pub fun mint(betId: String, address: Address): @Token {
+            return <-create Token(betId: betId, address: address)
+        }
+    }
+
+    pub let TokenMinterStoragePath: StoragePath
+    init () {
+        self.TokenMinterStoragePath = /storage/PayoutTokenMinter
+        self.account.save(<-create TokenMinter(), to: self.TokenMinterStoragePath)
+    }
 }

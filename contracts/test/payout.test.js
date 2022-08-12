@@ -1,0 +1,58 @@
+import path from "path";
+import { deployContractByName, emulator, executeScript, getAccountAddress, getContractAddress, getFlowBalance, getFUSDBalance, init, mintFlow, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
+
+// Increase timeout if your tests failing due to timeout
+jest.setTimeout(50000);
+
+describe("payout-contract-tests", () => {
+    beforeEach(async () => {
+        const basePath = path.resolve(__dirname, "../cadence");
+        // You can specify different port to parallelize execution of describe blocks
+        const port = 8080;
+        // Setting logging flag to true will pipe emulator output to console
+        const logging = true;
+        
+        await init(basePath, { port });
+        return emulator.start(port, logging, { flags: '--contracts' });
+    });
+
+    // Stop emulator, so it could be restarted
+    afterEach(async () => {
+        return emulator.stop();
+    });
+
+    const setupWinLosePayout = async (delphai) => {
+        const [result, error] = await shallResolve(
+            sendTransaction({
+                name: "createWinLosePayout",
+                signers: [delphai],
+                args: ["betId1234"],
+                addressMap: {
+                    PayoutInterface: delphai,
+                    WinLosePayout: delphai
+                }
+            })
+        );
+
+        expect(error).toBeNull();
+    }
+
+    test("allocates funds all same amount", async () => {
+        const delphai = await getAccountAddress("Delphai");
+        const alice = await getAccountAddress("Alice");
+        const bob = await getAccountAddress("Bob");
+        const carol = await getAccountAddress("Carol");
+        const dan = await getAccountAddress("Dan");
+
+        await mintFlow(delphai, "10.0");
+        await mintFlow(alice, "10.0");
+        await mintFlow(bob, "10.0");
+        await mintFlow(carol, "10.0");
+        await mintFlow(dan, "10.0");
+
+        const payoutInterfacesAddress = await deployContractByName({ to: delphai, name: "PayoutInterfaces" });
+        const payoutImplAddress = await deployContractByName({ to: delphai, name: "WinLosePayout" });
+
+        await setupWinLosePayout(delphai);
+    });
+})
