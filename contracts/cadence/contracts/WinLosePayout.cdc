@@ -102,9 +102,8 @@ pub contract WinLosePayout {
 
             var depth = 0.0
             var winnersAmount = totalLosersAmount - losersAmount
-            i = -1
+            i = 0
             while i < betResultsToken.losers.length && winnersAmount > 0.0 {
-                i = i + 1
                 let loser = betResultsToken.losers[i]
 
                 var depthToAdd = winnersAmount / UFix64(betResultsToken.losers.length - i)
@@ -114,11 +113,15 @@ pub contract WinLosePayout {
 
                 depth = depth + depthToAdd
                 winnersAmount = winnersAmount - depthToAdd * UFix64(betResultsToken.losers.length - i)
+                i = i + 1
             }
 
             if winnersAmount > 0.0 {
                 panic("Could not allocate all funds")
             }
+
+            // back the index up to allocate a partial column
+            i = i - 1
 
             while i < betResultsToken.losers.length {
                 let loser = betResultsToken.losers[i]
