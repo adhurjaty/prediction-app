@@ -52,9 +52,11 @@ export default function BetPage() {
     }, [])
 
     useEffect(() => {
+        if (!groupId || !betId || !delphai || !session) return;
+
         const abortController = new AbortController();
         
-        session && (async () => {
+        (async () => {
             await fetchModel<Group>(`/api/groups/${groupId}`, abortController.signal)
                 .andThen(val => {
                     setGroup(val);
@@ -80,7 +82,7 @@ export default function BetPage() {
             throw err;
         })
 
-        return () => abortController.abort();
+        // return () => abortController.abort();
     }, [session, groupId, betId, delphai]);
 
     useEffect(() => {

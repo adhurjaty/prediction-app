@@ -8,7 +8,7 @@ class BetsInterface {
     constructor(private delphai: DelphaiInterface) { }
 
     placeBet(wager: Wager, retried?: boolean): ResultAsync<any, string> {
-        return postModel<any>(`api/bet/${wager.betId}/transferTokens`, {})
+        return postModel<any>(`/api/bets/${wager.betId}/transferTokens`, {})
             .orElse(e => {
                 if (retried || !e.includes("Could not get token receiver capability")) {
                     return errAsync(e);
