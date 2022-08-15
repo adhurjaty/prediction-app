@@ -37,11 +37,11 @@ namespace WebApi
         private readonly string _transactionsPath;
 
         private FlowAddress _delphaiAddress => _account?.Address;
-        private ISigner _signer => _account.Keys
-            .Where(x => x.Index == KEY_INDEX)
-            .Select(x => x.Signer)
-            .FirstOrDefault() 
+        private FlowAccountKey _delphaiKey => _account?.Keys
+            .FirstOrDefault(x => x.Index == KEY_INDEX)
             ?? throw new FlowException($"No key found with index {KEY_INDEX}");
+        private ISigner _signer => _delphaiKey.Signer
+            ?? throw new FlowException($"Could not get signer for key. Probably an incorrect private key in the config file");
         public string AccountAddress => _delphaiAddress?.HexValue;
 
         private FlowInterface(FlowClientAsync client, FlowAccount account, string transactionsPath)
