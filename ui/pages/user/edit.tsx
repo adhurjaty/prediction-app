@@ -63,6 +63,13 @@ export default function EditUser() {
             .isOk();
     };
 
+    // const testFn = async () => {
+    //     if (!delphai) return;
+    //     (await delphai.deleteDelphaiUser())
+    //         .mapErr(err => setSubmitError(err))
+    //         .isOk();
+    // };
+
     return (
         <PrimaryPage title="Account">
             <LoadingSection loading={loading} error={fetchError}>
@@ -103,6 +110,9 @@ export default function EditUser() {
                                 )
                             }
                         </>
+                        {/* <Button variant="contained" onClick={testFn}>
+                            Test
+                        </Button> */}
                     </Stack>
                 </Container>
             </LoadingSection>

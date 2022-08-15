@@ -4,6 +4,7 @@ import Wager from '@/models/wager';
 import Resolution from '@/models/resolution';
 
 import saveDelphaiUserText from 'raw-loader!./cadence/transactions/saveDelphaiUser.cdc';
+import deleteDelphaiUserText from 'raw-loader!./cadence/transactions/deleteDelphaiUser.cdc';
 import placeBetText from 'raw-loader!./cadence/transactions/placeBetComposerFUSD.cdc';
 import resolveText from 'raw-loader!./cadence/transactions/voteToResolve.cdc';
 import getBetState from 'raw-loader!./cadence/scripts/getBetState.cdc';
@@ -49,6 +50,17 @@ export default class DelphaiInterface {
 
     saveDelphaiUser(): ResultAsync<any, string> {
         const transactionText = saveDelphaiUserText as string;
+        return flow.mutate<any>({
+            cadence: transactionText,
+            payer: fcl.authz,
+            proposer: fcl.authz,
+            authorizations: [fcl.authz],
+            limit: 200
+        });
+    }
+
+    deleteDelphaiUser(): ResultAsync<any, string> {
+        const transactionText = deleteDelphaiUserText as string;
         return flow.mutate<any>({
             cadence: transactionText,
             payer: fcl.authz,
