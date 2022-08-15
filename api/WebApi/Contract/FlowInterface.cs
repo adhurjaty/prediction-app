@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using Flow.Net.Sdk.Crypto;
 using Flow.Net.Sdk.Exceptions;
 using Flow.Net.Sdk.Models;
 using Flow.Net.Sdk.Templates;
+using Google.Protobuf;
 
 namespace WebApi
 {
@@ -120,7 +122,7 @@ namespace WebApi
             };
 
             var rawResponse = await _flowClient.SendTransactionAsync(tx);
-            var response = await _flowClient.GetTransactionResultAsync(rawResponse.Id);
+            var response = await GetTransactionResult(rawResponse.Id, 10000);
             if(!string.IsNullOrEmpty(response.ErrorMessage))
                 throw new FlowException(response.ErrorMessage);
             return response;
@@ -179,6 +181,23 @@ namespace WebApi
             newAccount.Keys = FlowAccountKey.UpdateFlowAccountKeys(
                 new List<FlowAccountKey> { key }, newAccount.Keys);
             return newAccount;
+        }
+
+        private async Task<FlowTransactionResult> GetTransactionResult(ByteString id, int timeoutMs = 5000)
+        {
+            var sw = new Stopwatch();
+            sw.Start();
+
+            FlowTransactionResult result = null;
+            do
+            {
+                result = await _flowClient.GetTransactionResultAsync(id);
+            }
+            while (result.Status == Flow.Net.Sdk.Protos.entities.TransactionStatus.Pending 
+                && sw.ElapsedMilliseconds < timeoutMs);
+            if (result.Status == Flow.Net.Sdk.Protos.entities.TransactionStatus.Pending)
+                throw new Exception("Reading transaction result timed out");
+            return result;
         }
     }
 }
