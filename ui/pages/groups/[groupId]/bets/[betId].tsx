@@ -91,7 +91,7 @@ export default function BetPage() {
         const states = group.users
             .map(u => ({
                 ...u,
-                ...betState.wagers.find(w => w.userAddress === `0x${u.mainnetAddress}`)!
+                ...betState.wagers.find(w => w.userAddress === u.mainnetAddress)!
             }));
         setUserStates(states)
     }, [betState, group]);
