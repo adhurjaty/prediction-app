@@ -1,6 +1,13 @@
 import path from "path";
 import { deployContract, deployContractByName, emulator, executeScript, getAccountAddress, getContractAddress, getFlowBalance, init, mintFlow, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
 
+function partition(lst, pred) {
+    return lst.reduce((acc, x) => {
+        acc[pred(x) ? 0 : 1].push(x);
+        return acc;
+    }, [[], []]);
+}
+
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(50000);
 
@@ -27,12 +34,12 @@ describe("payout-contract-tests", () => {
 
     };
 
-    const setupWinLosePayout = async (delphai) => {
+    const setupWinLosePayout = async (delphai, betId) => {
         const [result, error] = await shallResolve(
             sendTransaction({
                 name: "createWinLosePayout",
                 signers: [delphai],
-                args: ["betId1234"],
+                args: [betId],
                 addressMap: {
                     PayoutInterface: delphai,
                     WinLosePayout: delphai
@@ -59,6 +66,77 @@ describe("payout-contract-tests", () => {
         }
     }
 
+    const transferPayoutTokens = async (delphai, betId, users) => {
+        for (const user of users) {
+            const [transferResult, transferError] = await shallResolve(
+                sendTransaction({
+                    name: "test_payoutTransfer",
+                    args: [betId, user],
+                    signers: [delphai],
+                    addressMap: { "PayoutInterfaces": delphai }
+                })
+            )
+            expect(transferError).toBeNull();
+        }
+    }
+
+    const setupPayout = async (delphai, betId, users) => {
+        await deployContracts(delphai);
+        await setupWinLosePayout(delphai, betId);
+        await setupTokenReceivers(delphai, users);
+        await transferPayoutTokens(delphai, betId, users);
+    }
+
+    const getResults = async (delphai, betId, userResults) => {
+        for (const user of userResults) {
+            const [depositResult, depositError] = await shallResolve(
+                sendTransaction({
+                    name: "test_payoutDeposit",
+                    args: [delphai, betId, user.amount],
+                    signers: [user.account],
+                    addressMap: { "delphai": delphai }
+                })
+            );
+
+            expect(depositError).toBeNull();
+        }
+
+        const [winners, losers] = partition(userResults, (result) => result.win);
+        
+        const [allocateResult, allocateError] = await shallResolve(
+            sendTransaction({
+                name: "test_payoutAllocate",
+                args: [
+                    betId,
+                    winners.map(x => x.account),
+                    winners.map(x => x.amount),
+                    losers.map(x => x.account),
+                    losers.map(x => x.amount)
+                ],
+                signers: [delphai],
+                addressMap: { "delphai": delphai }
+            })
+        );
+        expect(allocateError).toBeNull();
+
+        for (const user of userResults.map(x => x.account)) {
+            const [retreiveResult, retreiveError] = await shallResolve(
+                sendTransaction({
+                    name: "retrievePayout",
+                    args: [delphai, betId],
+                    signers: [user],
+                    addressMap: { "delphai": delphai }
+                })
+            );
+            expect(retreiveError).toBeNull();
+        }
+
+        return await Promise.all(
+            userResults.map((user) => getFlowBalance(user.account)
+                .then(x => Math.round(parseFloat(x))))
+        )
+    };
+
     test("allocates funds all same amount", async () => {
         const delphai = await getAccountAddress("Delphai");
         const alice = await getAccountAddress("Alice");
@@ -72,64 +150,63 @@ describe("payout-contract-tests", () => {
         await mintFlow(carol, "10.0");
         await mintFlow(dan, "10.0");
 
-        await deployContracts(delphai);
+        const users = [alice, bob, carol, dan];
 
-        await setupWinLosePayout(delphai);
+        await setupPayout(delphai, "betId1234", users);
 
-        await setupTokenReceivers(delphai, [alice, bob, carol, dan]);
-
-        for (const user of [alice, bob, carol, dan]) {
-            const [transferResult, transferError] = await shallResolve(
-                sendTransaction({
-                    name: "test_payoutTransfer",
-                    args: ["betId1234", user],
-                    signers: [delphai],
-                    addressMap: { "PayoutInterfaces": delphai }
-                })
-            )
-            expect(transferError).toBeNull();
-        }
-
-        for (const user of [alice, bob, carol, dan]) {
+        const [aliceBalance, bobBalance, carolBalance, danBalance] =
+            await getResults(delphai, "betId1234", [
+                { account: alice, amount: "5.0", win: true },
+                { account: bob, amount: "5.0", win: true },
+                { account: carol, amount: "5.0", win: false },
+                { account: dan, amount: "5.0", win: false }
+            ]);
+        
+        // for (const user of users) {
             
-            const [depositResult, depositError] = await shallResolve(
-                sendTransaction({
-                    name: "test_payoutDeposit",
-                    args: [delphai, "betId1234", "5.0"],
-                    signers: [user],
-                    addressMap: { "delphai": delphai }
-                })
-            );
+        //     const [depositResult, depositError] = await shallResolve(
+        //         sendTransaction({
+        //             name: "test_payoutDeposit",
+        //             args: [delphai, "betId1234", "5.0"],
+        //             signers: [user],
+        //             addressMap: { "delphai": delphai }
+        //         })
+        //     );
 
-            expect(depositError).toBeNull();
-        }
+        //     expect(depositError).toBeNull();
+        // }
 
-        const [allocateResult, allocateError] = await shallResolve(
-            sendTransaction({
-                name: "test_payoutAllocate",
-                args: ["betId1234", [alice, bob], ["5.0", "5.0"], [carol, dan], ["5.0", "5.0"]],
-                signers: [delphai],
-                addressMap: { "delphai": delphai }
-            })
-        );
-        expect(allocateError).toBeNull();
+        // const [allocateResult, allocateError] = await shallResolve(
+        //     sendTransaction({
+        //         name: "test_payoutAllocate",
+        //         args: ["betId1234", [alice, bob], ["5.0", "5.0"], [carol, dan], ["5.0", "5.0"]],
+        //         signers: [delphai],
+        //         addressMap: { "delphai": delphai }
+        //     })
+        // );
+        // expect(allocateError).toBeNull();
 
-        for (const user of [alice, bob, carol, dan]) {
-            const [retreiveResult, retreiveError] = await shallResolve(
-                sendTransaction({
-                    name: "retrievePayout",
-                    args: [delphai, "betId1234"],
-                    signers: [user],
-                    addressMap: { "delphai": delphai }
-                })
-            );
-            expect(retreiveError).toBeNull();
-        }
+        // for (const user of users) {
+        //     const [retreiveResult, retreiveError] = await shallResolve(
+        //         sendTransaction({
+        //             name: "retrievePayout",
+        //             args: [delphai, "betId1234"],
+        //             signers: [user],
+        //             addressMap: { "delphai": delphai }
+        //         })
+        //     );
+        //     expect(retreiveError).toBeNull();
+        // }
 
-        const [aliceBalance, bobBalance, carolBalance, danBalance] = await Promise.all(
-            [alice, bob, carol, dan].map((user) => getFlowBalance(user)
-                .then(x => Math.round(parseFloat(x))))
-        )
+        // const [aliceBalance, bobBalance, carolBalance, danBalance] = await Promise.all(
+        //     users.map((user) => getFlowBalance(user)
+        //         .then(x => Math.round(parseFloat(x))))
+        // )
+
+        // const [aliceBalance, bobBalance, carolBalance, danBalance] = await Promise.all(
+        //     users.map((user) => getFlowBalance(user)
+        //         .then(x => Math.round(parseFloat(x))))
+        // )
 
         expect(aliceBalance).toBe(15);
         expect(bobBalance).toBe(15);
