@@ -24,7 +24,7 @@ pub contract PayoutInterfaces {
                 from.balance > 0.0: "Vault balance must be greater than 0.0"
             }
             post {
-                self.balance == before(self.balance) + from.balance: "Balance must be increased by the deposited amount"
+                self.balance == before(self.balance) + before(from.balance): "Balance must be increased by the deposited amount"
             }
         }
 
@@ -48,6 +48,36 @@ pub contract PayoutInterfaces {
         pub fun mint(betId: String, address: Address): @Token {
             return <-create Token(betId: betId, address: address)
         }
+    }
+
+    pub resource interface Receiver {
+        pub fun deposit(token: @Token)
+    }
+
+    // pub resource TokenReceiver: Receiver {
+    pub resource TokenReceiver {
+        priv let tokens: @{String: Token}
+
+        init () {
+            self.tokens <- {}
+        }
+
+        pub fun deposit(token: @Token) {
+            self.tokens[token.betId] <-! token
+        }
+
+        pub fun withdraw(betId: String): @Token {
+            return <- (self.tokens.remove(key: betId)
+                ?? panic("No token with betId ".concat(betId)))
+        }
+
+        destroy () {
+            destroy self.tokens
+        }
+    }
+
+    pub fun createReceiver(): @TokenReceiver {
+        return <-create TokenReceiver()
     }
 
     pub let TokenMinterStoragePath: StoragePath

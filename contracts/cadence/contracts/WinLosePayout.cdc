@@ -4,12 +4,10 @@ import PayoutInterfaces from "./PayoutInterfaces.cdc"
 pub contract WinLosePayout {
     pub struct Bettor {
         pub let address: Address
-        pub let betId: String
         pub let amount: UFix64
 
-        init(address: Address, betId: String, amount: UFix64) {
+        init(address: Address, amount: UFix64) {
             self.address = address
-            self.betId = betId
             self.amount = amount
         }
     }
@@ -69,6 +67,8 @@ pub contract WinLosePayout {
             // return funds to the first loser if the depleted amount is less than
             // their bet amount * # of losers                                                                                  
 
+            log(token.betId)
+            log(self.betId)
             let betResultsToken <- token as! @BetResults
             var losersAmount = 0.0
 
@@ -169,6 +169,6 @@ pub contract WinLosePayout {
     }
 
     pub fun create(betId: String, emptyVault: @FungibleToken.Vault): @Payout {
-        return <-create Payout(betId: self.account.address.toString(), emptyVault: <-emptyVault)
+        return <-create Payout(betId: betId, emptyVault: <-emptyVault)
     }
 }

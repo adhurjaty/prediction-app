@@ -1,5 +1,5 @@
 import path from "path";
-import { deployContractByName, emulator, executeScript, getAccountAddress, getContractAddress, getFlowBalance, getFUSDBalance, init, mintFlow, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
+import { deployContract, deployContractByName, emulator, executeScript, getAccountAddress, getContractAddress, getFlowBalance, getFUSDBalance, init, mintFlow, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
 
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(50000);
@@ -21,6 +21,12 @@ describe("payout-contract-tests", () => {
         return emulator.stop();
     });
 
+    const deployContracts = async (delphai) => {
+        await deployContractByName({ to: delphai, name: "PayoutInterfaces" });
+        await deployContractByName({ to: delphai, name: "WinLosePayout" });
+
+    };
+
     const setupWinLosePayout = async (delphai) => {
         const [result, error] = await shallResolve(
             sendTransaction({
@@ -37,6 +43,22 @@ describe("payout-contract-tests", () => {
         expect(error).toBeNull();
     }
 
+    const setupTokenReceivers = async (delphai, users) => {
+        for (const user of users) {
+            const [result, error] = await shallResolve(
+                sendTransaction({
+                    name: "setupPayoutReceiver",
+                    signers: [user],
+                    addressMap: {
+                        PayoutInterface: delphai,
+                    }
+                })
+            );
+    
+            expect(error).toBeNull();
+        }
+    }
+
     test("allocates funds all same amount", async () => {
         const delphai = await getAccountAddress("Delphai");
         const alice = await getAccountAddress("Alice");
@@ -50,9 +72,34 @@ describe("payout-contract-tests", () => {
         await mintFlow(carol, "10.0");
         await mintFlow(dan, "10.0");
 
-        const payoutInterfacesAddress = await deployContractByName({ to: delphai, name: "PayoutInterfaces" });
-        const payoutImplAddress = await deployContractByName({ to: delphai, name: "WinLosePayout" });
+        await deployContracts(delphai);
 
         await setupWinLosePayout(delphai);
+
+        await setupTokenReceivers(delphai, [alice, bob, carol, dan]);
+
+        for (const user of [alice, bob, carol, dan]) {
+            
+            const [depositResult, depositError] = await shallResolve(
+                sendTransaction({
+                    name: "test_payoutDeposit",
+                    args: [delphai, "betId1234", "5.0"],
+                    signers: [user],
+                    addressMap: { "delphai": delphai }
+                })
+            );
+
+            expect(depositError).toBeNull();
+        }
+
+        const [allocateResult, allocateError] = await shallResolve(
+            sendTransaction({
+                name: "test_payoutAllocate",
+                args: ["betId1234", [alice, bob], ["5.0", "5.0"], [carol, dan], ["5.0", "5.0"]],
+                signers: [delphai],
+                addressMap: { "delphai": delphai }
+            })
+        );
+        expect(allocateError).toBeNull();
     });
 })
