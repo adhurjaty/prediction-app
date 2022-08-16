@@ -67,8 +67,6 @@ pub contract WinLosePayout {
             // return funds to the first loser if the depleted amount is less than
             // their bet amount * # of losers                                                                                  
 
-            log(token.betId)
-            log(self.betId)
             let betResultsToken <- token as! @BetResults
             var losersAmount = 0.0
 
@@ -96,14 +94,14 @@ pub contract WinLosePayout {
 
                 winnerReturn.deposit(from: <-self.poolVault.withdraw(amount: height))
 
-                self.poolVault.deposit(from: <-winnerReturn)
+                self.allocatedVaults[winner.address.toString()] <-! winnerReturn
                 i = i + 1
             }
 
             var depth = 0.0
             var winnersAmount = totalLosersAmount - losersAmount
             i = 0
-            while i < betResultsToken.losers.length && winnersAmount > 0.0 {
+            while i < betResultsToken.losers.length {
                 let loser = betResultsToken.losers[i]
 
                 var depthToAdd = winnersAmount / UFix64(betResultsToken.losers.length - i)
@@ -112,22 +110,19 @@ pub contract WinLosePayout {
                 }
 
                 depth = depth + depthToAdd
+                var amount = loser.amount - depth
+                if amount < 0.0 {
+                    amount = 0.0
+                }
+                let loserReturn <- self.poolVault.withdraw(amount: amount)
+                self.allocatedVaults[loser.address.toString()] <-! loserReturn
+                
                 winnersAmount = winnersAmount - depthToAdd * UFix64(betResultsToken.losers.length - i)
                 i = i + 1
             }
 
-            if winnersAmount > 0.0 {
+            if self.poolVault.balance > 0.0 {
                 panic("Could not allocate all funds")
-            }
-
-            // back the index up to allocate a partial column
-            i = i - 1
-
-            while i < betResultsToken.losers.length {
-                let loser = betResultsToken.losers[i]
-                let loserReturn <- self.poolVault.withdraw(amount: loser.amount - depth)
-                self.poolVault.deposit(from: <-loserReturn)
-                i = i + 1
             }
 
             destroy betResultsToken

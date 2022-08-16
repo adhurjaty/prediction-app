@@ -1,5 +1,5 @@
 import path from "path";
-import { deployContract, deployContractByName, emulator, executeScript, getAccountAddress, getContractAddress, getFlowBalance, getFUSDBalance, init, mintFlow, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
+import { deployContract, deployContractByName, emulator, executeScript, getAccountAddress, getContractAddress, getFlowBalance, init, mintFlow, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
 
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(50000);
@@ -79,6 +79,18 @@ describe("payout-contract-tests", () => {
         await setupTokenReceivers(delphai, [alice, bob, carol, dan]);
 
         for (const user of [alice, bob, carol, dan]) {
+            const [transferResult, transferError] = await shallResolve(
+                sendTransaction({
+                    name: "test_payoutTransfer",
+                    args: ["betId1234", user],
+                    signers: [delphai],
+                    addressMap: { "PayoutInterfaces": delphai }
+                })
+            )
+            expect(transferError).toBeNull();
+        }
+
+        for (const user of [alice, bob, carol, dan]) {
             
             const [depositResult, depositError] = await shallResolve(
                 sendTransaction({
@@ -101,5 +113,27 @@ describe("payout-contract-tests", () => {
             })
         );
         expect(allocateError).toBeNull();
+
+        for (const user of [alice, bob, carol, dan]) {
+            const [retreiveResult, retreiveError] = await shallResolve(
+                sendTransaction({
+                    name: "retrievePayout",
+                    args: [delphai, "betId1234"],
+                    signers: [user],
+                    addressMap: { "delphai": delphai }
+                })
+            );
+            expect(retreiveError).toBeNull();
+        }
+
+        const [aliceBalance, bobBalance, carolBalance, danBalance] = await Promise.all(
+            [alice, bob, carol, dan].map((user) => getFlowBalance(user)
+                .then(x => Math.round(parseFloat(x))))
+        )
+
+        expect(aliceBalance).toBe(15);
+        expect(bobBalance).toBe(15);
+        expect(carolBalance).toBe(5);
+        expect(danBalance).toBe(5);
     });
 })

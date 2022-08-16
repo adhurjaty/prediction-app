@@ -9,14 +9,14 @@ transaction(betId: String, address: Address) {
     }
 
     execute {
-        let pathName = "PayoutToken_".concat(betId)
-        let publicPath = PublicPath(identifier: pathName)
-            ?? panic("Invalid public path")
-        let payoutRef = getAccount(delphai)
-            .getCapability<&AnyResource{PayoutInterfaces.Payout}>(publicPath!)
+        let receiver = getAccount(address)
+            .getCapability<&AnyResource{PayoutInterfaces.Receiver}>(
+                /public/payoutTokenReceiver)!
             .borrow()
-            ?? panic("Could not borrow payout capability")
+            ?? panic("Could not borrow PayoutInterfaces.PayoutTokenReceiver from public account")
+        
+        let payoutToken <-self.tokenMinter.mint(betId: betId, address: address)
 
-        payoutRef.deposit(from: <-self.flowVault.withdraw(amount: amount))
+        receiver.deposit(token: <-payoutToken)
     }
 }

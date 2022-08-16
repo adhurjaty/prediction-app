@@ -36,7 +36,7 @@ pub contract PayoutInterfaces {
 
         pub fun withdraw(token: @Token): @FungibleToken.Vault {
             pre {
-                self.balance > 0.0: "Balance must be greater than 0.0"
+                self.balance >= 0.0: "Balance must be greater than or equal to 0.0"
             }
             post {
                 self.balance == before(self.balance) - result.balance: "Balance must be decreased by the withdrawn amount"
@@ -54,8 +54,7 @@ pub contract PayoutInterfaces {
         pub fun deposit(token: @Token)
     }
 
-    // pub resource TokenReceiver: Receiver {
-    pub resource TokenReceiver {
+    pub resource Vault: Receiver {
         priv let tokens: @{String: Token}
 
         init () {
@@ -76,8 +75,8 @@ pub contract PayoutInterfaces {
         }
     }
 
-    pub fun createReceiver(): @TokenReceiver {
-        return <-create TokenReceiver()
+    pub fun createVault(): @Vault {
+        return <-create Vault()
     }
 
     pub let TokenMinterStoragePath: StoragePath
