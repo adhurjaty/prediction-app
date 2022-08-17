@@ -3,7 +3,7 @@
 title Proposed New Contracts Architecture
 
 namespace BetInterfaces {
-    interface WagerToken {
+    interface Token {
         address: Address
         betId: string
         wager: FUSDVault
@@ -14,8 +14,12 @@ namespace BetInterfaces {
     }
 
     interface Bet {
-        placeBet(token: &WagerToken)
+        placeBet(token: &Token)
         resolveBet(token: &Result): &PayoutInterfaces::ResultsToken
+    }
+
+    interface TokenMinter {
+        mintToken(address: Address): &Token
     }
 }
 
@@ -26,7 +30,7 @@ namespace YesNoBetContract {
         wager: UFi64
     }
 
-    class WagerToken {
+    class UserToken {
         address: Address
         betId: string
         bet: bool
@@ -38,45 +42,78 @@ namespace YesNoBetContract {
         result: bool
     }
 
+    class ResultTokenMinter {
+        betId: string
+        mint(result: bool): &BetInterface::Result
+    }
+
+    class State {
+        isResolved: bool
+        wagers: Wager[]
+    }
+
     class BetResource {
-        - wagers: Wager[]
+        - betResultsTokenMinter: @WinLossPayoutContract::BetResultsTokenMinter
+        + state: State
         
-        placeBet(token: &BetInterfaces::WagerToken)
+        placeBet(token: &BetInterfaces::Token)
         resolveBet(token: &BetInterfaces::Result): &PayoutInterfaces::ResultsToken
+        mintToken(address: Address): &BetInterfaces::Token
+        createResultTokenMinter(): @ResultTokenMinter
     }
 }
 
 namespace ResolverInterfaces {
-    interface ResolutionToken {
+    interface Token {
         betId: string
         address: Address
     }
 
     interface Resolver {
-        vote(token: &ResolutionToken)
+        vote(token: &Token)
         resolve(): &BetInterfaces::Result?
+    }
+
+    interface TokenMinter {
+        mintToken(address: Address): &Token
     }
 }
 
 namespace YesNoResolverContract {
-    class ResolutionToken {
+    class UserToken {
         betId: string
         address: Address
-        vote: bool
+        vote: bool?
+    }
+
+    class State {
+        isResolved: bool
+        votes: Vote[]
+    }
+
+    class Vote {
+        address: Address
+        vote: bool?
     }
 
     class MajorityResolver {
-        - votes: ResolutionToken[]
+        - resultTokenMinter: @YesNoBetContract::ResultTokenMinter
+        + state: State
         
-        vote(token: &ResolutionToken)
+        vote(token: &Token)
         resolve(): &BetInterfaces::Result?
+        mintToken(address: Address): &ResolverInterfaces::Token
     }
 }
 
 namespace PayoutInterfaces {
-    class PayoutToken {
+    interface Token {
         betId: string
         address: Address
+    }
+
+    interface TokenMinter {
+        mintToken(address: Address): &Token
     }
 
     interface ResultsToken {
@@ -87,7 +124,18 @@ namespace PayoutInterfaces {
         +balance: UFix64
         deposit(from: @Vault)
         resolve(token: &ResultsToken)
-        withdraw(token: @PayoutToken): @Vault
+        withdraw(token: &Token): @Vault
+        getState(): PayoutState
+    }
+
+    class State {
+        isResolved: bool
+        payouts: UserPayout[]
+    }
+
+    class UserPayout {
+        balance: UFix64
+        hasRetrieved: bool
     }
 }
 
@@ -103,37 +151,64 @@ namespace WinLosePayoutContract {
         losers: Bettor[]
     }
 
+    class BetResultsTokenMinter {
+        betId: string
+        mint(winners: Bettor[], losers: Bettor[]): @BetResults
+    }
+
+    class UserToken {
+        betId: string
+        address: Address
+    }
+
     class PayoutResource {
-        - betResult: PayoutContract::BetResult
         +balance: UFix64
         deposit(from: @Vault)
         resolve(results: &PayoutInterfaces::ResultsToken)
-        withdraw(token: @PayoutInterfaces::PayoutToken): @Vault
+        withdraw(token: &PayoutInterfaces::Token): @Vault
+        getState(): PayoutInterfaces::State
+        mintToken(address: Address): &PayoutInterfaces::Token
+        createBetTokenMinter(): @BetResultsTokenMinter
     }
 }
 
 
-PayoutInterfaces.Payout --> PayoutInterfaces.PayoutToken
+PayoutInterfaces.Payout --> PayoutInterfaces.Token
 PayoutInterfaces.Payout --> PayoutInterfaces.ResultsToken
+PayoutInterfaces.TokenMinter --> PayoutInterfaces.Token
+PayoutInterfaces.Payout --> PayoutInterfaces.State
+PayoutInterfaces.State --* PayoutInterfaces.UserPayout
 WinLosePayoutContract.PayoutResource --|> PayoutInterfaces.Payout
-WinLosePayoutContract.PayoutResource --> WinLosePayoutContract.BetResults
+WinLosePayoutContract.PayoutResource --|> PayoutInterfaces.TokenMinter
+WinLosePayoutContract.PayoutResource --> WinLosePayoutContract.BetResultsTokenMinter
+WinLosePayoutContract.BetResultsTokenMinter --> WinLosePayoutContract.BetResults
 WinLosePayoutContract.BetResults --* WinLosePayoutContract.Bettor
 WinLosePayoutContract.BetResults --|> PayoutInterfaces.ResultsToken
+WinLosePayoutContract.UserToken --|> PayoutInterfaces.Token
+WinLosePayoutContract.PayoutResource --> WinLosePayoutContract.UserToken
 
-BetInterfaces.Bet --> BetInterfaces.WagerToken
+BetInterfaces.Bet --> BetInterfaces.Token
 BetInterfaces.Bet --> BetInterfaces.Result
 BetInterfaces.Bet --> PayoutInterfaces.ResultsToken
 YesNoBetContract.BetResource --|> BetInterfaces.Bet
-YesNoBetContract.BetResource --* YesNoBetContract.Wager
-YesNoBetContract.BetResource --> YesNoBetContract.WagerToken
-YesNoBetContract.BetResource --> YesNoBetContract.ResultToken
-YesNoBetContract.BetResource --o WinLosePayoutContract.BetResults
-YesNoBetContract.WagerToken --|> BetInterfaces.WagerToken
+YesNoBetContract.BetResource --|> BetInterfaces.TokenMinter
+YesNoBetContract.BetResource --* YesNoBetContract.State
+YesNoBetContract.State --* YesNoBetContract.Wager
+YesNoBetContract.BetResource --> YesNoBetContract.UserToken
+YesNoBetContract.BetResource --> YesNoBetContract.ResultTokenMinter
+YesNoBetContract.ResultTokenMinter --> YesNoBetContract.ResultToken
+YesNoBetContract.BetResource --* WinLosePayoutContract.BetResultsTokenMinter
+YesNoBetContract.UserToken --|> BetInterfaces.Token
 YesNoBetContract.ResultToken --|> BetInterfaces.Result
 
-ResolverInterfaces.Resolver --> ResolverInterfaces.ResolutionToken
+ResolverInterfaces.Resolver --> ResolverInterfaces.Token
 ResolverInterfaces.Resolver --> BetInterfaces.Result
+ResolverInterfaces.TokenMinter --> ResolverInterfaces.Token
 YesNoResolverContract.MajorityResolver --|> ResolverInterfaces.Resolver
-YesNoResolverContract.MajorityResolver --* YesNoResolverContract.ResolutionToken
-YesNoResolverContract.MajorityResolver --o YesNoBetContract.ResultToken
+YesNoResolverContract.MajorityResolver --|> ResolverInterfaces.TokenMinter
+YesNoResolverContract.MajorityResolver --> YesNoResolverContract.UserToken
+YesNoResolverContract.UserToken --|> ResolverInterfaces.Token
+YesNoResolverContract.MajorityResolver --* YesNoBetContract.ResultTokenMinter
+YesNoResolverContract.MajorityResolver --* YesNoResolverContract.State
+YesNoResolverContract.State --* YesNoResolverContract.Vote
 @enduml
