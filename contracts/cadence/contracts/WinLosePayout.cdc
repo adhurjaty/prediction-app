@@ -189,11 +189,7 @@ pub contract WinLosePayout {
                 ?? panic("No vault for address")
             self.balance = self.balance - vault.balance
 
-            if let userPayout = self.state.payouts[userToken.address.toString()] {
-                userPayout.hasRetrieved = true
-            } else {
-                panic("No payout for address")
-            }
+            self.state.setRetrieved(address: userToken.address)
 
             destroy userToken
             return <-vault

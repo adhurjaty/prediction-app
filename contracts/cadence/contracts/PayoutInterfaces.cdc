@@ -24,6 +24,18 @@ pub contract PayoutInterfaces {
                 self.payouts[payout.address.toString()] = payout
             }
         }
+
+        pub fun setRetrieved(address: Address) {
+            if let payout = self.payouts[address.toString()] {
+                self.payouts[address.toString()] = UserPayout(
+                    address: payout.address,
+                    amount: payout.amount,
+                    hasRetrieved: true
+                )
+            } else {
+                panic("No payout for address")
+            }
+        }
     }
 
     pub resource interface Token {
@@ -38,6 +50,7 @@ pub contract PayoutInterfaces {
     pub resource interface Payout {
         pub let betId: String
         pub var balance: UFix64
+        pub var state: State
 
         pub fun deposit(from: @FungibleToken.Vault) {
             pre {

@@ -1,5 +1,5 @@
 import path from "path";
-import { deployContractByName, emulator, getAccountAddress, getFlowBalance, init, mintFlow, sendTransaction, shallResolve } from "flow-js-testing";
+import { deployContractByName, emulator, executeScript, getAccountAddress, getFlowBalance, init, mintFlow, sendTransaction, shallResolve } from "flow-js-testing";
 
 function partition(lst, pred) {
     return lst.reduce((acc, x) => {
@@ -306,5 +306,68 @@ describe("payout-contract-tests", () => {
         expect(frannieBalance).toBe(4.5);
         expect(gregBalance).toBe(1.5);
         expect(hankBalance).toBe(6);
+    });
+
+    test("get payout states", async () => {
+        const betId = "betId1234";
+
+        const delphai = await getAccountAddress("Delphai");
+        await mintFlow(delphai, "10.0");
+
+        const users = [
+            { name: "Alice", amount: "4.0", win: true },
+            { name: "Bob", amount: "6.0", win: true },
+            { name: "Carol", amount: "8.0", win: false },
+            { name: "Dan", amount: "7.0", win: false }
+        ]
+
+        for (const user of users) {
+            const acct = await getAccountAddress(user.name);
+            await mintFlow(acct, user.amount);
+            user.account = acct;
+        }
+        
+        await setupPayout(delphai, betId, users.map(x => x.account));
+
+        const [setupStateResult, setupStateError] = await shallResolve(
+            executeScript({
+                name: "getPayoutState",
+                args: [delphai, betId],
+                signers: [users[0].account],
+                addressMap: { "delphai": delphai }
+            })
+        );
+        expect(setupStateError).toBeNull();
+        expect(setupStateResult.isResolved).toBe(false);
+
+        const [aliceBalance, bobBalance, carolBalance, danBalance] =
+            await getResults(delphai, betId, users);
+        
+        const [endStateResult, endStateError] = await shallResolve(
+            executeScript({
+                name: "getPayoutState",
+                args: [delphai, betId],
+                signers: [users[0].account],
+                addressMap: { "delphai": delphai }
+            })
+        );
+        expect(endStateError).toBeNull();
+        expect(endStateResult.isResolved).toBe(true);
+        
+        const [aliceResult, bobResult, carolResult, danResult] = users
+            .map(x => endStateResult.payouts[x.account]);
+        expect(parseFloat(aliceResult.amount)).toBe(8);
+        expect(aliceResult.hasRetrieved).toBe(true);
+        expect(parseFloat(bobResult.amount)).toBe(12);
+        expect(bobResult.hasRetrieved).toBe(true);
+        expect(parseFloat(carolResult.amount)).toBe(3);
+        expect(carolResult.hasRetrieved).toBe(true);
+        expect(parseFloat(danResult.amount)).toBe(2);
+        expect(danResult.hasRetrieved).toBe(true);
+
+        expect(aliceBalance).toBe(8);
+        expect(bobBalance).toBe(12);
+        expect(carolBalance).toBe(3);
+        expect(danBalance).toBe(2);
     });
 })
