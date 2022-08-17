@@ -11,12 +11,12 @@ participant ResolverContract as rr
 participant PayoutContract as pr
 
 user -> api : create bet
+api -> pr : create payout transaction
+pr --> ds : save resource
 api -> br : create bet transaction
 br --> ds : save resource
 api -> rr : create resolver transaction
 rr --> ds : save resource
-api -> pr : create payout transaction
-pr --> ds : save resource
 
 user -> api : place bet
 user -> ds : get tokens transaction
