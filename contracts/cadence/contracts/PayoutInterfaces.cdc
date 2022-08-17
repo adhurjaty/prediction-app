@@ -1,6 +1,31 @@
 import FungibleToken from "./FungibleToken.cdc"
 
 pub contract PayoutInterfaces {
+    pub struct UserPayout {
+        pub let address: Address
+        pub let amount: UFix64
+        pub(set) var hasRetrieved: Bool
+
+        init(address: Address, amount: UFix64, hasRetrieved: Bool) {
+            self.address = address
+            self.amount = amount
+            self.hasRetrieved = hasRetrieved
+        }
+    }
+
+    pub struct State {
+        pub let isResolved: Bool
+        pub let payouts: {String: UserPayout}
+
+        init(isResolved: Bool, payouts: [UserPayout]) {
+            self.isResolved = isResolved
+            self.payouts = {}
+            for payout in payouts {
+                self.payouts[payout.address.toString()] = payout
+            }
+        }
+    }
+
     pub resource interface Token {
         pub let betId: String
         pub let address: Address

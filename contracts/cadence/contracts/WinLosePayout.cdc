@@ -56,6 +56,7 @@ pub contract WinLosePayout {
 
         pub let betId: String
         pub var balance: UFix64
+        pub var state: PayoutInterfaces.State
 
         init (betId: String, emptyVault: @FungibleToken.Vault) {
             self.betId = betId
@@ -63,6 +64,7 @@ pub contract WinLosePayout {
             self.balance = 0.0
             self.allocatedVaults <- {}
             self.payoutResults = {}
+            self.state = PayoutInterfaces.State(isResolved: false, payouts: [])
         }
 
         pub fun createBetTokenMinter(): @BetResultsTokenMinter {
@@ -111,6 +113,8 @@ pub contract WinLosePayout {
                 losersAmount = losersAmount + loser.amount
             }
 
+            let payouts: [PayoutInterfaces.UserPayout] = []
+
             let totalLosersAmount = losersAmount
 
             // allocate funds to winner
@@ -130,6 +134,12 @@ pub contract WinLosePayout {
                 losersAmount = losersAmount - heightToAdd * UFix64(winnersLength - i)
 
                 winnerReturn.deposit(from: <-self.poolVault.withdraw(amount: height))
+
+                payouts.append(PayoutInterfaces.UserPayout(
+                    address: winner.address,
+                    amount: winnerReturn.balance,
+                    hasRetrieved: false
+                ))
 
                 self.allocatedVaults[winner.address.toString()] <-! winnerReturn
                 i = i + 1
@@ -153,6 +163,12 @@ pub contract WinLosePayout {
                 }
                 let loserReturn <- self.poolVault.withdraw(amount: amount)
                 self.allocatedVaults[loser.address.toString()] <-! loserReturn
+
+                payouts.append(PayoutInterfaces.UserPayout(
+                    address: loser.address,
+                    amount: amount,
+                    hasRetrieved: false
+                ))
                 
                 winnersAmount = winnersAmount - depthToAdd * UFix64(betResultsToken.losers.length - i)
                 i = i + 1
@@ -162,6 +178,8 @@ pub contract WinLosePayout {
                 panic("Could not allocate all funds")
             }
 
+            self.state = PayoutInterfaces.State(isResolved: true, payouts: payouts)
+
             destroy betResultsToken
         }
 
@@ -170,6 +188,13 @@ pub contract WinLosePayout {
             let vault <- self.allocatedVaults.remove(key: userToken.address.toString()) 
                 ?? panic("No vault for address")
             self.balance = self.balance - vault.balance
+
+            if let userPayout = self.state.payouts[userToken.address.toString()] {
+                userPayout.hasRetrieved = true
+            } else {
+                panic("No payout for address")
+            }
+
             destroy userToken
             return <-vault
         }
