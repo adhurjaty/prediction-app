@@ -1,10 +1,15 @@
 import PayoutInterfaces from 0xdelphai
 
 transaction(betId: String, address: Address) {
-    let tokenMinter: &PayoutInterfaces.TokenMinter
+    let tokenMinter: &AnyResource{PayoutInterfaces.TokenMinter}
 
     prepare(acct: AuthAccount) {
-        self.tokenMinter = acct.borrow<&PayoutInterfaces.TokenMinter>(from: /storage/PayoutTokenMinter)
+        let pathName = PayoutInterfaces.payoutPathName(betId: betId)
+        let payoutPrivatePath = PrivatePath(identifier: pathName)
+            ?? panic("Invalid private path")
+        self.tokenMinter = acct
+            .getCapability(payoutPrivatePath!)
+            .borrow<&AnyResource{PayoutInterfaces.TokenMinter}>()
             ?? panic("Could not borrow PayoutInterfaces.TokenMinter from storage")
     }
 
@@ -15,7 +20,7 @@ transaction(betId: String, address: Address) {
             .borrow()
             ?? panic("Could not borrow PayoutInterfaces.PayoutTokenReceiver from public account")
         
-        let payoutToken <-self.tokenMinter.mint(betId: betId, address: address)
+        let payoutToken <-self.tokenMinter.mintToken(address: address)
 
         receiver.deposit(token: <-payoutToken)
     }

@@ -1,14 +1,9 @@
 import FungibleToken from "./FungibleToken.cdc"
 
 pub contract PayoutInterfaces {
-    pub resource Token {
+    pub resource interface Token {
         pub let betId: String
         pub let address: Address
-
-        init(betId: String, address: Address) {
-            self.betId = betId
-            self.address = address
-        }
     }
 
     pub resource interface ResultsToken {
@@ -34,7 +29,7 @@ pub contract PayoutInterfaces {
             }
         }
 
-        pub fun withdraw(token: @Token): @FungibleToken.Vault {
+        pub fun withdraw(token: @AnyResource{Token}): @FungibleToken.Vault {
             pre {
                 self.balance >= 0.0: "Balance must be greater than or equal to 0.0"
             }
@@ -44,28 +39,26 @@ pub contract PayoutInterfaces {
         }
     }
 
-    pub resource TokenMinter {
-        pub fun mint(betId: String, address: Address): @Token {
-            return <-create Token(betId: betId, address: address)
-        }
+    pub resource interface TokenMinter {
+        pub fun mintToken(address: Address): @AnyResource{Token}
     }
 
     pub resource interface Receiver {
-        pub fun deposit(token: @Token)
+        pub fun deposit(token: @AnyResource{Token})
     }
 
     pub resource Vault: Receiver {
-        priv let tokens: @{String: Token}
+        priv let tokens: @{String: AnyResource{Token}}
 
         init () {
             self.tokens <- {}
         }
 
-        pub fun deposit(token: @Token) {
+        pub fun deposit(token: @AnyResource{Token}) {
             self.tokens[token.betId] <-! token
         }
 
-        pub fun withdraw(betId: String): @Token {
+        pub fun withdraw(betId: String): @AnyResource{Token} {
             return <- (self.tokens.remove(key: betId)
                 ?? panic("No token with betId ".concat(betId)))
         }
@@ -79,9 +72,7 @@ pub contract PayoutInterfaces {
         return <-create Vault()
     }
 
-    pub let TokenMinterStoragePath: StoragePath
-    init () {
-        self.TokenMinterStoragePath = /storage/PayoutTokenMinter
-        self.account.save(<-create TokenMinter(), to: self.TokenMinterStoragePath)
+    pub fun payoutPathName(betId: String): String {
+        return "Payout_".concat(betId)
     }
 }

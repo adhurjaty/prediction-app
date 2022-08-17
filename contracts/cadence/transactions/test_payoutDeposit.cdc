@@ -10,7 +10,7 @@ transaction(delphai: Address, betId: String, amount: UFix64) {
     }
 
     execute {
-        let pathName = "WinLosePayout_".concat(betId)
+        let pathName = PayoutInterfaces.payoutPathName(betId: betId)
         let publicPath = PublicPath(identifier: pathName)
             ?? panic("Invalid public path")
         let payoutRef = getAccount(delphai)

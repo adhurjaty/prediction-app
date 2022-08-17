@@ -17,7 +17,7 @@ transaction(delphai: Address, betId: String) {
     execute {
         let token <- self.payoutVault.withdraw(betId: betId)
 
-        let pathName = "WinLosePayout_".concat(betId)
+        let pathName = PayoutInterfaces.payoutPathName(betId: betId)
         let payoutPublicPath = PublicPath(identifier: pathName)
             ?? panic("Invalid public path")
 

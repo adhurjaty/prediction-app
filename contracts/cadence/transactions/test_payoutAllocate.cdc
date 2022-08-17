@@ -1,17 +1,19 @@
+import PayoutInterfaces from 0xdelphai
 import WinLosePayout from 0xdelphai
 
 transaction(betId: String, winningAddresses: [Address], winningAmounts: [UFix64], losingAddresses: [Address], losingAmounts: [UFix64]) {
+    let payout: &WinLosePayout.Payout
+    
     prepare(acct: AuthAccount) {
-        let resultsMinterMinter = acct
-            .borrow<&WinLosePayout.BetResultsTokenMinterMinter>(from: WinLosePayout.BetResultsMinterMinterStoragePath)
-            ?? panic("Could not borrow a reference to the BetResultsTokenMinterMinter")
-        let resultsMinter <- resultsMinterMinter.mint()
-
-        let pathName = "WinLosePayout_".concat(betId)
+        let pathName = PayoutInterfaces.payoutPathName(betId: betId)
         let payoutStoragePath = StoragePath(identifier: pathName)
             ?? panic("Invalid storage path")
-        let payout = acct.borrow<&WinLosePayout.Payout>(from: payoutStoragePath!) 
+        self.payout = acct.borrow<&WinLosePayout.Payout>(from: payoutStoragePath!) 
             ?? panic("Could not borrow payout")
+    }
+
+    execute {
+        let resultsMinter <- self.payout.createBetTokenMinter()
 
         let winners: [WinLosePayout.Bettor] = []
         let losers: [WinLosePayout.Bettor] = []
@@ -27,9 +29,8 @@ transaction(betId: String, winningAddresses: [Address], winningAmounts: [UFix64]
             i = i + 1
         }
 
-
-        let results <- resultsMinter.mint(betId: betId, winners: winners, losers: losers)
-        payout.resolve(token: <-results)
+        let results <- resultsMinter.mint(winners: winners, losers: losers)
+        self.payout.resolve(token: <-results)
 
         destroy resultsMinter
     }
