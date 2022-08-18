@@ -227,4 +227,11 @@ pub contract YesNoBet {
             destroy self.emptyVault
         }
     }
+
+    pub fun create(betId: String, payoutTokenMinter: @WinLosePayout.BetResultsTokenMinter,
+        emptyVault: @FungibleToken.Vault): @Bet 
+    {
+        return <-create Bet(betId: betId, payoutTokenMinter: <-payoutTokenMinter, 
+            emptyVault: <-emptyVault)
+    }
 }

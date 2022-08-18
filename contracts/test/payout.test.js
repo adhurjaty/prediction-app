@@ -70,7 +70,7 @@ describe("payout-contract-tests", () => {
         for (const user of users) {
             const [transferResult, transferError] = await shallResolve(
                 sendTransaction({
-                    name: "test_payoutTransfer",
+                    name: "transferPayoutToken",
                     args: [betId, user],
                     signers: [delphai],
                     addressMap: { "PayoutInterfaces": delphai }
