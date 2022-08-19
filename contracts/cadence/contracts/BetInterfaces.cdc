@@ -2,6 +2,15 @@ import PayoutInterfaces from "./PayoutInterfaces.cdc"
 import FungibleToken from "./FungibleToken.cdc"
 
 pub contract BetInterfaces {
+    pub struct interface Wager {
+        pub let address: Address
+        pub let amount: UFix64
+    }
+
+    pub struct interface State {
+        pub var isResolved: Bool
+        pub let wagers: {String: AnyStruct{Wager}}
+    }
 
     pub resource interface Token {
         pub let betId: String
@@ -15,6 +24,7 @@ pub contract BetInterfaces {
 
     pub resource interface Bet {
         pub let betId: String
+        pub let state: AnyStruct{State}
 
         pub fun placeBet(token: @AnyResource{Token}): @FungibleToken.Vault {
             pre {

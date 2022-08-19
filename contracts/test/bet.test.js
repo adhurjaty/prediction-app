@@ -1,19 +1,18 @@
 import path from "path";
-import { deployContractByName, emulator, executeScript, getAccountAddress, getContractAddress, getFlowBalance, init, mintFlow, sendTransaction, shallPass, shallResolve, shallRevert } from "flow-js-testing";
+import { deployContractByName, emulator, executeScript, getAccountAddress, getContractAddress, getFlowBalance, init, mintFlow, sendTransaction, shallPass, shallResolve, shallRevert } from "@onflow/flow-js-testing";
 
 // Increase timeout if your tests failing due to timeout
-jest.setTimeout(10000);
+jest.setTimeout(50000);
 
 describe("bet-contract-test", () => {
     beforeEach(async () => {
         const basePath = path.resolve(__dirname, "../cadence");
-        // You can specify different port to parallelize execution of describe blocks
-        const port = 8080;
+
         // Setting logging flag to true will pipe emulator output to console
         const logging = false;
         
-        await init(basePath, { port });
-        return emulator.start(port, logging);
+        await init(basePath);
+        return emulator.start({ logging });
     });
     
     // Stop emulator, so it could be restarted
@@ -53,61 +52,6 @@ describe("bet-contract-test", () => {
 
         expect(error).toBeNull();
     }
-
-    const getResults = async (delphai, betId, userResults) => {
-        for (const user of userResults) {
-            const [wagerResult, wagerError] = await shallResolve(
-                sendTransaction({
-                    name: "test_betPlaceWager",
-                    args: [delphai, betId, user.bet, user.amount],
-                    signers: [user.account],
-                    addressMap: { "delphai": delphai }
-                })
-            );
-
-            expect(wagerError).toBeNull();
-        }
-
-        // const [winners, losers] = partition(
-        //     [...userResults].sort((a, b) => parseFloat(a.amount) - parseFloat(b.amount)),
-        //     (result) => result.win
-        // );
-
-        // const [allocateResult, allocateError] = await shallResolve(
-        //     sendTransaction({
-        //         name: "test_payoutAllocate",
-        //         args: [
-        //             betId,
-        //             winners.map(x => x.account),
-        //             winners.map(x => x.amount),
-        //             losers.map(x => x.account),
-        //             losers.map(x => x.amount)
-        //         ],
-        //         signers: [delphai],
-        //         addressMap: { "delphai": delphai }
-        //     })
-        // );
-        // expect(allocateError).toBeNull();
-
-        // for (const user of userResults.map(x => x.account)) {
-        //     const [retreiveResult, retreiveError] = await shallResolve(
-        //         sendTransaction({
-        //             name: "retrievePayout",
-        //             args: [delphai, betId],
-        //             signers: [user],
-        //             addressMap: { "delphai": delphai }
-        //         })
-        //     );
-        //     expect(retreiveError).toBeNull();
-        // }
-
-
-        // return await Promise.all(
-        //     userResults.map((user) => getFlowBalance(user.account)
-        //         .then(x => Math.round(parseFloat(x) * 10) / 10))
-        // )
-    };
-
 
     const setupYesNoBet = async (delphai, betId) => {
         const [result, error] = await shallResolve(
@@ -165,6 +109,67 @@ describe("bet-contract-test", () => {
         await transferTokens(delphai, betId, accounts);
     }
 
+    const getResults = async (delphai, betId, userResults, outcome) => {
+        for (const user of userResults) {
+            const [wagerResult, wagerError] = await shallResolve(
+                sendTransaction({
+                    name: "test_betPlaceWager",
+                    args: [delphai, betId, user.bet, user.amount],
+                    signers: [user.account],
+                    addressMap: { "delphai": delphai }
+                })
+            );
+
+            expect(wagerError).toBeNull();
+        }
+
+        const [resolveResult, resolveError] = await shallResolve(
+            sendTransaction({
+                name: "test_resolveBet",
+                args: [
+                    betId,
+                    outcome
+                ],
+                signers: [delphai],
+                addressMap: { "delphai": delphai }
+            })
+        );
+        // console.log(resolveResult);
+        expect(resolveError).toBeNull();
+
+        const [stateResult, stateError] = await shallResolve(
+            executeScript({
+                name: "getBetState",
+                args: [delphai, betId],
+                signers: [userResults[0].account],
+                addressMap: { "delphai": delphai }
+            })
+        );
+
+        expect(stateError).toBeNull();
+
+        for (const user of userResults) {
+            const userState = stateResult.wagers[user.account];
+            expect(stateResult.isResolved).toBe(true);
+            expect(userState).toBeTruthy();
+            expect(parseFloat(userState.amount)).toEqual(parseFloat(user.amount));
+            expect(userState.bet).toEqual(user.bet);
+        }
+
+
+        const [payoutStateResult, payoutStateError] = await shallResolve(
+            executeScript({
+                name: "getPayoutState",
+                args: [delphai, betId],
+                signers: [userResults[0].account],
+                addressMap: { "delphai": delphai }
+            })
+        );
+        expect(payoutStateError).toBeNull();
+
+        return payoutStateResult;
+    };
+
     test("get accurate bet state", async () => {
         const betId = "betId1234";
 
@@ -182,6 +187,13 @@ describe("bet-contract-test", () => {
 
         await setupBet(delphai, betId, users.map(x => x.account));
 
-        await getResults(delphai, betId, users);
+        const payoutState = await getResults(delphai, betId, users, true);
+
+        const [aliceResult, bobResult, carolResult, danResult] = users
+            .map(x => payoutState.payouts[x.account]);
+        expect(parseFloat(aliceResult.amount)).toBe(10);
+        expect(parseFloat(bobResult.amount)).toBe(18);
+        expect(parseFloat(carolResult.amount)).toBe(0);
+        expect(parseFloat(danResult.amount)).toBe(0);
     });
 });

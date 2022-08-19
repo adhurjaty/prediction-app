@@ -4,7 +4,7 @@ import BetInterfaces from "./BetInterfaces.cdc"
 import WinLosePayout from "./WinLosePayout.cdc"
 
 pub contract YesNoBet {
-    pub struct Wager {
+    pub struct Wager: BetInterfaces.Wager {
         pub let address: Address
         pub let amount: UFix64
         pub let bet: Bool
@@ -18,13 +18,13 @@ pub contract YesNoBet {
 
     pub struct Node {
         pub let wager: Wager
-        pub(set) var left: Node?
-        pub(set) var right: Node?
+        pub let left: Node?
+        pub let right: Node?
 
-        init(wager: Wager) {
+        init(wager: Wager, left: Node?, right: Node?) {
             self.wager = wager
-            self.left = nil
-            self.right = nil
+            self.left = left
+            self.right = right
         }
     }
 
@@ -36,26 +36,21 @@ pub contract YesNoBet {
         }
 
         pub fun insert(wager: Wager) {
-            if self.root == nil {
-                self.root = Node(wager: wager)
-            } else {
-                self.insertHelper(wager: wager, node: self.root!)
-            }
+            self.root = self.insertHelper(wager: wager, node: self.root)
         }
 
-        priv fun insertHelper(wager: Wager, node: Node) {
-            if wager.amount < node.wager.amount {
-                if node.left == nil {
-                    node.left = Node(wager: wager)
-                } else {
-                    self.insertHelper(wager: wager, node: node.left!)
-                }
+        priv fun insertHelper(wager: Wager, node: Node?): Node {
+            if node == nil {
+                return Node(wager: wager, left: nil, right: nil)
+            }
+            if wager.amount < node!.wager.amount {
+                return Node(wager: node!.wager, 
+                    left: self.insertHelper(wager: wager, node: node!.left), 
+                    right: node!.right)
             } else {
-                if node.right == nil {
-                    node.right = Node(wager: wager)
-                } else {
-                    self.insertHelper(wager: wager, node: node.right!)
-                }
+                return Node(wager: node!.wager, 
+                    left: node!.left, 
+                    right: self.insertHelper(wager: wager, node: node!.right))
             }
         }
 
@@ -69,19 +64,19 @@ pub contract YesNoBet {
         priv fun toListHelper(node: Node): [Wager] {
             var list: [Wager] = []
             if node.left != nil {
-                list.concat(self.toListHelper(node: node.left!))
+                list = list.concat(self.toListHelper(node: node.left!))
             }
             list.append(node.wager)
             if node.right != nil {
-                list.concat(self.toListHelper(node: node.right!))
+                list = list.concat(self.toListHelper(node: node.right!))
             }
             return list
         }
     }
 
-    pub struct State {
+    pub struct State: BetInterfaces.State {
         pub var isResolved: Bool
-        pub let wagers: {String: Wager}
+        pub let wagers: {String: AnyStruct{BetInterfaces.Wager}}
         priv let sortedWagers: SortedBinaryTree
 
         init(isResolved: Bool) {
@@ -157,7 +152,7 @@ pub contract YesNoBet {
         priv let emptyVault: @FungibleToken.Vault
         
         pub let betId: String
-        pub let state: State
+        pub let state: AnyStruct{BetInterfaces.State}
 
         init(betId: String, payoutTokenMinter: @WinLosePayout.BetResultsTokenMinter,
             emptyVault: @FungibleToken.Vault)
@@ -178,7 +173,7 @@ pub contract YesNoBet {
                 panic("User has not indicated yes or no")
             }
 
-            self.state.addWager(wager: Wager(address: userToken.address, 
+            (self.state as! State).addWager(wager: Wager(address: userToken.address, 
                 amount: userToken.wager.balance, bet: userToken.bet!))
             let vault <-userToken.wager.withdraw(amount: userToken.wager.balance)
 
@@ -194,9 +189,9 @@ pub contract YesNoBet {
 
             let resultToken <- token as! @Result
 
-            self.state.setResolved()
+            (self.state as! State).setResolved()
             
-            let sortedWagers = self.state.toSortedList()
+            let sortedWagers = (self.state as! State).toSortedList()
             
             let winners: [WinLosePayout.Bettor] = []
             let losers: [WinLosePayout.Bettor] = []

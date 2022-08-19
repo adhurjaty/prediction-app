@@ -1,9 +1,8 @@
 import FlowToken from 0xFlowToken
+import PayoutInterfaces from 0xdelphai
 import BetInterfaces from 0xdelphai
 import YesNoBet from 0xdelphai
 
-// ABSOLUTELY DO NOT USE THIS CONTRACT IN PRODUCTION
-// it will destory money!!!
 transaction(delphai: Address, betId: String, bet: Bool, wager: UFix64) {
     let flowVault: &FlowToken.Vault
     let tokenVault: &BetInterfaces.Vault
@@ -30,8 +29,15 @@ transaction(delphai: Address, betId: String, bet: Bool, wager: UFix64) {
             .borrow()
             ?? panic("Could not borrow bet capability")
 
-        let resultVault <-betRef.placeBet(token: <-yesNoToken)
+        let payoutPathName = PayoutInterfaces.payoutPathName(betId: betId)
+        let payoutPublicPath = PublicPath(identifier: payoutPathName)
+            ?? panic("Invalid public path")
+        let payoutRef = getAccount(delphai)
+            .getCapability<&AnyResource{PayoutInterfaces.Payout}>(payoutPublicPath!)
+            .borrow()
+            ?? panic("Could not borrow payout capability")
 
-        destroy resultVault
+        let resultVault <-betRef.placeBet(token: <-yesNoToken)
+        payoutRef.deposit(from: <-resultVault)
     }
 }
