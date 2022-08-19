@@ -11,21 +11,21 @@ services:
     ports:
       - 5432:5432
 
-  alembic:
-    image: 064103530588.dkr.ecr.us-west-2.amazonaws.com/alembic:latest
-    build:
-      dockerfile: dockerfiles/Dockerfile.alembic
-      context: .
-    deploy:
-      restart_policy:
-        condition: on-failure
-        delay: 5s
-        max_attempts: 3
-        window: 120s
-    environment:
-      - ENV=Production
-    depends_on:
-      - "db"
+  # alembic:
+  #   image: 064103530588.dkr.ecr.us-west-2.amazonaws.com/alembic:latest
+  #   build:
+  #     dockerfile: dockerfiles/Dockerfile.alembic
+  #     context: .
+  #   deploy:
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 3
+  #       window: 120s
+  #   environment:
+  #     - ENV=Production
+  #   depends_on:
+  #     - "db"
 
   # adminer:
   #   image: adminer
