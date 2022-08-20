@@ -1,5 +1,5 @@
 import path from "path";
-import { deployContractByName, emulator, executeScript, getAccountAddress, getFlowBalance, init, mintFlow, sendTransaction, shallResolve } from "flow-js-testing";
+import { deployContractByName, emulator, executeScript, getAccountAddress, getFlowBalance, init, mintFlow, sendTransaction, shallResolve } from "@onflow/flow-js-testing";
 
 function partition(lst, pred) {
     return lst.reduce((acc, x) => {
@@ -17,10 +17,10 @@ describe("payout-contract-tests", () => {
         // You can specify different port to parallelize execution of describe blocks
         const port = 8080;
         // Setting logging flag to true will pipe emulator output to console
-        const logging = true;
+        const logging = false;
         
-        await init(basePath, { port });
-        return emulator.start(port, logging, { flags: '--contracts' });
+        await init(basePath);
+        return emulator.start({logging, flags: '--contracts' });
     });
 
     // Stop emulator, so it could be restarted
@@ -29,15 +29,15 @@ describe("payout-contract-tests", () => {
     });
 
     const deployContracts = async (delphai) => {
+        await deployContractByName({ to: delphai, name: "DelphaiResources" });
         await deployContractByName({ to: delphai, name: "PayoutInterfaces" });
         await deployContractByName({ to: delphai, name: "WinLosePayout" });
-
     };
 
     const setupWinLosePayout = async (delphai, betId) => {
         const [result, error] = await shallResolve(
             sendTransaction({
-                name: "createWinLosePayout",
+                name: "test_createWinLosePayout",
                 signers: [delphai],
                 args: [betId],
                 addressMap: {
@@ -50,7 +50,23 @@ describe("payout-contract-tests", () => {
         expect(error).toBeNull();
     }
 
-    const setupTokenReceivers = async (delphai, users) => {
+    const setupDelphaiUser = async (delphai, users) => {
+        for (const user of users) {
+            const [result, error] = await shallResolve(
+                sendTransaction({
+                    name: "setupDelphaiUser",
+                    signers: [user],
+                    addressMap: {
+                        'delphai': delphai,
+                    }
+                })
+            );
+    
+            expect(error).toBeNull();
+        }
+    }
+
+    const setupTokenReceiver = async (delphai, users) => {
         for (const user of users) {
             const [result, error] = await shallResolve(
                 sendTransaction({
@@ -70,9 +86,9 @@ describe("payout-contract-tests", () => {
         for (const user of users) {
             const [transferResult, transferError] = await shallResolve(
                 sendTransaction({
-                    name: "transferPayoutToken",
-                    args: [betId, user],
-                    signers: [delphai],
+                    name: "test_transferPayoutToken",
+                    args: [delphai, betId, user],
+                    signers: [user],
                     addressMap: { "PayoutInterfaces": delphai }
                 })
             )
@@ -83,7 +99,8 @@ describe("payout-contract-tests", () => {
     const setupPayout = async (delphai, betId, users) => {
         await deployContracts(delphai);
         await setupWinLosePayout(delphai, betId);
-        await setupTokenReceivers(delphai, users);
+        await setupDelphaiUser(delphai, users);
+        await setupTokenReceiver(delphai, users);
         await transferPayoutTokens(delphai, betId, users);
     }
 
@@ -125,7 +142,7 @@ describe("payout-contract-tests", () => {
         for (const user of userResults.map(x => x.account)) {
             const [retreiveResult, retreiveError] = await shallResolve(
                 sendTransaction({
-                    name: "retrievePayout",
+                    name: "test_retrievePayout",
                     args: [delphai, betId],
                     signers: [user],
                     addressMap: { "delphai": delphai }

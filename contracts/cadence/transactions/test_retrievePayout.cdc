@@ -6,7 +6,8 @@ transaction(delphai: Address, betId: String) {
     let flowVault: &FlowToken.Vault
 
     prepare(acct: AuthAccount) {
-        self.payoutVault = acct.borrow<&PayoutInterfaces.Vault>(from: /storage/payoutTokenVault)
+        self.payoutVault = acct
+            .borrow<&PayoutInterfaces.Vault>(from: /storage/delphaiPayoutTokenVault)
             ?? panic("Could not borrow the Vault reference")
         
         self.flowVault = acct.borrow<&FlowToken.Vault>(

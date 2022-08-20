@@ -1,4 +1,5 @@
 import FungibleToken from "./FungibleToken.cdc"
+import DelphaiResources from "./DelphaiResources.cdc"
 import PayoutInterfaces from "./PayoutInterfaces.cdc"
 
 pub contract WinLosePayout {
@@ -15,27 +16,13 @@ pub contract WinLosePayout {
         }
     }
 
-    pub resource BetResults : PayoutInterfaces.ResultsToken {
-        pub let betId: String
+    pub struct Results : PayoutInterfaces.Results {
         pub let winners: [Bettor]
         pub let losers: [Bettor]
 
-        init(betId: String, winners: [Bettor], losers: [Bettor]) {
-            self.betId = betId
+        init(winners: [Bettor], losers: [Bettor]) {
             self.winners = winners
             self.losers = losers
-        }
-    }
-
-    pub resource BetResultsTokenMinter {
-        pub let betId: String
-
-        init (betId: String) {
-            self.betId = betId
-        }
-
-        pub fun mint(winners: [Bettor], losers: [Bettor]): @BetResults {
-            return <-create BetResults(betId: self.betId, winners: winners, losers: losers)
         }
     }
 
@@ -49,7 +36,30 @@ pub contract WinLosePayout {
         }
     }
 
-    pub resource Payout : PayoutInterfaces.Payout, PayoutInterfaces.TokenMinter {
+    pub resource MintResults: PayoutInterfaces.MintResults {
+        priv let delphaiToken: @[DelphaiResources.Token]
+        priv let token: @[UserToken]
+
+        init(delphaiToken: @DelphaiResources.Token, token: @UserToken) {
+            self.delphaiToken <- [<-delphaiToken]
+            self.token <- [<-token]
+        }
+
+        pub fun getDelphaiToken(): @DelphaiResources.Token {
+            return <-self.delphaiToken.remove(at: 0)
+        }
+
+        pub fun getToken(): @AnyResource{PayoutInterfaces.Token} {
+            return <-self.token.remove(at: 0)
+        }
+
+        destroy () {
+            destroy self.delphaiToken
+            destroy self.token
+        }
+    }
+
+    pub resource Payout : PayoutInterfaces.Payout {
         priv let poolVault: @FungibleToken.Vault
         priv let allocatedVaults: @{String: FungibleToken.Vault}
         priv let payoutResults: {String: UFix64}
@@ -67,12 +77,12 @@ pub contract WinLosePayout {
             self.state = PayoutInterfaces.State(isResolved: false, payouts: [])
         }
 
-        pub fun createBetTokenMinter(): @BetResultsTokenMinter {
-            return <-create BetResultsTokenMinter(betId: self.betId)
-        }
-
-        pub fun mintToken(address: Address): @AnyResource{PayoutInterfaces.Token} {
-            return <-create UserToken(betId: self.betId, address: address)
+        pub fun mintToken(token: @DelphaiResources.Token): @AnyResource{PayoutInterfaces.MintResults} {
+            let address = token.address
+            return <-create MintResults(
+                delphaiToken: <-token,
+                token: <-create UserToken(betId: self.betId, address: address)
+            )
         }
 
         pub fun deposit(from: @FungibleToken.Vault) {
@@ -80,7 +90,7 @@ pub contract WinLosePayout {
             self.poolVault.deposit(from: <-from)
         }
 
-        pub fun resolve(token: @AnyResource{PayoutInterfaces.ResultsToken}) {
+        pub fun resolve(results: AnyStruct{PayoutInterfaces.Results}) {
             // allocate payments
             // assume the winner and losers are sorted by bet amount ascending
             //                   ____              
@@ -103,13 +113,13 @@ pub contract WinLosePayout {
             // return funds to the first loser if the depleted amount is less than
             // their bet amount * # of losers                                                                                  
 
-            let betResultsToken <- token as! @BetResults
+            let betResults = results as! Results
             var losersAmount = 0.0
 
             // TODO: add rake vault eventually. not sure if it makes sense to just
             // deduct from the winners or from the whole pool
 
-            for loser in betResultsToken.losers {
+            for loser in betResults.losers {
                 losersAmount = losersAmount + loser.amount
             }
 
@@ -120,9 +130,9 @@ pub contract WinLosePayout {
             // allocate funds to winner
             var i = 0
             var height = 0.0
-            let winnersLength = betResultsToken.winners.length
-            while i < betResultsToken.winners.length {
-                let winner = betResultsToken.winners[i]
+            let winnersLength = betResults.winners.length
+            while i < betResults.winners.length {
+                let winner = betResults.winners[i]
                 let winnerReturn <- self.poolVault.withdraw(amount: winner.amount)
 
                 var heightToAdd = losersAmount / UFix64(winnersLength - i)
@@ -148,10 +158,10 @@ pub contract WinLosePayout {
             var depth = 0.0
             var winnersAmount = totalLosersAmount - losersAmount
             i = 0
-            while i < betResultsToken.losers.length {
-                let loser = betResultsToken.losers[i]
+            while i < betResults.losers.length {
+                let loser = betResults.losers[i]
 
-                var depthToAdd = winnersAmount / UFix64(betResultsToken.losers.length - i)
+                var depthToAdd = winnersAmount / UFix64(betResults.losers.length - i)
                 if depthToAdd > loser.amount - depth {
                     depthToAdd = loser.amount - depth
                 }
@@ -170,7 +180,7 @@ pub contract WinLosePayout {
                     hasRetrieved: false
                 ))
                 
-                winnersAmount = winnersAmount - depthToAdd * UFix64(betResultsToken.losers.length - i)
+                winnersAmount = winnersAmount - depthToAdd * UFix64(betResults.losers.length - i)
                 i = i + 1
             }
 
@@ -179,8 +189,6 @@ pub contract WinLosePayout {
             }
 
             self.state = PayoutInterfaces.State(isResolved: true, payouts: payouts)
-
-            destroy betResultsToken
         }
 
         pub fun withdraw(token: @AnyResource{PayoutInterfaces.Token}): @FungibleToken.Vault {

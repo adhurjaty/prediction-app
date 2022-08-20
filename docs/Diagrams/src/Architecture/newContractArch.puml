@@ -22,7 +22,8 @@ namespace Bets {
 
         interface Bet {
             + state: State
-            placeWager(token: @Token): TokenResponse
+            mintTokens(token: @DelphaiResources::Token): TokenResponse
+            placeWager(token: @Token)
             castVote(token: @ResolverInterfaces::Token)
             resolve(): bool
             retrievePayout(token: @PayoutInterfaces::Token)
@@ -33,6 +34,7 @@ namespace Bets {
         }
 
         class TokenResponse {
+            betToken(): @Token
             resolverToken(): @ResolverInterfaces::Token
             payoutToken(): @PayoutInterfaces::Token
         }
@@ -178,17 +180,21 @@ namespace Payouts {
     }
 }
 
-namespace DelphaiInterfaces {
-    interface Token {
+namespace DelphaiResources {
+    class Token {
         address: Address
         betId: string
+    }
+
+    class User {
+        createToken(betId: string): @Token
     }
 }
 
 Payouts.PayoutInterfaces.Payout --> Payouts.PayoutInterfaces.Token
 Payouts.PayoutInterfaces.Payout --> Payouts.PayoutInterfaces.BetResults
 Payouts.PayoutInterfaces.Payout --> Payouts.PayoutInterfaces.State
-Payouts.PayoutInterfaces.Payout --> DelphaiInterfaces.Token
+Payouts.PayoutInterfaces.Payout --> DelphaiResources.Token
 Payouts.PayoutInterfaces.State --* Payouts.PayoutInterfaces.UserPayout
 Payouts.WinLosePayoutContract.PayoutResource --|> Payouts.PayoutInterfaces.Payout
 Payouts.WinLosePayoutContract.PayoutResource --> Payouts.WinLosePayoutContract.BetResults
@@ -209,20 +215,20 @@ Bets.YesNoBetContract.BetResource --* Bets.YesNoBetContract.State
 Bets.YesNoBetContract.State --* Bets.YesNoBetContract.Wager
 Bets.YesNoBetContract.BetResource --> Bets.YesNoBetContract.UserToken
 Bets.YesNoBetContract.UserToken --|> Bets.BetInterfaces.Token
-Bets.YesNoBetContract.UserToken --|> DelphaiInterfaces.Token
 Bets.YesNoBetContract.BetResource --* Payouts.PayoutInterfaces.Payout
 Bets.YesNoBetContract.BetResource --* Resolvers.ResolverInterfaces.Resolver
 Bets.YesNoBetContract.State --|> Bets.BetInterfaces.State
 
 Resolvers.ResolverInterfaces.Resolver --> Resolvers.ResolverInterfaces.Token
 Resolvers.ResolverInterfaces.Resolver --> Resolvers.ResolverInterfaces.Result
-Resolvers.ResolverInterfaces.Resolver --> DelphaiInterfaces.Token
+Resolvers.ResolverInterfaces.Resolver --> DelphaiResources.Token
 Resolvers.YesNoResolverContract.MajorityResolver --|> Resolvers.ResolverInterfaces.Resolver
 Resolvers.YesNoResolverContract.MajorityResolver --> Resolvers.YesNoResolverContract.UserToken
 Resolvers.YesNoResolverContract.UserToken --|> Resolvers.ResolverInterfaces.Token
-Resolvers.YesNoResolverContract.UserToken --|> DelphaiInterfaces.Token
 Resolvers.YesNoResolverContract.MajorityResolver --* Resolvers.YesNoResolverContract.State
 Resolvers.YesNoResolverContract.State --* Resolvers.YesNoResolverContract.Vote
 Resolvers.YesNoResolverContract.MajorityResolver --> Resolvers.YesNoResolverContract.Result
 Resolvers.YesNoResolverContract.Result --|> Resolvers.ResolverInterfaces.Result
+
+DelphaiResources.User --> DelphaiResources.Token
 @enduml

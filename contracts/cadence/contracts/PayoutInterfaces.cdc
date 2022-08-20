@@ -1,10 +1,11 @@
 import FungibleToken from "./FungibleToken.cdc"
+import DelphaiResources from "./DelphaiResources.cdc"
 
 pub contract PayoutInterfaces {
     pub struct UserPayout {
         pub let address: Address
         pub let amount: UFix64
-        pub(set) var hasRetrieved: Bool
+        pub let hasRetrieved: Bool
 
         init(address: Address, amount: UFix64, hasRetrieved: Bool) {
             self.address = address
@@ -43,14 +44,24 @@ pub contract PayoutInterfaces {
         pub let address: Address
     }
 
-    pub resource interface ResultsToken {
-        pub let betId: String
+    pub struct interface Results {
+    }
+
+    pub resource interface MintResults {
+        pub fun getDelphaiToken(): @DelphaiResources.Token
+        pub fun getToken(): @AnyResource{Token}
     }
 
     pub resource interface Payout {
         pub let betId: String
         pub var balance: UFix64
         pub var state: State
+
+        pub fun mintToken(token: @DelphaiResources.Token): @AnyResource{MintResults} {
+            pre {
+                token.betId == self.betId: "Token betId does not match payout betId"
+            }
+        }
 
         pub fun deposit(from: @FungibleToken.Vault) {
             pre {
@@ -61,11 +72,7 @@ pub contract PayoutInterfaces {
             }
         }
 
-        pub fun resolve(token: @AnyResource{ResultsToken}) {
-            pre {
-                token.betId == self.betId: "Token betId must match Payout betId"
-            }
-        }
+        pub fun resolve(results: AnyStruct{Results})
 
         pub fun withdraw(token: @AnyResource{Token}): @FungibleToken.Vault {
             pre {
@@ -75,10 +82,6 @@ pub contract PayoutInterfaces {
                 self.balance == before(self.balance) - result.balance: "Balance must be decreased by the withdrawn amount"
             }
         }
-    }
-
-    pub resource interface TokenMinter {
-        pub fun mintToken(address: Address): @AnyResource{Token}
     }
 
     pub resource interface Receiver {
