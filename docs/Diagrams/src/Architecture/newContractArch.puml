@@ -83,7 +83,7 @@ namespace Resolvers {
         }
 
         interface Resolver {
-            mintToken(token: @BetInterfaces::Token): &Token
+            mintToken(token: @DelphaiInterfaces::Token): &Token
             vote(token: @Token)
             resolve(): Result?
         }
@@ -114,7 +114,7 @@ namespace Resolvers {
         class MajorityResolver {
             + state: State
             
-            mintToken(token: @BetInterfaces::Token): @ResolverInterfaces::Token
+            mintToken(token: @DelphaiInterfaces::Token): @ResolverInterfaces::Token
             vote(token: @Token)
             resolve(): Result?
         }
@@ -134,7 +134,7 @@ namespace Payouts {
 
         interface Payout {
             +balance: UFix64
-            mintToken(token: @BetInterfaces::Token): @Token
+            mintToken(token: @DelphaiInterfaces::Token): @Token
             deposit(from: @Vault)
             resolve(results: BetResults)
             withdraw(token: &Token): @Vault
@@ -170,7 +170,7 @@ namespace Payouts {
 
         class PayoutResource {
             +balance: UFix64
-            mintToken(token: @BetInterfaces::Token): @PayoutInterfaces::Token
+            mintToken(token: @DelphaiInterfaces::Token): @PayoutInterfaces::Token
             deposit(from: @Vault)
             resolve(results: PayoutInterfaces::BetResults)
             withdraw(token: &PayoutInterfaces::Token): @Vault
@@ -178,9 +178,17 @@ namespace Payouts {
     }
 }
 
+namespace DelphaiInterfaces {
+    interface Token {
+        address: Address
+        betId: string
+    }
+}
+
 Payouts.PayoutInterfaces.Payout --> Payouts.PayoutInterfaces.Token
 Payouts.PayoutInterfaces.Payout --> Payouts.PayoutInterfaces.BetResults
 Payouts.PayoutInterfaces.Payout --> Payouts.PayoutInterfaces.State
+Payouts.PayoutInterfaces.Payout --> DelphaiInterfaces.Token
 Payouts.PayoutInterfaces.State --* Payouts.PayoutInterfaces.UserPayout
 Payouts.WinLosePayoutContract.PayoutResource --|> Payouts.PayoutInterfaces.Payout
 Payouts.WinLosePayoutContract.PayoutResource --> Payouts.WinLosePayoutContract.BetResults
@@ -201,15 +209,18 @@ Bets.YesNoBetContract.BetResource --* Bets.YesNoBetContract.State
 Bets.YesNoBetContract.State --* Bets.YesNoBetContract.Wager
 Bets.YesNoBetContract.BetResource --> Bets.YesNoBetContract.UserToken
 Bets.YesNoBetContract.UserToken --|> Bets.BetInterfaces.Token
+Bets.YesNoBetContract.UserToken --|> DelphaiInterfaces.Token
 Bets.YesNoBetContract.BetResource --* Payouts.PayoutInterfaces.Payout
 Bets.YesNoBetContract.BetResource --* Resolvers.ResolverInterfaces.Resolver
 Bets.YesNoBetContract.State --|> Bets.BetInterfaces.State
 
 Resolvers.ResolverInterfaces.Resolver --> Resolvers.ResolverInterfaces.Token
 Resolvers.ResolverInterfaces.Resolver --> Resolvers.ResolverInterfaces.Result
+Resolvers.ResolverInterfaces.Resolver --> DelphaiInterfaces.Token
 Resolvers.YesNoResolverContract.MajorityResolver --|> Resolvers.ResolverInterfaces.Resolver
 Resolvers.YesNoResolverContract.MajorityResolver --> Resolvers.YesNoResolverContract.UserToken
 Resolvers.YesNoResolverContract.UserToken --|> Resolvers.ResolverInterfaces.Token
+Resolvers.YesNoResolverContract.UserToken --|> DelphaiInterfaces.Token
 Resolvers.YesNoResolverContract.MajorityResolver --* Resolvers.YesNoResolverContract.State
 Resolvers.YesNoResolverContract.State --* Resolvers.YesNoResolverContract.Vote
 Resolvers.YesNoResolverContract.MajorityResolver --> Resolvers.YesNoResolverContract.Result
