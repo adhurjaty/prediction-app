@@ -31,6 +31,7 @@ describe("bet-contract-test", () => {
     }
 
     const deployContracts = async (delphai) => {
+        await deployContractByName({ to: delphai, name: "DelphaiResources" });
         await deployContractByName({ to: delphai, name: "PayoutInterfaces" });
         await deployContractByName({ to: delphai, name: "WinLosePayout" });
         await deployContractByName({ to: delphai, name: "BetInterfaces" });
@@ -40,7 +41,7 @@ describe("bet-contract-test", () => {
     const setupWinLosePayout = async (delphai, betId) => {
         const [result, error] = await shallResolve(
             sendTransaction({
-                name: "createWinLosePayout",
+                name: "test_createWinLosePayout",
                 signers: [delphai],
                 args: [betId],
                 addressMap: {
@@ -51,6 +52,22 @@ describe("bet-contract-test", () => {
         );
 
         expect(error).toBeNull();
+    }
+
+    const setupDelphaiUsers = async (delphai, users) => {
+        for (const user of users) {
+            const [result, error] = await shallResolve(
+                sendTransaction({
+                    name: "setupDelphaiUser",
+                    signers: [user],
+                    addressMap: {
+                        'delphai': delphai,
+                    }
+                })
+            );
+    
+            expect(error).toBeNull();
+        }
     }
 
     const setupYesNoBet = async (delphai, betId) => {
@@ -103,6 +120,7 @@ describe("bet-contract-test", () => {
 
     const setupBet = async (delphai, betId, accounts) => {
         await deployContracts(delphai);
+        await setupDelphaiUsers(delphai, accounts);
         await setupWinLosePayout(delphai, betId);
         await setupYesNoBet(delphai, betId);
         await setupTokenReceivers(delphai, accounts);

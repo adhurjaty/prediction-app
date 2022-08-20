@@ -24,14 +24,10 @@ transaction(betId: String) {
         let pathName = BetInterfaces.betPathName(betId: betId)
         let betStoragePath = StoragePath(identifier: pathName)
             ?? panic("Invalid storage path")
-        let betPrivatePath = PrivatePath(identifier: pathName)
-            ?? panic("Invalid private path")
         let betPublicPath = PublicPath(identifier: pathName)
             ?? panic("Invalid public path")
 
         acct.save(<-betResource, to: betStoragePath!)
-        acct.link<&AnyResource{BetInterfaces.TokenMinter}>(
-            betPrivatePath, target: betStoragePath!)
         acct.link<&AnyResource{BetInterfaces.Bet}>(
             betPublicPath, target: betStoragePath!)
     }

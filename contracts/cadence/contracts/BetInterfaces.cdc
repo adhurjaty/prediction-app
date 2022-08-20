@@ -18,10 +18,6 @@ pub contract BetInterfaces {
         pub let wager: @FungibleToken.Vault
     }
 
-    pub resource interface Result {
-        pub let betId: String
-    }    
-
     pub resource interface Bet {
         pub let betId: String
         pub let state: AnyStruct{State}
@@ -33,11 +29,7 @@ pub contract BetInterfaces {
             }
         }
 
-        pub fun resolve(token: @AnyResource{Result}): @AnyResource{PayoutInterfaces.ResultsToken} {
-            pre {
-                token.betId == self.betId: "Bet ID does not match"
-            }
-        }
+        pub fun resolve(): Bool
     }
 
     pub resource interface TokenMinter {

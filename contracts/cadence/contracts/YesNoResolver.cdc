@@ -1,6 +1,5 @@
-import BetInterfaces from "./BetInterfaces.cdc"
+import DelphaiResources from "./DelphaiResources.cdc"
 import ResolverInterfaces from "./ResolverInterfaces.cdc"
-import YesNoBet from "./YesNoBet.cdc"
 
 pub contract YesNoResolver {
     pub struct UserVote {
@@ -50,18 +49,54 @@ pub contract YesNoResolver {
         }
     }
 
-    pub resource MajorityResolver: ResolverInterfaces.Resolver, ResolverInterfaces.TokenMinter {
-        priv let betTokenMinter: @YesNoBet.ResultTokenMinter
+    pub resource MintResults: ResolverInterfaces.MintResults {
+        priv let delphaiToken: @[DelphaiResources.Token]
+        priv let token: @[UserToken]
 
+        init(delphaiToken: @DelphaiResources.Token, token: @UserToken) {
+            self.delphaiToken <- [<-delphaiToken]
+            self.token <- [<-token]
+        }
+
+        pub fun getDelphaiToken(): @DelphaiResources.Token {
+            return <-self.delphaiToken.remove(at: 0)
+        }
+
+        pub fun getToken(): @AnyResource{ResolverInterfaces.Token} {
+            return <-self.token.remove(at: 0)
+        }
+
+        destroy () {
+            destroy self.delphaiToken
+            destroy self.token
+        }
+    }
+
+    pub struct Result: ResolverInterfaces.Result {
+        pub let outcome: Bool?
+
+        init(outcome: Bool?) {
+            self.outcome = outcome
+        }
+    }
+
+    pub resource MajorityResolver: ResolverInterfaces.Resolver {
         pub let betId: String
         pub let state: AnyStruct{ResolverInterfaces.State}
         pub let numMembers: Int
 
-        init(betId: String, betTokenMinter: @YesNoBet.ResultTokenMinter, numMembers: Int) {
+        init(betId: String, numMembers: Int) {
             self.betId = betId
-            self.betTokenMinter <-betTokenMinter
             self.numMembers = numMembers
             self.state = State()
+        }
+
+        pub fun mintToken(token: @DelphaiResources.Token): @AnyResource{ResolverInterfaces.MintResults} {
+            let address = token.address
+            return <-create MintResults(
+                delphaiToken: <-token,
+                token: <-create UserToken(betId: self.betId, address: address),
+            )
         }
 
         pub fun vote(token: @AnyResource{ResolverInterfaces.Token}) {
@@ -78,7 +113,7 @@ pub contract YesNoResolver {
             destroy userToken
         }
 
-        pub fun resolve(): @AnyResource{BetInterfaces.Result}? {
+        pub fun resolve(): AnyStruct{ResolverInterfaces.Result}? {
             let state = self.state as! State
             let userVotes = state.votes.values
 
@@ -118,15 +153,11 @@ pub contract YesNoResolver {
 
             state.setResolved(result: outcome)
 
-            return <-self.betTokenMinter.mint(outcome: outcome)
+            return Result(outcome: outcome)
         }
+    }
 
-        pub fun mintToken(address: Address): @AnyResource{ResolverInterfaces.Token} {
-            return <-create UserToken(betId: self.betId, address: address)
-        }
-
-        destroy () {
-            destroy self.betTokenMinter
-        }
+    pub fun createMajorityResolver(betId: String, numMembers: Int): @MajorityResolver {
+        return <-create MajorityResolver(betId: betId, numMembers: numMembers)
     }
 }

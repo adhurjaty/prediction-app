@@ -1,4 +1,4 @@
-import BetInterfaces from "./BetInterfaces.cdc"
+import DelphaiResources from "./DelphaiResources.cdc"
 
 pub contract ResolverInterfaces {
     pub struct interface State {
@@ -10,9 +10,19 @@ pub contract ResolverInterfaces {
         pub let address: Address
     }
 
+    pub struct interface Result {
+    }
+
+    pub resource interface MintResults {
+        pub fun getDelphaiToken(): @DelphaiResources.Token
+        pub fun getToken(): @AnyResource{Token}
+    }
+
     pub resource interface Resolver {
         pub let betId: String
         pub let state: AnyStruct{State}
+
+        pub fun mintToken(token: @DelphaiResources.Token): @AnyResource{MintResults}
 
         pub fun vote(token: @AnyResource{Token}) {
             pre {
@@ -20,15 +30,11 @@ pub contract ResolverInterfaces {
             }
         }
 
-        pub fun resolve(): @AnyResource{BetInterfaces.Result}? {
+        pub fun resolve(): AnyStruct{Result}? {
             pre {
                 !self.state.isResolved: "Bet is already resolved"
             }
         }
-    }
-
-    pub resource interface TokenMinter {
-        pub fun mintToken(address: Address): @AnyResource{Token}
     }
 
     pub resource interface Receiver {
