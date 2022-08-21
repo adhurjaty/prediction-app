@@ -1,6 +1,9 @@
 import FungibleToken from "./FungibleToken.cdc"
+import DelphaiResources from "./DelphaiResources.cdc"
 import PayoutInterfaces from "./PayoutInterfaces.cdc"
+import ResolverInterfaces from "./ResolverInterfaces.cdc"
 import BetInterfaces from "./BetInterfaces.cdc"
+import YesNoResolver from "./YesNoResolver.cdc"
 import WinLosePayout from "./WinLosePayout.cdc"
 
 pub contract YesNoBet {
@@ -75,12 +78,14 @@ pub contract YesNoBet {
     }
 
     pub struct State: BetInterfaces.State {
-        pub var isResolved: Bool
-        pub let wagers: {String: AnyStruct{BetInterfaces.Wager}}
         priv let sortedWagers: SortedBinaryTree
 
-        init(isResolved: Bool) {
-            self.isResolved = isResolved
+        pub var isResolved: Bool
+        pub let wagers: {String: AnyStruct{BetInterfaces.Wager}}
+
+        init () 
+        {
+            self.isResolved = false
             self.wagers = {}
             self.sortedWagers = SortedBinaryTree()
         }
@@ -125,45 +130,75 @@ pub contract YesNoBet {
         }
     }
 
-    pub resource Result: BetInterfaces.Result {
-        pub let betId: String
-        pub let result: Bool?
+    pub resource MintResults: BetInterfaces.MintResults {
+        priv let betToken: @[AnyResource{BetInterfaces.Token}]
+        priv let payoutToken: @[AnyResource{PayoutInterfaces.Token}]
+        priv let resolverToken: @[AnyResource{ResolverInterfaces.Token}]
 
-        init(betId: String, result: Bool?) {
-            self.betId = betId
-            self.result = result
+        init(betToken: @AnyResource{BetInterfaces.Token}, 
+            payoutToken: @AnyResource{PayoutInterfaces.Token}, 
+            resolverToken: @AnyResource{ResolverInterfaces.Token}) 
+        {
+            self.betToken <-[<-betToken]
+            self.payoutToken <-[<-payoutToken]
+            self.resolverToken <-[<-resolverToken]
+        }
+
+        pub fun getBetToken(): @AnyResource{BetInterfaces.Token} {
+            return <-self.betToken.remove(at: 0)
+        }
+        pub fun getResolverToken(): @AnyResource{ResolverInterfaces.Token} {
+            return <-self.resolverToken.remove(at: 0)
+        }
+        pub fun getPayoutToken(): @AnyResource{PayoutInterfaces.Token} {
+            return <-self.payoutToken.remove(at: 0)
+        }
+
+        destroy () {
+            destroy self.betToken
+            destroy self.payoutToken
+            destroy self.resolverToken
         }
     }
 
-    pub resource ResultTokenMinter {
-        pub let betId: String
 
-        init(betId: String) {
-            self.betId = betId
-        }
-
-        pub fun mint(outcome: Bool?): @Result {
-            return <-create Result(betId: self.betId, result: outcome)
-        }
-    }
-
-    pub resource Bet: BetInterfaces.Bet, BetInterfaces.TokenMinter {
-        priv let payoutTokenMinter: @WinLosePayout.BetResultsTokenMinter
+    pub resource Bet: BetInterfaces.Bet {
         priv let emptyVault: @FungibleToken.Vault
+        priv let resolver: &AnyResource{ResolverInterfaces.Resolver}
+        priv let payout: &AnyResource{PayoutInterfaces.Payout}
         
         pub let betId: String
         pub let state: AnyStruct{BetInterfaces.State}
 
-        init(betId: String, payoutTokenMinter: @WinLosePayout.BetResultsTokenMinter,
-            emptyVault: @FungibleToken.Vault)
+        init(betId: String, emptyVault: @FungibleToken.Vault,
+            resolver: &AnyResource{ResolverInterfaces.Resolver},
+            payout: &AnyResource{PayoutInterfaces.Payout})
         {
             self.betId = betId
-            self.state = State(isResolved: false)
-            self.payoutTokenMinter <- payoutTokenMinter
+            self.state = State()
             self.emptyVault <-emptyVault
+            self.resolver = resolver
+            self.payout = payout
         }
 
-        pub fun placeBet(token: @AnyResource{BetInterfaces.Token}): @FungibleToken.Vault {
+        pub fun mintTokens(token: @DelphaiResources.Token): @AnyResource{BetInterfaces.MintResults} {
+            let address = token.address
+            let payoutMintResults <- self.payout.mintToken(token: <-token)
+            let payoutToken <- payoutMintResults.getToken()
+            let resolverMintResults <-self.resolver.mintToken(token: <-payoutMintResults.getDelphaiToken())
+            let resolverToken <-resolverMintResults.getToken()
+
+            destroy payoutMintResults
+            destroy  resolverMintResults
+
+            return <-create MintResults(
+                betToken: <-create UserToken(betId: self.betId, address: address, 
+                    emptyVault: <-self.emptyVault.withdraw(amount: 0.0)),
+                payoutToken: <-payoutToken,
+                resolverToken: <-resolverToken)
+        }
+
+        pub fun placeWager(token: @AnyResource{BetInterfaces.Token}) {
             pre {
                 !self.state.isResolved: "Bet is already resolved"
                 !self.state.wagers.containsKey(token.address.toString()): "User has already placed bet"
@@ -177,56 +212,64 @@ pub contract YesNoBet {
                 amount: userToken.wager.balance, bet: userToken.bet!))
             let vault <-userToken.wager.withdraw(amount: userToken.wager.balance)
 
-            destroy userToken
+            self.payout.deposit(from: <-vault)
 
-            return <-vault
+            destroy userToken
         }
 
-        pub fun resolve(token: @AnyResource{BetInterfaces.Result}): @AnyResource{PayoutInterfaces.ResultsToken} {
-            pre {
-                !self.state.isResolved: "Bet is already resolved"
+        pub fun castVote(token: @AnyResource{ResolverInterfaces.Token}) {
+            self.resolver.vote(token: <-token)
+        }
+
+        pub fun resolve() {
+            if self.state.isResolved {
+                return
             }
 
-            let resultToken <- token as! @Result
+            let resolution = self.resolver.resolve()
+            if resolution == nil {
+                return
+            }
+
+            let outcome = (resolution as! YesNoResolver.Result).outcome
 
             (self.state as! State).setResolved()
-            
+
+            let winLoseResults = self.createWinLosePayoutResults(outcome: outcome)
+
+            self.payout.resolve(results: winLoseResults)
+        }
+
+        priv fun createWinLosePayoutResults(outcome: Bool?): WinLosePayout.Results {
             let sortedWagers = (self.state as! State).toSortedList()
             
             let winners: [WinLosePayout.Bettor] = []
             let losers: [WinLosePayout.Bettor] = []
             for wager in sortedWagers {
-                if wager.bet == resultToken.result || resultToken.result == nil {
+                if wager.bet == outcome || outcome == nil {
                     winners.append(WinLosePayout.Bettor(address: wager.address, amount: wager.amount))
                 } else {
                     losers.append(WinLosePayout.Bettor(address: wager.address, amount: wager.amount))
                 }
             }
 
-            destroy resultToken
-
-            return <-self.payoutTokenMinter.mint(winners: winners, losers: losers)
+            return WinLosePayout.Results(winners: winners, losers: losers)
         }
 
-        pub fun mintToken(address: Address): @AnyResource{BetInterfaces.Token} {
-            return <-create UserToken(betId: self.betId, address: address, 
-                emptyVault: <-self.emptyVault.withdraw(amount: 0.0))
-        }
-
-        pub fun createResultTokenMinter(): @ResultTokenMinter {
-            return <-create ResultTokenMinter(betId: self.betId)
+        pub fun retrievePayout(token: @AnyResource{PayoutInterfaces.Token}): @FungibleToken.Vault {
+            return <-self.payout.withdraw(token: <-token)
         }
 
         destroy () {
-            destroy self.payoutTokenMinter
             destroy self.emptyVault
         }
     }
 
-    pub fun create(betId: String, payoutTokenMinter: @WinLosePayout.BetResultsTokenMinter,
-        emptyVault: @FungibleToken.Vault): @Bet 
+    pub fun create(betId: String, emptyVault: @FungibleToken.Vault, 
+        resolver: &AnyResource{ResolverInterfaces.Resolver},
+        payout: &AnyResource{PayoutInterfaces.Payout}): @Bet 
     {
-        return <-create Bet(betId: betId, payoutTokenMinter: <-payoutTokenMinter, 
-            emptyVault: <-emptyVault)
+        return <-create Bet(betId: betId, emptyVault: <-emptyVault, 
+            resolver: resolver, payout: payout)
     }
 }

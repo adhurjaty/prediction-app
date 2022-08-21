@@ -22,7 +22,11 @@ pub contract ResolverInterfaces {
         pub let betId: String
         pub let state: AnyStruct{State}
 
-        pub fun mintToken(token: @DelphaiResources.Token): @AnyResource{MintResults}
+        pub fun mintToken(token: @DelphaiResources.Token): @AnyResource{MintResults} {
+            pre {
+                self.betId == token.betId: "Bet ID mismatch"
+            }
+        }
 
         pub fun vote(token: @AnyResource{Token}) {
             pre {

@@ -1,5 +1,7 @@
-import PayoutInterfaces from "./PayoutInterfaces.cdc"
 import FungibleToken from "./FungibleToken.cdc"
+import DelphaiResources from "./DelphaiResources.cdc"
+import PayoutInterfaces from "./PayoutInterfaces.cdc"
+import ResolverInterfaces from "./ResolverInterfaces.cdc"
 
 pub contract BetInterfaces {
     pub struct interface Wager {
@@ -18,22 +20,42 @@ pub contract BetInterfaces {
         pub let wager: @FungibleToken.Vault
     }
 
+    pub resource interface MintResults {
+        pub fun getBetToken(): @AnyResource{Token}
+        pub fun getResolverToken(): @AnyResource{ResolverInterfaces.Token}
+        pub fun getPayoutToken(): @AnyResource{PayoutInterfaces.Token}
+    }
+
     pub resource interface Bet {
         pub let betId: String
         pub let state: AnyStruct{State}
 
-        pub fun placeBet(token: @AnyResource{Token}): @FungibleToken.Vault {
+        pub fun mintTokens(token: @DelphaiResources.Token): @AnyResource{MintResults} {
+            pre {
+                token.betId == self.betId: "Token betId does not match payout betId"
+            }
+        }
+
+        pub fun placeWager(token: @AnyResource{Token}) {
             pre {
                 token.betId == self.betId: "Bet ID does not match"
                 token.wager.balance > 0.0: "Wager must be greater than 0"
             }
         }
 
-        pub fun resolve(): Bool
-    }
+        pub fun castVote(token: @AnyResource{ResolverInterfaces.Token}) {
+            pre {
+                token.betId == self.betId: "Bet ID does not match"
+            }
+        }
 
-    pub resource interface TokenMinter {
-        pub fun mintToken(address: Address): @AnyResource{Token}
+        pub fun resolve()
+
+        pub fun retrievePayout(token: @AnyResource{PayoutInterfaces.Token}): @FungibleToken.Vault {
+            pre {
+                token.betId == self.betId: "Bet ID does not match"
+            }
+        }
     }
 
     pub resource interface Receiver {
