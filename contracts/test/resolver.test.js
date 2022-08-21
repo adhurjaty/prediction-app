@@ -106,8 +106,9 @@ describe("bet-contract-test", () => {
     }
 
     const getResults = async (delphai, betId, users) => {
+        const states = [];
         for (const user of users) {
-            const [result, error] = await shallResolve(
+            const [voteResult, voteError] = await shallResolve(
                 sendTransaction({
                     name: "test_resolverVote",
                     args: [delphai, betId, user.vote],
@@ -115,10 +116,31 @@ describe("bet-contract-test", () => {
                     addressMap: { "delphai": delphai }
                 })
             );
+            expect(voteError).toBeNull();
 
-            expect(error).toBeNull();
+            const [resolveResult, resolveError] = await shallResolve(
+                sendTransaction({
+                    name: "test_resolverResolve",
+                    args: [betId],
+                    signers: [delphai],
+                    addressMap: { "delphai": delphai }
+                })
+            );
+            expect(resolveError).toBeNull();
+
+            const [stateResult, stateError] = await shallResolve(
+                executeScript({
+                    name: "getResolverState",
+                    args: [delphai, betId],
+                    signers: [user.account],
+                    addressMap: { "delphai": delphai }
+                })
+            );
+            expect(stateError).toBeNull();
+            states.push(stateResult);
         }
 
+        return states;
     }
 
     test("majority resolves to true", async () => {
@@ -138,6 +160,94 @@ describe("bet-contract-test", () => {
 
         await setupResolver(delphai, betId, users.map(x => x.account));
 
-        await getResults(delphai, betId, users);
+        const states = await getResults(delphai, betId, users);
+
+        expect(states.map(x => x.isResolved)).toEqual([false, false, true, true]);
+        expect(states.map(x => x.result)).toEqual([null, null, true, true]);
+        for (const user of users) {
+            const userState = states[3].votes[user.account];
+            expect(userState.vote).toEqual(user.vote);
+        }
+    });
+
+    test("majority resolves to false", async () => {
+        const betId = "betId1234";
+
+        const delphai = await getAccountAddress("Delphai");
+        await mintFlow(delphai, "10.0");
+
+        const users = [
+            { name: "Alice", vote: false },
+            { name: "Bob", vote: false },
+            { name: "Carol", vote: true },
+            { name: "Dan", vote: false }
+        ];
+
+        await setupAccounts(users);
+
+        await setupResolver(delphai, betId, users.map(x => x.account));
+
+        const states = await getResults(delphai, betId, users);
+
+        expect(states.map(x => x.isResolved)).toEqual([false, false, false, true]);
+        expect(states.map(x => x.result)).toEqual([null, null, null, false]);
+        for (const user of users) {
+            const userState = states[3].votes[user.account];
+            expect(userState.vote).toEqual(user.vote);
+        }
+    });
+
+    test("dead heat resolves ambiguous", async () => {
+        const betId = "betId1234";
+
+        const delphai = await getAccountAddress("Delphai");
+        await mintFlow(delphai, "10.0");
+
+        const users = [
+            { name: "Alice", vote: false },
+            { name: "Bob", vote: false },
+            { name: "Carol", vote: true },
+            { name: "Dan", vote: true }
+        ];
+
+        await setupAccounts(users);
+
+        await setupResolver(delphai, betId, users.map(x => x.account));
+
+        const states = await getResults(delphai, betId, users);
+
+        expect(states.map(x => x.isResolved)).toEqual([false, false, false, true]);
+        expect(states.map(x => x.result)).toEqual([null, null, null, null]);
+        for (const user of users) {
+            const userState = states[3].votes[user.account];
+            expect(userState.vote).toEqual(user.vote);
+        }
+    });
+
+    test("no majority resolves ambiguous", async () => {
+        const betId = "betId1234";
+
+        const delphai = await getAccountAddress("Delphai");
+        await mintFlow(delphai, "10.0");
+
+        const users = [
+            { name: "Alice", vote: false },
+            { name: "Bob", vote: null },
+            { name: "Carol", vote: true },
+            { name: "Dan", vote: false }
+        ];
+
+        await setupAccounts(users);
+
+        await setupResolver(delphai, betId, users.map(x => x.account));
+
+        const states = await getResults(delphai, betId, users);
+
+        expect(states.map(x => x.isResolved)).toEqual([false, false, false, true]);
+        expect(states.map(x => x.result)).toEqual([null, null, null, null]);
+        for (const user of users) {
+            const userState = states[3].votes[user.account];
+            expect(userState.vote).toEqual(user.vote);
+        }
     });
 });

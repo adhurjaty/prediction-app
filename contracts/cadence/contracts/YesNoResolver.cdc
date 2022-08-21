@@ -23,8 +23,9 @@ pub contract YesNoResolver {
             self.votes = {}
         }
 
-        pub fun addVote(vote: UserVote) {
-            self.votes[vote.address.toString()] = vote
+        pub fun addVote(vote: Bool?, address: Address) {
+            self.votes.insert(key: address.toString(), 
+                UserVote(address: address, vote: vote))
         }
 
         pub fun setResolved(result: Bool?) {
@@ -101,24 +102,22 @@ pub contract YesNoResolver {
 
         pub fun vote(token: @AnyResource{ResolverInterfaces.Token}) {
             let userToken <-token as! @UserToken
-            let state = self.state as! State
 
-            if state.votes.containsKey(userToken.address.toString()) {
+            if (self.state as! State).votes.containsKey(userToken.address.toString()) {
                 panic("User has already voted")
             }
 
-            let vote = UserVote(address: userToken.address, vote: userToken.vote)
-            state.addVote(vote: vote)
+            (self.state as! State).addVote(vote: userToken.vote, address: userToken.address)
 
             destroy userToken
         }
 
         pub fun resolve(): AnyStruct{ResolverInterfaces.Result}? {
-            let state = self.state as! State
-            let userVotes = state.votes.values
+            let userVotes = (self.state as! State).votes.values
 
-            // If there are not enough votes for a majority, return nil
-            if userVotes.length < self.numMembers / 2 {
+            // If there are not enough votes for a majority or if the bet has already
+            // been resolved, return nil
+            if userVotes.length < self.numMembers / 2 || self.state.isResolved {
                 return nil
             }
 
@@ -151,7 +150,7 @@ pub contract YesNoResolver {
                 return nil
             }
 
-            state.setResolved(result: outcome)
+            (self.state as! State).setResolved(result: outcome)
 
             return Result(outcome: outcome)
         }

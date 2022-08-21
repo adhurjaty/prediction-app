@@ -30,11 +30,7 @@ pub contract ResolverInterfaces {
             }
         }
 
-        pub fun resolve(): AnyStruct{Result}? {
-            pre {
-                !self.state.isResolved: "Bet is already resolved"
-            }
-        }
+        pub fun resolve(): AnyStruct{Result}?
     }
 
     pub resource interface Receiver {
