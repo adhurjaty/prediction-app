@@ -73,7 +73,7 @@ describe("bet-contract-test", () => {
     const setupYesNoBet = async (delphai, betId) => {
         const [result, error] = await shallResolve(
             sendTransaction({
-                name: "createYesNoBet",
+                name: "test_createYesNoBet",
                 signers: [delphai],
                 args: [betId],
                 addressMap: {
@@ -108,9 +108,9 @@ describe("bet-contract-test", () => {
         for (const user of users) {
             const [transferResult, transferError] = await shallResolve(
                 sendTransaction({
-                    name: "transferBetToken",
-                    args: [betId, user],
-                    signers: [delphai],
+                    name: "test_transferBetToken",
+                    args: [delphai, betId, user],
+                    signers: [user],
                     addressMap: { "BetInterfaces": delphai }
                 })
             )
@@ -143,7 +143,7 @@ describe("bet-contract-test", () => {
 
         const [resolveResult, resolveError] = await shallResolve(
             sendTransaction({
-                name: "test_resolveBet",
+                name: "test_betResolve",
                 args: [
                     betId,
                     outcome

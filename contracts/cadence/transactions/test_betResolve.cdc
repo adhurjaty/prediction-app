@@ -23,14 +23,10 @@ transaction(betId: String, outcome: Bool?) {
     }
 
     execute {
-        let resultsMinter <- self.bet.createResultTokenMinter()
+        let results = YesNoBet.Result(outcome: outcome)
 
-        let resultsToken <- resultsMinter.mint(outcome: outcome)
+        let payoutResults =self.bet.resolve(resolution: results)
 
-        let payoutToken <-self.bet.resolve(token: <-resultsToken)
-
-        self.payoutRef.resolve(token: <-payoutToken)
-
-        destroy resultsMinter
+        self.payoutRef.resolve(results: payoutResults)
     }
 }

@@ -160,7 +160,6 @@ pub contract YesNoBet {
         }
     }
 
-
     pub resource Bet: BetInterfaces.Bet {
         priv let emptyVault: @FungibleToken.Vault
         
@@ -173,7 +172,7 @@ pub contract YesNoBet {
             self.emptyVault <-emptyVault
         }
 
-        pub fun mintTokens(token: @DelphaiResources.Token): @AnyResource{BetInterfaces.MintResults} {
+        pub fun mintToken(token: @DelphaiResources.Token): @AnyResource{BetInterfaces.MintResults} {
             return <-create MintResults(
                 betToken: <-create UserToken(betId: self.betId, address: token.address, 
                     emptyVault: <-self.emptyVault.withdraw(amount: 0.0)),
@@ -213,6 +212,8 @@ pub contract YesNoBet {
                     losers.append(WinLosePayout.Bettor(address: wager.address, amount: wager.amount))
                 }
             }
+
+            (self.state as! State).setResolved()
 
             return WinLosePayout.Results(winners: winners, losers: losers)
         }

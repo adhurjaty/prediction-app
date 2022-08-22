@@ -31,7 +31,7 @@ pub contract BetInterfaces {
         pub let betId: String
         pub let state: AnyStruct{State}
 
-        pub fun mintTokens(token: @DelphaiResources.Token): @AnyResource{MintResults} {
+        pub fun mintToken(token: @DelphaiResources.Token): @AnyResource{MintResults} {
             pre {
                 token.betId == self.betId: "Token betId does not match payout betId"
             }

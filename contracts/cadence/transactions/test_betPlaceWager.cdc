@@ -10,7 +10,7 @@ transaction(delphai: Address, betId: String, bet: Bool, wager: UFix64) {
     prepare(acct: AuthAccount) {
         self.flowVault = acct.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
             ?? panic("Could not borrow FlowToken.Vault from storage")
-        self.tokenVault = acct.borrow<&BetInterfaces.Vault>(from: /storage/betTokenVault)
+        self.tokenVault = acct.borrow<&BetInterfaces.Vault>(from: /storage/delphaiBetTokenVault)
             ?? panic("Could not borrow BetInterfaces.Vault from storage")
     }
 
@@ -37,7 +37,7 @@ transaction(delphai: Address, betId: String, bet: Bool, wager: UFix64) {
             .borrow()
             ?? panic("Could not borrow payout capability")
 
-        let resultVault <-betRef.placeBet(token: <-yesNoToken)
+        let resultVault <-betRef.placeWager(token: <-yesNoToken)
         payoutRef.deposit(from: <-resultVault)
     }
 }
