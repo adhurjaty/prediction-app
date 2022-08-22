@@ -31,6 +31,10 @@ describe("bet-contract-test", () => {
 
     const deployContracts = async (delphai) => {
         await deployContractByName({ to: delphai, name: "DelphaiResources" });
+        await deployContractByName({ to: delphai, name: "PayoutInterfaces" });
+        await deployContractByName({ to: delphai, name: "WinLosePayout" });
+        await deployContractByName({ to: delphai, name: "BetInterfaces" });
+        await deployContractByName({ to: delphai, name: "YesNoBet" });
         await deployContractByName({ to: delphai, name: "ResolverInterfaces" });
         await deployContractByName({ to: delphai, name: "YesNoResolver" });
     };
@@ -42,8 +46,7 @@ describe("bet-contract-test", () => {
                 signers: [delphai],
                 args: [betId, numMembers],
                 addressMap: {
-                    PayoutInterface: delphai,
-                    WinLosePayout: delphai
+                    "delphai": delphai
                 }
             })
         );
