@@ -17,7 +17,7 @@ pub contract Composer {
         }
     }
 
-    pub resource MintResults: BetInterfaces.MintResults {
+    pub resource MintResults {
         priv let betToken: @[AnyResource{BetInterfaces.Token}]
         priv let payoutToken: @[AnyResource{PayoutInterfaces.Token}]
         priv let resolverToken: @[AnyResource{ResolverInterfaces.Token}]
@@ -48,30 +48,56 @@ pub contract Composer {
         }
     }
 
-    pub resource ComposerResource {
-        priv let state: State
-        priv let bet: &AnyResource{BetInterfaces.Bet}
-        priv let resolver: &AnyResource{ResolverInterfaces.Resolver}
-        priv let payout: &AnyResource{PayoutInterfaces.Payout}
+    pub resource interface PublicComposer {
+        pub fun getState(): State
+        pub fun mintTokens(token: @DelphaiResources.Token): @MintResults
+        pub fun placeWager(token: @AnyResource{BetInterfaces.Token})
+        pub fun castVote(token: @AnyResource{ResolverInterfaces.Token})
+        pub fun resolve()
+        pub fun retrievePayout(token: @AnyResource{PayoutInterfaces.Token}): @FungibleToken.Vault
+    }
 
-        init (bet: &AnyResource{BetInterfaces.Bet}, resolver: &AnyResource{ResolverInterfaces.Resolver}, payout: &AnyResource{PayoutInterfaces.Payout}) {
-            self.state = State(
-                betState: bet.state,
-                resolverState: resolver.state,
-                payoutState: payout.state
+    pub resource BetComposer: PublicComposer {
+        priv let betRef: Capability<&AnyResource{BetInterfaces.Bet}>
+        priv let resolverRef: Capability<&AnyResource{ResolverInterfaces.Resolver}>
+        priv let payoutRef: Capability<&AnyResource{PayoutInterfaces.Payout}>
+
+        init (betRef: Capability<&AnyResource{BetInterfaces.Bet}>, 
+            resolverRef: Capability<&AnyResource{ResolverInterfaces.Resolver}>, 
+            payoutRef: Capability<&AnyResource{PayoutInterfaces.Payout}>) 
+        {
+            self.betRef = betRef
+            self.resolverRef = resolverRef
+            self.payoutRef = payoutRef
+        }
+
+        priv fun bet(): &AnyResource{BetInterfaces.Bet} {
+            return self.betRef.borrow() ?? panic("Could not borrow bet reference")
+        }
+
+        priv fun resolver(): &AnyResource{ResolverInterfaces.Resolver} {
+            return self.resolverRef.borrow() ?? panic("Could not borrow resolver reference")
+        }
+
+        priv fun payout(): &AnyResource{PayoutInterfaces.Payout} {
+            return self.payoutRef.borrow() ?? panic("Could not borrow payout reference")
+        }
+
+        pub fun getState(): State {
+            return State(
+                betState: self.bet().state,
+                resolverState: self.resolver().state,
+                payoutState: self.payout().state
             )
-            self.bet = bet
-            self.resolver = resolver
-            self.payout = payout
         }
 
         pub fun mintTokens(token: @DelphaiResources.Token): @MintResults {
             let address = token.address
-            let betTokenMintResults <-self.bet.mintTokens(token: <-token)
+            let betTokenMintResults <-self.bet().mintToken(token: <-token)
             let betToken <-betTokenMintResults.getToken()
-            let payoutMintResults <- self.payout.mintToken(token: <-betTokenMintResults.getDelphaiToken())
+            let payoutMintResults <- self.payout().mintToken(token: <-betTokenMintResults.getDelphaiToken())
             let payoutToken <- payoutMintResults.getToken()
-            let resolverMintResults <-self.resolver.mintToken(token: <-payoutMintResults.getDelphaiToken())
+            let resolverMintResults <-self.resolver().mintToken(token: <-payoutMintResults.getDelphaiToken())
             let resolverToken <-resolverMintResults.getToken()
 
             destroy  betTokenMintResults
@@ -85,26 +111,40 @@ pub contract Composer {
         }
 
         pub fun placeWager(token: @AnyResource{BetInterfaces.Token}) {
-            self.bet.placeWager(token: <-token)
+            let vault <-self.bet().placeWager(token: <-token)
+            self.payout().deposit(from: <-vault)
         }
 
         pub fun castVote(token: @AnyResource{ResolverInterfaces.Token}) {
-            self.resolver.vote(token: <-token)
+            self.resolver().vote(token: <-token)
         }
 
         pub fun resolve() {
-            let resolution = self.resolver.resolve()
+            let resolution = self.resolver().resolve()
             if resolution == nil {
                 return
             }
 
-            let betResolution = self.bet.resolve(resolution: resolution)
+            let betResolution = self.bet().resolve(resolution: resolution!)
 
-            self.payout.resolve(results: betResolution)
+            self.payout().resolve(results: betResolution)
         }
 
         pub fun retrievePayout(token: @AnyResource{PayoutInterfaces.Token}): @FungibleToken.Vault {
-            return <-self.payout.withdraw(token: <-token)
+            return <-self.payout().withdraw(token: <-token)
         }
+    }
+
+    pub fun create(
+        betRef: Capability<&AnyResource{BetInterfaces.Bet}>,
+        resolverRef: Capability<&AnyResource{ResolverInterfaces.Resolver}>,
+        payoutRef: Capability<&AnyResource{PayoutInterfaces.Payout}>): @BetComposer
+    {
+        return <-create BetComposer(betRef: betRef, 
+            resolverRef: resolverRef, payoutRef: payoutRef)
+    }
+
+    pub fun composerPathName(betId: String): String {
+        return "Composer_".concat(betId)
     }
 }

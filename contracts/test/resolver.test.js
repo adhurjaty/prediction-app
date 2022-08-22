@@ -4,7 +4,7 @@ import { deployContractByName, emulator, executeScript, getAccountAddress, getCo
 // Increase timeout if your tests failing due to timeout
 jest.setTimeout(50000);
 
-describe("bet-contract-test", () => {
+describe("resolver-contract-test", () => {
     beforeEach(async () => {
         const basePath = path.resolve(__dirname, "../cadence");
 
