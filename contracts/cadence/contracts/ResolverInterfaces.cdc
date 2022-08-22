@@ -1,4 +1,5 @@
 import DelphaiResources from "./DelphaiResources.cdc"
+import BetInterfaces from "./BetInterfaces.cdc"
 
 pub contract ResolverInterfaces {
     pub struct interface State {
@@ -8,9 +9,6 @@ pub contract ResolverInterfaces {
     pub resource interface Token {
         pub let betId: String
         pub let address: Address
-    }
-
-    pub struct interface Result {
     }
 
     pub resource interface MintResults {
@@ -34,7 +32,7 @@ pub contract ResolverInterfaces {
             }
         }
 
-        pub fun resolve(): AnyStruct{Result}?
+        pub fun resolve(): AnyStruct{BetInterfaces.Result}?
     }
 
     pub resource interface Receiver {

@@ -1,5 +1,7 @@
 import DelphaiResources from "./DelphaiResources.cdc"
+import BetInterfaces from "./BetInterfaces.cdc"
 import ResolverInterfaces from "./ResolverInterfaces.cdc"
+import YesNoBet from "./YesNoBet.cdc"
 
 pub contract YesNoResolver {
     pub struct UserVote {
@@ -73,14 +75,6 @@ pub contract YesNoResolver {
         }
     }
 
-    pub struct Result: ResolverInterfaces.Result {
-        pub let outcome: Bool?
-
-        init(outcome: Bool?) {
-            self.outcome = outcome
-        }
-    }
-
     pub resource MajorityResolver: ResolverInterfaces.Resolver {
         pub let betId: String
         pub let state: AnyStruct{ResolverInterfaces.State}
@@ -112,7 +106,7 @@ pub contract YesNoResolver {
             destroy userToken
         }
 
-        pub fun resolve(): AnyStruct{ResolverInterfaces.Result}? {
+        pub fun resolve(): AnyStruct{BetInterfaces.Result}? {
             let userVotes = (self.state as! State).votes.values
 
             // If there are not enough votes for a majority or if the bet has already
@@ -152,7 +146,7 @@ pub contract YesNoResolver {
 
             (self.state as! State).setResolved(result: outcome)
 
-            return Result(outcome: outcome)
+            return YesNoBet.Result(outcome: outcome)
         }
     }
 
