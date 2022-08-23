@@ -48,20 +48,6 @@ namespace WebApi
 
         [HttpPost]
         [Authorize]
-        [Route("Bets/{betId}/transferTokens")]
-        public async Task<ActionResult> TransferTokens(string betId)
-        {
-            var result = await GetUserFromClaims()
-                .Bind(user => _mediator.Send(new TransferTokensCommand()
-                {
-                    BetId = betId,
-                    Address = user.MainnetAddress
-                }));
-            return ToResponse(result);
-        }
-
-        [HttpPost]
-        [Authorize]
         [Route("Bets")]
         public async Task<ActionResult<Bet>> CreateBet(CreateBetRequest request)
         {

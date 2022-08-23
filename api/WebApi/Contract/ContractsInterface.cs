@@ -10,7 +10,6 @@ namespace WebApi
 {
     public interface IContracts
     {
-        Task<Result> TransferTokens(string betId, IEnumerable<string> members);
         Task<Result> DeployComposerBet(string betId, int numMembers);
     }
 
@@ -34,33 +33,6 @@ namespace WebApi
         {
             _flow = flow;
             _delphaiAddress = delphaiAddress;
-        }
-
-        public async Task<Result> TransferTokens(string betId, 
-            IEnumerable<string> members)
-        {
-            var memberArguments = members.Select(member => 
-                new CadenceAddress(member) as ICadence);
-            var arguments = new List<ICadence>()
-            {
-                new CadenceString(ToCadenceId(betId)),
-                new CadenceArray(memberArguments.ToList())
-            };
-            var addressMap = new Dictionary<string, string>()
-            {
-                { "delphai", _delphaiAddress }
-            };
-
-            try
-            {
-                await _flow.ExecuteTransaction("transferTokens", arguments.ToList(),
-                    addressMap);
-                return Result.Succeeded();
-            }
-            catch(FlowException ex)
-            {
-                return Result.Failed(ex.Message);
-            }
         }
 
         public async Task<Result> DeployComposerBet(string betId, int numMembers)
