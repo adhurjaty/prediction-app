@@ -6,12 +6,22 @@ namespace WebApi
 {
     public class DummyContractsInterface : IContracts
     {
-        public Task<Result> DeployComposerBet(string betId, int numMembers)
+        public Task<Result> CreateWinLosePayout(string betId)
         {
             return Task.FromResult(Result.Failed("Using dummy implementation"));
         }
 
-        public Task<Result> TransferTokens(string betId, IEnumerable<string> members)
+        public Task<Result> CreateYesNoBet(string betId)
+        {
+            return Task.FromResult(Result.Failed("Using dummy implementation"));
+        }
+
+        public Task<Result> CreateYesNoResolver(string betId, int numMembers)
+        {
+            return Task.FromResult(Result.Failed("Using dummy implementation"));
+        }
+
+        public Task<Result> CreateComposer(string betId)
         {
             return Task.FromResult(Result.Failed("Using dummy implementation"));
         }

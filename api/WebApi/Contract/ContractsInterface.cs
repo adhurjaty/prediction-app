@@ -10,7 +10,10 @@ namespace WebApi
 {
     public interface IContracts
     {
-        Task<Result> DeployComposerBet(string betId, int numMembers);
+        Task<Result> CreateWinLosePayout(string betId);
+        Task<Result> CreateYesNoBet(string betId);
+        Task<Result> CreateYesNoResolver(string betId, int numMembers);
+        Task<Result> CreateComposer(string betId);
     }
 
     public class ContractsInterface : IContracts
@@ -35,7 +38,52 @@ namespace WebApi
             _delphaiAddress = delphaiAddress;
         }
 
-        public async Task<Result> DeployComposerBet(string betId, int numMembers)
+        public async Task<Result> CreateWinLosePayout(string betId)
+        {
+            var arguments = new List<ICadence>()
+            {
+                new CadenceString(ToCadenceId(betId)),
+            };
+            var addressMap = new Dictionary<string, string>()
+            {
+                { "delphai", _delphaiAddress }
+            };
+
+            try
+            {
+                await _flow.ExecuteTransaction("createWinLosePayout", arguments, 
+                    addressMap);
+                return Result.Succeeded();
+            }
+            catch (FlowException ex)
+            {
+                return Result.Failed(ex.Message);
+            }
+        }
+
+        public async Task<Result> CreateYesNoBet(string betId)
+        {
+            var arguments = new List<ICadence>()
+            {
+                new CadenceString(ToCadenceId(betId)),
+            };
+            var addressMap = new Dictionary<string, string>()
+            {
+                { "delphai", _delphaiAddress }
+            };
+
+            try
+            {
+                await _flow.ExecuteTransaction("createYesNoBet", arguments, addressMap);
+                return Result.Succeeded();
+            }
+            catch (FlowException ex)
+            {
+                return Result.Failed(ex.Message);
+            }
+        }
+
+        public async Task<Result> CreateYesNoResolver(string betId, int numMembers)
         {
             var arguments = new List<ICadence>()
             {
@@ -49,8 +97,30 @@ namespace WebApi
 
             try
             {
-                await _flow.ExecuteTransaction("deployComposerBet", arguments,
+                await _flow.ExecuteTransaction("createYesNoResolver", arguments, 
                     addressMap);
+                return Result.Succeeded();
+            }
+            catch (FlowException ex)
+            {
+                return Result.Failed(ex.Message);
+            }
+        }
+
+        public async Task<Result> CreateComposer(string betId)
+        {
+            var arguments = new List<ICadence>()
+            {
+                new CadenceString(ToCadenceId(betId)),
+            };
+            var addressMap = new Dictionary<string, string>()
+            {
+                { "delphai", _delphaiAddress }
+            };
+
+            try
+            {
+                await _flow.ExecuteTransaction("createComposer", arguments, addressMap);
                 return Result.Succeeded();
             }
             catch (FlowException ex)

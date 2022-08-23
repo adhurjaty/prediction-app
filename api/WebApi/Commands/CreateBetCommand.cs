@@ -52,7 +52,7 @@ namespace WebApi
                 .TupleBind(_ => groupResult))
                 .TeeResult(async (bet, group) =>
                 {
-                    return await (await _contract.DeployComposerBet(bet.Id.ToString(), group.Users.Count))
+                    return await (await CreateBetContracts(bet.Id.ToString(), group))
                         .Either(
                             x => Task.FromResult(x),
                             async result => 
@@ -62,6 +62,15 @@ namespace WebApi
                                 return Result.Failed<(Bet, Group)>($"Could not deploy contract to blockchain: {result.Failure}");
                             });
                 });
+        }
+
+        private async Task<Result> CreateBetContracts(string betId, Group group)
+        {
+            // TODO: set up rollbacks if any of these fail
+            return await (await (await (await _contract.CreateWinLosePayout(betId))
+                .Bind(() => _contract.CreateYesNoBet(betId)))
+                .Bind(() => _contract.CreateYesNoResolver(betId, group.Users.Count)))
+                .Bind(() => _contract.CreateComposer(betId));
         }
 
         public Task<Result> Handle(CreateBetCommand request, CancellationToken cancellationToken)
