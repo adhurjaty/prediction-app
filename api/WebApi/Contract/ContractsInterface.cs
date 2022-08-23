@@ -14,6 +14,7 @@ namespace WebApi
         Task<Result> CreateYesNoBet(string betId);
         Task<Result> CreateYesNoResolver(string betId, int numMembers);
         Task<Result> CreateComposer(string betId);
+        Task<Result> Resolve(string betId);
     }
 
     public class ContractsInterface : IContracts
@@ -121,6 +122,28 @@ namespace WebApi
             try
             {
                 await _flow.ExecuteTransaction("createComposer", arguments, addressMap);
+                return Result.Succeeded();
+            }
+            catch (FlowException ex)
+            {
+                return Result.Failed(ex.Message);
+            }
+        }
+
+        public async Task<Result> Resolve(string betId)
+        {
+            var arguments = new List<ICadence>()
+            {
+                new CadenceString(ToCadenceId(betId)),
+            };
+            var addressMap = new Dictionary<string, string>()
+            {
+                { "delphai", _delphaiAddress }
+            };
+
+            try
+            {
+                await _flow.ExecuteTransaction("resolve", arguments, addressMap);
                 return Result.Succeeded();
             }
             catch (FlowException ex)

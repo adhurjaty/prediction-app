@@ -65,6 +65,19 @@ namespace WebApi
 
             return ToResponse(result);
         }
+
+        [HttpPost]
+        [Authorize]
+        [Route("Bets/{betId}/resolve")]
+        public async Task<ActionResult> Resolve(string betId)
+        {
+            var result = await GetUserFromClaims()
+                .Bind(user => _mediator.Send(new ResolveBetCommand()
+                {
+
+                }));
+            return ToResponse(result);
+        }
     }
 
     public class CreateBetRequest : Bet

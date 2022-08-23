@@ -25,5 +25,10 @@ namespace WebApi
         {
             return Task.FromResult(Result.Failed("Using dummy implementation"));
         }
+
+        public Task<Result> Resolve(string betId)
+        {
+            return Task.FromResult(Result.Failed("Using dummy implementation"));
+        }
     }
 }
