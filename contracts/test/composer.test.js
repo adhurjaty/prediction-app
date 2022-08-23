@@ -121,17 +121,32 @@ describe("composer-contract-test", () => {
 
     const setupTokenReceivers = async (delphai, users) => {
         for (const user of users) {
-            const [result, error] = await shallResolve(
+            const [betResult, betError] = await shallResolve(
                 sendTransaction({
-                    name: "setupTokenReceivers",
+                    name: "setupBetReceiver",
                     signers: [user],
-                    addressMap: {
-                        PayoutInterface: delphai,
-                    }
+                    addressMap: { delphai }
                 })
             );
-    
-            expect(error).toBeNull();
+            expect(betError).toBeNull();
+
+            const [resolverResult, resolverError] = await shallResolve(
+                sendTransaction({
+                    name: "setupResolverReceiver",
+                    signers: [user],
+                    addressMap: { delphai }
+                })
+            );
+            expect(resolverError).toBeNull();
+
+            const [payoutResult, payoutError] = await shallResolve(
+                sendTransaction({
+                    name: "setupPayoutReceiver",
+                    signers: [user],
+                    addressMap: { delphai }
+                })
+            );
+            expect(payoutError).toBeNull();
         }
     }
 
@@ -158,44 +173,59 @@ describe("composer-contract-test", () => {
     }
 
     const getResults = async (delphai, betId, users) => {
-        const states = [];
+        for (const user of users) {
+            const [wagerResult, wagerError] = await shallResolve(
+                sendTransaction({
+                    name: "placeWager",
+                    args: [delphai, betId, user.bet, user.amount],
+                    signers: [user.account],
+                    addressMap: { "delphai": delphai }
+                })
+            );
+            expect(wagerError).toBeNull();
+        }
+
         for (const user of users) {
             const [voteResult, voteError] = await shallResolve(
                 sendTransaction({
-                    name: "test_resolverVote",
+                    name: "voteToResolve",
                     args: [delphai, betId, user.vote],
                     signers: [user.account],
                     addressMap: { "delphai": delphai }
                 })
             );
             expect(voteError).toBeNull();
-
-            const [resolveResult, resolveError] = await shallResolve(
-                sendTransaction({
-                    name: "test_resolverResolve",
-                    args: [betId],
-                    signers: [delphai],
-                    addressMap: { "delphai": delphai }
-                })
-            );
-            expect(resolveError).toBeNull();
-
-            const [stateResult, stateError] = await shallResolve(
-                executeScript({
-                    name: "getResolverState",
-                    args: [delphai, betId],
-                    signers: [user.account],
-                    addressMap: { "delphai": delphai }
-                })
-            );
-            expect(stateError).toBeNull();
-            states.push(stateResult);
         }
 
-        return states;
+        const [resolveResult, resolveError] = await shallResolve(
+            sendTransaction({
+                name: "resolve",
+                args: [betId],
+                signers: [delphai],
+                addressMap: { "delphai": delphai }
+            })
+        );
+        expect(resolveError).toBeNull();
+
+        for (const user of users.map(x => x.account)) {
+            const [retreiveResult, retreiveError] = await shallResolve(
+                sendTransaction({
+                    name: "retrievePayout",
+                    args: [delphai, betId],
+                    signers: [user],
+                    addressMap: { "delphai": delphai }
+                })
+            );
+            expect(retreiveError).toBeNull();
+        }
+
+        return await Promise.all(
+            users.map((user) => getFlowBalance(user.account)
+                .then(x => Math.round(parseFloat(x) * 10) / 10))
+        );
     }
 
-    test("end to end", async () => {
+    test("end to end basic", async () => {
         const betId = "betId1234";
 
         const delphai = await getAccountAddress("Delphai");
@@ -211,5 +241,45 @@ describe("composer-contract-test", () => {
         await setupAccounts(users);
 
         await setupComposer(delphai, betId, users.map(x => x.account));
+
+        const [aliceBalance, bobBalance, carolBalance, danBalance] =
+            await getResults(delphai, betId, users);
+
+        expect(aliceBalance).toBe(10);
+        expect(bobBalance).toBe(18);
+        expect(carolBalance).toBe(0);
+        expect(danBalance).toBe(0);
+
+        const [stateResult, stateError] = await shallResolve(
+            executeScript({
+                name: "getComposerState",
+                args: [delphai, betId],
+                signers: [delphai],
+                addressMap: { "delphai": delphai }
+            })
+        );
+        expect(stateError).toBeNull();
+
+        expect(stateResult.betState.isResolved).toBe(true);
+        for (const user of users) {
+            const userState = stateResult.betState.wagers[user.account];
+            expect(userState).toBeTruthy();
+            expect(parseFloat(userState.amount)).toEqual(parseFloat(user.amount));
+            expect(userState.bet).toEqual(user.bet);
+        }
+
+        expect(stateResult.resolverState.isResolved).toBe(true);
+        for (const user of users) {
+            const userState = stateResult.resolverState.votes[user.account];
+            expect(userState).toBeTruthy();
+            expect(userState.vote).toEqual(user.vote);
+        }
+
+        expect(stateResult.resolverState.isResolved).toBe(true);
+        for (const user of users) {
+            const userState = stateResult.payoutState.payouts[user.account];
+            expect(userState).toBeTruthy();
+            expect(userState.hasRetrieved).toEqual(true);
+        }
     })
 });
