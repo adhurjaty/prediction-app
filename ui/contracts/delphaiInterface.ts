@@ -3,15 +3,14 @@ import * as flow from '@/contracts/flowInterface';
 import Wager from '@/models/wager';
 import Resolution from '@/models/resolution';
 
-import saveDelphaiUserText from 'raw-loader!./cadence/transactions/saveDelphaiUser.cdc';
-import deleteDelphaiUserText from 'raw-loader!./cadence/transactions/deleteDelphaiUser.cdc';
-import placeBetText from 'raw-loader!./cadence/transactions/placeBetComposerFUSD.cdc';
+import setupDelphaiUserText from 'raw-loader!./cadence/transactions/setupDelphaiUser.cdc';
+// import deleteDelphaiUserText from 'raw-loader!./cadence/transactions/deleteDelphaiUser.cdc';
+import placeWagerText from 'raw-loader!./cadence/transactions/placeWagerFUSD.cdc';
 import resolveText from 'raw-loader!./cadence/transactions/voteToResolve.cdc';
-import getBetState from 'raw-loader!./cadence/scripts/getBetState.cdc';
+import getState from 'raw-loader!./cadence/scripts/getComposerState.cdc';
 import getFUSDBalance from 'raw-loader!./cadence/scripts/getFUSDBalance.cdc';
 import getFlowBalance from 'raw-loader!./cadence/scripts/getFlowBalance.cdc';
-import hasResolutionTokenText from 'raw-loader!./cadence/scripts/hasResolutionToken.cdc';
-import retrieveWinningFUSDText from 'raw-loader!./cadence/transactions/retrieveWinningFUSD.cdc';
+import retrievePayoutText from 'raw-loader!./cadence/transactions/retrievePayoutFUSD.cdc';
 import { ResultAsync } from 'neverthrow';
 import BetState from '@/models/betState';
 import config from '@/appConfig';
@@ -49,7 +48,7 @@ export default class DelphaiInterface {
     }
 
     saveDelphaiUser(): ResultAsync<any, string> {
-        const transactionText = saveDelphaiUserText as string;
+        const transactionText = setupDelphaiUserText as string;
         return flow.mutate<any>({
             cadence: transactionText,
             payer: fcl.authz,
@@ -59,19 +58,19 @@ export default class DelphaiInterface {
         });
     }
 
-    deleteDelphaiUser(): ResultAsync<any, string> {
-        const transactionText = deleteDelphaiUserText as string;
-        return flow.mutate<any>({
-            cadence: transactionText,
-            payer: fcl.authz,
-            proposer: fcl.authz,
-            authorizations: [fcl.authz],
-            limit: 200
-        });
-    }
+    // deleteDelphaiUser(): ResultAsync<any, string> {
+    //     const transactionText = deleteDelphaiUserText as string;
+    //     return flow.mutate<any>({
+    //         cadence: transactionText,
+    //         payer: fcl.authz,
+    //         proposer: fcl.authz,
+    //         authorizations: [fcl.authz],
+    //         limit: 200
+    //     });
+    // }
 
-    placeBet(wager: Wager): ResultAsync<any, string> {
-        const transactionText = placeBetText as string;
+    placeWager(wager: Wager): ResultAsync<any, string> {
+        const transactionText = placeWagerText as string;
         return flow.mutate<any>({
             cadence: transactionText,
             payer: fcl.authz,
@@ -99,12 +98,12 @@ export default class DelphaiInterface {
                 arg(this.toBetId(resolution.betId), t.String),
                 arg(resolution.vote, t.Bool)
             ],
-            limit: 100
+            limit: 200
         });
     }
 
     getBetState(betId: string): ResultAsync<BetState, string> {
-        const scriptText = getBetState as string;
+        const scriptText = getState as string;
         return flow.query<BetState>({
             cadence: scriptText,
             args: (arg, t) => [
@@ -114,21 +113,21 @@ export default class DelphaiInterface {
         });
     }
 
-    hasResolutionVote(betId: string): ResultAsync<boolean, string> {
-        const scriptText = hasResolutionTokenText as string;
-        return this.getCurrentUser()
-            .andThen(user => flow.query<boolean>({
-                cadence: scriptText,
-                authorizations: [fcl.authz],
-                args: (arg, t) => [
-                    arg(user.addr, t.Address),
-                    arg(this.toBetId(betId), t.String)
-                ]
-            }));
-    }
+    // hasResolutionVote(betId: string): ResultAsync<boolean, string> {
+    //     const scriptText = hasResolutionTokenText as string;
+    //     return this.getCurrentUser()
+    //         .andThen(user => flow.query<boolean>({
+    //             cadence: scriptText,
+    //             authorizations: [fcl.authz],
+    //             args: (arg, t) => [
+    //                 arg(user.addr, t.Address),
+    //                 arg(this.toBetId(betId), t.String)
+    //             ]
+    //         }));
+    // }
 
     retrieveWinning(betId: string): ResultAsync<any, string> {
-        const transactionText = retrieveWinningFUSDText as string;
+        const transactionText = retrievePayoutText as string;
         return flow.mutate<any>({
             cadence: transactionText,
             payer: fcl.authz,
@@ -173,6 +172,6 @@ export default class DelphaiInterface {
     }
 
     private toBetId(betId: string): string {
-        return `ID${betId.replaceAll('-', '')}`;
+        return `${betId.replaceAll('-', '')}`;
     }
 }

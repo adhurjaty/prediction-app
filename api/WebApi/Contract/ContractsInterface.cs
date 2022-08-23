@@ -87,11 +87,6 @@ namespace WebApi
             }
         }
 
-        private static string ToCadenceId(string id)
-        {
-            return $"ID{id.Replace("-", "")}";
-        }
-
         // not in the interface. Should only be used in script or testing
         public async Task<Result<FlowAccount>> CreateAccount(FlowAccountKey key)
         {
@@ -183,6 +178,11 @@ namespace WebApi
             {
                 return Result.Failed(ex.Message);
             }
+        }
+
+        private static string ToCadenceId(string id)
+        {
+            return $"{id.Replace("-", "")}";
         }
     }
 }

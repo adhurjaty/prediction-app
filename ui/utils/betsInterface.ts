@@ -16,7 +16,7 @@ class BetsInterface {
                 return this.delphai.saveDelphaiUser()
                     .andThen(_ => this.placeBet(wager, true))
             })
-            .andThen(_ => this.delphai.placeBet(wager))
+            .andThen(_ => this.delphai.placeWager(wager))
     }
 }
 
