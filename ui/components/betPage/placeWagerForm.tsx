@@ -4,15 +4,14 @@ import Wager from "@/models/wager";
 import BetsInterface from "@/utils/betsInterface";
 import { Button, MenuItem, Stack, Typography } from "@mui/material";
 import { Form, Formik } from "formik";
+import { ResultAsync } from "neverthrow";
 import { useState } from "react";
 import { SelectInput, TextInput } from "../formFields";
 
 interface Props {
-    delphai?: DelphaiInterface;
     betId: string;
     userAddress: string;
-    betState?: BetState;
-    onSubmit?: () => void;
+    onSubmit: (wager: Wager) => ResultAsync<any, string>;
 }
 
 const initPredictionOptions = [
@@ -26,26 +25,11 @@ const initPredictionOptions = [
     }
 ];
 
-export default function PlaceWagerForm({ delphai, betId, userAddress, betState, onSubmit }: Props) {
+export default function PlaceWagerForm({ betId, userAddress, onSubmit }: Props) {
     const [submitError, setSubmitError] = useState<string>();
 
-    const betsInterface = delphai && new BetsInterface(delphai);
-    const getMaxWager = () => {
-        if (betState?.hubPrediction !== undefined && betState?.hubPrediction !== null) {
-            const hubWager = betState.wagers
-                .find(w => w.prediction === betState.hubPrediction);
-            return hubWager!.wager - betState.wagers
-                .filter(w => w.prediction != betState.hubPrediction)
-                .reduce((sum, w) => sum + w.wager, 0);
-        }
-    };
-
     const onFormSubmit = async (wager: Wager) => {
-        if (!betsInterface)
-            return false;
-        
-        return (await betsInterface.placeBet(wager)
-            .map(() => onSubmit && onSubmit())
+        return (await onSubmit(wager)
             .mapErr(err => setSubmitError(err)))
             .isOk();
     }
@@ -54,20 +38,14 @@ export default function PlaceWagerForm({ delphai, betId, userAddress, betState, 
         <Formik
             enableReinitialize={true}
             initialValues={{
-                prediction: (!betState?.hubPrediction ?? true).toString(),
+                prediction: "true",
                 wager: 0
             }}
             validate={(values) => {
-                const maxWager = getMaxWager();
                 if (!values.wager.toFixed) {
                     return {
                         wager: "Wager must be a number"
                     }
-                }
-                if (maxWager && maxWager < values.wager) {
-                    return {
-                        wager: `Wager must be less than ${maxWager}`
-                    };
                 }
             }}
             onSubmit={async (values, { setSubmitting }) => {
@@ -86,26 +64,16 @@ export default function PlaceWagerForm({ delphai, betId, userAddress, betState, 
                     <Typography variant="h5">
                         Place Wager
                     </Typography>
-                    {betState?.hubPrediction != undefined &&
-                        <>
-                        <Typography variant="subtitle1">
-                            Hub bet: {betState.hubPrediction ? "Yes" : "No"}
-                        </Typography>
-                        <Typography variant="subtitle2">
-                            Max wager: {getMaxWager()}
-                        </Typography>
-                        </>
-                    }
                     <SelectInput label="Prediction"
                         name="prediction"
                     >
                         {initPredictionOptions
-                            .filter(x => x.value !== betState?.hubPrediction)
                             .map((x, i) => (
-                            <MenuItem value={x.value.toString()} key={i}>
-                                {x.label}
-                            </MenuItem>
-                        ))}
+                                <MenuItem value={x.value.toString()} key={i}>
+                                    {x.label}
+                                </MenuItem>
+                            ))
+                        }
                     </SelectInput>
                     <TextInput label="Wager"
                         name="wager"

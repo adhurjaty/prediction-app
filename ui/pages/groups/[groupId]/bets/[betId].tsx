@@ -4,7 +4,7 @@ import PlaceWagerForm from "@/components/betPage/placeWagerForm";
 import SecondaryPage from "@/components/secondaryPage";
 import DelphaiInterface from "@/contracts/delphaiInterface";
 import Bet from "@/models/bet";
-import BetState from "@/models/betState";
+import ComposerState from "@/models/composerState";
 import Group from "@/models/group";
 import User from "@/models/user";
 import { fetchModel } from "@/utils/nodeInterface";
@@ -18,9 +18,8 @@ import ResolvedBetStatusTable from "@/components/betPage/resolvedBetStatusTable"
 import ResolvedBetSection from "@/components/betPage/resolvedBetSection";
 
 interface UserState extends User {
-    prediction?: boolean,
-    wager: number,
-    returnAmount: number
+    bet?: boolean,
+    amount?: number
 }
 
 export default function BetPage() {
@@ -29,7 +28,7 @@ export default function BetPage() {
     const loading = status === "loading";
     const [bet, setBet] = useState<Bet>();
     const [group, setGroup] = useState<Group>();
-    const [betState, setBetState] = useState<BetState>();
+    const [composerState, setComposerState] = useState<ComposerState>();
     const [user, setUser] = useState<User>();
     const [fetchError, setError] = useState<string>();
     const [delphai, setDelphai] = useState<DelphaiInterface>();
@@ -71,8 +70,8 @@ export default function BetPage() {
                 .mapErr(err => setError(err));
                 
             !abortController.signal.aborted && delphai
-                && await delphai.getBetState(betId as string)
-                .map(state => state && setBetState(state));
+                && await delphai.getComposerState(betId as string)
+                .map(state => state && setComposerState(state));
 
             await fetchModel<User>('/api/fullUser', abortController.signal)
                 .map(u => setUser(u));
@@ -86,19 +85,19 @@ export default function BetPage() {
     }, [session, groupId, betId, delphai]);
 
     useEffect(() => {
-        if (!group?.users || !betState)
+        if (!group?.users || !composerState?.betState)
             return;
         const states = group.users
             .map(u => ({
                 ...u,
-                ...betState.wagers.find(w => w.userAddress === u.mainnetAddress)!
+                ...composerState.betState.wagers.get(u.mainnetAddress)
             }));
         setUserStates(states)
-    }, [betState, group]);
+    }, [composerState, group]);
 
     const wagerSection = () => {
         const isBetClosed = !!bet && bet.closeTime.getTime() < Date.now();
-        const hasMadeWager = !!betState?.wagers.find(w =>
+        const hasMadeWager = !!composerState?.wagers.find(w =>
             w.userAddress === user?.mainnetAddress
             || w.userAddress === `0x${user?.mainnetAddress}`);
         
@@ -120,7 +119,7 @@ export default function BetPage() {
             delphai={delphai}
             betId={bet?.id || ''}
             userAddress={user?.mainnetAddress || ''}
-            betState={betState}
+            betState={composerState}
             onSubmit={() => router.reload()}
         />;
     }
@@ -135,7 +134,7 @@ export default function BetPage() {
             );
         }
 
-        const hasVoted = !!betState?.resolutions?.usersVoted
+        const hasVoted = !!composerState?.resolutions?.usersVoted
             .find(addr => user?.mainnetAddress === addr);
 
         if (hasVoted) {
@@ -181,16 +180,16 @@ export default function BetPage() {
                                 Members
                             </Typography>
                             {userStates &&
-                                (betState?.result != undefined
-                                    && <ResolvedBetStatusTable userStates={userStates} result={betState!.result} />
+                                (composerState?.result != undefined
+                                    && <ResolvedBetStatusTable userStates={userStates} result={composerState!.result} />
                                     || <OpenBetStatusTable userStates={userStates} />)
                                 ||
                                 <Typography variant="body2">
                                     No one is in the group!
                                 </Typography>}
-                            {(betState?.result != undefined && delphai
+                            {(composerState?.result != undefined && delphai
                                 && <ResolvedBetSection
-                                    result={betState!.result}
+                                    result={composerState!.result}
                                     delphai={delphai}
                                     betId={betId as string}
                                     returnAmount={userStates?.find(x => x.id === user?.id)?.returnAmount ?? 0}

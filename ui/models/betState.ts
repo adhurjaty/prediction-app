@@ -1,9 +1,4 @@
-import ResolutionResults from "./resolutionResults"
-import WagerResponse from "./wagerResponse";
-
 export default interface BetState {
-    wagers: WagerResponse[];
-    resolutions: ResolutionResults;
-    hubPrediction?: boolean;
-    result?: boolean;
+    isResolved: boolean
+    wagers: Map<string, { address: string, amount: number, bet: boolean }>
 }

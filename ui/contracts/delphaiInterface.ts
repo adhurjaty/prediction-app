@@ -12,7 +12,7 @@ import getFUSDBalance from 'raw-loader!./cadence/scripts/getFUSDBalance.cdc';
 import getFlowBalance from 'raw-loader!./cadence/scripts/getFlowBalance.cdc';
 import retrievePayoutText from 'raw-loader!./cadence/transactions/retrievePayoutFUSD.cdc';
 import { ResultAsync } from 'neverthrow';
-import BetState from '@/models/betState';
+import ComposerState from '@/models/composerState';
 import config from '@/appConfig';
 
 
@@ -102,9 +102,9 @@ export default class DelphaiInterface {
         });
     }
 
-    getBetState(betId: string): ResultAsync<BetState, string> {
+    getComposerState(betId: string): ResultAsync<ComposerState, string> {
         const scriptText = getState as string;
-        return flow.query<BetState>({
+        return flow.query<ComposerState>({
             cadence: scriptText,
             args: (arg, t) => [
                 arg(this.delphaiAddress, t.Address),
