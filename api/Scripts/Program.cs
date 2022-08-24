@@ -66,9 +66,9 @@ public static class Program
             var address = "";
 
             // create accounts and update their flow addresses
-            await (await (await (await contracts.CreateAccount(key))
+            (await (await (await (await contracts.CreateAccount(key))
                 .Tee(account => address = account.Address.HexValue)
-                .TeeResult(async account => 
+                .TeeResult(async account =>
                 {
                     return await (await contracts.TransferFlow(account.Address, 20))
                         .Bind(() => contracts.TransferFUSD(account.Address, 20));
@@ -81,12 +81,19 @@ public static class Program
                     // hack to get update to work
                     user.FriendsRelations = new List<FriendsRelation>();
                     return await (await db.Update(user))
-                        .Bind(() => contracts.SaveDelphaiUser(account));
+                        .Bind(() => contracts.SetupDelphaiUser(account));
 
+                }))
+                .Tee((account, _) =>
+                {
+                    var firstName = acct.Split(' ').FirstOrDefault(acct).ToLower();
+                    accountList.Add(new AccountInfo(
+                        firstName, 
+                        address, 
+                        key.PrivateKey,
+                        account));
                 });
-                
-            var firstName = acct.Split(' ').FirstOrDefault(acct).ToLower();
-            accountList.Add(new AccountInfo(firstName, address, key.PrivateKey));
+
         }
 
         var template = File.ReadAllText("wallet_flow.json.template");
@@ -111,12 +118,22 @@ public static class Program
 
         foreach (var bet in existingBets)
         {
-            await (await contracts.DeployComposerBet(bet.BetId, bet.Addresses.Length))
-                .Bind(() => contracts.TransferTokens(bet.BetId, bet.Addresses));
+            await (await CreateBetContracts(contracts, bet.BetId, bet.Addresses.Length))
+                .Bind(() => accountList.Select(user => 
+                    contracts.TransferTokens(user.Account, bet.BetId)).Aggregate());
         }
     }
-}
 
+    private static async Task<Result> CreateBetContracts(IContracts contract, string betId, int size)
+    {
+        // TODO: set up rollbacks if any of these fail
+        return await (await (await (await contract.CreateWinLosePayout(betId))
+            .Bind(() => contract.CreateYesNoBet(betId)))
+            .Bind(() => contract.CreateYesNoResolver(betId, size)))
+            .Bind(() => contract.CreateComposer(betId));
+    }
+
+}
 
 
 public record SettingsConfig
@@ -128,7 +145,8 @@ public record SettingsConfig
 public record AccountInfo(
     string Name,
     string Address,
-    string PrivateKey
+    string PrivateKey,
+    FlowAccount Account
 )
 {
     public string Serialize()

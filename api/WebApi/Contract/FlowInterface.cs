@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Flow.Net.Sdk;
 using Flow.Net.Sdk.Cadence;
@@ -32,11 +33,12 @@ namespace WebApi
     public class FlowInterface : IFlow
     {
         private const int KEY_INDEX = 0;
-        private const int DEFAULT_GAS_LIMIT = 100;
+        private const int DEFAULT_GAS_LIMIT = 200;
 
         private readonly FlowAccount _account;
         private readonly FlowClientAsync _flowClient;
         private readonly string _transactionsPath;
+        private readonly SemaphoreSlim _semaphor;
 
         private FlowAddress _delphaiAddress => _account?.Address;
         private FlowAccountKey _delphaiKey => _account?.Keys
@@ -51,6 +53,7 @@ namespace WebApi
             _account = account;
             _flowClient = client;
             _transactionsPath = transactionsPath;
+            _semaphor = new SemaphoreSlim(1);
         }
 
         public static async Task<FlowInterface> CreateInstance(FlowConfig config)
@@ -83,6 +86,9 @@ namespace WebApi
                 account.Address);
 
             var txBody = Utilities.ReadCadenceScript(scriptName, _transactionsPath);
+
+            // transactions must be executed sequentially
+            await _semaphor.WaitAsync();
 
             // Get the latest sealed block to use as a reference block
             var latestBlock = await _flowClient.GetLatestBlockHeaderAsync();
@@ -122,6 +128,9 @@ namespace WebApi
             };
 
             var rawResponse = await _flowClient.SendTransactionAsync(tx);
+
+            _semaphor.Release();
+
             var response = await GetTransactionResult(rawResponse.Id, 10000);
             if(!string.IsNullOrEmpty(response.ErrorMessage))
                 throw new FlowException(response.ErrorMessage);

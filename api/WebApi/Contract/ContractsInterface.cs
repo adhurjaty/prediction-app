@@ -174,12 +174,12 @@ namespace WebApi
         }
 
         // not in the interface. Should only be used for the script program
-        public async Task<Result> SaveDelphaiUser(FlowAccount account)
+        public async Task<Result> SetupDelphaiUser(FlowAccount account)
         {
             try
             {
                 var flow = _flow as FlowInterface;
-                await flow.ExecuteTransaction("saveDelphaiUser", account, 
+                await flow.ExecuteTransaction("setupDelphaiUser", account, 
                     addressMap: new Dictionary<string, string>()
                     {
                         { "delphai", _delphaiAddress }
@@ -193,22 +193,41 @@ namespace WebApi
         }
 
         // not in the interface. Should only be used for the script program
+        public async Task<Result> TransferTokens(FlowAccount account, string betId)
+        {
+            var flow = _flow as FlowInterface;
+            try
+            {
+                await flow.ExecuteTransaction("transferTokens", account,
+                    arguments: new List<ICadence>()
+                    {
+                    new CadenceString(betId)
+                    });
+                return Result.Succeeded();
+            }
+            catch(FlowException e)
+            {
+                return Result.Failed(e.Message);
+            }
+        }
+
+        // not in the interface. Should only be used for the script program
         public async Task<Result> TransferFlow(FlowAddress receiver, decimal amount)
         {
-            return await TransferTokens("Flow", receiver, amount);
+            return await TransferFungibleTokens("Flow", receiver, amount);
         }
 
         // not in the interface. Should only be used for the script program
         public async Task<Result> TransferFUSD(FlowAddress receiver, decimal amount)
         {
-            return await TransferTokens("FUSD", receiver, amount,
+            return await TransferFungibleTokens("FUSD", receiver, amount,
                 new Dictionary<string, string>()
                 {
                     { "FUSD", _delphaiAddress }
                 });
         }
 
-        private async Task<Result> TransferTokens(string tokenName, FlowAddress receiver, 
+        private async Task<Result> TransferFungibleTokens(string tokenName, FlowAddress receiver, 
             decimal amount, Dictionary<string, string> addressMap = null)
         {
             try
