@@ -90,32 +90,34 @@ namespace WebApi
             // transactions must be executed sequentially
             await _semaphor.WaitAsync();
 
-            // Get the latest sealed block to use as a reference block
-            var latestBlock = await _flowClient.GetLatestBlockHeaderAsync();
-
-            // Get the latest sequence number for this key
-            var delphaiKey = latestAccount.Keys.FirstOrDefault(w => 
-                w.Index == KEY_INDEX);
-            var sequenceNumber = delphaiKey.SequenceNumber;
-
-            var tx = new FlowTransaction
+            try
             {
-                Script = txBody,
-                GasLimit = (ulong)gasLimit,
-                ProposalKey = new FlowProposalKey
+                // Get the latest sealed block to use as a reference block
+                var latestBlock = await _flowClient.GetLatestBlockHeaderAsync();
+
+                // Get the latest sequence number for this key
+                var delphaiKey = latestAccount.Keys.FirstOrDefault(w =>
+                    w.Index == KEY_INDEX);
+                var sequenceNumber = delphaiKey.SequenceNumber;
+
+                var tx = new FlowTransaction
                 {
-                    Address = account.Address,
-                    KeyId = KEY_INDEX,
-                    SequenceNumber = sequenceNumber
-                },
-                Payer = account.Address,
-                ReferenceBlockId = latestBlock.Id,
-                Authorizers = new List<FlowAddress>()
+                    Script = txBody,
+                    GasLimit = (ulong)gasLimit,
+                    ProposalKey = new FlowProposalKey
+                    {
+                        Address = account.Address,
+                        KeyId = KEY_INDEX,
+                        SequenceNumber = sequenceNumber
+                    },
+                    Payer = account.Address,
+                    ReferenceBlockId = latestBlock.Id,
+                    Authorizers = new List<FlowAddress>()
                 {
                     account.Address
                 },
-                Arguments = arguments ?? new List<ICadence>(),
-                EnvelopeSigners = new List<FlowSigner>()
+                    Arguments = arguments ?? new List<ICadence>(),
+                    EnvelopeSigners = new List<FlowSigner>()
                 {
                     new FlowSigner()
                     {
@@ -124,17 +126,19 @@ namespace WebApi
                         KeyId = KEY_INDEX
                     }
                 },
-                AddressMap = addressMap ?? new  Dictionary<string, string>()
-            };
+                    AddressMap = addressMap ?? new Dictionary<string, string>()
+                };
 
-            var rawResponse = await _flowClient.SendTransactionAsync(tx);
-
-            _semaphor.Release();
-
-            var response = await GetTransactionResult(rawResponse.Id, 10000);
-            if(!string.IsNullOrEmpty(response.ErrorMessage))
-                throw new FlowException(response.ErrorMessage);
-            return response;
+                var rawResponse = await _flowClient.SendTransactionAsync(tx);
+                var response = await GetTransactionResult(rawResponse.Id, 10000);
+                if (!string.IsNullOrEmpty(response.ErrorMessage))
+                    throw new FlowException(response.ErrorMessage);
+                return response;
+            }
+            finally
+            {
+                _semaphor.Release();
+            }
         }
 
         private ISigner GetSigner(FlowAccount account)

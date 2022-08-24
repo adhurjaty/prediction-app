@@ -6,8 +6,8 @@
 		}
 	},
 	"contracts": {
-        "DelphaiUsers": {
-            "source": "./cadence/contracts/DelphaiUsers.cdc",
+        "DelphaiResources": {
+            "source": "./cadence/contracts/DelphaiResources.cdc",
             "aliases": {
                 "emulator": "f8d6e0586b0a20c7",
                 "testnet": "6d894a3a7456250d"
@@ -27,10 +27,20 @@
                 "testnet": "0x7e60df042a9c0868"
             }
         },
-        "FUSD": "./cadence/contracts/FUSD.cdc",
-        "YesNoBetLibrary": "./cadence/contracts/YesNoBetLibrary.cdc",
-        "YesNoResolverLibrary": "./cadence/contracts/YesNoResolverLibrary.cdc",
-        "BetContractComposer": "./cadence/contracts/BetContractComposer.cdc"
+        "FUSD": {
+            "source": "./cadence/contracts/FUSD.cdc",
+            "aliases": {
+                "emulator": "0xf8d6e0586b0a20c7",
+                "testnet": "0xe223d8a629e49c68"
+            }
+        },
+        "PayoutInterfaces": "./cadence/contracts/PayoutInterfaces.cdc",
+        "WinLosePayout": "./cadence/contracts/WinLosePayout.cdc",
+        "BetInterfaces": "./cadence/contracts/BetInterfaces.cdc",
+        "YesNoBet": "./cadence/contracts/YesNoBet.cdc",
+        "ResolverInterfaces": "./cadence/contracts/ResolverInterfaces.cdc",
+        "YesNoResolver": "./cadence/contracts/YesNoResolver.cdc",
+        "Composer": "./cadence/contracts/Composer.cdc"
     },
 	"networks": {
 		"emulator": "127.0.0.1:3569",
@@ -62,18 +72,26 @@
 	"deployments": {
         "emulator": {
             "delphai": [
-                "DelphaiUsers",
-                "YesNoBetLibrary",
-                "YesNoResolverLibrary",
-                "BetContractComposer"
+                "DelphaiResources",
+                "PayoutInterfaces",
+                "WinLosePayout",
+                "BetInterfaces",
+                "YesNoBet",
+                "ResolverInterfaces",
+                "YesNoResolver",
+                "Composer"
             ]
         },
         "testnet": {
             "delphai-testnet": [
-                "DelphaiUsers",
-                "YesNoBetLibrary",
-                "YesNoResolverLibrary",
-                "BetContractComposer"
+                "DelphaiResources",
+                "PayoutInterfaces",
+                "WinLosePayout",
+                "BetInterfaces",
+                "YesNoBet",
+                "ResolverInterfaces",
+                "YesNoResolver",
+                "Composer"
             ]
         }
     }
