@@ -1,22 +1,27 @@
+import BetState from "@/models/betState";
 import User from "@/models/user";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 
-interface UserState extends User {
-    prediction?: boolean,
-    wager: number
-}
-
 interface Props {
-    userStates: UserState[]
+    users: User[]
+    betState: BetState
 }
 
-export default function OpenBetStatusTable({ userStates }: Props) {
+export default function BetStateTable({ users, betState }: Props) {
     const displayPrediction = (prediction: boolean | undefined) => {
         if (prediction === undefined) {
             return "";
         }
         return prediction ? "Yes" : "No";
     }
+
+    const userStates = users.map(user => {
+        const userWager = betState.wagers.get(user.mainnetAddress);
+        return {
+            ...user,
+            ...userWager
+        }
+    })
     
     return (
         <TableContainer component={Paper}>
@@ -24,8 +29,8 @@ export default function OpenBetStatusTable({ userStates }: Props) {
                 <TableHead>
                     <TableRow>
                         <TableCell>User</TableCell>
-                        <TableCell>Bet</TableCell>
-                        <TableCell>Wager</TableCell>
+                        <TableCell>Prediction</TableCell>
+                        <TableCell>Amount</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -33,8 +38,8 @@ export default function OpenBetStatusTable({ userStates }: Props) {
                         return (
                             <TableRow key={member.id}>
                                 <TableCell>{member.displayName}</TableCell>
-                                <TableCell>{displayPrediction(member.prediction)}</TableCell>
-                                <TableCell>{member.wager}</TableCell>
+                                <TableCell>{displayPrediction(member.bet)}</TableCell>
+                                <TableCell>{member.amount}</TableCell>
                             </TableRow>
                         )
                     })}

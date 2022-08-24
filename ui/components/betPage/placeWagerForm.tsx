@@ -6,6 +6,7 @@ import { Button, MenuItem, Stack, Typography } from "@mui/material";
 import { Form, Formik } from "formik";
 import { ResultAsync } from "neverthrow";
 import { useState } from "react";
+import ErrorText from "../errorText";
 import { SelectInput, TextInput } from "../formFields";
 
 interface Props {
@@ -87,15 +88,7 @@ export default function PlaceWagerForm({ betId, userAddress, onSubmit }: Props) 
                         Place Wager
                     </Button>
                     {submitError &&
-                        <Typography
-                            variant="subtitle1"
-                            color="error"
-                            sx={{
-                                wordWrap: "break-word"
-                            }}
-                        >
-                            {submitError}
-                        </Typography>
+                        <ErrorText text={submitError} />
                     }
                 </Stack>
             </Form>

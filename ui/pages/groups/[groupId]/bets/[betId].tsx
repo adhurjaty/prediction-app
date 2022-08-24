@@ -9,13 +9,15 @@ import Group from "@/models/group";
 import User from "@/models/user";
 import { fetchModel } from "@/utils/nodeInterface";
 import { Avatar, Container, Stack, Typography } from "@mui/material";
-import { err, Err, ok, Ok } from "neverthrow";
+import { err, Err, errAsync, ok, Ok } from "neverthrow";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import OpenBetStatusTable from "@/components/betPage/openBetStatusTable";
 import ResolvedBetStatusTable from "@/components/betPage/resolvedBetStatusTable";
 import ResolvedBetSection from "@/components/betPage/resolvedBetSection";
+import WagerSection from "@/components/betPage/wagerSection";
+import Wager from "@/models/wager";
+import BetsInterface from "@/utils/betsInterface";
 
 interface UserState extends User {
     bet?: boolean,
@@ -61,7 +63,6 @@ export default function BetPage() {
                     setGroup(val);
                     const groupBet = val.bets.find(x => x.id === betId);
                     if (groupBet) {
-                        groupBet.closeTime = new Date(groupBet.closeTime);
                         setBet(groupBet);
                         return ok(groupBet);
                     }
@@ -95,33 +96,14 @@ export default function BetPage() {
         setUserStates(states)
     }, [composerState, group]);
 
-    const wagerSection = () => {
-        const isBetClosed = !!bet && bet.closeTime.getTime() < Date.now();
-        const hasMadeWager = !!composerState?.wagers.find(w =>
-            w.userAddress === user?.mainnetAddress
-            || w.userAddress === `0x${user?.mainnetAddress}`);
-        
-        if (isBetClosed) {
-            return (
-                <Typography variant="h6">
-                    Bet is closed
-                </Typography>
-            );
+    const onSubmitWager = (wager: Wager) => {
+        if (!delphai) {
+            return errAsync("Delphai interface not initialized");
         }
-        if (hasMadeWager) {
-            return (
-                <Typography variant="h6">
-                    You have already made a wager for this bet
-                </Typography>
-            );
-        }
-        return <PlaceWagerForm
-            delphai={delphai}
-            betId={bet?.id || ''}
-            userAddress={user?.mainnetAddress || ''}
-            betState={composerState}
-            onSubmit={() => router.reload()}
-        />;
+
+        const betInterface = new BetsInterface(delphai);
+        return betInterface.placeBet(wager)
+            .map(() => router.reload());
     }
 
     const resolutionSection = () => {
@@ -196,7 +178,19 @@ export default function BetPage() {
                                 />)
                                 ||
                                 <>
-                                {wagerSection()}
+                                {group?.users
+                                    && user?.mainnetAddress
+                                    && bet
+                                    && composerState?.betState
+                                    &&
+                                    <WagerSection
+                                        users={group.users}
+                                        userAddress={user.mainnetAddress}
+                                        bet={bet}
+                                        betState={composerState.betState}
+                                        onSubmit={onSubmitWager}
+                                    />
+                                }
                                 {resolutionSection()}
                                 </>
                             }
