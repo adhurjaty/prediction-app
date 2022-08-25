@@ -96,14 +96,17 @@ export default function BetPage() {
         setUserStates(states)
     }, [composerState, group]);
 
-    const onSubmitWager = (wager: Wager) => {
-        if (!delphai) {
-            return errAsync("Delphai interface not initialized");
+    const onSubmitWager = (wager: { wager: number, prediction: boolean }) => {
+        if (!delphai || !bet || !user) {
+            return errAsync("Bet page not initialized properly");
         }
 
         const betInterface = new BetsInterface(delphai);
-        return betInterface.placeBet(wager)
-            .map(() => router.reload());
+        return betInterface.placeBet({
+            ...wager,
+            betId: bet.id,
+            userAddress: user.mainnetAddress
+        }).map(() => router.reload());
     }
 
     const resolutionSection = () => {

@@ -10,12 +10,11 @@ import PlaceWagerForm from "./placeWagerForm";
 interface Props {
     users: User[],
     userAddress: string,
-    bet: Bet,
     betState: BetState,
-    onSubmit: (wager: Wager) => ResultAsync<any, string>
+    onSubmit: (wager: {wager: number, prediction: boolean}) => ResultAsync<any, string>
 }
 
-export default function WagerSection({ users, userAddress, bet, betState, onSubmit }: Props) {
+export default function WagerSection({ users, userAddress, betState, onSubmit }: Props) {
     const userWager = betState.wagers.get(userAddress);
     const isResolved = betState.isResolved;
 
@@ -30,8 +29,6 @@ export default function WagerSection({ users, userAddress, bet, betState, onSubm
                 </Typography>
             ||
                 <PlaceWagerForm
-                    betId={bet.id}
-                    userAddress={userAddress}
                     onSubmit={onSubmit}
                 />
             }

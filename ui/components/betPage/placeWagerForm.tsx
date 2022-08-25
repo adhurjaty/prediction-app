@@ -10,9 +10,7 @@ import ErrorText from "../errorText";
 import { SelectInput, TextInput } from "../formFields";
 
 interface Props {
-    betId: string;
-    userAddress: string;
-    onSubmit: (wager: Wager) => ResultAsync<any, string>;
+    onSubmit: (formInput: { wager: number, prediction: boolean }) => ResultAsync<any, string>;
 }
 
 const initPredictionOptions = [
@@ -26,10 +24,10 @@ const initPredictionOptions = [
     }
 ];
 
-export default function PlaceWagerForm({ betId, userAddress, onSubmit }: Props) {
+export default function PlaceWagerForm({ onSubmit }: Props) {
     const [submitError, setSubmitError] = useState<string>();
 
-    const onFormSubmit = async (wager: Wager) => {
+    const onFormSubmit = async (wager: { wager: number, prediction: boolean }) => {
         return (await onSubmit(wager)
             .mapErr(err => setSubmitError(err)))
             .isOk();
@@ -53,8 +51,6 @@ export default function PlaceWagerForm({ betId, userAddress, onSubmit }: Props) 
                 var result = await onFormSubmit({
                     ...values,
                     prediction: values.prediction === "true",
-                    betId,
-                    userAddress
                 });
                 setSubmitting(false);
                 return result;

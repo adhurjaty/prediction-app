@@ -24,6 +24,12 @@ export default function PlaceResolutionForm({ delphai, betId, userId, onSubmit: 
             .isOk();
     }
 
+    const stringToBool = (s: string) => {
+        if (!s) return null;
+        if (s === "true") return true;
+        return false;
+    }
+
     return (
         <Formik
             initialValues={{
@@ -52,6 +58,9 @@ export default function PlaceResolutionForm({ delphai, betId, userId, onSubmit: 
                         </MenuItem>
                         <MenuItem value="false">
                             No
+                        </MenuItem>
+                        <MenuItem value="">
+                            Inconclusive
                         </MenuItem>
                     </SelectInput>
                     <Button
