@@ -25,10 +25,10 @@ export default function ResolverStateTable({ users, resolverState, betState }: P
     }
 
     const userStates = users.map(user => {
-        const userWager = betState.wagers.get(user.mainnetAddress);
-        const userVote = resolverState.votes.get(user.mainnetAddress);
+        const userWager = betState.wagers[user.mainnetAddress];
+        const userVote = resolverState.votes[user.mainnetAddress];
         return {
-            hasVoted: resolverState.votes.has(user.mainnetAddress),
+            hasVoted: user.mainnetAddress in resolverState.votes,
             ...user,
             ...userWager,
             ...userVote,

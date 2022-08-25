@@ -18,7 +18,7 @@ export default function ResolvedBetSection({ users, userAddress, composerState, 
 
     const { resolverState, payoutState } = composerState;
     const { result } = resolverState;
-    const { hasRetrieved } = payoutState.payouts.get(userAddress)!;
+    const { hasRetrieved } = payoutState.payouts[userAddress]!;
 
     const displayResult = () => {
         if (result === undefined) return "Inconclusive";

@@ -11,8 +11,8 @@ export default function ResolvedBetStatusTable({ users, composerState }: Props) 
     const { betState, resolverState, payoutState } = composerState;
     const result = resolverState.result;
     const userStates = users.map(user => {
-        const payout = payoutState.payouts.get(user.mainnetAddress);
-        const bet = betState.wagers.get(user.mainnetAddress);
+        const payout = payoutState.payouts[user.mainnetAddress];
+        const bet = betState.wagers[user.mainnetAddress];
         return {
             ...user,
             ...payout,

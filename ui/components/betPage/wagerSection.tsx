@@ -15,15 +15,12 @@ interface Props {
 }
 
 export default function WagerSection({ users, userAddress, betState, onSubmit }: Props) {
-    const userWager = betState.wagers.get(userAddress);
-    const isResolved = betState.isResolved;
+    const userWager = betState.wagers[userAddress];
 
     return (
         <>
-            {!isResolved && <BetStateTable users={users} betState={betState} />}
-            {isResolved &&
-                <></>
-            || userWager &&
+            <BetStateTable users={users} betState={betState} />
+            {userWager &&
                 <Typography variant="h6">
                     You have already made a wager for this bet
                 </Typography>

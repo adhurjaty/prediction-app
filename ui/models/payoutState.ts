@@ -1,4 +1,4 @@
 export default interface PayoutState {
-    isResolved: boolean
-    payouts: Map<string, { address: string, amount: number, hasRetrieved: boolean }>
+    isResolved: boolean;
+    payouts: { [key: string]: { address: string, amount: number, hasRetrieved: boolean } }
 }

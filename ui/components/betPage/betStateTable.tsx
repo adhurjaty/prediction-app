@@ -16,7 +16,7 @@ export default function BetStateTable({ users, betState }: Props) {
     }
 
     const userStates = users.map(user => {
-        const userWager = betState.wagers.get(user.mainnetAddress);
+        const userWager = betState.wagers[user.mainnetAddress];
         return {
             ...user,
             ...userWager

@@ -24,7 +24,7 @@ export default function ResolverSection({ users, userAddress, composerState, onS
 
     const { betState, resolverState } = composerState;
 
-    const userVote = resolverState.votes.get(userAddress);
+    const userVote = resolverState.votes[userAddress];
 
     return (
         <>
