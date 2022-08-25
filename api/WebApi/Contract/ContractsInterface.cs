@@ -47,7 +47,8 @@ namespace WebApi
             };
             var addressMap = new Dictionary<string, string>()
             {
-                { "delphai", _delphaiAddress }
+                { "delphai", _delphaiAddress },
+                { "FUSD", _delphaiAddress }
             };
 
             try
@@ -70,12 +71,13 @@ namespace WebApi
             };
             var addressMap = new Dictionary<string, string>()
             {
-                { "delphai", _delphaiAddress }
+                { "delphai", _delphaiAddress },
+                { "FUSD", _delphaiAddress }
             };
 
             try
             {
-                await _flow.ExecuteTransaction("createYesNoBet", arguments, addressMap);
+                await _flow.ExecuteTransaction("createYesNoBetFUSD", arguments, addressMap);
                 return Result.Succeeded();
             }
             catch (FlowException ex)
@@ -179,7 +181,7 @@ namespace WebApi
             try
             {
                 var flow = _flow as FlowInterface;
-                await flow.ExecuteTransaction("setupDelphaiUser", account, 
+                await flow.ExecuteTransaction("setupFullUser", account, 
                     addressMap: new Dictionary<string, string>()
                     {
                         { "delphai", _delphaiAddress }
@@ -201,7 +203,12 @@ namespace WebApi
                 await flow.ExecuteTransaction("transferTokens", account,
                     arguments: new List<ICadence>()
                     {
-                    new CadenceString(betId)
+                        new CadenceAddress(_delphaiAddress),
+                        new CadenceString(ToCadenceId(betId))
+                    },
+                    addressMap: new Dictionary<string, string>()
+                    {
+                        { "delphai", _delphaiAddress }
                     });
                 return Result.Succeeded();
             }

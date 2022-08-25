@@ -3,7 +3,7 @@ import * as flow from '@/contracts/flowInterface';
 import Wager from '@/models/wager';
 import Resolution from '@/models/resolution';
 
-import setupDelphaiUserText from 'raw-loader!./cadence/transactions/setupDelphaiUser.cdc';
+import setupDelphaiUserText from 'raw-loader!./cadence/transactions/setupFullUser.cdc';
 // import deleteDelphaiUserText from 'raw-loader!./cadence/transactions/deleteDelphaiUser.cdc';
 import transferTokensText from 'raw-loader!./cadence/transactions/transferTokens.cdc'
 import placeWagerText from 'raw-loader!./cadence/transactions/placeWagerFUSD.cdc';

@@ -118,9 +118,11 @@ public static class Program
 
         foreach (var bet in existingBets)
         {
-            await (await CreateBetContracts(contracts, bet.BetId, bet.Addresses.Length))
+            var result = await (await CreateBetContracts(contracts, bet.BetId, bet.Addresses.Length))
                 .Bind(() => accountList.Select(user => 
                     contracts.TransferTokens(user.Account, bet.BetId)).Aggregate());
+            if (result.IsFailure)
+                throw new Exception(result.Failure);
         }
     }
 

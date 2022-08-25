@@ -8,7 +8,7 @@ class BetsInterface {
     placeBet(wager: Wager, retried?: boolean): ResultAsync<any, string> {
         return this.delphai.transferTokens(wager.betId)
             .orElse(e => {
-                if (retried || !e.includes("Could not get token receiver capability")) {
+                if (retried || !e.includes("Could not borrow DelphaiResources.User from storage")) {
                     return errAsync(e);
                 }
                 return this.delphai.saveDelphaiUser()

@@ -11,7 +11,7 @@ transaction(delphai: Address, betId: String, bet: Bool, wager: UFix64) {
         self.flowVault = acct.borrow<&FlowToken.Vault>(from: /storage/flowTokenVault)
             ?? panic("Could not borrow FlowToken.Vault from storage")
         self.tokenVault = acct.borrow<&BetInterfaces.Vault>(from: /storage/delphaiBetTokenVault)
-            ?? panic("Could not borrow BetInterf aces.Vault from storage")
+            ?? panic("Could not borrow BetInterfaces.Vault from storage")
     }
 
     execute {
