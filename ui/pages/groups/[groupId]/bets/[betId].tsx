@@ -20,10 +20,6 @@ import Wager from "@/models/wager";
 import BetsInterface from "@/utils/betsInterface";
 import ResolverSection from "@/components/betPage/resolverSection";
 
-interface UserState extends User {
-    bet?: boolean,
-    amount?: number
-}
 
 export default function BetPage() {
     const router = useRouter();
@@ -53,7 +49,7 @@ export default function BetPage() {
     }, [])
 
     useEffect(() => {
-        if (!groupId || !betId || !delphai || !session) return;
+        if (!groupId || !betId || !session) return;
 
         const abortController = new AbortController();
         
@@ -69,32 +65,48 @@ export default function BetPage() {
                     return err(`Could not find bet ${betId} in group ${groupId}`);
                 })
                 .mapErr(err => setError(err));
-                
-            !abortController.signal.aborted && delphai
-                && await delphai.getComposerState(betId as string)
-                .map(state => state && setComposerState(state));
-
-            await fetchModel<User>('/api/fullUser', abortController.signal)
-                .map(u => setUser(u));
-
         })().catch(err => {
             if (err.name !== 'AbortError') return;
             throw err;
         })
 
-        // return () => abortController.abort();
-    }, [session, groupId, betId, delphai]);
+        return () => abortController.abort();
+    }, [session, groupId, betId]);
 
     useEffect(() => {
-        if (!group?.users || !composerState?.betState)
-            return;
-        const states = group.users
-            .map(u => ({
-                ...u,
-                ...composerState.betState.wagers.get(u.mainnetAddress)
-            }));
-        setUserStates(states)
-    }, [composerState, group]);
+        if (!session) return;
+
+        const abortController = new AbortController();
+
+        (async () => {
+            await fetchModel<User>('/api/fullUser', abortController.signal)
+                .map(u => setUser(u));
+        })().catch(err => {
+            if (err.name !== 'AbortError') return;
+            throw err;
+        })
+        return () => abortController.abort();
+    }, [session]);
+
+    useEffect(() => {
+        if (!betId || !delphai) return;
+
+        const abortController = new AbortController();
+
+        (async () => {
+            !abortController.signal.aborted && delphai
+                && await delphai.getComposerState(betId as string)
+                .map(state => {
+                    debugger;
+                    return state;
+                })
+                .map(state => state && setComposerState(state));
+        })().catch(err => {
+            if (err.name !== 'AbortError') return;
+            throw err;
+        })
+        return () => abortController.abort();
+    }, [betId, delphai])
 
     const onSubmitWager = (wager: { wager: number, prediction: boolean }) => {
         if (!delphai || !bet || !user) {
@@ -119,6 +131,12 @@ export default function BetPage() {
             betId: bet.id,
             userId: user?.id
         }).map(() => router.reload());
+    }
+
+    const onSubmitRetrieve = () => {
+        if (!delphai || !betId) 
+            return errAsync("Bet page not initialized properly");
+        return delphai.retrieveWinning(betId as string);
     }
 
     return (
@@ -147,43 +165,32 @@ export default function BetPage() {
                             <Typography variant="h6">
                                 Members
                             </Typography>
-                            {userStates &&
-                                (composerState?.result != undefined
-                                    && <ResolvedBetStatusTable userStates={userStates} result={composerState!.result} />
-                                    || <OpenBetStatusTable userStates={userStates} />)
-                                ||
-                                <Typography variant="body2">
-                                    No one is in the group!
-                                </Typography>}
-                            {(composerState?.result != undefined && delphai
-                                && <ResolvedBetSection
-                                    result={composerState!.result}
-                                    delphai={delphai}
-                                    betId={betId as string}
-                                    returnAmount={userStates?.find(x => x.id === user?.id)?.returnAmount ?? 0}
-                                />)
+                            {group?.users
+                            && user?.mainnetAddress
+                            && composerState?.betState
+                            && (composerState?.betState.isResolved
+                                &&
+                                <ResolvedBetSection
+                                    users={group.users}
+                                    userAddress={user.mainnetAddress}
+                                    composerState={composerState}
+                                    onSubmit={onSubmitRetrieve}
+                                />
                                 ||
                                 <>
-                                {group?.users
-                                    && user?.mainnetAddress
-                                    && composerState?.betState
-                                    &&
-                                    <>
-                                    <WagerSection
-                                        users={group.users}
-                                        userAddress={user.mainnetAddress}
-                                        betState={composerState.betState}
-                                        onSubmit={onSubmitWager}
-                                    />
-                                    <ResolverSection
-                                        userAddress={user.mainnetAddress}
-                                        composerState={composerState}
-                                        onSubmit={onSubmitVote}
-                                    />    
-                                    </>
-                                }
-                                {resolutionSection()}
-                                </>
+                                <WagerSection
+                                    users={group.users}
+                                    userAddress={user.mainnetAddress}
+                                    betState={composerState.betState}
+                                    onSubmit={onSubmitWager}
+                                />
+                                <ResolverSection
+                                    users={group.users}
+                                    userAddress={user.mainnetAddress}
+                                    composerState={composerState}
+                                    onSubmit={onSubmitVote}
+                                />
+                                </>)
                             }
                     </Stack>)}
                 </Container>
