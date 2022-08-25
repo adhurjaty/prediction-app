@@ -8,7 +8,7 @@ import ComposerState from "@/models/composerState";
 import Group from "@/models/group";
 import User from "@/models/user";
 import { fetchModel } from "@/utils/nodeInterface";
-import { Avatar, Container, Stack, Typography } from "@mui/material";
+import { Avatar, Container, Stack, Typography, useRadioGroup } from "@mui/material";
 import { err, Err, errAsync, ok, Ok } from "neverthrow";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
@@ -18,6 +18,7 @@ import ResolvedBetSection from "@/components/betPage/resolvedBetSection";
 import WagerSection from "@/components/betPage/wagerSection";
 import Wager from "@/models/wager";
 import BetsInterface from "@/utils/betsInterface";
+import ResolverSection from "@/components/betPage/resolverSection";
 
 interface UserState extends User {
     bet?: boolean,
@@ -34,7 +35,6 @@ export default function BetPage() {
     const [user, setUser] = useState<User>();
     const [fetchError, setError] = useState<string>();
     const [delphai, setDelphai] = useState<DelphaiInterface>();
-    const [userStates, setUserStates] = useState<UserState[]>();
 
     const { groupId, betId } = router.query;
 
@@ -109,33 +109,16 @@ export default function BetPage() {
         }).map(() => router.reload());
     }
 
-    const resolutionSection = () => {
-        const isBetClosed = !!bet && bet.closeTime.getTime() < Date.now();
-        if (!isBetClosed) {
-            return (
-                <Typography variant="h6">
-                    Bet is not closed yet
-                </Typography>
-            );
+    const onSubmitVote = (vote: boolean | null) => {
+        if (!delphai || !bet?.id || !user?.id) {
+            return errAsync("Bet page not initialized properly");
         }
 
-        const hasVoted = !!composerState?.resolutions?.usersVoted
-            .find(addr => user?.mainnetAddress === addr);
-
-        if (hasVoted) {
-            return (
-                <Typography variant="h6">
-                    You have already voted to resolve this bet
-                </Typography>
-            )
-        }
-        
-        return <PlaceResolutionForm
-            delphai={delphai}
-            betId={bet?.id || ''}
-            userId={user?.id || ''}
-            onSubmit={() => router.reload()}
-        />
+        return delphai.voteToResolve({
+            vote,
+            betId: bet.id,
+            userId: user?.id
+        }).map(() => router.reload());
     }
 
     return (
@@ -183,16 +166,21 @@ export default function BetPage() {
                                 <>
                                 {group?.users
                                     && user?.mainnetAddress
-                                    && bet
                                     && composerState?.betState
                                     &&
+                                    <>
                                     <WagerSection
                                         users={group.users}
                                         userAddress={user.mainnetAddress}
-                                        bet={bet}
                                         betState={composerState.betState}
                                         onSubmit={onSubmitWager}
                                     />
+                                    <ResolverSection
+                                        userAddress={user.mainnetAddress}
+                                        composerState={composerState}
+                                        onSubmit={onSubmitVote}
+                                    />    
+                                    </>
                                 }
                                 {resolutionSection()}
                                 </>

@@ -2,25 +2,20 @@ import DelphaiInterface from "@/contracts/delphaiInterface";
 import Resolution from "@/models/resolution";
 import { Button, MenuItem, Stack, Typography } from "@mui/material";
 import { Form, Formik } from "formik";
+import { ResultAsync } from "neverthrow";
 import { Dispatch, SetStateAction, useState } from "react";
 import { SelectInput, TextInput } from "../formFields";
 
 interface Props {
-    delphai?: DelphaiInterface;
-    betId: string;
-    userId: string;
-    onSubmit?: () => void;
+    onSubmit: (resolution: boolean | null) => ResultAsync<any, string>;
 }
 
-export default function PlaceResolutionForm({ delphai, betId, userId, onSubmit: afterSubmit }: Props) {
+export default function PlaceResolutionForm({ onSubmit }: Props) {
     const [submitError, setSubmitError] = useState<string>();
     
-    const onSubmit = async (resolution: Resolution) => {
-        if (!delphai)
-            return false;
-        return (await delphai.voteToResolve(resolution))
-            .map(() => afterSubmit && afterSubmit())
-            .mapErr(err => setSubmitError(err))
+    const onFormSubmit = async (resolution: boolean | null) => {
+        return (await onSubmit(resolution)
+            .mapErr(err => setSubmitError(err)))
             .isOk();
     }
 
@@ -36,11 +31,7 @@ export default function PlaceResolutionForm({ delphai, betId, userId, onSubmit: 
                 resolution: "true",
             }}
             onSubmit={async (values, { setSubmitting }) => {
-                var result = await onSubmit({
-                    vote: values.resolution === "true",
-                    betId,
-                    userId
-                });
+                var result = await onFormSubmit(stringToBool(values.resolution));
                 setSubmitting(false);
                 return result;
             }}
