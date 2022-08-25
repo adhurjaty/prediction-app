@@ -1,6 +1,6 @@
 import NavPage from '../../components/navPage'
 import PrimaryAppBar from '../../components/primaryAppbar'
-import BottomNav from '../../components/bottom-nav'
+import BottomNav from '../../components/bottomNav'
 import { Container, Stack, Typography} from '@mui/material'
 import User from "@/models/user";
 import { postModel } from '@/utils/nodeInterface';

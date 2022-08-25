@@ -96,10 +96,6 @@ export default function BetPage() {
         (async () => {
             !abortController.signal.aborted && delphai
                 && await delphai.getComposerState(betId as string)
-                .map(state => {
-                    debugger;
-                    return state;
-                })
                 .map(state => state && setComposerState(state));
         })().catch(err => {
             if (err.name !== 'AbortError') return;

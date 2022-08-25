@@ -1,3 +1,4 @@
+import { Stack } from '@mui/material'
 import Head from 'next/head'
 
 interface Props {

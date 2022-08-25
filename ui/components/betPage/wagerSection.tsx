@@ -1,7 +1,5 @@
-import Bet from "@/models/bet";
 import BetState from "@/models/betState";
 import User from "@/models/user";
-import Wager from "@/models/wager";
 import { Typography } from "@mui/material";
 import { ResultAsync } from "neverthrow";
 import BetStateTable from "./betStateTable";

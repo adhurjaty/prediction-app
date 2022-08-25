@@ -1,4 +1,4 @@
-import BottomNav from "./bottom-nav";
+import BottomNav from "./bottomNav";
 
 const NoAuthNav = () => {
     const links = [

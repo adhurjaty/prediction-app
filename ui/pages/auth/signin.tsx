@@ -1,4 +1,4 @@
-import BottomNav from "@/components/bottom-nav";
+import BottomNav from "@/components/bottomNav";
 import NavPage from "@/components/navPage";
 import NoAuthNav from "@/components/noAuthNav";
 import PrimaryAppBar from "@/components/primaryAppbar";

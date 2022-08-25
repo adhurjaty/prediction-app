@@ -1,4 +1,4 @@
-import BottomNav from "./bottom-nav"
+import BottomNav from "./bottomNav"
 import Page from "./page"
 import PrimaryNav from "./primaryNav"
 import SecondaryAppBar from "./secondaryAppbar"
