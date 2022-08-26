@@ -127,8 +127,9 @@ public static class Program
     private static async Task<Result> CreateBetContracts(IContracts contract, string betId, int size)
     {
         // TODO: set up rollbacks if any of these fail
-        return await (await (await (await contract.CreateWinLosePayout(betId))
+        return await (await (await (await (await contract.CreateWinLosePayout(betId))
             .Bind(() => contract.CreateYesNoBet(betId)))
+            .Bind(() => contract.CreateAllBetsCloser(betId, size)))
             .Bind(() => contract.CreateYesNoResolver(betId, size)))
             .Bind(() => contract.CreateComposer(betId));
     }

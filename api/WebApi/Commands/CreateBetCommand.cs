@@ -67,8 +67,9 @@ namespace WebApi
         private async Task<Result> CreateBetContracts(string betId, Group group)
         {
             // TODO: set up rollbacks if any of these fail
-            return await (await (await (await _contract.CreateWinLosePayout(betId))
+            return await (await (await (await (await _contract.CreateWinLosePayout(betId))
                 .Bind(() => _contract.CreateYesNoBet(betId)))
+                .Bind(() => _contract.CreateAllBetsCloser(betId, group.Users.Count)))
                 .Bind(() => _contract.CreateYesNoResolver(betId, group.Users.Count)))
                 .Bind(() => _contract.CreateComposer(betId));
         }

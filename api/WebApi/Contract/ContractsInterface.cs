@@ -12,6 +12,7 @@ namespace WebApi
     {
         Task<Result> CreateWinLosePayout(string betId);
         Task<Result> CreateYesNoBet(string betId);
+        Task<Result> CreateAllBetsCloser(string betId, int numMembers);
         Task<Result> CreateYesNoResolver(string betId, int numMembers);
         Task<Result> CreateComposer(string betId);
         Task<Result> Resolve(string betId);
@@ -78,6 +79,30 @@ namespace WebApi
             try
             {
                 await _flow.ExecuteTransaction("createYesNoBetFUSD", arguments, addressMap);
+                return Result.Succeeded();
+            }
+            catch (FlowException ex)
+            {
+                return Result.Failed(ex.Message);
+            }
+        }
+
+        public async Task<Result> CreateAllBetsCloser(string betId, int numMembers)
+        {
+            var arguments = new List<ICadence>()
+            {
+                new CadenceString(ToCadenceId(betId)),
+                new CadenceNumber(CadenceNumberType.Int, numMembers.ToString())
+            };
+            var addressMap = new Dictionary<string, string>()
+            {
+                { "delphai", _delphaiAddress }
+            };
+
+            try
+            {
+                await _flow.ExecuteTransaction("createAllBetsCloser", arguments, 
+                    addressMap);
                 return Result.Succeeded();
             }
             catch (FlowException ex)
@@ -191,30 +216,6 @@ namespace WebApi
             catch (FlowException ex)
             {
                 return Result.Failed(ex.Message);
-            }
-        }
-
-        // not in the interface. Should only be used for the script program
-        public async Task<Result> TransferTokens(FlowAccount account, string betId)
-        {
-            var flow = _flow as FlowInterface;
-            try
-            {
-                await flow.ExecuteTransaction("transferTokens", account,
-                    arguments: new List<ICadence>()
-                    {
-                        new CadenceAddress(_delphaiAddress),
-                        new CadenceString(ToCadenceId(betId))
-                    },
-                    addressMap: new Dictionary<string, string>()
-                    {
-                        { "delphai", _delphaiAddress }
-                    });
-                return Result.Succeeded();
-            }
-            catch(FlowException e)
-            {
-                return Result.Failed(e.Message);
             }
         }
 
