@@ -10,6 +10,7 @@ namespace Bets {
         }
 
         interface State {
+            isClosed: bool
             isResolved: bool
             wagers: Wager[]
         }
@@ -28,6 +29,7 @@ namespace Bets {
             + state: State
             mintToken(token: @DelphaiResources::Token): TokenResponse
             placeWager(token: @Token)
+            closeBet()
             resolve(result: Result): PayoutInterfaces::Result
         }
     }
@@ -47,6 +49,7 @@ namespace Bets {
         }
 
         class State {
+            isClosed: bool
             isResolved: bool
             wagers: Wager[]
         }
@@ -60,6 +63,7 @@ namespace Bets {
             
             mintToken(token: @DelphaiResources::Token): &BetInterfaces::Token
             placeWager(token: @Token): TokenResponse
+            closeBet()
             resolve(): bool
         }
     }
@@ -172,6 +176,24 @@ namespace Payouts {
     }
 }
 
+namespace Closers {
+    namespace CloserInterfaces {
+        interface Closer {
+            betMade(): bool?
+            checkClosed(): bool?
+        }
+    }
+
+    namespace AllBetsCloser {
+        class Closer {
+            - numMembers: int
+            - numBets: int
+            betMade(): bool
+            checkClosed(): bool
+        }
+    }
+}
+
 namespace DelphaiResources {
     class Token {
         address: Address
@@ -207,6 +229,7 @@ namespace Composer {
 
     class BetComposer {
         - bet: BetInterfaces::Bet
+        - closer: CloserInterfaces::Closer
         - resolver: ResolverInterfaces::Resolver
         - payout: PayoutInterfaces::Payout
         getState(): State
@@ -260,6 +283,8 @@ Resolvers.YesNoResolverContract.MajorityResolver --> Resolvers.YesNoResolverCont
 Resolvers.YesNoResolverContract.Result -up--|> Resolvers.ResolverInterfaces.Result
 Resolvers.YesNoResolverContract.MajorityResolver --> Bets.YesNoBetContract.Result
 
+Closers.AllBetsCloser.Closer -up--|> Closers.CloserInterfaces.Closer
+
 DelphaiResources.User --> DelphaiResources.Token
 
 Composer.BetComposer -up--|> Composer.PublicComposer
@@ -269,5 +294,6 @@ Composer.BetComposer -down--* Bets.BetInterfaces.Bet
 Composer.BetComposer -down--* Resolvers.ResolverInterfaces.Resolver
 Composer.BetComposer -down--* Payouts.PayoutInterfaces.Payout
 Composer.BetComposer --> DelphaiResources.Token
+Composer.BetComposer -down--* Closers.CloserInterfaces.Closer
 
 @enduml
