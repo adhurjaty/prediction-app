@@ -96,7 +96,7 @@ export default function BetPage() {
         (async () => {
             !abortController.signal.aborted && delphai
                 && await delphai.getComposerState(betId as string)
-                .map(state => state && setComposerState(state));
+                    .map(state => state && setComposerState(state));
         })().catch(err => {
             if (err.name !== 'AbortError') return;
             throw err;
@@ -173,20 +173,20 @@ export default function BetPage() {
                                     onSubmit={onSubmitRetrieve}
                                 />
                                 ||
-                                <>
+                                !composerState.betState.isClosed &&
                                 <WagerSection
                                     users={group.users}
                                     userAddress={user.mainnetAddress}
                                     betState={composerState.betState}
                                     onSubmit={onSubmitWager}
                                 />
+                                ||
                                 <ResolverSection
                                     users={group.users}
                                     userAddress={user.mainnetAddress}
                                     composerState={composerState}
                                     onSubmit={onSubmitVote}
-                                />
-                                </>)
+                                />)
                             }
                     </Stack>)}
                 </Container>

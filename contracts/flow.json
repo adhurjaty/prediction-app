@@ -38,6 +38,8 @@
         "WinLosePayout": "./cadence/contracts/WinLosePayout.cdc",
         "BetInterfaces": "./cadence/contracts/BetInterfaces.cdc",
         "YesNoBet": "./cadence/contracts/YesNoBet.cdc",
+        "CloserInterfaces": "./cadence/contracts/CloserInterfaces.cdc",
+        "AllBetsCloser": "./cadence/contracts/AllBetsCloser.cdc",
         "ResolverInterfaces": "./cadence/contracts/ResolverInterfaces.cdc",
         "YesNoResolver": "./cadence/contracts/YesNoResolver.cdc",
         "Composer": "./cadence/contracts/Composer.cdc"
@@ -77,6 +79,8 @@
                 "WinLosePayout",
                 "BetInterfaces",
                 "YesNoBet",
+                "CloserInterfaces",
+                "AllBetsCloser",
                 "ResolverInterfaces",
                 "YesNoResolver",
                 "Composer"
@@ -89,6 +93,8 @@
                 "WinLosePayout",
                 "BetInterfaces",
                 "YesNoBet",
+                "CloserInterfaces",
+                "AllBetsCloser",
                 "ResolverInterfaces",
                 "YesNoResolver",
                 "Composer"

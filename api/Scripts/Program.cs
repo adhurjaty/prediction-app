@@ -77,7 +77,7 @@ public static class Program
                     db.Single<AppUser>(x => x.DisplayName == acct)))
                 .TeeResult(async (account, user) =>
                 {
-                    user.MainnetAddress = account.Address.HexValue;
+                    user.MainnetAddress = $"0x{account.Address.HexValue}";
                     // hack to get update to work
                     user.FriendsRelations = new List<FriendsRelation>();
                     return await (await db.Update(user))

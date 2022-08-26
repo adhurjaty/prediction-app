@@ -54,8 +54,16 @@ pub contract Composer {
         pub fun mintTokens(token: @DelphaiResources.Token): @MintResults
         pub fun placeWager(token: @AnyResource{BetInterfaces.Token})
         pub fun checkClosed()
-        pub fun castVote(token: @AnyResource{ResolverInterfaces.Token})
-        pub fun resolve()
+        pub fun castVote(token: @AnyResource{ResolverInterfaces.Token}) {
+            pre {
+                self.getState().betState.isClosed: "Bet is not closed yet"
+            }
+        }
+        pub fun resolve() {
+            pre {
+                self.getState().betState.isClosed: "Bet is not closed yet"
+            }
+        }
         pub fun retrievePayout(token: @AnyResource{PayoutInterfaces.Token}): @FungibleToken.Vault
     }
 
