@@ -53,7 +53,7 @@ namespace WebApi
 
             try
             {
-                await _flow.ExecuteTransaction("createWinLosePayout", arguments, 
+                await _flow.ExecuteTransaction("createWinLosePayoutFUSD", arguments, 
                     addressMap);
                 return Result.Succeeded();
             }

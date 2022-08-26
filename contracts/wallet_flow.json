@@ -12,9 +12,9 @@
 		"testnet": "access.devnet.nodes.onflow.org:9000"
 	},
 	"accounts": {
-        "dan": { "address": "01cf0e2f2f715450", "key": "2bcca010cd505d2f14d6f44a39c102693afe15bf0985ef2360402172daba35be" },
-"tony": { "address": "179b6b1cb6755e31", "key": "578468bc680d1281b53185e4f624e6a0fc8a9371037c0d54690b43cb0d8c9cf7" },
-"anil": { "address": "f3fcd2c1a78f5eee", "key": "6f6f39ad37077b7936bd7a69bdf439c603cc7a7ec1aad0920aefca0ea4248612" }
+        "dan": { "address": "01cf0e2f2f715450", "key": "416a267d6c7d9047562bb2ae2a9327cff157ae66a3723867131fdb1c49f7e57c" },
+"tony": { "address": "179b6b1cb6755e31", "key": "9f12cdd6df791b0a0017c231cf75e2ffae36c13881b1162de5f1c2d5f59d5ed6" },
+"anil": { "address": "f3fcd2c1a78f5eee", "key": "243ef5ca23a104659a413aa70de28de1fb2ad71b84bf1770c66647fed947d5d4" }
 	},
 	"deployments": {}
 }

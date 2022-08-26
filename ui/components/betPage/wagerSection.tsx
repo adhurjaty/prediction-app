@@ -2,6 +2,7 @@ import BetState from "@/models/betState";
 import User from "@/models/user";
 import { Typography } from "@mui/material";
 import { ResultAsync } from "neverthrow";
+import { useState } from "react";
 import BetStateTable from "./betStateTable";
 import PlaceWagerForm from "./placeWagerForm";
 
@@ -13,7 +14,7 @@ interface Props {
 }
 
 export default function WagerSection({ users, userAddress, betState, onSubmit }: Props) {
-    const userWager = betState.wagers[userAddress];
+    const [userWager, _] = useState(betState.wagers[userAddress]);
 
     return (
         <>

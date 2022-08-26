@@ -7,7 +7,7 @@ transaction(betId: String) {
 
     prepare(acct: AuthAccount) {
         let payoutResource <- WinLosePayout.create(betId: betId, 
-            emptyVault: <-FlowToken.createEmptyVault())
+            emptyVault: <-FUSD.createEmptyVault())
         
         let pathName = PayoutInterfaces.payoutPathName(betId: betId)
         let payoutStoragePath = StoragePath(identifier: pathName)
