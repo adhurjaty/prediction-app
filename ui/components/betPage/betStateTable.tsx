@@ -1,5 +1,6 @@
 import BetState from "@/models/betState";
 import User from "@/models/user";
+import { displayMoney } from "@/utils/displayHelpers";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 
 interface Props {
@@ -39,7 +40,7 @@ export default function BetStateTable({ users, betState }: Props) {
                             <TableRow key={member.id}>
                                 <TableCell>{member.displayName}</TableCell>
                                 <TableCell>{displayPrediction(member.bet)}</TableCell>
-                                <TableCell>{member.amount}</TableCell>
+                                <TableCell>{displayMoney(member.amount)}</TableCell>
                             </TableRow>
                         )
                     })}

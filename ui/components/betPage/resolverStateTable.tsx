@@ -1,6 +1,7 @@
 import BetState from "@/models/betState";
 import ResolverState from "@/models/resolverState";
 import User from "@/models/user";
+import { displayMoney } from "@/utils/displayHelpers";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 
 interface Props {
@@ -52,7 +53,7 @@ export default function ResolverStateTable({ users, resolverState, betState }: P
                             <TableRow key={member.id}>
                                 <TableCell>{member.displayName}</TableCell>
                                 <TableCell>{displayPrediction(member.bet)}</TableCell>
-                                <TableCell>{member.amount}</TableCell>
+                                <TableCell>{displayMoney(member.amount)}</TableCell>
                                 <TableCell>{member.hasVoted
                                     ? displayVote(member.vote)
                                     : ""}

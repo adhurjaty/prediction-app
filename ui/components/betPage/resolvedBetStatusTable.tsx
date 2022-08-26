@@ -1,5 +1,6 @@
 import ComposerState from "@/models/composerState";
 import User from "@/models/user";
+import { displayMoney } from "@/utils/displayHelpers";
 import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 
 interface Props {
@@ -24,10 +25,6 @@ export default function ResolvedBetStatusTable({ users, composerState }: Props) 
         if (result == undefined || result == null)
             return "Inconclusive"
         return prediction === result ? "Winner" : "Loser";
-    }
-
-    const displayMoney = (amount: number) => {
-        return Math.round(amount * 100) / 100;
     }
 
     const diplayRetrieved = (status: boolean) => {
