@@ -3,6 +3,7 @@ import FlowToken from 0xFlowToken
 import PayoutInterfaces from 0xdelphai
 import WinLosePayout from 0xdelphai
 import BetInterfaces from 0xdelphai
+import CloserInterfaces from 0xdelphai
 import YesNoBet from 0xdelphai
 import ResolverInterfaces from 0xdelphai
 import YesNoResolver from 0xdelphai
@@ -17,6 +18,12 @@ transaction(betId: String) {
         let betRef = acct
             .getCapability<&AnyResource{BetInterfaces.Bet}>(betPrivatePath!)
 
+        let closerPathName = CloserInterfaces.closerPathName(betId: betId)
+        let closerPrivatePath = PrivatePath(identifier: closerPathName)
+            ?? panic("Invalid private path")
+        let closerRef = acct
+            .getCapability<&AnyResource{CloserInterfaces.Closer}>(closerPrivatePath!)
+
         let resolverPathName = ResolverInterfaces.resolverPathName(betId: betId)
         let resolverPrivatePath = PrivatePath(identifier: resolverPathName)
             ?? panic("Invalid private path")
@@ -29,8 +36,8 @@ transaction(betId: String) {
         let payoutRef = acct
             .getCapability<&AnyResource{PayoutInterfaces.Payout}>(payoutPrivatePath!)
 
-        let composer <-Composer.create(betRef: betRef!, resolverRef: resolverRef!, 
-            payoutRef: payoutRef!)
+        let composer <-Composer.create(betRef: betRef!, closerRef: closerRef!,
+            resolverRef: resolverRef!, payoutRef: payoutRef!)
         
         let composerPathName = Composer.composerPathName(betId: betId)
         let composerStoragePath = StoragePath(identifier: composerPathName)

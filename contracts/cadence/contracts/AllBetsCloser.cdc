@@ -1,7 +1,7 @@
 import CloserInterfaces from "./CloserInterfaces.cdc"
 
 pub contract AllBetsCloser {
-    pub resource Closer {
+    pub resource Closer: CloserInterfaces.Closer {
         priv var numMembers: Int
         priv var numBets: Int
         priv var isClosed: Bool
@@ -26,7 +26,7 @@ pub contract AllBetsCloser {
         }
     }
 
-    pub fun closerPathName(betId: String): String {
-        return "Closer_".concat(betId)
+    pub fun create(numMembers: Int): @Closer {
+        return <-create Closer(numMembers: numMembers)
     }
 }

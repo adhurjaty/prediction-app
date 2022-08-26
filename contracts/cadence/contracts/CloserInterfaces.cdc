@@ -3,4 +3,8 @@ pub contract CloserInterfaces {
         pub fun betMade(): Bool
         pub fun checkClosed(): Bool
     }
+
+    pub fun closerPathName(betId: String): String {
+        return "Closer_".concat(betId)
+    }
 }

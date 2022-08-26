@@ -35,6 +35,8 @@ describe("composer-contract-test", () => {
         await deployContractByName({ to: delphai, name: "WinLosePayout" });
         await deployContractByName({ to: delphai, name: "BetInterfaces" });
         await deployContractByName({ to: delphai, name: "YesNoBet" });
+        await deployContractByName({ to: delphai, name: "CloserInterfaces" });
+        await deployContractByName({ to: delphai, name: "AllBetsCloser" });
         await deployContractByName({ to: delphai, name: "ResolverInterfaces" });
         await deployContractByName({ to: delphai, name: "YesNoResolver" });
         await deployContractByName({ to: delphai, name: "Composer" });
@@ -86,6 +88,21 @@ describe("composer-contract-test", () => {
         expect(error).toBeNull();
     }
 
+    const setupCloser = async (delphai, betId, numMembers) => {
+        const [result, error] = await shallResolve(
+            sendTransaction({
+                name: "createAllBetsCloser",
+                signers: [delphai],
+                args: [betId, numMembers],
+                addressMap: {
+                    "delphai": delphai
+                }
+            })
+        );
+
+        expect(error).toBeNull();
+    }
+
     const setupResolver = async (delphai, betId, users) => {
         const [result, error] = await shallResolve(
             sendTransaction({
@@ -103,6 +120,7 @@ describe("composer-contract-test", () => {
     const setupComposerResource = async (delphai, betId, users) => {
         await setupPayout(delphai, betId);
         await setupBet(delphai, betId);
+        await setupCloser(delphai, betId, users.length)
         await setupResolver(delphai, betId, users);
 
         const [result, error] = await shallResolve(

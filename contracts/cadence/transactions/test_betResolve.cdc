@@ -25,6 +25,7 @@ transaction(betId: String, outcome: Bool?) {
     execute {
         let results = YesNoBet.Result(outcome: outcome)
 
+        self.bet.close()
         let payoutResults =self.bet.resolve(resolution: results)
 
         self.payoutRef.resolve(results: payoutResults)
