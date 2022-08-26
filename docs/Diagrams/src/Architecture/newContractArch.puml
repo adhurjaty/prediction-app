@@ -29,7 +29,7 @@ namespace Bets {
             + state: State
             mintToken(token: @DelphaiResources::Token): TokenResponse
             placeWager(token: @Token)
-            closeBet()
+            close()
             resolve(result: Result): PayoutInterfaces::Result
         }
     }
@@ -63,7 +63,7 @@ namespace Bets {
             
             mintToken(token: @DelphaiResources::Token): &BetInterfaces::Token
             placeWager(token: @Token): TokenResponse
-            closeBet()
+            close()
             resolve(): bool
         }
     }
@@ -235,6 +235,7 @@ namespace Composer {
         getState(): State
         mintTokens(token: @DelphaiResources.Token): @MintResults
         placeWager(token: @BetInterfaces.Token)
+        checkClosed()
         castVote(token: @ResolverInterfaces.Token)
         resolve()
         retrievePayout(token: @PayoutInterfaces.Token): @Vault

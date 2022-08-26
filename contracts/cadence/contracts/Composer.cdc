@@ -1,6 +1,7 @@
 import FungibleToken from "./FungibleToken.cdc"
 import DelphaiResources from "./DelphaiResources.cdc"
 import BetInterfaces from "./BetInterfaces.cdc"
+import CloserInterfaces from "./CloserInterfaces.cdc"
 import PayoutInterfaces from "./PayoutInterfaces.cdc"
 import ResolverInterfaces from "./ResolverInterfaces.cdc"
 
@@ -52,6 +53,7 @@ pub contract Composer {
         pub fun getState(): State
         pub fun mintTokens(token: @DelphaiResources.Token): @MintResults
         pub fun placeWager(token: @AnyResource{BetInterfaces.Token})
+        pub fun checkClosed()
         pub fun castVote(token: @AnyResource{ResolverInterfaces.Token})
         pub fun resolve()
         pub fun retrievePayout(token: @AnyResource{PayoutInterfaces.Token}): @FungibleToken.Vault
@@ -59,20 +61,27 @@ pub contract Composer {
 
     pub resource BetComposer: PublicComposer {
         priv let betRef: Capability<&AnyResource{BetInterfaces.Bet}>
+        priv let closerRef: Capability<&AnyResource{CloserInterfaces.Closer}>
         priv let resolverRef: Capability<&AnyResource{ResolverInterfaces.Resolver}>
         priv let payoutRef: Capability<&AnyResource{PayoutInterfaces.Payout}>
 
         init (betRef: Capability<&AnyResource{BetInterfaces.Bet}>, 
+            closerRef: Capability<&AnyResource{CloserInterfaces.Closer}>,
             resolverRef: Capability<&AnyResource{ResolverInterfaces.Resolver}>, 
             payoutRef: Capability<&AnyResource{PayoutInterfaces.Payout}>) 
         {
             self.betRef = betRef
+            self.closerRef = closerRef
             self.resolverRef = resolverRef
             self.payoutRef = payoutRef
         }
 
         priv fun bet(): &AnyResource{BetInterfaces.Bet} {
             return self.betRef.borrow() ?? panic("Could not borrow bet reference")
+        }
+
+        priv fun closer(): &AnyResource{CloserInterfaces.Closer} {
+            return self.closerRef.borrow() ?? panic("Could not borrow closer reference")
         }
 
         priv fun resolver(): &AnyResource{ResolverInterfaces.Resolver} {
@@ -112,11 +121,22 @@ pub contract Composer {
 
         pub fun placeWager(token: @AnyResource{BetInterfaces.Token}) {
             let vault <-self.bet().placeWager(token: <-token)
+            let isClosed = self.closer().betMade()
+            if isClosed {
+                self.bet().close()
+            }
             self.payout().deposit(from: <-vault)
         }
 
         pub fun castVote(token: @AnyResource{ResolverInterfaces.Token}) {
             self.resolver().vote(token: <-token)
+        }
+
+        pub fun checkClosed() {
+            let isClosed = self.closer().checkClosed()
+            if isClosed {
+                self.bet().close()
+            }
         }
 
         pub fun resolve() {
@@ -137,10 +157,11 @@ pub contract Composer {
 
     pub fun create(
         betRef: Capability<&AnyResource{BetInterfaces.Bet}>,
+        closerRef: Capability<&AnyResource{CloserInterfaces.Closer}>,
         resolverRef: Capability<&AnyResource{ResolverInterfaces.Resolver}>,
         payoutRef: Capability<&AnyResource{PayoutInterfaces.Payout}>): @BetComposer
     {
-        return <-create BetComposer(betRef: betRef, 
+        return <-create BetComposer(betRef: betRef, closerRef: closerRef,
             resolverRef: resolverRef, payoutRef: payoutRef)
     }
 

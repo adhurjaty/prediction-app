@@ -9,6 +9,7 @@ pub contract BetInterfaces {
     }
 
     pub struct interface State {
+        pub var isClosed: Bool
         pub var isResolved: Bool
         pub let wagers: {String: AnyStruct{Wager}}
     }
@@ -41,11 +42,15 @@ pub contract BetInterfaces {
             pre {
                 token.betId == self.betId: "Bet ID does not match"
                 token.wager.balance > 0.0: "Wager must be greater than 0"
+                !self.state.isClosed: "Bet has been closed"
             }
         }
 
+        pub fun close()
+
         pub fun resolve(resolution: AnyStruct{Result}): AnyStruct{PayoutInterfaces.Results} {
             pre {
+                self.state.isClosed: "Bet must be closed to resolve"
                 !self.state.isResolved: "Bet is already resolved"
             }
         }

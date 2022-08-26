@@ -78,11 +78,13 @@ pub contract YesNoBet {
     pub struct State: BetInterfaces.State {
         priv let sortedWagers: SortedBinaryTree
 
+        pub var isClosed: Bool
         pub var isResolved: Bool
         pub let wagers: {String: AnyStruct{BetInterfaces.Wager}}
 
         init () 
         {
+            self.isClosed = false
             self.isResolved = false
             self.wagers = {}
             self.sortedWagers = SortedBinaryTree()
@@ -91,6 +93,10 @@ pub contract YesNoBet {
         pub fun addWager(wager: Wager) {
             self.wagers[wager.address.toString()] = wager
             self.sortedWagers.insert(wager: wager)
+        }
+
+        pub fun setClosed() {
+            self.isClosed = true;
         }
 
         pub fun setResolved() {
@@ -196,6 +202,10 @@ pub contract YesNoBet {
             destroy userToken
 
             return <-vault
+        }
+
+        pub fun close() {
+            (self.state as! State).setClosed()
         }
 
         pub fun resolve(resolution: AnyStruct{BetInterfaces.Result}): AnyStruct{PayoutInterfaces.Results} {
