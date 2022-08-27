@@ -1,6 +1,5 @@
 import PayoutInterfaces from 0xdelphai
 import WinLosePayout from 0xdelphai
-import FungibleToken from 0xFungibleToken
 import FUSD from 0xFUSD
 
 transaction(betId: String) {

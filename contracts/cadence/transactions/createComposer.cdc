@@ -1,5 +1,3 @@
-import FungibleToken from 0xFungibleToken
-import FlowToken from 0xFlowToken
 import PayoutInterfaces from 0xdelphai
 import WinLosePayout from 0xdelphai
 import BetInterfaces from 0xdelphai

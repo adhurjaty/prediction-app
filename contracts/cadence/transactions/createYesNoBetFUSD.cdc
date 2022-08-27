@@ -1,4 +1,3 @@
-import FungibleToken from 0xFungibleToken
 import FUSD from 0xFUSD
 import PayoutInterfaces from 0xdelphai
 import WinLosePayout from 0xdelphai
