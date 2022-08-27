@@ -32,10 +32,10 @@ namespace WebApi.Test
         // }
 
         [Fact]
-        public async Task TransferTokensSuccess()
+        public async Task CreateYesNoBetSuccess() 
         {
             using var fx = new ContractTestFixture()
-                .WithTransactionResponse("transferTokens",
+                .WithTransactionResponse("createYesNoBetFUSD",
                     new FlowTransactionResult()
                     {
                         Status = new Flow.Net.Sdk.Protos.entities.TransactionStatus()
@@ -43,57 +43,26 @@ namespace WebApi.Test
                 .WithDelphaiAddress("delphai");
 
             var sut = fx.GetContractsInterface();
-            var result = await sut.TransferTokens("betId1234", new string[]
-            {
-                "user1",
-                "user2",
-                "user3"
-            });
+            var result = await sut.CreateYesNoBet("betId1234");
 
             result.IsSuccess.Should().BeTrue();
-            fx.VerifyTransactionRequest("transferTokens",
+            fx.VerifyTransactionRequest("createYesNoBetFUSD",
                 new List<ICadence>()
                 {
                     new CadenceString("betId1234"),
-                    new CadenceArray(new List<ICadence>()
-                    {
-                        new CadenceAddress("user1"),
-                        new CadenceAddress("user2"),
-                        new CadenceAddress("user3"),
-                    })
                 },
                 new Dictionary<string, string>()
                 {
-                    { "delphai", "delphai" }
+                    { "delphai", "delphai" },
+                    { "FUSD", "delphai" }
                 });
         }
 
         [Fact]
-        public async Task TransferTokensFailure()
+        public async Task CreateYesNoResolverSuccess() 
         {
             using var fx = new ContractTestFixture()
-                .WithTransactionException("transferTokens",
-                    new FlowException("failure!"))
-                .WithDelphaiAddress("delphai");
-
-            var sut = fx.GetContractsInterface();
-            var result = await sut.TransferTokens("betId1234", new string[]
-            {
-                "user1",
-                "user2",
-                "user3"
-            });
-
-            result.IsFailure.Should().BeTrue();
-            result.Failure.Should().Be("failure!");
-        }
-
-
-        [Fact]
-        public async Task DeployComposerBetSuccess()
-        {
-            using var fx = new ContractTestFixture()
-                .WithTransactionResponse("deployComposerBet",
+                .WithTransactionResponse("createYesNoResolver",
                     new FlowTransactionResult()
                     {
                         Status = new Flow.Net.Sdk.Protos.entities.TransactionStatus()
@@ -101,14 +70,94 @@ namespace WebApi.Test
                 .WithDelphaiAddress("delphai");
 
             var sut = fx.GetContractsInterface();
-            var result = await sut.DeployComposerBet("betId1234", 3);
+            var result = await sut.CreateYesNoResolver("betId1234", 4);
 
             result.IsSuccess.Should().BeTrue();
-            fx.VerifyTransactionRequest("deployComposerBet",
+            fx.VerifyTransactionRequest("createYesNoResolver",
                 new List<ICadence>()
                 {
                     new CadenceString("betId1234"),
-                    new CadenceNumber(CadenceNumberType.Int, "3")
+                    new CadenceNumber(CadenceNumberType.Int, "4")
+                },
+                new Dictionary<string, string>()
+                {
+                    { "delphai", "delphai" },
+                });
+        }
+
+        [Fact]
+        public async Task CreateWinLosePayoutSuccess() 
+        {
+            using var fx = new ContractTestFixture()
+                .WithTransactionResponse("createWinLosePayoutFUSD",
+                    new FlowTransactionResult()
+                    {
+                        Status = new Flow.Net.Sdk.Protos.entities.TransactionStatus()
+                    })
+                .WithDelphaiAddress("delphai");
+
+            var sut = fx.GetContractsInterface();
+            var result = await sut.CreateYesNoBet("betId1234");
+
+            result.IsSuccess.Should().BeTrue();
+            fx.VerifyTransactionRequest("createWinLosePayoutFUSD",
+                new List<ICadence>()
+                {
+                    new CadenceString("betId1234"),
+                },
+                new Dictionary<string, string>()
+                {
+                    { "delphai", "delphai" },
+                    { "FUSD", "delphai" }
+                });
+        }
+
+        [Fact]
+        public async Task CreateAllBetsCloserSuccess() 
+        {
+            using var fx = new ContractTestFixture()
+                .WithTransactionResponse("createAllBetsCloser",
+                    new FlowTransactionResult()
+                    {
+                        Status = new Flow.Net.Sdk.Protos.entities.TransactionStatus()
+                    })
+                .WithDelphaiAddress("delphai");
+
+            var sut = fx.GetContractsInterface();
+            var result = await sut.CreateAllBetsCloser("betId1234", 4);
+
+            result.IsSuccess.Should().BeTrue();
+            fx.VerifyTransactionRequest("createAllBetsCloser",
+                new List<ICadence>()
+                {
+                    new CadenceString("betId1234"),
+                    new CadenceNumber(CadenceNumberType.Int, "4")
+                },
+                new Dictionary<string, string>()
+                {
+                    { "delphai", "delphai" },
+                });
+        }
+
+        [Fact]
+        public async Task CreateComposerSuccess()
+        {
+            using var fx = new ContractTestFixture()
+                .WithTransactionResponse("createComposer",
+                    new FlowTransactionResult()
+                    {
+                        Status = new Flow.Net.Sdk.Protos.entities.TransactionStatus()
+                    })
+                .WithDelphaiAddress("delphai");
+
+            var sut = fx.GetContractsInterface();
+            var result = await sut.CreateComposer("betId1234");
+
+            result.IsSuccess.Should().BeTrue();
+            fx.VerifyTransactionRequest("createComposer",
+                new List<ICadence>()
+                {
+                    new CadenceString("betId1234"),
                 },
                 new Dictionary<string, string>()
                 {
@@ -151,7 +200,8 @@ namespace WebApi.Test
 
         public ContractsInterface GetContractsInterface()
         {
-            return new ContractsInterface(_flowMock.Object, _delphaiAddress);
+            return new ContractsInterface(_flowMock.Object, _delphaiAddress,
+                new Dictionary<string, string>());
         }
 
         public void VerifyTransactionRequest(string scriptName, List<ICadence> arguments,

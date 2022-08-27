@@ -49,8 +49,7 @@ namespace WebApi.Test
             using var fx = (new BetsCommandTestFixture()
                 .WithUsers(new List<AppUser>() { SingleUser, OtherUser })
                 .WithGroup(group) as BetsCommandTestFixture)
-                .WithDeployBetResult(Result.Succeeded())
-                .WithTransferTokenResult(Result.Succeeded())
+                .WithCreateAllResourcesResult(Result.Succeeded())
                 .WithMediatorResult<GroupByIdQuery, Group>(Result.Succeeded(group)) 
                     as BetsCommandTestFixture;
 
@@ -74,12 +73,11 @@ namespace WebApi.Test
                 User = FooUser,
                 GroupId = group.Id.ToString()
             });
-            fx.VerifyDeployRequest(cmd.BetId, 2);
-            fx.VerifyTransferRequest(cmd.BetId, new List<string>()
-            {
-                "address1",
-                "address2"
-            });
+            fx.VerifyCreateBetCall(cmd.BetId);
+            fx.VerifyCreateCloserCall(cmd.BetId, 2);
+            fx.VerifyCreateComposerCall(cmd.BetId);
+            fx.VerifyCreatePayoutCall(cmd.BetId);
+            fx.VerifyCreateResolverCall(cmd.BetId, 2);
         }
 
         [Fact]
@@ -97,8 +95,7 @@ namespace WebApi.Test
             using var fx = (new BetsCommandTestFixture()
                 .WithUsers(new List<AppUser>() { SingleUser, OtherUser })
                 .WithGroup(group) as BetsCommandTestFixture)
-                .WithDeployBetResult(Result.Failed("Failure"))
-                .WithTransferTokenResult(Result.Failed("Failure"))
+                .WithCreateAllResourcesResult(Result.Failed("Failure"))
                 .WithMediatorResult<GroupByIdQuery, Group>(Result.Succeeded(group)) 
                     as BetsCommandTestFixture;
 
@@ -118,16 +115,16 @@ namespace WebApi.Test
             (await fx.GetModel<Bet>(cmd.BetId.ToString())).IsSuccess.Should().BeFalse();
         }
 
-        [Fact]
+        // [Fact]
         // Only run this when the emulator is running
-        public async Task Integration_DeployComposerBet()
-        {
-            using var fx = new BetsCommandTestFixture();
-            var sut = await fx.Integration_GetContractsInterface();
+        // public async Task Integration_DeployComposerBet()
+        // {
+        //     using var fx = new BetsCommandTestFixture();
+        //     var sut = await fx.Integration_GetContractsInterface();
 
-            var result = await sut.DeployComposerBet("bet123", 3);
-            result.IsSuccess.Should().BeTrue();
-        }
+        //     var result = await sut.DeployComposerBet("bet123", 3);
+        //     result.IsSuccess.Should().BeTrue();
+        // }
 
         [Fact]
         public async Task Integration_ExecuteTransaction()
@@ -150,19 +147,48 @@ namespace WebApi.Test
     {
         private readonly Mock<IContracts> _contractsMock = new();
 
-        public BetsCommandTestFixture WithDeployBetResult(Result result)
+        public BetsCommandTestFixture WithCreateComposerResult(Result result)
         {
-            _contractsMock.Setup(x => x.DeployComposerBet(It.IsAny<string>(), It.IsAny<int>()))
+            _contractsMock.Setup(x => x.CreateComposer(It.IsAny<string>()))
                 .ReturnsAsync(result);
             return this;
         }
 
-        public BetsCommandTestFixture WithTransferTokenResult(Result result)
+        public BetsCommandTestFixture WithCreateBetResult(Result result)
         {
-            _contractsMock.Setup(x => x.TransferTokens(It.IsAny<string>(),
-                It.IsAny<IEnumerable<string>>()))
+            _contractsMock.Setup(x => x.CreateYesNoBet(It.IsAny<string>()))
                 .ReturnsAsync(result);
             return this;
+        }
+
+        public BetsCommandTestFixture WithCreateResolverResult(Result result)
+        {
+            _contractsMock.Setup(x => x.CreateYesNoResolver(It.IsAny<string>(),
+                It.IsAny<int>())).ReturnsAsync(result);
+            return this;
+        }
+
+        public BetsCommandTestFixture WithCreatePayoutResult(Result result)
+        {
+            _contractsMock.Setup(x => x.CreateWinLosePayout(It.IsAny<string>()))
+                .ReturnsAsync(result);
+            return this;
+        }
+
+        public BetsCommandTestFixture WithCreateCloserResult(Result result)
+        {
+            _contractsMock.Setup(x => x.CreateAllBetsCloser(It.IsAny<string>(),
+                It.IsAny<int>())).ReturnsAsync(result);
+            return this;
+        }
+
+        public BetsCommandTestFixture WithCreateAllResourcesResult(Result result)
+        {
+            return WithCreatePayoutResult(result)
+                .WithCreateResolverResult(result)
+                .WithCreateBetResult(result)
+                .WithCreatePayoutResult(result)
+                .WithCreateComposerResult(result);
         }
 
         public CreateBetCommandHandler GetCreateCommandHandler()
@@ -194,17 +220,29 @@ namespace WebApi.Test
             return await FlowInterface.CreateInstance(config);
         }
 
-        public void VerifyDeployRequest(string betId, int numMembers)
+        public void VerifyCreateComposerCall(string betId)
         {
-            _contractsMock.Verify(x => x.DeployComposerBet(betId, numMembers),
-                Times.Once());
+            _contractsMock.Verify(x => x.CreateComposer(betId), Times.Once());
         }
 
-        public void VerifyTransferRequest(string betId, IEnumerable<string> accountHashes)
+        public void VerifyCreateBetCall(string betId)
         {
-            _contractsMock.Verify(x => x.TransferTokens(betId,
-                It.Is<IEnumerable<string>>(y => EquivalentObjects(accountHashes, y))),
-                Times.Once());
+            _contractsMock.Verify(x => x.CreateYesNoBet(betId), Times.Once());
+        }
+
+        public void VerifyCreateResolverCall(string betId, int num)
+        {
+            _contractsMock.Verify(x => x.CreateYesNoResolver(betId, num), Times.Once());
+        }
+
+        public void VerifyCreatePayoutCall(string betId)
+        {
+            _contractsMock.Verify(x => x.CreateWinLosePayout(betId), Times.Once());
+        }
+
+        public void VerifyCreateCloserCall(string betId, int num)
+        {
+            _contractsMock.Verify(x => x.CreateAllBetsCloser(betId, num), Times.Once());
         }
     }
 }

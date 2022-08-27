@@ -38,10 +38,12 @@ namespace WebApi
                 config.AdditionalContracts ?? new Dictionary<string, string>());
         }
 
-        public ContractsInterface(IFlow flow, string delphaiAddress)
+        public ContractsInterface(IFlow flow, string delphaiAddress, 
+            Dictionary<string, string> additionalContracts)
         {
             _flow = flow;
             _delphaiAddress = delphaiAddress;
+            _additionalContracts = additionalContracts;
         }
 
         public async Task<Result> CreateWinLosePayout(string betId)
