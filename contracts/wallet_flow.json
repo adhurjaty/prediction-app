@@ -12,10 +12,10 @@
 		"testnet": "access.devnet.nodes.onflow.org:9000"
 	},
 	"accounts": {
-        "dan": { "address": "01cf0e2f2f715450", "key": "4dfc0d3a236b951651718989cab99177b300318385ca7065dbc7f16184556359" },
-"tony": { "address": "179b6b1cb6755e31", "key": "b0da2940dbdc9254f11084904eab8925c997f2a0132028ab248e54818ab01a89" },
-"anil": { "address": "f3fcd2c1a78f5eee", "key": "f0a6b8b3457c14ad768e7486501d2d9b2083e2ff5bb4daab3585db2f3777c6ba" },
-"tester": { "address": "e03daebed8ca0615", "key": "e0ee84b3b91be2d4e481bafb7e893d0ab2d9d73b0b77423f48117714c5056494" }
+        "dan": { "address": "01cf0e2f2f715450", "key": "faea49e2180866743693f27d32817519db6d3df3ae8f414b0047183a8ce50f70" },
+"tony": { "address": "179b6b1cb6755e31", "key": "f4df000eccd50776d85efa14369cd25affba4972e3b1efc4b9d391ad3bc59d8e" },
+"anil": { "address": "f3fcd2c1a78f5eee", "key": "2fa20b5905360523d4b7e88571f0052039f85a34e4fb855e4c6d092528a1ae5e" },
+"tester": { "address": "e03daebed8ca0615", "key": "b5ba93a4a63f426f303430258c492c5ae7f595c3255df93007d7c71003d3fafa" }
 	},
 	"deployments": {}
 }

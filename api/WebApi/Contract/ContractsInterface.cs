@@ -22,16 +22,20 @@ namespace WebApi
     {
         private readonly IFlow _flow;
         private readonly string _delphaiAddress;
+        private readonly Dictionary<string, string> _additionalContracts;
 
-        private ContractsInterface(FlowInterface flow)
+        private ContractsInterface(FlowInterface flow, 
+            Dictionary<string, string> additionalContracts)
         {
             _flow = flow;
             _delphaiAddress = flow.AccountAddress;
+            _additionalContracts = additionalContracts;
         }
 
         public static async Task<ContractsInterface> CreateInstance(FlowConfig config)
         {
-            return new ContractsInterface(await FlowInterface.CreateInstance(config));
+            return new ContractsInterface(await FlowInterface.CreateInstance(config),
+                config.AdditionalContracts ?? new Dictionary<string, string>());
         }
 
         public ContractsInterface(IFlow flow, string delphaiAddress)
@@ -49,7 +53,7 @@ namespace WebApi
             var addressMap = new Dictionary<string, string>()
             {
                 { "delphai", _delphaiAddress },
-                { "FUSD", _delphaiAddress }
+                { "FUSD", _additionalContracts.GetValueOrDefault("FUSD", _delphaiAddress) }
             };
 
             try
@@ -73,7 +77,7 @@ namespace WebApi
             var addressMap = new Dictionary<string, string>()
             {
                 { "delphai", _delphaiAddress },
-                { "FUSD", _delphaiAddress }
+                { "FUSD", _additionalContracts.GetValueOrDefault("FUSD", _delphaiAddress) }
             };
 
             try
@@ -190,7 +194,7 @@ namespace WebApi
                 await flow.ExecuteTransaction("setupFUSDAccount", account,
                     addressMap: new Dictionary<string, string>()
                     {
-                        { "FUSD", _delphaiAddress }
+                        { "FUSD", _additionalContracts.GetValueOrDefault("FUSD", _delphaiAddress) }
                     });
                 return Result.Succeeded(account);
             }
@@ -231,7 +235,7 @@ namespace WebApi
             return await TransferFungibleTokens("FUSD", receiver, amount,
                 new Dictionary<string, string>()
                 {
-                    { "FUSD", _delphaiAddress }
+                    { "FUSD", _additionalContracts.GetValueOrDefault("FUSD", _delphaiAddress) }
                 });
         }
 

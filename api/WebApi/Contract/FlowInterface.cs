@@ -21,6 +21,7 @@ namespace WebApi
         public string Host { get; set; }
         public string CadencePath { get; set; }
         public string AccountName { get; set; }
+        public Dictionary<string, string> AdditionalContracts { get; set; }
     }
 
     public interface IFlow
@@ -48,7 +49,8 @@ namespace WebApi
             ?? throw new FlowException($"Could not get signer for key. Probably an incorrect private key in the config file");
         public string AccountAddress => _delphaiAddress?.HexValue;
 
-        private FlowInterface(FlowClientAsync client, FlowAccount account, string transactionsPath)
+        private FlowInterface(FlowClientAsync client, FlowAccount account, 
+            string transactionsPath)
         {
             _account = account;
             _flowClient = client;
