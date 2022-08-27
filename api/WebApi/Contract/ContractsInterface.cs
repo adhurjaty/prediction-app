@@ -10,6 +10,7 @@ namespace WebApi
 {
     public interface IContracts
     {
+        Task<Result> CreateFullComposer(string betId, int numMembers);
         Task<Result> CreateWinLosePayout(string betId);
         Task<Result> CreateYesNoBet(string betId);
         Task<Result> CreateAllBetsCloser(string betId, int numMembers);
@@ -44,6 +45,31 @@ namespace WebApi
             _flow = flow;
             _delphaiAddress = delphaiAddress;
             _additionalContracts = additionalContracts;
+        }
+
+        public async Task<Result> CreateFullComposer(string betId, int numMembers)
+        {
+            var arguments = new List<ICadence>()
+            {
+                new CadenceString(ToCadenceId(betId)),
+                new CadenceNumber(CadenceNumberType.Int, numMembers.ToString())
+            };
+            var addressMap = new Dictionary<string, string>()
+            {
+                { "delphai", _delphaiAddress },
+                { "FUSD", _additionalContracts.GetValueOrDefault("FUSD", _delphaiAddress) }
+            };
+
+            try
+            {
+                await _flow.ExecuteTransaction("createFullComposer", arguments, 
+                    addressMap);
+                return Result.Succeeded();
+            }
+            catch (FlowException ex)
+            {
+                return Result.Failed(ex.Message);
+            }
         }
 
         public async Task<Result> CreateWinLosePayout(string betId)

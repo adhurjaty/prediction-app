@@ -36,33 +36,35 @@ export default function PlaceResolutionForm({ onSubmit }: Props) {
                 return result;
             }}
         >
-            <Form>
-                <Stack spacing={1}>
-                    <Typography variant="h5">
-                        Vote to Resolve
-                    </Typography>
-                    <SelectInput label="Resolution vote"
-                        name="resolution"
-                    >
-                        <MenuItem value="true">
-                            Yes
-                        </MenuItem>
-                        <MenuItem value="false">
-                            No
-                        </MenuItem>
-                        <MenuItem value="">
-                            Inconclusive
-                        </MenuItem>
-                    </SelectInput>
-                    <Button
-                        type="submit"
-                        variant="contained"
-                    >
-                        Place Resoluion
-                    </Button>
-                    {submitError && <div className="error">{submitError}</div>}
-                </Stack>
-            </Form>
+            {(formik) =>
+                <Form>
+                    <Stack spacing={1}>
+                        <Typography variant="h5">
+                            Vote to Resolve
+                        </Typography>
+                        <SelectInput label="Resolution vote"
+                            name="resolution"
+                        >
+                            <MenuItem value="true">
+                                Yes
+                            </MenuItem>
+                            <MenuItem value="false">
+                                No
+                            </MenuItem>
+                            <MenuItem value="">
+                                Inconclusive
+                            </MenuItem>
+                        </SelectInput>
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            disabled={formik.isSubmitting}
+                        >
+                            Place Resoluion
+                        </Button>
+                        {submitError && <div className="error">{submitError}</div>}
+                    </Stack>
+                </Form>}
         </Formik>
     )
 }

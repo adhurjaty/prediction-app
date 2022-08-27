@@ -56,38 +56,39 @@ export default function PlaceWagerForm({ onSubmit }: Props) {
                 return result;
             }}
         >
-            <Form>
-                <Stack spacing={1}>
-                    <Typography variant="h5">
-                        Place Wager
-                    </Typography>
-                    <SelectInput label="Prediction"
-                        name="prediction"
-                    >
-                        {initPredictionOptions
-                            .map((x, i) => (
-                                <MenuItem value={x.value.toString()} key={i}>
-                                    {x.label}
-                                </MenuItem>
-                            ))
+            {(formik) =>
+                <Form>
+                    <Stack spacing={1}>
+                        <Typography variant="h5">
+                            Place Wager
+                        </Typography>
+                        <SelectInput label="Prediction"
+                            name="prediction"
+                        >
+                            {initPredictionOptions
+                                .map((x, i) => (
+                                    <MenuItem value={x.value.toString()} key={i}>
+                                        {x.label}
+                                    </MenuItem>
+                                ))
+                            }
+                        </SelectInput>
+                        <TextInput label="Wager"
+                            name="wager"
+                            type="number"
+                        />
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            disabled={formik.isSubmitting}
+                        >
+                            Place Wager
+                        </Button>
+                        {submitError &&
+                            <ErrorText text={submitError} />
                         }
-                    </SelectInput>
-                    <TextInput label="Wager"
-                        name="wager"
-                        type="number"
-                    />
-                    <Button
-                        type="submit"
-                        variant="contained"
-
-                    >
-                        Place Wager
-                    </Button>
-                    {submitError &&
-                        <ErrorText text={submitError} />
-                    }
-                </Stack>
-            </Form>
+                    </Stack>
+                </Form>}
         </Formik>
     )
 }

@@ -35,5 +35,10 @@ namespace WebApi
         {
             return Task.FromResult(Result.Failed("Using dummy implementation"));
         }
+
+        public Task<Result> CreateFullComposer(string betId, int numMembers)
+        {
+            return Task.FromResult(Result.Failed("Using dummy implementation"));
+        }
     }
 }

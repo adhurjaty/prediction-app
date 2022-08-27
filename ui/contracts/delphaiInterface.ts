@@ -23,12 +23,15 @@ interface FclUser {
     cid: string
 }
 
+const LIMIT = 400;
+
 export default class DelphaiInterface {
     private delphaiAddress: string;
 
     constructor() {
         const flowConfig = config.flow;
         this.delphaiAddress = flowConfig.delphaiAddress;
+
         fcl.config()
             .put("accessNode.api", flowConfig.accessNode)
             .put("0xdelphai", this.delphaiAddress)
@@ -55,7 +58,7 @@ export default class DelphaiInterface {
             payer: fcl.authz,
             proposer: fcl.authz,
             authorizations: [fcl.authz],
-            limit: 200
+            limit: LIMIT
         });
     }
 
@@ -70,7 +73,7 @@ export default class DelphaiInterface {
                 arg(this.delphaiAddress, t.Address),
                 arg(this.toBetId(betId), t.String),
             ],
-            limit: 200
+            limit: LIMIT
         })
     }
 
@@ -98,7 +101,7 @@ export default class DelphaiInterface {
                 arg(wager.prediction, t.Bool),
                 arg(wager.wager.toFixed(2), t.UFix64)
             ],
-            limit: 200
+            limit: LIMIT
         });
     }
 
@@ -114,7 +117,7 @@ export default class DelphaiInterface {
                 arg(this.toBetId(resolution.betId), t.String),
                 arg(resolution.vote, t.Bool)
             ],
-            limit: 200
+            limit: LIMIT
         });
     }
 
@@ -153,7 +156,7 @@ export default class DelphaiInterface {
                 arg(this.delphaiAddress, t.Address),
                 arg(this.toBetId(betId), t.String)
             ],
-            limit: 200
+            limit: LIMIT
         });
     }
 

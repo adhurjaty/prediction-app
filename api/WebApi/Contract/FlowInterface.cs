@@ -83,9 +83,6 @@ namespace WebApi
             int gasLimit=0)
         {
             if (gasLimit == 0) gasLimit = DEFAULT_GAS_LIMIT;
-            // Get the latest account info for this address
-            var latestAccount = await _flowClient.GetAccountAtLatestBlockAsync(
-                account.Address);
 
             var txBody = Utilities.ReadCadenceScript(scriptName, _transactionsPath);
 
@@ -94,6 +91,10 @@ namespace WebApi
 
             try
             {
+                // Get the latest account info for this address
+                var latestAccount = await _flowClient.GetAccountAtLatestBlockAsync(
+                    account.Address);
+
                 // Get the latest sealed block to use as a reference block
                 var latestBlock = await _flowClient.GetLatestBlockHeaderAsync();
 

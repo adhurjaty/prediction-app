@@ -95,51 +95,53 @@ export default function CreateBetPage() {
                             return result;
                         }}
                     >
-                        <Form>
-                            <Stack spacing={1} marginTop={2}>
-                                <Typography variant="h5">
-                                    Create Custom Bet
-                                </Typography>
-                                <SelectInput label="Group"
-                                    name="groupId"
-                                >
-                                    {groups && groups.map(group => (
-                                        <MenuItem key={group.id}
+                        {(formik) =>
+                            <Form>
+                                <Stack spacing={1} marginTop={2}>
+                                    <Typography variant="h5">
+                                        Create Custom Bet
+                                    </Typography>
+                                    <SelectInput label="Group"
+                                        name="groupId"
+                                    >
+                                        {groups && groups.map(group => (
+                                            <MenuItem key={group.id}
                                                 value={group.id}>
-                                            {group.name}
-                                        </MenuItem>
-                                    ))}
-                                </SelectInput>
-                                <TextInput label="Title"
-                                    name="title"
-                                    type="text"
-                                    placeholder="Title"
-                                />
-                                <TextAreaInput label="Description"
-                                    name="description"
-                                    type="text"
-                                    placeholder="Enter a description"
-                                />
-                                <p>Bet closes when all members have placed a wager</p>
-                                <SelectInput label="Prediction"
-                                    name="prediction"
-                                >
-                                    <MenuItem value="true">Yes</MenuItem>
-                                    <MenuItem value="false">No</MenuItem>
-                                </SelectInput>
-                                <TextInput label="Wager"
-                                    name="wager"
-                                    type="number"
-                                />
-                                <Button
-                                    type="submit"
-                                    variant="contained"
-                                >
-                                    Create
-                                </Button>
-                                {submitError && <div className="error">{submitError}</div>}
-                            </Stack>
-                        </Form>
+                                                {group.name}
+                                            </MenuItem>
+                                        ))}
+                                    </SelectInput>
+                                    <TextInput label="Title"
+                                        name="title"
+                                        type="text"
+                                        placeholder="Title"
+                                    />
+                                    <TextAreaInput label="Description"
+                                        name="description"
+                                        type="text"
+                                        placeholder="Enter a description"
+                                    />
+                                    <p>Bet closes when all members have placed a wager</p>
+                                    <SelectInput label="Prediction"
+                                        name="prediction"
+                                    >
+                                        <MenuItem value="true">Yes</MenuItem>
+                                        <MenuItem value="false">No</MenuItem>
+                                    </SelectInput>
+                                    <TextInput label="Wager"
+                                        name="wager"
+                                        type="number"
+                                    />
+                                    <Button
+                                        type="submit"
+                                        variant="contained"
+                                        disabled={formik.isSubmitting}
+                                    >
+                                        Create
+                                    </Button>
+                                    {submitError && <div className="error">{submitError}</div>}
+                                </Stack>
+                            </Form>}
                     </Formik>
                 </Container>
             </LoadingSection>

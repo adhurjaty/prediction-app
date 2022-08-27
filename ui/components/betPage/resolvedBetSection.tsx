@@ -14,6 +14,7 @@ interface Props {
 }
 
 export default function ResolvedBetSection({ users, userAddress, composerState, onSubmit }: Props) {
+    const [isSubmitting, setSubmitting] = useState<boolean>(false);
     const [submitError, setSubmitError] = useState<string>();
 
     const { resolverState, payoutState } = composerState;
@@ -27,9 +28,12 @@ export default function ResolvedBetSection({ users, userAddress, composerState, 
     
     const claimWinnings = async () => {
         // return (await delphai.retrieveWinning(betId))
-        return (await onSubmit()
+        setSubmitting(true);
+        const result = (await onSubmit()
             .mapErr(err => setSubmitError(err)))
-            .isOk();
+            .isOk()
+        setSubmitting(false);
+        return result;
     };
 
     return (
@@ -41,6 +45,7 @@ export default function ResolvedBetSection({ users, userAddress, composerState, 
             {!hasRetrieved && <Button
                 variant="contained"
                 color="primary"
+                disabled={isSubmitting}
                 onClick={claimWinnings}
             >
                 Claim Winnings
