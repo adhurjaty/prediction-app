@@ -74,7 +74,7 @@ namespace WebApi
             var result = await GetUserFromClaims()
                 .Bind(user => _mediator.Send(new ResolveBetCommand()
                 {
-
+                    BetId = betId
                 }));
             return ToResponse(result);
         }

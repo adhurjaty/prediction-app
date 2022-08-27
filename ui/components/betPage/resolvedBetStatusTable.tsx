@@ -17,7 +17,7 @@ export default function ResolvedBetStatusTable({ users, composerState }: Props) 
         return {
             ...user,
             ...payout,
-            ...bet
+            bet: bet.bet
         }
     })
 

@@ -17,19 +17,9 @@ interface BetFormData {
     groupId?: string;
     title?: string;
     description?: string;
-    closeTime: Date;
     amount?: number;
-    resolutionDescription?: string;
     wager: number;
     prediction: string;
-}
-
-function defaultDate(): Date {
-    var now = new Date();
-    var time = now.getTime()
-    var twoWeeks = 1000 * 60 * 60 * 24 * 14;
-    var seconds = now.getSeconds() * 1000
-    return new Date(time - seconds + twoWeeks);
 }
 
 export default function CreateBetPage() {
@@ -61,7 +51,6 @@ export default function CreateBetPage() {
         }
     }, [session]); // only update on session change
 
-
     const createBet = async (bet: BetFormData) => {
         return (await postModel<Bet>("/api/bets", bet)
             .andThen(createdBet => {
@@ -90,15 +79,12 @@ export default function CreateBetPage() {
                             groupId: (groupId ?? '') as string,
                             title: '',
                             description: '',
-                            resolutionEvent: '',
-                            closeTime: defaultDate(),
                             prediction: "true",
                             wager: 0
                         }}
                         validationSchema={Yup.object({
                             title: Yup.string().required("Required"),
                             description: Yup.string().required("Required"),
-                            resolutionEvent: Yup.string().required("Required"),
                             wager: Yup.number()
                                 .required("Required")
                                 .moreThan(0, "Must be greater than 0")
@@ -134,16 +120,7 @@ export default function CreateBetPage() {
                                     type="text"
                                     placeholder="Enter a description"
                                 />
-                                <TextInput label="Resolution Description"
-                                    name="resolutionEvent"
-                                    placeholder="Describe triggering event"
-                                />
-                                <DatePickerInput label="Close Date"
-                                    name="closeTime"
-                                    minTime={new Date()}
-                                    dateFormat="yyyy-MM-dd HH:mm"
-                                />
-                                <p>No one will be able to bet on this after this date has passed</p>
+                                <p>Bet closes when all members have placed a wager</p>
                                 <SelectInput label="Prediction"
                                     name="prediction"
                                 >

@@ -31,6 +31,7 @@ export default function BetPage() {
     const [user, setUser] = useState<User>();
     const [fetchError, setError] = useState<string>();
     const [delphai, setDelphai] = useState<DelphaiInterface>();
+    const [betsInterface, setBetsInterface] = useState<BetsInterface>();
 
     const { groupId, betId } = router.query;
 
@@ -45,7 +46,9 @@ export default function BetPage() {
     ];
 
     useEffect(() => {
-        setDelphai(new DelphaiInterface());
+        const delphai = new DelphaiInterface();
+        setDelphai(delphai);
+        setBetsInterface(new BetsInterface(delphai));
     }, [])
 
     useEffect(() => {
@@ -105,12 +108,11 @@ export default function BetPage() {
     }, [betId, delphai])
 
     const onSubmitWager = (wager: { wager: number, prediction: boolean }) => {
-        if (!delphai || !bet || !user) {
+        if (!betsInterface || !bet || !user) {
             return errAsync("Bet page not initialized properly");
         }
 
-        const betInterface = new BetsInterface(delphai);
-        return betInterface.placeBet({
+        return betsInterface.placeBet({
             ...wager,
             betId: bet.id,
             userAddress: user.mainnetAddress
@@ -118,14 +120,13 @@ export default function BetPage() {
     }
 
     const onSubmitVote = (vote: boolean | null) => {
-        if (!delphai || !bet?.id || !user?.id) {
+        if (!betsInterface || !bet?.id || !user?.id) {
             return errAsync("Bet page not initialized properly");
         }
 
-        return delphai.voteToResolve({
+        return betsInterface.voteToResolve({
             vote,
             betId: bet.id,
-            userId: user?.id
         }).map(() => router.reload());
     }
 
