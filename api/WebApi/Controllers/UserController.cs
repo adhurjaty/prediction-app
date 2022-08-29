@@ -77,6 +77,20 @@ namespace WebApi
             });
             return ToResponse(result);
         }
+
+        [HttpGet]
+        [Authorize]
+        [Route("Users/emails")]
+        public async Task<ActionResult<string[]>> GetUserEmails()
+        {
+            string search = Request.Query["search"];
+            var result = await _mediator.Send(new SearchEmailsQuery()
+            {
+                Search = search,
+                Limit = 5
+            });
+            return ToResponse(result);
+        }
     }
 
     public class CreateUserRequest

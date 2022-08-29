@@ -1,4 +1,4 @@
-import { TextInput } from "@/components/formFields";
+import { AutocompleteInput, TextInput } from "@/components/formFields";
 import LoadingSection from "@/components/loadingSection";
 import SecondaryPage from "@/components/secondaryPage";
 import Group from "@/models/group";
@@ -8,13 +8,14 @@ import { Button, Container, List, ListItem, ListItemText, Stack, Typography } fr
 import { Form, Formik } from "formik";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useState } from "react";
 
 export default function AddMembers() {
     const router = useRouter();
     const { data: session, status } = useSession();
     const loading = status === "loading";
     const [group, setGroup] = useState<Group>();
+    const [userEmails, setUserEmails] = useState<string[]>([]);
     const [fetchError, setFetchError] = useState<string>();
     const [submitError, setSubmitError] = useState<string>();
 
@@ -29,8 +30,15 @@ export default function AddMembers() {
                 .mapErr(err => setFetchError(err))
         })();
 
-        return () => abortController.abort();
-    }, [session, groupId])
+        // return () => abortController.abort();
+    }, [session, groupId]);
+
+    const updateEmails = async (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const text = event.target.value;
+
+        await fetchModel<string[]>(`/api/users/emails?search=${text}`)
+            .map(emails => setUserEmails(emails.filter(x => session?.user?.email !== x)));
+    }
 
     const addMember = async (address: string) => {
         const abortController = new AbortController();
@@ -74,10 +82,12 @@ export default function AddMembers() {
                         >
                             <Form onChange={(_) => setSubmitError(undefined)}>
                                 <Stack direction="row">
-                                    <TextInput label="Member Address"
+                                    <AutocompleteInput
+                                        label="Member Address"
                                         name="address"
-                                        type="text"
                                         placeholder="Member Address"
+                                        options={userEmails}
+                                        onChange={updateEmails}
                                     />
                                     <Button
                                         type="submit"
